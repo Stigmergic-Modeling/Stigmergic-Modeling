@@ -1,0 +1,23 @@
+<div id="show">
+
+</div>
+
+
+<script>
+    window.onload = function(){
+        var url = "/"+"<%=user.mail%>" + "/statistic-operationScore";
+        $.ajax({
+            url: url,
+            type: 'post',
+            dataType: 'json',
+            async: true,
+            success: function(doc){
+                alert(doc.stringList.length)
+                for(var i=0;i<doc.stringList.length;i++){
+                    $("#show").append("<p>"+doc.stringList[i]+"</p>");
+                }
+            }
+        });
+    };
+
+</script>

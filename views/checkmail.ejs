@@ -1,0 +1,30 @@
+<form id="remail" method="post">
+    <div class = "middle" style="text-align: center">
+        <br/><br/><br/>
+        <h2 style="font-size: 30px;">User: <%= user.mail %>,</h2>
+        <br/>
+        <p style="font-size: 18px;">A confirmation email has been sent to <strong><%= user.mail %></strong>,</p>
+        <p style="font-size: 18px;">Click on the confirmation link in the email to activate your account.</p>
+
+        <br/>
+        <div >
+            <a rel="popover" title="Click to resend" data-content="New activation link will be sent to your mail address. Please use the newest one activating your account.">
+                <button type="submit" class="btn btn-primary"><i class=" icon-white icon-share"></i>
+                    Click to resend
+                </button>
+            </a>
+        </div>
+    </div>
+</form>
+<script>
+    // popover demo
+    window.onload = function(){
+        $("a[rel=popover]").popover({
+            trigger : 'hover'
+        })
+    }
+</script>
+
+
+
+

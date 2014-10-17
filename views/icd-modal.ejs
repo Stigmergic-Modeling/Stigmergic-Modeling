@@ -1,0 +1,323 @@
+<form class="modal hide fade form-horizontal" id="modal-create">
+    <div class="modal-header">
+        <h5></h5>
+    </div>
+    <div class="modal-body text-center" style="overflow:visible;">
+        <h3></h3>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="create-class-modal">Create Class</button>
+            <button class="btn btn-primary" data-dismiss="modal" id="create-relation-modal">Create Relation</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-create-class">
+    <div class="modal-header">
+        <h5>Create 'Class'</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <label class="control-label-small controls-small" >name</label>
+        <input type="text" class="search-class" style="margin-left: 10px" data-provide="typeahead" data-items="10" autocomplete="off">
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="create-class">Create</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+
+<form class="modal hide fade form-horizontal" id="modal-create-relation">
+    <div class="modal-header">
+        <h5>Create 'Relation'</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <!--p style="text-align: center;font-size: 12px;margin-bottom: 0px">(所建关系与顺序无关)</p-->
+        <div>
+            <label class="control-label-small controls-small">Class1</label>
+            <input type="text" class="search-relation" style="margin-left: 10px" data-provide="typeahead" data-items="10" autocomplete="off">
+        </div>
+        <hr/>
+        <div>
+            <label class="control-label-small controls-small">Class2</label>
+            <input type="text" class="search-relation" style="margin-left: 10px" data-provide="typeahead" data-items="10" autocomplete="off">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="create-relation">Create</button>
+            <button class="btn" data-dismiss="modal">Cancle</button>
+        </div>
+    </div>
+</form>
+
+<!--
+<form class="modal hide fade form-horizontal" id="modal-create-attribute-backup">
+    <div class="modal-header">
+        <h5>Create 'Attribute'</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <label class="control-label-small controls-small" >name</label>
+        <input type="text" class="search-attribute" style="margin-left: 10px" data-provide="typeahead" data-items="10" autocomplete="off">
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="create-attribute-backup">Create</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+-->
+
+<form class="modal hide fade form-horizontal" id="modal-create-attribute">
+    <div class="modal-header">
+        <h5>Create 'Attribute'</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <div class="multi-input">
+            <%- partial('icd-modal-attribute-property-input') %>
+        </div>
+
+        <div class="multi-choose" style="display: none">
+            <hr/>
+            <%- partial('icd-modal-attribute-property-choose') %>
+        </div>
+        <!--div class='text-center additional' style="margin-bottom: 5px"><span class="remove-input " ><i class="icon-plus-sign" title="QuickStart"></i></span></div-->
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="create-attribute">Create</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-create-relationType">
+    <div class="modal-header">
+        <h5>Create 'Relation'</h5>
+    </div>
+    <div class="modal-body" >
+        <%- partial('icd-element-relation-sub') %>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <a href="javascript:;" class="btn btn-primary" id="create-relationType">Create</a>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-relationType-add">
+    <div class="modal-header">
+        <h5>Add RelationType Elements</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <div class="control-group">
+            <div class="controls" style="margin-left: 80px">
+                <label class="checkbox inline" style="width: 80px">
+                    <input type="checkbox" name="ordering" value="option1">
+                    顺序性
+                </label>
+                <label class="checkbox inline" style="width: 80px">
+                    <input type="checkbox" name="uniqueness" value="option2">
+                    唯一性
+                </label>
+                <label class="checkbox inline" style="width: 80px">
+                    <input type="checkbox" name="readOnly" value="option3">
+                    只读性
+                </label>
+
+                <p class="help-block" style="padding-top: 50px"><strong>注释:</strong> 选中并添加后可以对相关属性进行操作</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="relationType-add">Add</button>
+            <button class="btn" data-dismiss="modal" id="create-relationType-add-cancel">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-attribute-add">
+    <div class="modal-header">
+        <h5>Add 'Attribute'</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <div class="btn-group controls-small">
+            <button class="btn dropdown-toggle" data-toggle="dropdown">Select <span class="caret"></span></button>
+            <ul class="dropdown-menu" style='min-width:60px'>
+                <!--li value="name"><a href="javascript:;">名称</a></li> <li value="type"><a href="javascript:;">类型</a></li> <li value="multiplicity"><a href="javascript:;">多重性</a></li>
+                <li value="visibility"><a href="javascript:;">可见性</a></li> <li value="default"><a href="javascript:;">默认值</a></li> <li value="propertyStrings"><a href="javascript:;">属性性质</a></li>
+                <li value="constraint"><a href="javascript:;">约束</a></li-->
+            </ul>
+        </div>
+        <input type="text" class="search-attributeElem" style="margin-left: 10px" data-provide="typeahead" data-items="10" autocomplete="off">
+        <div class="control-sub help-inline" style="display:none;padding-left: 20px;">
+            <label class="radio inline" style="margin-top: -10px"><input type="radio" value="True" >True</label>
+            <label class="radio inline" style="margin-top: -10px"><input type="radio" value="False">False</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="attribute-add">Add</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-attribute-add-multi">
+    <div class="modal-header">
+        <h5>Add 'Attribute'</h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;border-color:#ffffff">
+        <div class="multi-choose">
+            <%- partial('icd-modal-attribute-property-choose') %>
+        </div>
+        <hr/>
+        <div class="multi-input">
+            <%- partial('icd-modal-attribute-property-input') %>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="attribute-add-multi">Add</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+
+<form class="modal hide fade form-horizontal" id="modal-alert-content">
+    <div class="modal-body text-center" style="overflow:visible;">
+        <h5></h5>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="delete-content">Confirm</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-alert-element">
+    <div class="modal-body text-center" style="overflow:visible;">
+        <h5></h5>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="delete-element">Confirm</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-alert-relation-type">
+    <div class="modal-body text-center" style="overflow:visible;">
+        <h5></h5>
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-primary" data-dismiss="modal" id="delete-relation-type">Confirm</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+<form class="modal hide fade form-horizontal" id="modal-source-detail">
+    <div class="modal-header">
+        <h5></h5>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <label class="control-label-small controls-small"></label>
+        <input type="text" class="search-source" style="margin-left: 10px" data-provide="typeahead" data-items="10" autocomplete="off">
+
+        <span class="add-on" title="Refresh" style="padding-left: 20px"><i class="icon-refresh source"></i></span>
+        <span class="add-on" data-dismiss="modal" title="Confirm" style="padding-left: 10px"><i class="icon-ok source"></i></span>
+        <span class="add-on" data-dismiss="modal" title="Return" style="padding-left: 10px"><i class="icon-share-alt source"></i></span>
+        <hr/>
+        <div class="detail-info" >
+        </div>
+    </div>
+</form>
+
+
+<form class="modal hide fade form-horizontal" id="modal-single-select">
+    <div class="modal-header">
+        <h5>创建元素：xxxx</h5>
+    </div>
+    <div class="modal-body" style="max-height: 500px">
+    </div>
+    <div class="modal-footer">
+        <div class="text-center">
+            <button class="btn btn-inverse" data-dismiss="modal" id="new-single-element">New</button>
+            <button class="btn btn-primary" data-dismiss="modal" id="select-single-element">Select</button>
+            <button class="btn" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
+
+
+<script type="text/javascript">
+    $(function(){
+        $(".search-class").typeahead({
+            source:function(query, process){
+                process(getTypeaHead('class'));
+            },
+            menu: '<ul style="margin-left:10px;min-width:220px" class="typeahead dropdown-menu"></ul>',
+            item: '<li style="min-width:220px"><a href="#"></a></li>'
+       });
+
+        $('.search-relation').typeahead({
+            source:function(query, process){
+                process(getTypeaHead('relation'));
+            },
+            menu: '<ul style="margin-left:10px;min-width:220px" class="typeahead dropdown-menu"></ul>',
+            item: '<li style="min-width:220px"><a href="#"></a></li>'
+        });
+
+        $(".search-attribute").typeahead({
+            source:function(query, process){
+                process(getTypeaHead('attribute'));
+            },
+            menu: '<ul style="margin-left:10px;min-width:220px" class="typeahead dropdown-menu"></ul>',
+            item: '<li style="min-width:220px"><a href="#"></a></li>'
+        });
+
+        $(".search-attributeElem").typeahead({
+            /*
+            source:function(query, process){
+
+                var search_attributeElem=getSource(icd['class'][statusArray['class']][statusArray['attribute']][attributeElem],ccd['class'][statusArray['class']][statusArray['attribute']][attributeElem]);
+                process(search_attributeElem);
+            }*/
+            source:function(query, process){
+                var attributeElem = $("#modal-attribute-add").find(".modal-body").children(".btn-group").children("button").text();
+                attributeElem = chToEn[attributeElem];
+                process(getTypeaHead(attributeElem));
+            },
+            menu: '<ul style="margin-left:10px;min-width:220px" class="typeahead dropdown-menu"></ul>',
+            item: '<li style="min-width:220px"><a href="#"></a></li>'
+        });
+
+        $(".search-source").typeahead({
+            //这个已经不用了，原来是用来查看源的
+            source:function(query, process){
+                var label = $("#modal-source-detail").children(".modal-body").children("label").text();
+                switch(label){
+                    case "类":
+                        var source=getSource(null,ccd['class']);
+                        break;
+                    case "属性":
+                        var source=getSource(null,ccd['class'][statusArray['class']]);
+                        break;
+                }
+                process(source);
+            }
+        });
+    });
+</script>

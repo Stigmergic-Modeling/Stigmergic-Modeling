@@ -1,0 +1,52 @@
+<a data-toggle="modal" href="#myModal" class="btn pull-left">添加</a>
+<form class="modal hide fade form-horizontal" method="post" id="myModal" action="/post/modal?id=<%= element_type %>">
+<!--<div id="myModal" class="modal hide fade">-->
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal" >&times;</a>
+        <h3>请键入你所需要的名称</h3>
+    </div>
+    <div class="modal-body" style="overflow:visible;">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label" for="element_name">项目名称</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="element_name" name="element_name" data-provide="typeahead" data-items="10"
+                           data-source='["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Dakota","North Carolina","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"]' autocomplete="off">
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="modal-footer middle">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="#" class="btn" data-dismiss="modal" >关闭</a>
+    </div>
+<!--</div>-->
+</form>
+
+<script>
+    $(function(){
+        $('#myModal').modal({
+            backdrop:true,
+            keyboard:false,
+            show:false
+        });
+
+
+        $('#element_name').typeahead({
+            source:function(query, process)
+            {
+                $.ajax({
+                    url: '/post/search',
+                    type: 'POST',
+                    data: {searchCD:$('#element_name').val()},
+                    dataType: 'json',
+                    async: true,
+                    success: function(msg)
+                    {
+                        process(msg);
+                    }
+                });
+            }
+        })
+    });
+</script>

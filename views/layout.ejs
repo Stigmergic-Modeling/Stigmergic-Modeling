@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <!--meta name="viewport" content="width=device-width"-->
+        <title><%= title %> - ClassDiagram</title>
+        <link rel='stylesheet' href='/stylesheets/bootstrap-2.3.css'/>
+        <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+            font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+            //font-family: Helvetica, Microsoft YaHei, sans-serif;
+        }
+        </style>
+        <!--Comic MS sans,segoe ui,SimHei,Microsoft YaHei,serif-->
+        <!--link href="/stylesheets/bootstrap-responsive.css" rel="stylesheet"-->
+        <link href="/stylesheets/docs.css" rel="stylesheet">
+        <link href="/stylesheets/private.css" rel="stylesheet">
+        <script src="/javascripts/jquery.js"></script>
+        <script src="/javascripts/bootstrap.js"></script>
+        <script src="/javascripts/stig-global.js"></script>
+        <!--[if lt IE 9]>
+        <script src="/javascripts/html5.js" type='text/javascript'></script>
+    <![endif]-->
+    </head>
+
+    <body>
+        <!--导航窗-->
+        <div class="navbar navbar-fixed-top" >
+            <div class="navbar-inner" >
+                <div class="container" style="width:1070px">
+                    <a class="brand" href="/" style="color: #999999"></a>
+                    <div class="nav-collapse">
+                    <ul class="nav">
+                        <li class="active"><a href="/">Home</a></li>
+                        <% if (!user) { %>
+                        <li><a href="/login">Sign In</a></li>
+                        <li><a href="/reg">Register</a></li>
+                        <% } else { %>
+                        <li><a href="/u/<%= user.mail %>"><%= user.mail%></a></li>
+                        <li><a href="/logout">Sign Out</a></li>
+                        <% } %>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="container" class="container" style="width:1070px">
+            <!--connect-flash-->
+            <% if (success) { %>
+            <div class="alert alert-success">
+                <%= success %>
+            </div>
+            <% } %>
+            <% if (error) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+            <!--attention-->
+            <%- body %>
+        </div>
+        <!--script src="/javascripts/layout.js"></script-->
+    </body>
+</html>

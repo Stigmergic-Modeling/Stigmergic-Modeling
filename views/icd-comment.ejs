@@ -1,0 +1,94 @@
+<div class="row">
+    <div class="span3-compact" style="width: 270px">
+        <button style="width: 270px" id="comment">Comments  +20</button>
+        <div class="comment-text" id="comment-text">
+            <ul id="testTree" class="nav nav-list bs-docs-sidenav" style="min-width: 250px;margin-top: 10px;box-shadow:0 0 0;overflow:hidden">
+                <ul>
+                    <li>
+                        <a class="icon" ></a>
+                        <div class="element">saying1
+                <span>
+                    <i class="icon-thumbs-up" title="Yes"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[12]</p>
+                    <i class="icon-thumbs-down" title="No"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[1]</p>
+                    <i class="icon-edit" title="reply"></i>
+                </span>
+                        </div>
+                        <ul style="display: none">
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="icon plus"></a>
+                        <div class="element">saying2
+                <span>
+                    <i class="icon-thumbs-up" title="Yes"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[12]</p>
+                    <i class="icon-thumbs-down" title="No"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[1]</p>
+                    <i class="icon-edit" title="reply"></i>
+                </span>
+                        </div>
+                        <ul style="display: none">
+                            <li>
+                                <a class="icon"></a>
+                                <div class="element">saying2.1
+                        <span>
+                            <i class="icon-thumbs-up" title="Yes"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[12]</p>
+                            <i class="icon-thumbs-down" title="No"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[1]</p>
+                            <i class="icon-edit" title="reply"></i>
+                        </span>
+                                </div>
+                                <ul></ul>
+                            </li>
+                            <li>
+                                <a class="icon"></a>
+                                <div class="element">saying2.2
+                        <span>
+                            <i class="icon-thumbs-up" title="Yes"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[12]</p>
+                            <i class="icon-thumbs-down" title="No"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[1]</p>
+                            <i class="icon-edit" title="reply"></i>
+                        </span>
+                                </div>
+                                <ul></ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="icon plus"></a>
+                        <div class="element">saying3
+                <span>
+                    <i class="icon-thumbs-up" title="Yes"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[12]</p>
+                    <i class="icon-thumbs-down" title="No"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[1]</p>
+                    <i class="icon-edit" title="reply"></i>
+                </span>
+                        </div>
+                        <ul style="display: none">
+                            <li>
+                                <a class="icon"></a>
+                                <div class="element">saying3.1
+                        <span>
+                            <i class="icon-thumbs-up" title="Yes"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[12]</p>
+                            <i class="icon-thumbs-down" title="No"></i><p class="help-inline" style="margin-bottom:2px;padding-left: 0px">[1]</p>
+                            <i class="icon-edit" title="reply"></i>
+                        </span>
+                                </div>
+                                <ul></ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </ul>
+            <div>
+                <input type="text" style="height: 12px;width: 180px">
+                <button class="btn-mini" style="margin-top: -10px">Comment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="/stylesheets/tree.css" rel="stylesheet">
+<script src="/javascripts/fmtree.js"></script>
+<script>
+    $(function(){
+        $("#comment").live('click',function(){
+            $("#comment-text").toggle();
+        })
+    });
+</script>

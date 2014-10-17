@@ -1,0 +1,66 @@
+#testTree ul{
+    margin-left: 25px;
+}
+
+#testTree>ul{
+    margin-left: 15px;
+}
+
+#testTree ul li{
+    list-style: none;
+    padding: 0px 12px 4px 6px;
+    background: url("../images/I.png") 0 0 no-repeat;
+}
+
+
+#testTree ul li:last-child{
+    background: none;
+}
+
+#testTree a{
+    margin-left: -6px;
+    cursor: pointer;
+    padding: 12px 12px 2px 16px;
+    background: url("../images/B.png") 0 0 no-repeat;
+}
+
+#testTree a.plus{
+    background: url("../images/Bplus.png") 0 0 no-repeat;
+}
+
+#testTree a.minus{
+    background: url("../images/Bminus.png") 0 0 no-repeat;
+}
+
+#testTree div.element{
+    padding-left: 5px;
+    color:#0088cc;
+    min-width: 210px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#testTree div.element.active{
+    color: #ffffff;
+    background-color: #0088cc;
+}
+
+#testTree span{
+    display: none;
+    margin-left: 25px;
+    cursor: pointer;
+}
+
+#testTree div.element:hover{
+    background-color: #eeeeee;
+}
+
+#testTree div.element.active:hover{
+    background-color: #0088cc;
+}
+
+#testTree hr{
+    border-top : 1px solid #e5e5e5;
+    margin:10px 0 5px 0;
+}
+

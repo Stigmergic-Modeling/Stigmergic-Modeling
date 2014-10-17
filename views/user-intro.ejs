@@ -1,0 +1,202 @@
+<ul class="breadcrumb">
+    <li>
+        <a href="/u/<%=user.mail%>">Home</a> <span class="divider">/</span>
+    </li>
+    <!--li>
+        <a href="/u/<%=user.mail%>?page=home-uninvolved&active=nav-list-3">Project Uninvolved</a> <span class="divider">/</span>
+    </li-->
+    <li class="active"></li>
+</ul>
+
+<div class="row-fluid">
+    <div class="span2">
+        <%- partial('home-nav-list') %>
+    </div>
+    <div class="span10">
+    <div id="ccd_content">
+        <form class="form-horizontal">
+            <fieldset>
+                <legend style="background-color: #f5f5f5;margin-bottom: 10px">Project Introduction</legend>
+                <div class="row-fluid" style="margin-bottom: 5px">
+                    <div class="span6">
+                        <div class="control-group" style="margin-bottom: 10px">
+                            <label class="control-label"><strong>Project Name</strong></label>
+                            <div class="controls" >
+                                <p style="margin:5px 0 0 0">123</p>
+                            </div>
+                        </div>
+                        <div class="control-group" style="margin-bottom: 10px">
+                            <label class="control-label" ><strong>Description</strong></label>
+                            <div class="controls" style="margin-bottom: -10">
+                                <p style="margin: 5px 0 0 0">345</p>
+                            </div>
+                        </div>
+                        <div class="control-group" style="margin-bottom: 10px">
+                            <label class="control-label" ><strong>Creator</strong></label>
+                            <div class="controls" style="margin-bottom: -10">
+                                <p style="margin: 5px 0 0 0">234</p>
+                            </div>
+                        </div>
+                        <div class="control-group" style="margin-bottom: 10px">
+                            <label class="control-label" ><strong>Update Time</strong></label>
+                            <div class="controls" style="margin-bottom: -10">
+                                <p style="margin: 5px 0 0 0">345</p>
+                            </div>
+                        </div>
+                        <div class="control-group" style="margin-bottom: 10px">
+                            <label class="control-label" ><strong>Create Time</strong></label>
+                            <div class="controls" style="margin-bottom: -10">
+                                <p style="margin: 5px 0 0 0">345</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <legend style="background-color: #f5f5f5;margin-bottom: 10px">Your Condition</legend>
+                <div class="row-fluid" style="margin-bottom: 5px">
+                    <div class="span6">
+                        <div class="control-group" style="margin-bottom: 10px">
+                            <label class="control-label"><strong>State</strong></label>
+                            <div class="controls" >
+                                <p style="margin:5px 0 0 0">123</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary btn-join" style="margin-right: 5px">Enroll</button>
+                    <button type="button" class="btn btn-return" style="margin-right: 5px">Return</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    </div>
+</div>
+
+<script src="/javascripts/ajax-function.js"></script>
+
+<script type="text/javascript">
+    window.onload = function(){
+        //传输的是否并不能传输出icd，只能传输一层的名字。。。蛋疼
+        var state = "<%= state %>"
+        $.ajax({
+            url: '/post/data/intro',
+            type: 'post',
+            data: {
+                user: "<%=user.mail%>",
+                ccd_id : "<%=ccd.ccd_id%>"
+            },
+            dataType: 'json',
+            async: true,
+            success: function(doc){
+                icd_index = doc.icd_index[0];
+                ccd_index = doc.ccd_index[0];
+                pageInit(state,icd_index,ccd_index);
+            }
+        });
+    };
+    $(function(){
+        $(".btn-join").live("click",function(){
+            var url = "/"+"<%=user.mail%>"+'/uninvolved/'+"<%=ccd.ccd_id%>"
+            $.post(url);
+            self.location =  url;
+        });
+
+        $(".btn-continue").live("click",function(){
+            var url = "/"+"<%=user.mail%>"+'/involved/'+"<%=ccd.ccd_id%>"
+            $.post(url);
+            self.location =  url;
+        });
+
+        $(".btn-quit").live("click",function(){
+            alert("Not allowed : All information you build about this task will be deleted. ");
+            /*
+            $.ajax({
+                url: '/post/data/icd',
+                type: 'post',
+                data: {
+                    id:"<%=ccd.ccd_id%>",
+                    user:"<%=user.mail%>"
+                },
+                dataType: 'json',
+                async: true,
+                success: function(doc){
+                    var icd = doc.icd;
+                    var statusArray = {}
+                    statusArray["_id"] = icd["_id"];
+                    statusArray["ccd_id"] = icd["ccd_id"];
+                    var sub = icd;
+                    var data =  {
+                        statusArray:statusArray,
+                        type : 'cd',
+                        process : 'remove',
+                        data: {
+                            new: {
+                                id : icd.icd_id,
+                                value :""
+                            },
+                            sub:sub
+                        }
+                    }
+                    ajax_delete(data,null);
+                }
+            });
+            */
+        });
+
+        $(".btn-return").live("click",function(){
+            self.location="/u/<%=user.mail%>";
+        });
+
+        $(".nav-list li").live("click",function(){
+            self.location="/u/<%=user.mail%>?active="+$(this).attr("class");
+        })
+
+        pageInit = function(state,icd,ccd){
+            InitPrjoctInfo(ccd);
+            InitUserInfo(state,icd);
+
+        }
+        InitPrjoctInfo = function(ccd){
+            var textList = $("#ccd_content").find(".row-fluid").eq(0).find(".controls").children("p");
+            for(var name in ccd.cd){$(textList).eq(0).text(name);break;}
+            $(textList).eq(1).text(ccd.cd[name]._description);
+            $(textList).eq(2).text(ccd.ccd_creator);
+            $(textList).eq(3).text(ccd.last_time);
+            $(textList).eq(4).text(ccd.create_time);
+        }
+
+        InitUserInfo = function(state,icd){
+            var textList = $("#ccd_content").find(".row-fluid").eq(1).find(".controls").children("p");
+            if(state === "false"){
+                $(textList).eq(0).text("Uninvolved");
+            }
+            else{
+                $(textList).eq(0).text("Involved");
+                //var html = getUserIntorHtml();
+                $("#ccd_content").find(".row-fluid").eq(1).children(".span6").append(getUserIntorHtml("Last Revise",icd.last_time));
+
+                var href = "/"+"<%=user.mail%>"+"/statistic-icd/"+icd.ccd_id;
+                //进行实际数据的处理
+                var  buttonArea = $("#ccd_content").find(".form-actions");
+                $(buttonArea).children().remove();
+                $(buttonArea).append('<button type="button" class="btn btn-primary btn-continue" style="margin-right: 5px">Continue</button>'+
+                        //'<a href='+href+' target="_blank"><button type="button" class="btn btn-info" style="margin-right: 5px">Statistic</button></a>' +
+                        '<button type="button" class="btn btn-danger btn-quit" style="margin-right: 5px">Withdraw</button>' +
+                        '<button type="button" class="btn btn-return" style="margin-right: 5px">Return</button>')
+            }
+        }
+
+        getUserIntorHtml = function(title,content){
+            var html = '<div class="control-group" style="margin-bottom: 10px">' +
+                    '<label class="control-label"><strong>'+
+                    title +
+                    '</strong></label>' +
+                    '<div class="controls">'+
+                    '<p style="margin:5px 0 0 0">' +
+                    content +
+                    '</p></div></div>'
+            return html;
+        }
+
+    });
+</script>

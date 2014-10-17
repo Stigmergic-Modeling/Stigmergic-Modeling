@@ -1,0 +1,30 @@
+<div class="form-horizontal" style="padding: 0px 0px 0px 0px;" >
+    <legend style="margin-bottom: 5px;text-align: center;font-weight: bold;font-size:16px;">
+        <div class="dropdown help-inline">
+            <a href="#" id="drop" role="button" class="dropdown-toggle" data-toggle="dropdown" style="color: #000000">Relation<b class="caret" style="margin-top: 16px"></b></a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="drop" style="min-width: 50px;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" style="width: 50px;padding: 0px 10px 0px 10px">delete</a></li>
+            </ul>
+        </div>
+    </legend>
+    <div id="icd-relation-name">
+        <%- partial('icd-element-relation',{type:"relation",lable:"Relation",name1:"xx",name2:"yy"}) %>
+    </div>
+    <hr style="margin: 0 0 5px 0;" />
+    <div class="accordion" style="margin-bottom: 5px">
+
+    </div>
+    <div>
+        <label class='relationType-plus' style="text-align: center;text-align: center"><a>Add Relation</a></label>
+    </div>
+    <hr style="margin: 0 0 5px 0;" />
+</div>
+
+
+<script type="text/javascript">
+    $(function(){
+        $(".relation .accordion-heading").live('click',function(){
+            $(this).parent().children(".accordion-body").toggle();
+        })
+    });
+</script>

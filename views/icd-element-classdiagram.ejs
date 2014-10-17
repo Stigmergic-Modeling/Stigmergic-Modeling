@@ -1,0 +1,37 @@
+<div class="control-group form-horizontal" style="margin: 0 0 0 0;">
+    <input type="hidden">
+    <div class="row row-hover recommend-element type_cdName">
+        <div class="span4">
+            <label class="control-label-small" name="cd-name" style="width:75px">name</label>
+            <p class="controls-text-small" style="margin-left: 95px"></p>
+        </div>
+        <div class="span1-compact" style="display: none;padding-top: 5px">
+            <!--span class="add-on remove-input" ><i class="icon-edit" title="Revise"></i></span-->
+            <!--<span class="add-on remove-input" style="margin-left: 2px" ><i class="icon-trash"></i></span>-->
+        </div>
+        <div class="recommend-spot" style="text-align:right;padding-right: 20px">
+            <div class="round" data-toggle="tooltip" title="Item Recommending">●</div>
+        </div>
+    </div>
+    <div class="control-sub" style="display:none;">
+        <label class="control-label-small" name="cd-name"  style="width:80px">name</label>
+        <div class="controls-small icd-element-input" >
+            <input type="text" value= "" class="span3 search-cd"  style="background-color: #f7f7f7"  data-provide="typeahead" data-items="10" autocomplete="off">
+            <div class="btn-group">
+                <a href="javascript:;" class="btn btn-primary icd-element-input-cd-submit">Confirm</a>
+                <a href="javascript:;" class="btn icd-element-input-cancel">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        $(".search-cd").typeahead({
+            source:function(query, process){
+                var search_cd = getSource(icd['cd'],ccd['cd']);
+                process(search_cd);
+            }
+        });
+    });
+</script>
