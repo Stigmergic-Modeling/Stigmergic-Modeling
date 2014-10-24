@@ -23,10 +23,10 @@ background
 ## How to get it work
 
 #### Prerequisites:
-...
+```
 	1. install Node.js (version 0.10.25 recommended) 
 	2. install Mongodb (version 2.4.9 recommend)
-...
+```
 
 #### Running
 ```
@@ -34,10 +34,11 @@ Step.1 At the first time run the project, use npm to install node_modules file (
 Step.2 run mongodb (“mongod –dbpath db_dir”)
 Step.3 run nodejs (“node app.js”)
 Step.4 go homepage (open the webbrowser and type in “localhost:3000” in Address bar).
-````
+```
 
 ## Resource to the Newcomers
+```
 http://www.nodejs.org/
 http://www.npmjs.org/
 http://www.mongodb.org/
-
+```
