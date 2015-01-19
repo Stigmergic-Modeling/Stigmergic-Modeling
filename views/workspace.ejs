@@ -1,0 +1,155 @@
+<div id="stigmod-pg-workspace">
+  <!-- 顶部项目名称栏 -->
+  <div class="row">
+    <div class="col-xs-8">
+      <h1 id="stigmod-model-title">
+        <span class="fa fa-cube" id="stigmod-model-title-icon"></span>
+        <a href="template_user"><span id="stigmod-model-title-username"> <%= user.name %></span></a>
+        <span>&nbsp;/&nbsp;</span>
+        <span class="dropdown">
+          <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
+            CourseManagementSystem
+          </span>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">CDStore</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">TrainTicketingSystem</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">TimeRelatedConcepts</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">ElectiveSys</a></li>
+          </ul>
+        </span>&nbsp;
+        <span class="stigmod-a-pseudo stigmod-a-nounderline" id="stigmod-model-save"><span class="glyphicon glyphicon-floppy-disk"></span></span>
+        <span id="stigmod-model-saved"><span class="glyphicon glyphicon-floppy-disk"></span></span>
+      </h1>
+    </div>
+    <div class="col-xs-4">
+      <span class="pull-right" id="stigmod-model-info">
+        <a href="template_model" class="stigmod-a-nounderline">
+          <span class="glyphicon glyphicon-stats"></span>&nbsp;
+          Model Info
+        </a>
+      </span>
+      <span class="pull-right" id="stigmod-model-view">
+        <span class="stigmod-a-pseudo stigmod-a-nounderline" data-toggle="modal" data-target="#stigmod-modal-d3view">
+          <span class="fa fa-sitemap"></span>&nbsp;
+          Model View &nbsp;&nbsp;&nbsp;&nbsp;
+        </span>
+      </span>
+    </div>
+  </div>
+  <hr />
+  <!-- 项目名称栏以下 -->
+  <div class="row" id="stigmod-workspace">
+    <!-- 左侧导航栏 -->
+    <div class="col-xs-3" id="stigmod-nav-left">
+      <div class="list-group">
+        <!-- 搜索栏 -->
+        <div class="list-group-item">
+          <div class="input-group">
+            <input type="text" class="twitter-typeahead form-control" id="stigmod-search-left-input" placeholder="Search">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" id="stigmod-search-left-btn"><span class="glyphicon glyphicon-search"></span></button>
+            </span>
+          </div>
+        </div>
+        <!-- 竖排导航栏（分为Class、Relation两个panel） -->
+        <div class="list-group-item" id="stigmod-nav-left-scroll">
+          <div class="panel panel-default">
+            <div class="panel-heading stigmod-hovershow-trig">
+              <h3 class="panel-title">
+                <span class="glyphicon glyphicon-th-large stigmod-classname-icon"></span>
+                <span class="stigmod-classname-title">CLASS</span>
+                <span class="stigmod-hovershow-cont" data-toggle="modal" data-target="#stigmod-modal-addclass">
+                  <span class="fa fa-plus-circle pull-right" data-toggle="tooltip" data-placement="left" data-original-title="Add a new class">
+                  </span>
+                </span>
+              </h3>
+            </div>
+            <div class="list-group">
+              <!-- class template here -->
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading stigmod-hovershow-trig">
+              <h3 class="panel-title">
+                <span class="glyphicon glyphicon-random stigmod-classname-icon"></span>
+                <span class="stigmod-classname-title">RELATION GROUP</span>
+                <span class="stigmod-hovershow-cont" data-toggle="modal" data-target="#stigmod-modal-addrelationgroup">
+                  <span class="fa fa-plus-circle pull-right" data-toggle="tooltip" data-placement="left" data-original-title="Add a new relation group">
+                  </span>
+                </span>
+              </h3>
+            </div>
+            <div class="list-group">
+              <!-- relation group template here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 右侧内容栏 -->
+    <div class="col-xs-6">
+      <!-- 类、名称 -->
+      <div class="list-group">
+        <div class="list-group-item" id="stigmod-cont-right-scroll">
+        </div>
+      </div>
+    </div>
+    <!-- 右侧推荐栏 -->
+    <div class="col-xs-3" id="stigmod-rcmd-right">
+      <div class="list-group">
+        <div class="list-group-item" id="stigmod-rcmd-right-scroll">
+          <div class="row">
+            <div class="col-xs-12" id="stigmod-rcmd-rcmd">
+              <span class="glyphicon glyphicon-fire"></span>
+              <span>RECOMMENDATION</span>
+            </div>
+          </div>
+          <hr class="stigmod-hr-narrow"/>
+          <!-- <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title stigmod-rcmd-title">CLASS</div>
+            </div>
+            <div class="list-group">
+              <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="focus" title="Course" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">Courses (Name) <span class="pull-right stigmod-hovershow-cont"><span class="fa fa-magnet"></span>&nbsp;&nbsp;<span class="fa fa-plus" data-toggle="modal" data-target="#stigmod-modal-addclass-disp"></span></span></a>
+              <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="focus" title="CourseActivity" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">CourseActivity <span class="pull-right stigmod-hovershow-cont"><span class="fa fa-magnet"></span>&nbsp;&nbsp;<span class="fa fa-plus" data-toggle="modal" data-target="#stigmod-modal-addclass-disp"></span></span></a>
+              <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="focus" title="CourseAvailability" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">CourseAvailability <span class="pull-right stigmod-hovershow-cont"><span class="fa fa-magnet"></span>&nbsp;&nbsp;<span class="fa fa-plus" data-toggle="modal" data-target="#stigmod-modal-addclass-disp"></span></span></a>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title stigmod-rcmd-title">ATTRIBUTE</div>
+            </div>
+            <div class="list-group">
+              <a href="#" class="list-group-item">date</a>
+              <a href="#" class="list-group-item">time</a>
+              <a href="#" class="list-group-item">teacher</a>
+              <a href="#" class="list-group-item">place</a>
+              <a href="#" class="list-group-item">numberStudent</a>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title stigmod-rcmd-title">PROPERTY</div>
+            </div>
+            <div class="list-group">
+              <a href="#" class="list-group-item">name : teacher</a>
+              <a href="#" class="list-group-item">type : String</a>
+              <a href="#" class="list-group-item">multiplicity : 1</a>
+              <a href="#" class="list-group-item">visiblity : true</a>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:9527/src/js'
+    }
+  });
+  seajs.use('js/app/workspace');
+</script>
