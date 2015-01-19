@@ -1,0 +1,1019 @@
+/* --------------------------------------------- *
+ *
+ * 公共样式
+ *
+ * --------------------------------------------- */
+
+/* 字体文件 */
+@font-face {
+  font-family: "Adobe Gothic Std";
+  src: url('../fonts/stigmod/AdobeGothicStd-Bold.otf');
+}
+/*@font-face {
+  font-family: "Helvetica Neue";
+  src: url('../fonts/stigmod/HelveticaNeueLTPro-Bd.otf');
+  src: url('../fonts/stigmod/HelveticaNeueLTPro-Roman.otf');
+  font-weight: 100;
+}*/
+
+
+/* 为上部导航条留出空间 */
+body {
+  /*font-family: "Helvetica Neue";*/
+  padding-top: 70px;
+}
+
+/* 水平居中 wrapper */
+.stigmod-align-center-1,
+.stigmod-align-center-2,
+.stigmod-align-center-3,
+.stigmod-align-center-4,
+.stigmod-align-center-5,
+.stigmod-align-center-6,
+.stigmod-align-center-7,
+.stigmod-align-center-8,
+.stigmod-align-center-9,
+.stigmod-align-center-10 {
+  float: left;
+  position: relative;
+  left: 50%;
+}
+.stigmod-align-center-1 > *,
+.stigmod-align-center-2 > *,
+.stigmod-align-center-3 > *,
+.stigmod-align-center-4 > *,
+.stigmod-align-center-5 > *,
+.stigmod-align-center-6 > *,
+.stigmod-align-center-7 > *,
+.stigmod-align-center-8 > *,
+.stigmod-align-center-9 > *,
+.stigmod-align-center-10 > * {
+  float: left;
+  position: relative;
+  right: 50%;
+}
+.stigmod-align-center-1 {
+  width: 10%;
+}
+.stigmod-align-center-2 {
+  width: 20%;
+}
+.stigmod-align-center-3 {
+  width: 30%;
+}
+.stigmod-align-center-4 {
+  width: 40%;
+}
+.stigmod-align-center-5 {
+  width: 50%;
+}
+.stigmod-align-center-6 {
+  width: 60%;
+}
+.stigmod-align-center-7 {
+  width: 70%;
+}
+.stigmod-align-center-8 {
+  width: 80%;
+}
+.stigmod-align-center-9 {
+  width: 90%;
+}
+.stigmod-align-center-10 {
+  width: 100%;
+}
+
+/* 禁用响应式布局，container宽度恒定 */
+.container {
+  width: 1200px !important;
+}
+
+/* bootstrap中的form-inline仅对768px以上宽度有效果。禁用响应式布局后，在这里重载form-inline样式使其对所有视口宽度有效 */
+.form-inline .form-group {
+  display: inline-block;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+.form-inline .form-control {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+.form-inline .form-control-static {
+  display: inline-block;
+}
+.form-inline .input-group {
+  display: inline-table;
+  vertical-align: middle;
+}
+.form-inline .input-group .input-group-addon,
+.form-inline .input-group .input-group-btn,
+.form-inline .input-group .form-control {
+  width: auto;
+}
+.form-inline .input-group > .form-control {
+  width: 100%;
+}
+.form-inline .control-label {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+.form-inline .radio,
+.form-inline .checkbox {
+  display: inline-block;
+  margin-top: 0;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+.form-inline .radio label,
+.form-inline .checkbox label {
+  padding-left: 0;
+}
+.form-inline .radio input[type="radio"],
+.form-inline .checkbox input[type="checkbox"] {
+  position: relative;
+  margin-left: 0;
+}
+.form-inline .has-feedback .form-control-feedback {
+  top: 0;
+}
+
+/* 覆盖blockquote（块引用）的字号，改小一点 */
+blockquote {
+  font-size: 14px;
+  border-left: 0 transparent;
+}
+
+/* 工具名称使用Gothic字体 */
+.stigmod-websitename {
+  font-family: "Adobe Gothic Std";
+}
+
+.stigmod-websitefooter {
+  font-weight: 200;
+}
+
+/* 输入框内容合法性检查中的 BS tooltip 的颜色 */
+.tooltip.top .tooltip-inner {
+  background-color: #c9302c;
+  max-width: 400px;
+  /*margin-left: -30px;*/
+  /*margin-right: -30px;*/
+}
+.tooltip.top .tooltip-arrow {
+  border-top-color: #c9302c;
+}
+.tooltip.bottom .tooltip-inner {
+  background-color: #c9302c;
+  max-width: 400px;
+  /*margin-left: -30px;*/
+  /*margin-right: -30px;*/
+}
+.tooltip.bottom .tooltip-arrow {
+  border-bottom-color: #c9302c;
+}
+
+/* 强制元素显示在同一行的hacking */
+.stigmod-keepinline {
+  display: inline;
+  float: left;
+}
+
+/* 自定义的水平条（前后margin较窄） */
+.stigmod-hr-narrow {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* 通用背景 */
+.stigmod-background {
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #eee;
+  margin-bottom: 10px;
+}
+
+/* 鼠标悬停显示效果 */
+.stigmod-hovershow-cont {
+}
+.stigmod-hovershow-trig .stigmod-hovershow-cont {
+  display: none;
+}
+.stigmod-hovershow-trig:hover .stigmod-hovershow-cont {
+  display: inline;
+}
+
+/* 顶部导航栏中文字，为配合浅色方案，文字格式有所更改 */
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav>li>a {
+  color: #000;
+}
+.navbar-default .navbar-nav>li>a {
+  font-size: 13px;
+  font-weight: 600;
+}
+.navbar-default .navbar-brand {
+  font-weight: 400;
+  font-family: "Adobe Gothic Std";
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-nav>li>a:hover {
+  color: #555555;
+}
+
+/* 导航条中的输入框 */
+#stigmod-navbar-input {
+  /*background-color: gray;*/
+  width: 250px;
+  height: 30px;
+  margin-top: 3px;
+}
+
+/* 鼠标悬停变小手 */
+.stigmod-cursor-pointer, /* 这个类是一般的，可自行加在需要的地方 */
+.stigmod-hovershow-cont .glyphicon, /* 这个是特殊的类，正式完成时要把特殊类都用一般类代替（TODO）*/
+.stigmod-hovershow-cont .fa {
+  cursor: pointer;
+}
+
+/* 伪链接类 */
+.stigmod-a-pseudo {
+  color: #428bca;
+  text-decoration: none;
+  cursor: pointer;
+}
+.stigmod-a-pseudo:hover {
+  color: #2a6496;
+  text-decoration: underline;
+}
+
+/* 无下划线连接类 */
+.stigmod-a-nounderline:hover {
+  text-decoration: none;
+}
+
+/* 高亮文字背景 */
+.stigmod-highlight {
+  background-color: #ffff76;
+}
+
+/* 点击编辑组件在页面加载时隐藏 */
+.stigmod-clickedit-edit {
+  display: none;
+}
+
+/* 超窄环境中的输入框：从input-group-sm扩展出input-group-xs，两个负的margin是关键 */
+.input-group-xs > .form-control,
+.input-group-xs > .input-group-addon,
+.input-group-xs > .input-group-btn > .btn {
+  height: 30px;
+  margin-top: -5px;
+  margin-bottom: -5px;
+  font-size: 14px;
+}
+
+/* 输入框 */
+.stigmod-input {
+  display: block;
+  width: 100%;
+  height: 30px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+          transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.stigmod-input:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+.stigmod-input::-moz-placeholder {
+  color: #999;
+  opacity: 1;
+}
+.stigmod-input:-ms-input-placeholder {
+  color: #999;
+}
+.stigmod-input::-webkit-input-placeholder {
+  color: #999;
+}
+.stigmod-input[disabled],
+.stigmod-input[readonly],
+fieldset[disabled] .stigmod-input {
+  cursor: not-allowed;
+  background-color: #eee;
+  opacity: 1;
+}
+
+/* 点击编辑功能中，编辑组件的样式控制 */
+.stigmod-clickedit-edit {
+  width: 100%;
+}
+.stigmod-clickedit-edit .radio {
+  display: inline;
+}
+.stigmod-clickedit-edit .btn-group {
+  /*margin: -5px -10px -5px ;*/
+  margin-top: -5px;
+  margin-bottom: -5px;
+  margin-left: -10px;
+  margin-right: -25px;
+}
+.stigmod-clickedit-edit .btn {
+  height: 30px;
+}
+.stigmod-clickedit-edit input[type=text] {
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
+.stigmod-clickedit-edit .dropdown {
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
+.stigmod-clickedit-edit .dropdown .btn {
+  width: 100%;
+  height: 30px;
+  text-align: left;
+  padding-top: 4px;
+}
+.stigmod-rel-prop-class .glyphicon-transfer {
+  float: left;
+  margin-bottom: -20px;
+  top: 3px;
+  left: -22px;
+}
+
+/* 浅灰色文字 */
+.stigmod-gray {
+  color: #bcbcbc;
+}
+
+/* 顶部的项目标题 */
+#stigmod-model-title {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0 0;
+  margin-top: -5px;
+  margin-bottom: -10px;
+}
+#stigmod-model-title-icon {
+  color: #d5d5d5;
+  font-size: 22px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+#stigmod-model-title-username {
+  font-weight: 100;
+}
+
+/* ModelInfo按钮 */
+#stigmod-model-info,
+#stigmod-model-view,
+#stigmod-model-sync {
+  margin-top: -6px;
+  margin-bottom: -11px;
+}
+
+/* 减小点击编辑组件中按钮的padding（6px->5px），使得内部的图标垂直居中 */
+.stigmod-clickedit-btn-ok {
+  padding-top: 5px;
+}
+.stigmod-clickedit-btn-cancel {
+  padding-top: 5px;
+}
+
+/* --------------------------------------------- *
+ *
+ * modal（弹出框）
+ *
+ * --------------------------------------------- */
+
+.modal-dialog {
+  top: 80px;
+}
+
+/* modal垂直居中 */
+/*.modal {
+  text-align: center;
+}
+.modal:before {
+  display: inline-block;
+  vertical-align: middle;
+  content: " ";
+  height: 100%;
+}
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+}*/
+
+/* 为d3显示用的宽幅modal */
+.stigmod-modal-d3 {
+  width: 1000px;
+}
+
+/* 自动滚动 */
+.stigmod-modal-scroll {
+  height: 500px;
+  overflow: auto;
+}
+
+/* modal-body 内 row 间距增加 */
+.modal-body > .row {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* 小标题 */
+.stigmod-modal-subtitle {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 200;
+  color: #428bca;
+  margin-top: -10px;
+}
+
+/* 底部按钮 */
+.stigmod-btn-modal-bottom {
+  width: 80px;
+}
+
+/* modal-body 中checkbox中label的行距 */
+.modal-body .checkbox label {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-left: 4px;
+  margin-right: 3px;
+}
+
+/* 添加 attribute 的表格 */
+.stigmod-table-addattribute {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: -15px;
+}
+.stigmod-table-addattribute > tbody > tr > td {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.stigmod-table-addattribute > tbody > tr > td:first-child {
+  width: 30%;
+  text-align: right;
+  padding-top: 13px;
+  font-weight: 500;
+}
+.stigmod-table-addattribute > tbody > tr > td {
+  border-style: none;
+}
+.stigmod-table-addattribute .radio {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.stigmod-table-addattribute #stigmod-addatt-name td:first-child { 
+  padding-left: 60px;
+}
+
+/* 添加 relation 的表格 */
+.stigmod-table-addrelation {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: -15px;
+}
+.stigmod-table-addrelation > tbody > tr > td {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.stigmod-table-addrelation > tbody > tr > td:first-child {
+  width: 26%;
+  text-align: right;
+  padding-top: 13px;
+  font-weight: 500;
+}
+.stigmod-table-addrelation > tbody > tr > td:nth-child(2) {
+  width: 37%;
+}
+.stigmod-table-addrelation > tbody > tr > td {
+  border-style: none;
+}
+.stigmod-table-addrelation .radio {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.stigmod-table-addrelation > tbody > tr > td > p {
+  margin: 5px 13px 5px;
+}
+
+/* add properties 表格显示初始化 */
+#stigmod-addatt-multiplicity,
+#stigmod-addatt-visibility,
+#stigmod-addatt-default,
+#stigmod-addatt-constraint,
+#stigmod-addatt-ordering,
+#stigmod-addatt-uniqueness,
+#stigmod-addatt-readOnly,
+#stigmod-addatt-union,
+#stigmod-addatt-subsets,
+#stigmod-addatt-redefines,
+#stigmod-addatt-composite {
+  display: none;
+}
+#stigmod-addrel-ordering,
+#stigmod-addrel-uniqueness,
+#stigmod-addrel-readOnly,
+#stigmod-addrel-union,
+#stigmod-addrel-subsets,
+#stigmod-addrel-redefines,
+#stigmod-addrel-composite {
+  display: none;
+}
+
+/* 删除确认 modal */
+#stigmod-modal-remove .modal-body .stigmod-modal-remove-type,
+#stigmod-modal-remove .modal-body .stigmod-modal-remove-name {
+  font-weight: 500;
+  color: #428bca;
+}
+
+/* --------------------------------------------- *
+ *
+ * workspace 页面 
+ *
+ * --------------------------------------------- */
+
+/* 左侧右侧自动框内滚动 */
+#stigmod-pg-workspace #stigmod-nav-left-scroll,
+#stigmod-pg-workspace #stigmod-cont-right-scroll,
+#stigmod-pg-workspace #stigmod-rcmd-right-scroll {
+  overflow: hidden;
+}
+
+/* 左侧栏和右侧栏间距缩小 */
+#stigmod-pg-workspace #stigmod-nav-left {
+  padding-right: 5px;
+}
+#stigmod-pg-workspace #stigmod-rcmd-right {
+  padding-left: 5px;
+}
+
+/* 为了解决Attribute栏为空时“Add Attribute”按钮的显示问题，这里覆盖掉workspace页面中的格式 */
+#stigmod-pg-workspace #stigmod-cont-right-scroll .panel-heading+.list-group .list-group-item:first-child {
+  border-top-width: 1px;
+  margin-top: 10px;
+}
+
+/* 右侧内容栏中数据的显示格式 */
+#stigmod-pg-workspace #stigmod-attr-title,
+#stigmod-pg-workspace #stigmod-rel-title {
+  text-align: center;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: -10px;
+}
+#stigmod-pg-workspace .stigmod-attr-cont-right-title {
+	font-size: 14px;
+	text-align: left;
+}
+#stigmod-pg-workspace .stigmod-attr-cont-left-title { /* Attribute标题*/
+  font-size: 12px; /* 小字号是为了使每条attribute图标比attribute标题图标小些 */
+  padding-top: 3px; /* 补偿小字号带来的对齐问题 */
+  text-align: right;
+}
+#stigmod-pg-workspace .stigmod-attr-cont-middle-title { /* Attribute标题*/
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+}
+#stigmod-pg-workspace .stigmod-rel-cont-right-title {
+  font-size: 14px;
+  text-align: left;
+}
+#stigmod-pg-workspace .stigmod-rel-cont-left-title { /* Attribute标题*/
+  font-size: 12px; /* 小字号是为了使每条attribute图标比attribute标题图标小些 */
+  padding-top: 3px; /* 补偿小字号带来的对齐问题 */
+  text-align: right;
+}
+#stigmod-pg-workspace .stigmod-rel-cont-middle-title { /* Attribute标题*/
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+}
+
+/* 为 list-group-item 中连续的 panel 设置合理的间距 */
+#stigmod-pg-workspace #stigmod-cont-right .panel {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* 主工作空间 */
+#stigmod-pg-workspace #stigmod-workspace {
+  margin-bottom: -10px;
+}
+
+/* 右侧内容栏顶部的“类名称”（或“关系名称”） */
+#stigmod-pg-workspace #stigmod-classname {
+  margin-top: 5px; /* 为了使文字水平居中 */
+  font-size: 16px;
+  font-weight: 200;
+}
+#stigmod-pg-workspace #stigmod-classname-icon {
+  color: #bcbcbc;
+  margin-top: 0;
+  margin-right: 0;
+  margin-top: 0;
+}
+#stigmod-pg-workspace #stigmod-classname-title {
+  color: #bcbcbc;
+  font-weight: 500;
+}
+#stigmod-pg-workspace .glyphicon-random {
+  margin-right: 4px; /* 由于Relateion的图标比Class的图标宽，因此在其右侧增加margin以加大其与“Relation”这个文字的间距，与Class一致*/
+}
+
+/* 右侧推荐栏 */
+#stigmod-pg-workspace #stigmod-rcmd-rcmd {
+  margin-top: 6px; /* 为了使文字水平居中 */
+  margin-bottom: 6px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 300;
+}
+#stigmod-pg-workspace .stigmod-rcmd-title {
+  text-align: center;
+  font-size: 14px;
+}
+
+/* attribute 表格 */
+#stigmod-pg-workspace .stigmod-table-attribute {
+  width: 100%;
+}
+#stigmod-pg-workspace .stigmod-table-attribute > tbody > tr > td {
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 41px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #ddd;
+}
+#stigmod-pg-workspace .stigmod-table-attribute > tbody > tr > td:first-child {
+  width: 19.7%;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #ddd;
+  /*text-align: right;*/
+  font-weight: 500;
+  font-size: 14px;
+  /*font-weight: bold;*/
+  text-align: right;
+  padding-left: 10px;
+  margin-top: 2px;
+  margin-bottom: 1px;
+}
+#stigmod-pg-workspace .stigmod-table-attribute > tbody > tr > td:nth-child(2) {
+  width: 66%;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #ddd;
+}
+#stigmod-pg-workspace .stigmod-table-attribute > tbody > tr:first-child > td {
+  border-top-width: 0;
+}
+/*#stigmod-pg-workspace .stigmod-table-attribute > tbody > tr:first-child > td:nth-child(2) {
+  border-right-width: 0;
+}*/
+
+/* relation 表格 */
+#stigmod-pg-workspace .stigmod-table-relation > tbody > tr > td {
+  height: 41px;
+  padding-left: 15px;
+  padding-right: 15px;
+  vertical-align: inherit;
+}
+#stigmod-pg-workspace .stigmod-table-relation > tbody > tr > td:first-child {
+  width: 19.7%;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #ddd;
+  text-align: right;
+  font-weight: 500;
+}
+#stigmod-pg-workspace .stigmod-table-relation > tbody > tr > td:nth-child(2) {
+  width: 33%;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #ddd;
+}
+#stigmod-pg-workspace .stigmod-table-relation > tbody > tr > td:nth-child(3) {
+  width: 33%;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: #ddd;
+}
+#stigmod-pg-workspace .stigmod-table-relation > tbody > tr:first-child > td {
+  border-top-width: 0;
+}
+#stigmod-pg-workspace .stigmod-table-relation > tbody > tr:first-child > td:nth-child(2) {
+  border-right-width: 0;
+}
+
+/* addrelation 中的下拉按钮 */
+#stigmod-addrel-type .dropdown .btn,
+.stigmod-rel-prop-type .dropdown .btn {
+  width: 100%;
+  height: 30px;
+  text-align: left;
+  padding-top: 4px;
+}
+/* addrelation 的 association name 初始化时隐藏 */
+#stigmod-addrel-type .stigmod-input {
+  display: none;
+}
+/* addrelation 的 class name 交换按钮 */
+#stigmod-addrel-class .glyphicon-transfer {
+  float: left;
+  top: 3px;
+  left: 298%;
+}
+
+/* attribute 的 property 在添加之前是默认隐藏的 */
+.stigmod-attr-prop-name,
+.stigmod-attr-prop-type,
+.stigmod-attr-prop-multiplicity,
+.stigmod-attr-prop-visibility,
+.stigmod-attr-prop-default,
+.stigmod-attr-prop-constraint,
+.stigmod-attr-prop-ordering,
+.stigmod-attr-prop-uniqueness,
+.stigmod-attr-prop-readOnly,
+.stigmod-attr-prop-union,
+.stigmod-attr-prop-subsets,
+.stigmod-attr-prop-redefines,
+.stigmod-attr-prop-composite {
+  display: none;
+}
+.stigmod-rel-prop-role,
+.stigmod-rel-prop-multiplicity,
+.stigmod-rel-prop-ordering,
+.stigmod-rel-prop-uniqueness,
+.stigmod-rel-prop-readOnly,
+.stigmod-rel-prop-union,
+.stigmod-rel-prop-subsets,
+.stigmod-rel-prop-redefines,
+.stigmod-rel-prop-composite {
+  display: none;
+}
+
+/* 可保存时的存盘按钮 */
+#stigmod-model-save {
+  display: none;
+}
+/* 不可保存时的存盘按钮 */
+#stigmod-model-saved {
+  color: #ccc;
+}
+
+
+/* --------------------------------------------- *
+ *
+ * 首页
+ *
+ * --------------------------------------------- 
+
+/* 首页 */
+#stigmod-indexpage {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+#stigmod-indexpage > h1 {
+  font-size: 65px;
+}
+#stigmod-indexpage > p {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* --------------------------------------------- *
+ *
+ * 登录注册页面
+ *
+ * --------------------------------------------- */
+
+/* 注册框、登录框 */
+#stigmod-panel-signup,
+#stigmod-panel-signin {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 300px;
+}
+
+/* --------------------------------------------- *
+ *
+ * user 页面 / Search 页面
+ *
+ * --------------------------------------------- */
+
+/* 用户名 */
+#stigmod-pg-user #stigmod-username {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* 每行细节信息前的图标 */
+#stigmod-pg-user .stigmod-detailinfo-icon {
+  color: #bcbcbc;
+  margin-right: 5px;
+}
+
+/* 左侧栏文字大小 (TODO: 彻底解决邮件地址、网址过长时的显示问题) */ 
+#stigmod-pg-user #stigmod-info-left {
+  font-size: 13px;
+}
+
+/* 搜索栏 */
+#stigmod-searchbar {
+  margin-top: 15px;
+  margin-bottom: -5px;
+}
+#stigmod-pg-user #stigmod-searchbar-form {
+  width: 60%;
+}
+#stigmod-searchbar-input {
+  width: 100%;
+}
+#stigmod-searchbar-newbtn {
+  float: right;
+  font-weight: 500;
+}
+#stigmod-pg-search #stigmod-searchbar-form { /* 搜索结果页面的搜索栏 */
+  width: 92%;
+}
+
+
+/*#projCatePUser {
+  font-weight: 500;
+  margin-top: 8px;
+  margin-right: 10px;
+}
+#btnNewProjPUser {
+  font-weight: 500;
+  font-size: 14px;
+}*/
+
+/* 项目显示 */
+.stigmod-modelshow {
+
+}
+.stigmod-modelshow-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.stigmod-modelshow-info {
+  color: #787878;
+  font-size: 12px;
+  text-align: right;
+  padding-top: 10px;
+}
+.stigmod-modelshow-date {
+  color: #787878;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* --------------------------------------------- *
+ *
+ * Model Information 页面 
+ *
+ * --------------------------------------------- */
+
+/* 标题 */
+#stigmod-pg-modelinfo .stigmod-modelinfo-title {
+  color: #dddddd;
+}
+
+/* model info 表格 */
+#stigmod-pg-modelinfo .stigmod-table-modelinfo {
+  margin-top: 10px;
+}
+#stigmod-pg-modelinfo .stigmod-table-modelinfo > tbody > tr > td {
+  border-width: 0;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+#stigmod-pg-modelinfo .stigmod-table-modelinfo > tbody > tr > td:first-child {
+  width: 30%;
+  /*padding-top: 10px;*/
+  text-align: right;
+  font-weight: 500;
+  font-size: 13px;
+}
+#stigmod-pg-modelinfo .stigmod-table-modelinfo > tbody > tr > td:nth-child(2) {
+  width: 70%;
+  font-weight: 400;
+  font-size: 13px;
+  /*font-family: "Lucida Grande";*/
+}
+#stigmod-pg-modelinfo .stigmod-table-modelinfo > tbody > tr:last-child > td {
+  margin-bottom: 5px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #ddd;
+}
+
+/* --------------------------------------------- *
+ *
+ * New model 页面 
+ *
+ * --------------------------------------------- */
+
+#stigmod-pg-newmodel #stigmod-input-search {
+  width: 40%;
+}
+
+/* --------------------------------------------- *
+ *
+ * twitter-typeahead 的样式
+ *
+ * --------------------------------------------- */
+
+span.twitter-typeahead .tt-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  list-style: none;
+  font-size: 14px;
+  text-align: left;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  background-clip: padding-box;
+}
+span.twitter-typeahead .tt-suggestion > p {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333333;
+  white-space: nowrap;
+}
+span.twitter-typeahead .tt-suggestion > p:hover,
+span.twitter-typeahead .tt-suggestion > p:focus {
+  color: #000;
+  text-decoration: none;
+  outline: 0;
+  background-color: #e8e8e8;
+}
+span.twitter-typeahead .tt-suggestion.tt-cursor {
+  color: #ffffff;
+  background-color: #e8e8e8;
+}
+span.twitter-typeahead {
+  width: 100%;
+}
+.input-group span.twitter-typeahead {
+  display: block !important;
+}
+.input-group span.twitter-typeahead .tt-dropdown-menu {
+  top: 32px !important;
+}
+.input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
+  top: 44px !important;
+}
+.input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
+  top: 28px !important;
+}
+.input-group span.twitter-typeahead .tt-input { /* 在tt中，第一个和第二个组件重叠显示在最左边的位置，但第二个组件（.tt-input）没有左侧圆角样式，因此需再次添加该样式 */
+  border-bottom-left-radius: 4px !important;
+  border-top-left-radius: 4px !important;
+}
+.navbar-form span.twitter-typeahead .tt-hint { /* 顶部导航条中的输入框，与#stigmod-navbar-input样式相同 */
+  width: 100%;
+  height: 30px;
+  margin-top: 3px;
+}
+span.twitter-typeahead .tt-hint {
+  color: #999;
+}
+

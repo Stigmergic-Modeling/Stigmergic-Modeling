@@ -1,28 +1,34 @@
-<form class="form-horizontal" method="post">
-  <fieldset>
-    <legend>Register</legend>
-    <div class="control-group">
-        <label class="control-label" for="mail">Mail Address</label>
-        <div class="controls">
-            <input type="text" class="input-xlarge" id="mail" name="mail">
-            <p class="help-inline">Used to sign in</p>
-        </div>
-    </div>
-    <div class="control-group">
-      <label class="control-label" for="password">Password</label>
-      <div class="controls">
-        <input type="password" class="input-xlarge" id="password" name="password">
-        <p class="help-inline">No less than 6 and no more than 40 characters</p>
+
+<hr />
+<div class="panel panel-default" id="stigmod-panel-signup">
+  <div class="panel-heading">
+    <h2 class="panel-title">Sign up</h2>
+  </div>
+  <div class="panel-body">
+    <form method="post" role="form">
+      <div class="form-group">
+        <label for="email">Your Email Address</label>
+        <input type="email" class="form-control" required autofocus id="email" name="mail" />
       </div>
-    </div>
-    <div class="control-group">
-      <label class="control-label" for="password-repeat">Repeat Password</label>
-      <div class="controls">
-        <input type="password" class="input-xlarge" id="password-repeat" name="password-repeat">
+      <div class="form-group">
+        <label for="password">Your Password</label>
+        <input type="password" class="form-control" required id="password" name="password" />
       </div>
-    </div>
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">Register</button>
-    </div>
-  </fieldset>
-</form>
+      <div class="form-group">
+        <label for="password-repeat">Repeat Your Password</label>
+        <input type="password" class="form-control" required id="password-repeat" name="password-repeat" />
+      </div>
+      <button class="btn btn-success" type="submit">Sign up</button>
+    </form>
+  </div>
+</div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>

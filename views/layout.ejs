@@ -1,66 +1,71 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-    <head>
-        <!--meta name="viewport" content="width=device-width"-->
-        <title><%= title %> - ClassDiagram</title>
-        <link rel='stylesheet' href='/stylesheets/bootstrap-2.3.css'/>
-        <style type="text/css">
-        body {
-            padding-top: 60px;
-            padding-bottom: 40px;
-            font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-            //font-family: Helvetica, Microsoft YaHei, sans-serif;
-        }
-        </style>
-        <!--Comic MS sans,segoe ui,SimHei,Microsoft YaHei,serif-->
-        <!--link href="/stylesheets/bootstrap-responsive.css" rel="stylesheet"-->
-        <link href="/stylesheets/docs.css" rel="stylesheet">
-        <link href="/stylesheets/private.css" rel="stylesheet">
-        <script src="/javascripts/jquery.js"></script>
-        <script src="/javascripts/bootstrap.js"></script>
-        <script src="/javascripts/stig-global.js"></script>
-        <!--[if lt IE 9]>
-        <script src="/javascripts/html5.js" type='text/javascript'></script>
-    <![endif]-->
-    </head>
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--meta name="viewport" content="width=device-width, initial-scale=1"--><!-- 禁用响应式布局 -->
+    <title>Stigmergic-Modeling - <%= title %></title>
+    <!-- CSS -->
+    <link href="/src/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/src/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/src/css/stigmod.css" rel="stylesheet">
+  </head>
+  <body>
 
-    <body>
-        <!--导航窗-->
-        <div class="navbar navbar-fixed-top" >
-            <div class="navbar-inner" >
-                <div class="container" style="width:1070px">
-                    <a class="brand" href="/" style="color: #999999"></a>
-                    <div class="nav-collapse">
-                    <ul class="nav">
-                        <li class="active"><a href="/">Home</a></li>
-                        <% if (!user) { %>
-                        <li><a href="/login">Sign In</a></li>
-                        <li><a href="/reg">Register</a></li>
-                        <% } else { %>
-                        <li><a href="/u/<%= user.mail %>"><%= user.mail%></a></li>
-                        <li><a href="/logout">Sign Out</a></li>
-                        <% } %>
-                    </ul>
-                    </div>
-                </div>
-            </div>
+    <!-- 顶部导航条 -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation" id="navbarTop">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/"><span class="fa fa-cubes"></span> Stigmergic-Modeling</a>
         </div>
+        <div class="collapse navbar-collapse">
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input type="text" class="twitter-typeahead form-control" placeholder="Search Stigmergic-Modeling" id="stigmod-navbar-input" onkeypress="if(event.keyCode==13){window.location.href='template_search';return false;}"> <!-- onkeypress里这段代码纯为演示方便  TODO:日后移除 -->
+            </div>
+          </form>
+          <ul class="nav navbar-nav">
+            <li><a href="about">About</a></li>
+            <li><a href="#">Help</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <% if (!user) { %>
+              <li><a href="/reg"><span class="glyphicon glyphicon-flash"></span> Sign up</a></li>
+              <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> &nbsp;Sign in</a></li>
+            <% } else { %>
+              <li><a href="/u/<%= user.mail %>"><span class="glyphicon glyphicon-user"></span> <%= user.mail %></a></li>
+              <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-        <div id="container" class="container" style="width:1070px">
-            <!--connect-flash-->
-            <% if (success) { %>
-            <div class="alert alert-success">
-                <%= success %>
-            </div>
-            <% } %>
-            <% if (error) { %>
-            <div class="alert alert-error">
-                <%= error %>
-            </div>
-            <% } %>
-            <!--attention-->
-            <%- body %>
+    <!-- 主容器 -->
+    <div class="container">
+      <!-- 信息通知栏 -->
+      <% if (success) { %>
+        <div class="alert alert-success alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <%= success %>
         </div>
-        <!--script src="/javascripts/layout.js"></script-->
-    </body>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <%= error %>
+        </div>
+      <% } %>
+      <!-- 内容 -->
+    	<%- body %>
+      <hr class="stigmod-hr-narrow"/>
+      <footer>
+          <p class="text-center stigmod-gray stigmod-websitefooter">&copy; 2015 Peking University</p>
+      </footer>
+    </div>
+    
+    <!-- 弹出框 -->
+    <% include modals.ejs %>
+
+  </body>
 </html>

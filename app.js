@@ -83,9 +83,9 @@ app.post('/login', routes.home.doLogin);
 //app.get('/logout', routes.state.checkLogin);
 app.get('/logout', routes.home.logout);
 
-app.get('/checkmail',routes.state.checkNotActive)
+app.get('/checkmail',routes.state.checkNotActive);
 app.get('/checkmail',routes.home.checkMail);
-app.post('/checkmail',routes.state.checkNotActive)
+app.post('/checkmail',routes.state.checkNotActive);
 app.post('/checkmail',routes.home.doCheckMail);
 
 app.get('/checklink/:user/:link',routes.home.checkLink);
@@ -160,6 +160,9 @@ app.post('/post/data/icd-attributeSort',routes.data.icdAttributeSort);
 app.get('/reset',routes.test.reset);
 
 app.get('/comment',routes.test.getComment);
+
+// about页面get方法
+app.get('/about', routes.home.getAbout);
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));

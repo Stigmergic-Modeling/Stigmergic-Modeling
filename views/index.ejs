@@ -1,9 +1,29 @@
-<div class="hero-unit">
-    <h2 style="font-size: 35px">Welcome to the <strong style="font-size: 40px">ConceptDiagram </strong>creative space</h2>
-    <p style="margin-bottom: 0px"><div style="display: inline;padding: 0 5px 0 5px">●</div>Used for collaborative groups to create a conceptual model</p>
-    <p><div style="display: inline;padding: 0 5px 0 5px">●</div>Based on UML 2.0 class diagram specifications and stigmergy theory</p>
-    <p>
-        <a class="btn btn-primary btn-large" href="/login">Sign In</a>
-        <a class="btn btn-large" href="/reg">Register</a>
-    </p>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div id="stigmod-indexpage">
+      <h1 class="text-center">Welcome to</h1>
+      <h1 class="text-center"><span class="stigmod-websitename"><span class="fa fa-cubes"></span> Stigmergic-Modeling</span> !</h1>
+      <br /><br />
+      <p class="text-center">Used for collaborative groups to create a conceptual model.</p>
+      <p class="text-center">Based on UML 2.0 class diagram specifications and stigmergy theory.</p>
+      <br />
+      <div class="text-center"><a class="stigmod-a-nounderline" href="about">Learn more about <span class="stigmod-websitename">Stigmergic-Modeling</span></a></div>
+      <br />
+      <p class="text-center">
+        <a class="btn btn-lg btn-success" href="/reg" role="button">Sign up</a>
+        <a class="btn btn-lg btn-default" href="/login" role="button">Sign in</a>
+      </p>
+    </div>
+  </div>
 </div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>

@@ -1,21 +1,32 @@
-<form class="form-horizontal" method="post">
-  <fieldset>
-    <legend>Sign In</legend>
-    <div class="control-group">
-      <label class="control-label" for="mail">Mail Address</label>
-      <div class="controls">
-        <input type="text" class="input-xlarge" id="mail" name="mail">
+<hr />
+<div class="panel panel-default" id="stigmod-panel-signup">
+  <div class="panel-heading">
+    <h2 class="panel-title">Sign in</h2>
+  </div>
+  <div class="panel-body">
+    <form method="post" role="form">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" class="form-control" required autofocus id="email" name="mail" />
       </div>
-    </div>
-    <div class="control-group">
-      <label class="control-label" for="password">Password</label>
-      <div class="controls">
-        <input type="password" class="input-xlarge" id="password" name="password">
+      <div class="form-group">
+        <label for="password">Password</label> <a href="/forget"> (Forget)</a>
+        <input type="password" class="form-control" required id="password" name="password" />
       </div>
-    </div>
-    <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Sign In</button>
-        <p class="help-inline"><a href="/forget">Forget?</a></p>
-    </div>
-  </fieldset>
-</form>
+      <!--label class="checkbox">
+        <input type="checkbox" value="remember-me"> Remember me
+      </label-->
+      <button class="btn btn-default" type="submit">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>

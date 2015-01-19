@@ -34,6 +34,7 @@ exports.reg = function(req, res) {
         success : req.flash('success').toString(),
         error : req.flash('error').toString()
     });
+    //console.log(req.flash('success').toString());
 };
 
 /*
@@ -375,5 +376,18 @@ exports.doRevisePW = function(req,res){
         });
         req.flash('success', 'Password successfully revised/login');
         res.redirect('/u/'+req.body.mail);
+    });
+};
+
+
+/*
+ * about页面get方法
+ */
+exports.getAbout = function(req, res){
+    res.render('about', {
+        title: 'About StigMod',
+        user : req.session.user,
+        success : req.flash('success').toString(),
+        error : req.flash('error').toString()
     });
 };

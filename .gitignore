@@ -2,3 +2,6 @@
 logs/
 node_modules/
 mongodb/
+public/node_modules/
+public/build/
+public/dist/

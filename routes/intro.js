@@ -39,4 +39,5 @@ checkExistence = function(req,res,callback){
             }
         }
     });
-}
+};
+

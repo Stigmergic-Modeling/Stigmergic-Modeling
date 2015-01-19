@@ -1,15 +1,26 @@
-<form class="form-horizontal" method="post">
-    <fieldset>
-        <legend>SignIn</legend>
-        <div class="control-group">
-            <label class="control-label" for="mail">Mail Address</label>
-            <div class="controls">
-                <input type="text" class="input-xlarge" id="mail" name="mail">
-                <p class="help-block">Click to send a link to your mail. It is used to revise your password</p>
-            </div>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Send</button>
-        </div>
-    </fieldset>
-</form>
+
+<hr />
+<div class="panel panel-default" id="stigmod-panel-signup">
+  <div class="panel-heading">
+    <h2 class="panel-title">Forget password</h2>
+  </div>
+  <div class="panel-body">
+    <form method="post" role="form">
+      <div class="form-group">
+        <label for="email">Your Email Address</label>
+        <input type="email" class="form-control" required autofocus id="email" name="mail" />
+      </div>
+      <button class="btn btn-default" type="submit">Send</button>
+    </form>
+  </div>
+</div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>
