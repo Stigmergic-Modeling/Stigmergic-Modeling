@@ -1,0 +1,224 @@
+<div id="stigmod-pg-user">
+  <div class="row">
+    <!-- 左侧信息栏 -->
+    <div class="col-xs-3">
+      <img src="/src/img/sheldon2.jpg" class="img-responsive img-rounded"/>
+      <br />
+      <div id="stigmod-username">Sheldon Cooper</div>
+      <hr />
+      <div id="stigmod-info-left">
+        <p><span class="glyphicon glyphicon-map-marker stigmod-detailinfo-icon"></span> Pasadena, CA</p>
+        <p><span class="glyphicon glyphicon-envelope stigmod-detailinfo-icon"></span> sheldon@caltech.edu</p>
+        <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span> http://drcooper.net/</p>
+        <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span> Joined on 22 Mar 2014</div>
+      </div>
+      <hr />
+      <div class="row"> <!-- 三个坑待填 -->
+        <div class="col-xs-4">
+        </div>
+        <div class="col-xs-4">
+        </div>
+        <div class="col-xs-4">
+        </div>
+      </div>
+    </div>
+    <!-- 右侧Project栏 -->
+    <div class="col-xs-9">
+      <!-- Project搜索栏 -->
+      <div class="row">
+        <div class="col-xs-12">
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#"><span class="fa fa-cube"></span> &nbsp;Models</a></li>
+            <li role="presentation"><a href="#"><span class="glyphicon glyphicon-comment"></span> &nbsp;Discussions</a></li>
+            <li role="presentation"><a href="#"><span class="glyphicon glyphicon-transfer"></span> &nbsp;Activities</a></li>
+          </ul>
+        </div>
+      </div>
+      <!-- Project显示栏 -->
+      <div class="row" id="stigmod-searchbar">
+        <div class="col-xs-12">
+          <form class="form-inline" role="form">
+            <div class="form-group" id="stigmod-searchbar-form">
+              <input type="text" class="form-control" placeholder="Find a model..." id="stigmod-searchbar-input">
+            </div>
+            <button class="btn btn-default">Search</button>
+            <a class="btn btn-success" id="stigmod-searchbar-newbtn" href="/template_newmodel"><span class="fa fa-cube"></span>&nbsp;New</a>
+          </form>
+        </div>
+      </div>
+      <hr />
+      <!-- Project 显示组件 -->
+      <div class="stigmod-modelshow">
+        <div class="row">
+          <div class="col-xs-9 stigmod-modelshow-title">
+            <a href="/<%= user.mail %>/CourseManagementSystem/workspace">CourseManagementSystem</a>
+          </div>
+          <div class="col-xs-3 stigmod-modelshow-info">
+            <span class="glyphicon glyphicon-th-large"></span>
+            <span>37</span> &nbsp;&nbsp;
+            <span class="glyphicon glyphicon-random"></span>
+            <span>41</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-9">
+            The course management system helps teachers to post course infomation and helps students to choose the courses.
+          </div>
+          <div class="col-xs-3">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 stigmod-modelshow-date">
+            Updated 7 days ago
+          </div>
+        </div>
+        <hr />
+      </div>
+      <!-- Project 显示组件 -->
+      <div class="stigmod-modelshow">
+        <div class="row">
+          <div class="col-xs-9 stigmod-modelshow-title">
+            <a href="/workspace">CDStore</a>
+          </div>
+          <div class="col-xs-3 stigmod-modelshow-info">
+            <span class="glyphicon glyphicon-th-large"></span>
+            <span>15</span> &nbsp;&nbsp;
+            <span class="glyphicon glyphicon-random"></span>
+            <span>7</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-9">
+            A CD store engaged in ordering, renting and saling CDs. There are different categories of CDs. The inventory of each has upper and lower limits, while the number of cds is lower than limit, we should order new ones. Member of the store can get a sale in buying CDs.
+          </div>
+          <div class="col-xs-3">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 stigmod-modelshow-date">
+            Updated 22 days ago
+          </div>
+        </div>
+        <hr />
+      </div>
+      <!-- Project 显示组件 -->
+      <div class="stigmod-modelshow">
+        <div class="row">
+          <div class="col-xs-9 stigmod-modelshow-title">
+            <a href="#">TrainTicketingSystem</a>
+          </div>
+          <div class="col-xs-3 stigmod-modelshow-info">
+            <span class="glyphicon glyphicon-th-large"></span>
+            <span>19</span> &nbsp;&nbsp;
+            <span class="glyphicon glyphicon-random"></span>
+            <span>13</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-9">
+            The train ticketing system helps in selling train ticket in different ways, like online ticketing.
+          </div>
+          <div class="col-xs-3">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 stigmod-modelshow-date">
+            Updated on 2 Feb 2012
+          </div>
+        </div>
+        <hr />
+      </div>
+      <!-- Project 显示组件 -->
+      <div class="stigmod-modelshow">
+        <div class="row">
+          <div class="col-xs-9 stigmod-modelshow-title">
+            <a href="#">CourseManagementSystem</a>
+          </div>
+          <div class="col-xs-3 stigmod-modelshow-info">
+            <span class="glyphicon glyphicon-th-large"></span>
+            <span>37</span> &nbsp;&nbsp;
+            <span class="glyphicon glyphicon-random"></span>
+            <span>41</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-9">
+            The course management system helps teachers to post course infomation and helps students to choose the courses.
+          </div>
+          <div class="col-xs-3">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 stigmod-modelshow-date">
+            Updated 7 days ago
+          </div>
+        </div>
+        <hr />
+      </div>
+      <!-- Project 显示组件 -->
+      <div class="stigmod-modelshow">
+        <div class="row">
+          <div class="col-xs-9 stigmod-modelshow-title">
+            <a href="#">CDStore</a>
+          </div>
+          <div class="col-xs-3 stigmod-modelshow-info">
+            <span class="glyphicon glyphicon-th-large"></span>
+            <span>15</span> &nbsp;&nbsp;
+            <span class="glyphicon glyphicon-random"></span>
+            <span>7</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-9">
+            A CD store engaged in ordering, renting and saling CDs. There are different categories of CDs. The inventory of each has upper and lower limits, while the number of cds is lower than limit, we should order new ones. Member of the store can get a sale in buying CDs.
+          </div>
+          <div class="col-xs-3">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 stigmod-modelshow-date">
+            Updated 22 days ago
+          </div>
+        </div>
+        <hr />
+      </div>
+      <!-- Project 显示组件 -->
+      <div class="stigmod-modelshow">
+        <div class="row">
+          <div class="col-xs-9 stigmod-modelshow-title">
+            <a href="#">TrainTicketingSystem</a>
+          </div>
+          <div class="col-xs-3 stigmod-modelshow-info">
+            <span class="glyphicon glyphicon-th-large"></span>
+            <span>19</span> &nbsp;&nbsp;
+            <span class="glyphicon glyphicon-random"></span>
+            <span>13</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-9">
+            The train ticketing system helps in selling train ticket in different ways, like online ticketing.
+          </div>
+          <div class="col-xs-3">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 stigmod-modelshow-date">
+            Updated on 2 Feb 2012
+          </div>
+        </div>
+        <hr />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>

@@ -144,8 +144,7 @@ exports.doLogin = function(req, res) {
             state:  user.state,
             mail:   user.mail
         };
-        if (user.state === 0)
-        {
+        if (user.state === 0) {
             req.flash('error', 'User is not activated/login');
             return res.redirect('/checkmail');
         }
@@ -387,7 +386,7 @@ exports.getAbout = function(req, res){
     res.render('about', {
         title: 'About StigMod',
         user : req.session.user,
-        success : req.flash('success').toString(),
-        error : req.flash('error').toString()
+        success : '',
+        error : ''
     });
 };

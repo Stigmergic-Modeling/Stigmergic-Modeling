@@ -36,6 +36,9 @@ exports.test = Test;
 var Statistic = require('./statistic') ;
 exports.statistic = Statistic;
 
+var Model = require('./model');
+exports.model = Model;
+
 
 
 

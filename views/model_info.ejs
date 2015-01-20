@@ -1,0 +1,112 @@
+<div id="stigmod-pg-modelinfo">
+  <!-- 顶部项目名称栏 -->
+  <div class="row">
+    <div class="col-xs-8">
+      <h1 id="stigmod-model-title">
+        <span class="fa fa-cube" id="stigmod-model-title-icon"></span>
+        <a href="/u/<%= user.mail %>"><span id="stigmod-model-title-username"> <%= user.mail %></span></a>
+        <span> / </span>
+        <span class="dropdown">
+          <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
+            CourseManagementSystem
+          </span>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">CDStore</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">TrainTicketingSystem</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">TimeRelatedConcepts</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">ElectiveSys</a></li>
+          </ul>
+        </span>
+        <span class="stigmod-modelinfo-title"> / </span>
+        <span class="stigmod-modelinfo-title">Model Information</span>
+      </h1>
+    </div>
+    <div class="col-xs-4">
+      <span class="pull-right" id="stigmod-model-info">
+        <a href="/<%= user.mail %>/<%= model %>/workspace" class="stigmod-a-nounderline">
+          <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;
+          Back to Workspace
+        </a>
+      </span>
+    </div>
+  </div>
+  <hr />
+  <div class="row">
+    <div class="col-xs-2">
+    </div>
+    <div class="col-xs-8">
+      <!-- 标签栏 -->
+      <div class="row">
+        <div class="col-xs-12">
+          <ul class="nav nav-tabs nav-justified" role="tablist">
+            <li role="presentation" class="active"><a href="#"><span class="fa fa-user"></span>&nbsp;&nbsp;Individual Concept Model</a></li>
+            <li role="presentation"><a href="template_model_ccm"><span class="fa fa-users"></span>&nbsp;&nbsp;Collective Concept Model</a></li>
+          </ul>
+        </div>
+      </div>
+      <!--正文-->
+      <div class="row">
+        <div class="col-xs-12">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <table class="table table-striped stigmod-table-modelinfo">
+            <tbody>
+              <tr>
+                <td>Name</td>
+                <td>CourseManagementSystem</td>
+              </tr>
+              <tr>
+                <td>Description</td>
+                <td>The course management system helps teachers to post course infomation and helps students to choose the courses. The course management system helps teachers to post course infomation and helps students to choose the courses. The course management system helps teachers to post course infomation and helps students to choose the courses.</td>
+              </tr>
+              <tr>
+                <td>Version</td>
+                <td>0.5.1</td>
+              </tr>
+              <tr>
+                <td>Creation Time</td>
+                <td>2014-10-25</td>
+              </tr>
+              <tr>
+                <td>Update Time</td>
+                <td>2014-11-24</td>
+              </tr>
+
+              <tr>
+                <td>Number of Classes</td>
+                <td>17</td>
+              </tr>
+              <tr>
+                <td>Number of Relations</td>
+                <td>29</td>
+              </tr>
+              <tr>
+                <td>Models Imported</td>
+                <td><a href="#">Date</a> - <a href="#">Person</a> - <a href="#">Money</a></td>
+              </tr>          
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-2">
+    </div>
+  </div>
+</div>
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>
+
+

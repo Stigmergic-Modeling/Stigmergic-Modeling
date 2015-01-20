@@ -21,20 +21,21 @@ Smtp.send = function send(user,type,host, callback){
     console.log('SMTP Configured');
 
 // Message object
+    var activationLink = 'http://' + host + '/' + type + '/' + user.mail + '/' + user.link;
     var message = {
         //from: 'umlonweb@gmail.com <umlonweb@gmail.com>',
-        from: 'umlonweb@163.com <umlonweb@163.com>',
+        from: 'Stigmergic-Modeling <umlonweb@163.com>',
         to: '"'+ user.mail +'"' + '<' + user.mail + '>',
-        subject: 'Test - Link of 激活账号 _ UML On Web', //
+        subject: 'Link of Account Activation - From Stigmergic-Modeling', //
         headers: {
             'X-Laziness-level': 1000
         },
         text: 'Hello to myself!',
         // HTML body
-        html:'<p><b>Confirmation：</b><br/></p>'+
-            '<p>User:' + user.mail + '<br/></p>'+
-            '<p>Click on the link below to activate your account:<br/></p>'+
-            '<p>http://'+host+'/'+type+'/'+user.mail+'/'+ user.link+'<br/></p>'
+        html:'<p><b>Confirmation：</b></p>'+
+            '<p>User: ' + user.mail + '</p>'+
+            '<p>Click the link below to activate your account:</p>'+
+            '<a href="' + activationLink + '"><p>' + activationLink + '</p></a>'
     };
     console.log(message.to);
     console.log('Sending Mail');

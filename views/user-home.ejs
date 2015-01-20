@@ -1,27 +1,29 @@
-<ul class="breadcrumb">
-</ul>
 
-<div class="row-fluid">
-    <div class="span2" style="min-width:175px;margin-right:-20px">
+
+<div class="row">
+    <div class="col-xs-2">
         <%- partial('home-nav-list') %>
     </div>
-    <div class="span10" style="padding-left:15px">
+    <div class="col-xs-10">
         <div>
-            <input type="text" class="span7" name="searchCD" style="margin-bottom: 0px;">
+            <input type="text" class="span7" name="searchCD">
             <button type="submit" class="btn btn-success"><i class="icon-comment icon-white"></i> Search</button>
             <!--a href="/reset" class="btn btn-danger" style="margin-left:100px">Reset[ForTest]</a-->
         </div>
-        <div id="home-content" class="span10" style="margin-left:0px">
+        <div id="home-content" class="span10">
             <!--very important part-->
         </div>
     </div>
 </div>
 
-<script src="/javascripts/user-home.js"></script>
+<script src="/javascripts/jquery.js"></script>
+
+
+<!--<script src="/javascripts/user-home.js"></script>-->
 <script>
     window.onload = function(){
-        $('.breadcrumb').append('<li class="active">Home</li>');
-        homeContentClean();
+        //$('.breadcrumb').append('<li class="active">Home</li>');
+        //homeContentClean();
         user = "<%=user.mail%>";
         $.ajax({
             url: '/post/data/index',
