@@ -1,6 +1,8 @@
 module.exports = {
 	cookie_secret : 'secret_meteoric',
-	db : 'stig',
+	db : {
+        name: 'stig'
+    },
 	host : 'localhost',
 	port : 27017
 }

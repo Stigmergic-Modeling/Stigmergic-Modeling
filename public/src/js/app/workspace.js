@@ -14,7 +14,7 @@ define(function (require, exports, module) {
     require('../module/modelview');
 
     // 调试模块
-    var debug = require('../module/debug');
+    //var debug = require('../module/debug');
 
 
     /*  ---------  *
@@ -22,43 +22,47 @@ define(function (require, exports, module) {
      *  ---------  */
 
     // ICM 前端模型
-    var icm = new Model(debug.model);
+    var icm = new Model(dataPassedIn.model);  // dataPassedIn 通过后端的 .ejs 模板传入
+    //var icm = new Model(debug.model);  // 调试时使用，从 debug 模块获取 model 数据
 
     // 记录 workspace 页面的状态
     var stateOfPage = {
-        "model": "CourseManagementSystem",
+        user: dataPassedIn.user,  // dataPassedIn 通过后端的 .ejs 模板传入
+        mode: dataPassedIn.modelName,  // dataPassedIn 通过后端的 .ejs 模板传入
 
-        "flagCRG": 0,        // 0: class, 1: relationGroup
-        "flagDepth": 0,      // for class: (0: class, 1: attribute, 2: propertyOfA)
+        flagCRG: 0,        // 0: class, 1: relationGroup
+        flagDepth: 0,      // for class: (0: class, 1: attribute, 2: propertyOfA)
                              // for relationGroup: (0: relationGroup, 1: relation, 2: propertyOfR)
 
-        "class": "",         // <-> relationGroup
-        "attribute": "",     // <-> relation
-        "property": "",      // <-> property
+        class: '',         // <-> relationGroup
+        attribute: '',     // <-> relation
+        property: '',      // <-> property
 
-        "addAttrRel": {
-            "position": "",  // 增加 attribute 或 relation 时 插入的位置  (attrel name 或 '@') ('@' 代表最下方的add按钮)
-            "direction": 0   // 增加 attribute 或 relation 时 插入的方向 （0: up, 1: down
+        addAttrRel: {
+            position: '',  // 增加 attribute 或 relation 时 插入的位置  (attrel name 或 '@') ('@' 代表最下方的add按钮)
+            direction: 0   // 增加 attribute 或 relation 时 插入的方向 （0: up, 1: down
         }
     };
 
+    console.log(stateOfPage.model)
+
     // 左侧栏的类组件
-    var componentLeftClass = getHtmlCompo('workspace_left_class');
+    var componentLeftClass = dataPassedIn.pageCompo.componentLeftClass;
 
     // 左侧栏的关系组组件
-    var componentLeftRelationGroup = getHtmlCompo('workspace_left_relationgroup');
+    var componentLeftRelationGroup = dataPassedIn.pageCompo.componentLeftRelationGroup;
 
     // 中间栏的 attribute Basic 组件
-    var componentMiddleAttributeBasic = getHtmlCompo('workspace_mid_att_basic');
+    var componentMiddleAttributeBasic = dataPassedIn.pageCompo.componentMiddleAttributeBasic;
 
     // 中间栏的 attribute 组件
-    var componentMiddleAttribute = getHtmlCompo('workspace_mid_att');
+    var componentMiddleAttribute = dataPassedIn.pageCompo.componentMiddleAttribute;
 
     // 中间栏的 relation Basic 组件
-    var componentMiddleRelationBasic = getHtmlCompo('workspace_mid_rel_basic');
+    var componentMiddleRelationBasic = dataPassedIn.pageCompo.componentMiddleRelationBasic;
 
     // 中间栏的 relation 组件
-    var componentMiddleRelation = getHtmlCompo('workspace_mid_rel');
+    var componentMiddleRelation = dataPassedIn.pageCompo.componentMiddleRelation;
 
 
     /*  ---------  *
@@ -204,29 +208,49 @@ define(function (require, exports, module) {
     }
 
 
-    /*  --------------  *
-     *  页面组件获取函数
-     *  --------------  */
-
-    // 用于获取页面组件的同步ajax请求，在生产环境下需要直接替换成html代码。
-    function getHtmlCompo(compoName) {
-        var compo = null;
-
-        $.ajax({
-            type: 'GET',
-            url: '/components/' + compoName,
-            dataType: "html",
-            async: false,
-            success: function (page) {
-                compo = page;
-            },
-            error: function () {
-                alert('Sorry, The requested page "' + compoName + '" could not be found.');
-            }
-        });
-
-        return compo;
-    }
+    ///*  -------------------  *
+    // *  页面变量、组件获取函数
+    // *  -------------------  */
+    //
+    //// 用于获取 model 的同步ajax请求
+    //function getModel(user, modelName) {
+    //    var model = null;
+    //
+    //    $.ajax({
+    //        type: 'GET',
+    //        url: '/model/' + user + '/' + modelName,
+    //        dataType: 'json',
+    //        async: false,
+    //        success: function (modelReceived) {
+    //            model = modelReceived;
+    //        },
+    //        error: function () {
+    //            alert('Sorry, The requested model "' + modelName + '" could not be found.');
+    //        }
+    //    });
+    //
+    //    return model;
+    //}
+    //
+    //// 用于获取页面组件的同步ajax请求，在生产环境下需要直接替换成html代码。
+    //function getHtmlCompo(compoName) {
+    //    var compo = null;
+    //
+    //    $.ajax({
+    //        type: 'GET',
+    //        url: '/components/' + compoName,
+    //        dataType: 'html',
+    //        async: false,
+    //        success: function (page) {
+    //            compo = page;
+    //        },
+    //        error: function () {
+    //            alert('Sorry, The requested page "' + compoName + '" could not be found.');
+    //        }
+    //    });
+    //
+    //    return compo;
+    //}
 
     /*  ----------  *
      *  页面修改函数

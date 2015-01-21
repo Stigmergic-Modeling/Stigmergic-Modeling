@@ -146,6 +146,8 @@
 
 <script src="/src/js/sea/sea.js"></script>
 <script>
+  var dataPassedIn = <%-JSON.stringify(data)%>;
+
   seajs.config({
     paths: {
       'js': 'http://localhost:3000/src/js'

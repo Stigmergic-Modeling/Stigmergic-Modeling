@@ -354,12 +354,14 @@ define(function (require, exports, module) {
 
                 switch (op) {
                     case 'ADD':
+                        item.push('ADD');
+
                         if (1 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('ADD_CLS');
+                                item.push('CLS');
                             } else {
-                                item.push('ADD_RLG');
+                                item.push('RLG');
                             }
 
                             item.push(args[0]);
@@ -367,9 +369,9 @@ define(function (require, exports, module) {
                         } else if (3 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('ADD_ATT');
+                                item.push('ATT');
                             } else {
-                                item.push('ADD_RLT');
+                                item.push('RLT');
                             }
 
                             item.push(path[1]);
@@ -378,9 +380,9 @@ define(function (require, exports, module) {
                         } else if (5 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('ADD_POA');
+                                item.push('POA');
                             } else {
-                                item.push('ADD_POR');
+                                item.push('POR');
                             }
 
                             item.push(path[1]);
@@ -395,12 +397,14 @@ define(function (require, exports, module) {
                         break;
 
                     case 'MOD_KEY':
+                        item.push('MOD');
+
                         if (1 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('MOD_CLS');
+                                item.push('CLS');
                             } else {
-                                item.push('MOD_RLG');
+                                item.push('RLG');
                             }
 
                             item.push(args[0]);
@@ -409,7 +413,7 @@ define(function (require, exports, module) {
                         } else if (3 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('MOD_ATT');
+                                item.push('ATT');
                             } else {
                                 // MOD_RLT 暂时没有这个需求
                             }
@@ -425,12 +429,14 @@ define(function (require, exports, module) {
                         break;
 
                     case 'MOD_VAL':
+                        item.push('MOD');
+
                         if (5 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('MOD_POA');
+                                item.push('POA');
                             } else {
-                                item.push('MOD_POR');
+                                item.push('POR');
                             }
 
                             item.push(path[1]);
@@ -445,12 +451,14 @@ define(function (require, exports, module) {
                         break;
 
                     case 'RMV':
+                        item.push('RMV');
+
                         if (1 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('RMV_CLS');
+                                item.push('CLS');
                             } else {
-                                item.push('RMV_RLG');
+                                item.push('RLG');
                             }
 
                             item.push(args);
@@ -458,9 +466,9 @@ define(function (require, exports, module) {
                         } else if (3 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('RMV_ATT');
+                                item.push('ATT');
                             } else {
-                                item.push('RMV_RLT');
+                                item.push('RLT');
                             }
 
                             item.push(path[1]);
@@ -469,9 +477,9 @@ define(function (require, exports, module) {
                         } else if (5 === path.length) {
 
                             if (0 === path[0]) {
-                                item.push('RMV_POA');
+                                item.push('POA');
                             } else {
-                                item.push('RMV_POR');
+                                item.push('POR');
                             }
 
                             item.push(path[1]);
@@ -485,10 +493,12 @@ define(function (require, exports, module) {
                         break;
 
                     case 'INS_ORD':
+                        item.push('ODI');
+
                         if (0 === path[0]) {
-                            item.push('ODI_ATT');
+                            item.push('ATT');
                         } else {
-                            item.push('ODI_RLT');
+                            item.push('RLT');
                         }
 
                         item.push(path[1]);
@@ -499,8 +509,10 @@ define(function (require, exports, module) {
                         break;
 
                     case 'MOD_ORD':
+                        item.push('ODE');
+
                         if (0 === path[0]) {
-                            item.push('ODE_ATT');
+                            item.push('ATT');
                         } else {
                             // ODE_RLT 暂时无此需求
                         }
@@ -512,10 +524,12 @@ define(function (require, exports, module) {
                         break;
 
                     case 'RMV_ORD':
+                        item.push('ODR');
+
                         if (0 === path[0]) {
-                            item.push('ODR_ATT');
+                            item.push('ATT');
                         } else {
-                            item.push('ODR_RLT');
+                            item.push('RLT');
                         }
 
                         item.push(path[1]);
@@ -524,10 +538,12 @@ define(function (require, exports, module) {
                         break;
 
                     case 'MOV_ORD':
+                        item.push('ODM');
+
                         if (0 === path[0]) {
-                            item.push('ODM_ATT');
+                            item.push('ATT');
                         } else {
-                            item.push('ODM_RLT');
+                            item.push('RLT');
                         }
 
                         item.push(path[1]);
@@ -540,7 +556,7 @@ define(function (require, exports, module) {
                         throw new Error('Model.log(): Unexpected operation code.');
                 }
 
-                //console.log(item);
+                console.log(item);
                 this.operationLog.push(item);
 
             };
