@@ -1394,6 +1394,9 @@ define(function (require, exports, module) {
             modifyLeftAndJump(icm, className);
             $(this).next().trigger('click'); // 关闭当前 modal
 
+            $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + className + ']')
+                    .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+
             enableSave();
         }
     }
@@ -1437,6 +1440,9 @@ define(function (require, exports, module) {
             stateOfPage.class = relationGroupName;
             modifyLeftAndJump(icm, relationGroupName);
             $(this).next().trigger('click'); // 关闭当前 modal
+
+            $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + relationGroupName + ']')
+                    .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
 
             enableSave();
         }
