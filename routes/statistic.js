@@ -11,6 +11,9 @@ var db = require('../models/db');
 var mongodb = new db();
 var fs = require('fs');
 
+
+var icdNormalize = require('../models/icdNormalize');
+
 exports.on = function(req,res) {
     var filter = {};
     filter["_id"] = ObjectID(req.params.id);
@@ -274,7 +277,13 @@ exports.citedOrderGet = function(req,res){
                     //getFsInfo(ccd_id,idList);                 //获取日志信息
                     //getCiteInfoInCCD([projectList],{_id:ccd_id});
                     //getCreateCiteInfoInCCD({_id:ccd_id},[projectList]);
-                    getCCDTreeIntoPair({_id:ccd_id});
+                    //getCCDTreeIntoPair({_id:ccd_id});
+                    for(var i=0;i<projectList.length;i++){
+                        //console.log(i);
+                        //icdNormalize.icdInfoNormalize(projectList[i]);
+                        icdNormalize.test(projectList[i]);
+                        return;
+                    }
                 });
             });
         });

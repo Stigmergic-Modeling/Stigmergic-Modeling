@@ -1,3 +1,6 @@
+/**
+ *
+ */
 var settings = require('../settings');
 var Db = require('mongodb').Db;
 var Connection =  require('mongodb').Connection;
@@ -6,9 +9,10 @@ var Server = require('mongodb').Server;
 var m_connection = 0;
 var m_collection = {};
 var m_db;
+
 module.exports = function(){
     this.trueBase = function(callback){
-        m_db = new Db(settings.db, new Server(settings.host, settings.port, {auto_reconnect : true}));
+        m_db = new Db(settings.db.name, new Server(settings.host, settings.port, {auto_reconnect : true}));
         console.log("connection_open:"+m_connection);
         m_connection++;
         if(m_connection === 1){
@@ -40,37 +44,17 @@ module.exports = function(){
             //console.log("collection.icd-cd");
         });
 
-
-        m_db.collection('icd', function(err, collection) {
-            m_collection["icd"] = collection;
-            //console.log("collection.icd-cd");
-        });
-
-        m_db.collection('icd_index', function(err, collection) {
-            m_collection["icd_index"] = collection;
-            //console.log("collection.icd-cd");
-        });
-
-        m_db.collection('ccd', function(err, collection) {
-            m_collection["ccd"] = collection;
-            //console.log("collection.icd-cd");
-        });
-
-        m_db.collection('ccd_index', function(err, collection) {
-            m_collection["ccd_index"] = collection;
-            //console.log("collection.icd-cd");
-        });
-
-        m_db.collection('operationScore', function(err, collection) {
-            m_collection["operationScore"] = collection;
-        });
-
-        m_db.collection('operationScore2', function(err, collection) {
-            m_collection["operationScore2"] = collection;
-        });
-
-        m_db.collection('icd_attribute_sort', function(err, collection) {
-            m_collection["icd_attribute_sort"] = collection;
-        });
+        var collectionList = ['icd','icd_index','ccd','ccd_index','operationScore','operationScore2','icd_attribute_sort'
+            ,'conceptDiag_edge','conceptDiag_vertex','conceptDiag_index'];
+        for(var i=0;i<collectionList.length;i++){
+            generateCollection(collectionList[i]);
+        }
     };
 };
+
+var generateCollection = function(collectionName){
+    m_db.collection(collectionName, function(err, collection) {
+        m_collection[collectionName] = collection;
+        return;
+    });
+}

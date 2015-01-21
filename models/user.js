@@ -1,21 +1,17 @@
-//var mongodb = require('./db');
 var db = require('./db');
 var mongodb = new db();
 
 function User(user) {
-	//this.name = user.name;
 	this.password = user.password;
     this.state = user.state;
     this.mail = user.mail;
     this.link = user.link;
 };
-
 module.exports = User;
 
 User.prototype.save = function save(callback) {
 	//外部已先做了一次存在性判断
     var user = {
-		//name : this.name,
 		password : this.password,
         state : 0,
         mail : this.mail,
@@ -32,7 +28,6 @@ User.prototype.save = function save(callback) {
 
 User.prototype.activate = function activate(callback) {
     var user = {
-        //name : this.name,
         password : this.password,
         state : 1,
         mail : this.mail,

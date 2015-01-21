@@ -1,3 +1,6 @@
+/**
+ *  sorted output of attributes in browser
+**/
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
