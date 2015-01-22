@@ -1,10 +1,10 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var Icd = require('../models/icd.js');
-var Ccd = require('../models/ccd.js');
+var Icd = require('./icd.js');
+var Ccd = require('./ccd.js');
 
-var logger = require('../models/logger.js');
+var logger = require('./logger.js');
 
 //当前插入方式举例：插入前为3，插入后为4
 //则，插入时位置信息为4，删除时位置信息为4

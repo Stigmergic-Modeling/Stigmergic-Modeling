@@ -44,25 +44,24 @@ define(function (require, exports, module) {
         }
     };
 
-    console.log(stateOfPage.model)
 
     // 左侧栏的类组件
-    var componentLeftClass = dataPassedIn.pageCompo.componentLeftClass;
+    var componentLeftClass = document.getElementById('template-left-class').innerHTML;
 
     // 左侧栏的关系组组件
-    var componentLeftRelationGroup = dataPassedIn.pageCompo.componentLeftRelationGroup;
+    var componentLeftRelationGroup = document.getElementById('template-left-relation-group').innerHTML;
 
     // 中间栏的 attribute Basic 组件
-    var componentMiddleAttributeBasic = dataPassedIn.pageCompo.componentMiddleAttributeBasic;
+    var componentMiddleAttributeBasic = document.getElementById('template-mid-att-basic').innerHTML;
 
     // 中间栏的 attribute 组件
-    var componentMiddleAttribute = dataPassedIn.pageCompo.componentMiddleAttribute;
+    var componentMiddleAttribute = document.getElementById('template-mid-att').innerHTML;
 
     // 中间栏的 relation Basic 组件
-    var componentMiddleRelationBasic = dataPassedIn.pageCompo.componentMiddleRelationBasic;
+    var componentMiddleRelationBasic = document.getElementById('template-mid-rel-basic').innerHTML;
 
     // 中间栏的 relation 组件
-    var componentMiddleRelation = dataPassedIn.pageCompo.componentMiddleRelation;
+    var componentMiddleRelation = document.getElementById('template-mid-rel').innerHTML;
 
 
     /*  ---------  *
@@ -1802,7 +1801,7 @@ define(function (require, exports, module) {
 
         // 向后端传送 model 操作日志
         $.ajax({
-            url: 'workspace',
+            url: '/post/workspace',
             type: 'POST',
             data: JSON.stringify(postData),
             dataType: 'json',
@@ -1833,6 +1832,8 @@ define(function (require, exports, module) {
 
             //confirm('Does not exist. Do you want to add one?');
         }
+
+        $(this).blur(); // 按钮单击事件处理完成后去除按钮焦点
     }
 
 });

@@ -1,5 +1,5 @@
-var Icd = require('../models/icd.js');
-var ccd = require('../models/ccd.js');
+var Icd = require('./icd.js');
+var ccd = require('./ccd.js');
 var regex = /^_/;
 
 var count = 0;

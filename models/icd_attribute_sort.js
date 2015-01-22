@@ -4,8 +4,8 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var icdIndex = require('icd_index.js');
-var logger = require('../models/logger.js');
+var icdIndex = require('./icd_index.js');
+var logger = require('./logger.js');
 
 
 exports.add = function addAttributeSort(filter,callback){

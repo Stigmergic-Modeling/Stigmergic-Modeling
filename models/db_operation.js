@@ -4,7 +4,7 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var logger = require('../models/logger.js');
+var logger = require('./logger.js');
 
 // 数组查询
 // "ne"判断数组中不存在，"$push"进行数组的插入，

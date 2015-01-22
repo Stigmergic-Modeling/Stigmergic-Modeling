@@ -1,10 +1,10 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var ccdIndex = require('ccd_index.js');
+var ccdIndex = require('./ccd_index.js');
 var increment = 0x1;
 var regex = /^_/;
-var logger = require('../models/logger.js');
+var logger = require('./logger.js');
 
 //基本实现
 exports.create= function createCD(data,callback){
