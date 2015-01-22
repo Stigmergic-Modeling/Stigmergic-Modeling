@@ -1,7 +1,7 @@
 var Icd = require('../models/icd.js');
 var ccd = require('../models/ccd.js');
 var user;
-var icdIndex = require('../models/icdIndex.js');
+var icdIndex = require('icd_index.js');
 //var generate = require('../models/generate.js');
 var regex = /^_/;
 var ObjectID = require("mongodb").ObjectID;

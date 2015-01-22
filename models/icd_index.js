@@ -1,7 +1,7 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var ccdIndex = require('../models/ccdIndex.js');
+var ccdIndex = require('ccd_index.js');
 var logger = require('../models/logger.js');
 
 exports.create= function createCD(filter,callback){

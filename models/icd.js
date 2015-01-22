@@ -1,7 +1,7 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var icdIndex = require('../models/icdIndex.js');
+var icdIndex = require('icd_index.js');
 var logger = require('../models/logger.js');
 //基本实现
 exports.create= function createCD(icdData,callback){

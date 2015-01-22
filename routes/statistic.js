@@ -1,8 +1,8 @@
 var Icd = require('../models/icd.js');
 var Ccd = require('../models/ccd.js');
-var icdIndex = require('../models/icdIndex.js');
-var ccdIndex = require('../models/ccdIndex.js');
-var operationMeasure = require('../models/operationMeasure.js');
+var icdIndex = require('../models/icd_index.js');
+var ccdIndex = require('../models/ccd_index.js');
+var operationMeasure = require('../models/operation_measure.js');
 
 var ObjectID = require("mongodb").ObjectID;
 var generate = require('../models/generate.js');
@@ -12,7 +12,7 @@ var mongodb = new db();
 var fs = require('fs');
 
 
-var icdNormalize = require('../models/icdNormalize');
+var icdNormalize = require('../models/icd_normalize');
 
 exports.on = function(req,res) {
     var filter = {};

@@ -1,7 +1,7 @@
 /**
  * generate from model Tree into model graph (edge and vertex)
  */
-var dbOperationControl  = require('./dbOperationControl');
+var dbOperationControl  = require('./db_operation_control');
 var ObjectID = require("mongodb").ObjectID;
 
 //复制数据

@@ -1,5 +1,5 @@
-var icdIndex = require('../models/icdIndex.js');
-var ccdIndex = require('../models/ccdIndex.js');
+var icdIndex = require('../models/icd_index.js');
+var ccdIndex = require('../models/ccd_index.js');
 var ObjectID = require("mongodb").ObjectID;
 
 exports.on = function(req, res) {

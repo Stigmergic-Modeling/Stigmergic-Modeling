@@ -1,12 +1,12 @@
 var Icd = require('../models/icd.js');
 var Ccd = require('../models/ccd.js');
-var icdIndex = require('../models/icdIndex.js');
-var ccdIndex = require('../models/ccdIndex.js');
-var operationMeasure = require('../models/operationMeasure.js');
+var icdIndex = require('../models/icd_index.js');
+var ccdIndex = require('../models/ccd_index.js');
+var operationMeasure = require('../models/operation_measure.js');
 var ObjectID = require("mongodb").ObjectID;
 var generate = require('../models/generate.js');
 
-var IcdAttributeSort = require('../models/icdAttributeSort.js');
+var IcdAttributeSort = require('../models/icd_attribute_sort.js');
 //var logger = require('../models/logger.js').getLogger('INFO');
 //icd
 exports.icd = function(req, res) {
