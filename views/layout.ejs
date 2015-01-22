@@ -34,6 +34,7 @@
               <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> &nbsp;Sign in</a></li>
             <% } else { %>
               <li><a href="/u/<%= user.mail %>"><span class="glyphicon glyphicon-user"></span> <%= user.mail %></a></li>
+              <li><a href="/u/<%= user.mail %>/settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
               <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
             <% } %>
           </ul>

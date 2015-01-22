@@ -2,14 +2,25 @@ var db = require('./db');
 var mongodb = new db();
 
 function User(user) {
+
+    // 核心属性
 	this.password = user.password;
     this.state = user.state;
     this.mail = user.mail;
     this.link = user.link;
+
+    // 信息属性
+    this.name = '';
+    this.location = '';
+    this.url = '';
+    this.signUpDate = '';
+    this.avatar = '';
+
 };
 module.exports = User;
 
 User.prototype.save = function save(callback) {
+
 	//外部已先做了一次存在性判断
     var user = {
 		password : this.password,
@@ -35,6 +46,7 @@ User.prototype.activate = function activate(callback) {
     };
 
     mongodb.getCollection('users',function(collection){
+
         //update操作
         collection.update( {mail:user.mail} , {$set:{state:1}});
         return callback(null,user);
@@ -43,7 +55,9 @@ User.prototype.activate = function activate(callback) {
 
 User.prototype.updateLink = function updateLink(callback) {
     var user = this;
+
     mongodb.getCollection('users',function(collection){
+
         //update操作
         collection.update( {mail:user.mail} , {$set:{link:user.link}});
         return callback(null);
@@ -52,7 +66,9 @@ User.prototype.updateLink = function updateLink(callback) {
 
 User.prototype.updatePW = function updatePW(callback) {
     var user = this;
+
     mongodb.getCollection('users',function(collection){
+
         //update操作
         collection.update( {mail:user.mail} , {$set:{password:user.password}});
         return callback(null);
@@ -61,6 +77,7 @@ User.prototype.updatePW = function updatePW(callback) {
 
 User.get = function get(mail, callback) {
     mongodb.getCollection('users',function(collection){
+
 	    //find
         collection.findOne({mail: mail}, function(err, doc) {
             if (doc) {

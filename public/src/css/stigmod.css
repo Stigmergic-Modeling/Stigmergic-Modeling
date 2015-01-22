@@ -315,6 +315,11 @@ fieldset[disabled] .stigmod-input {
   opacity: 1;
 }
 
+/* 宽输入框 */
+.stigmod-input-lg {
+  height: 37px;
+}
+
 /* 点击编辑功能中，编辑组件的样式控制 */
 .stigmod-clickedit-edit {
   width: 100%;
@@ -891,6 +896,48 @@ fieldset[disabled] .stigmod-input {
   font-size: 12px;
   margin-top: 10px;
 }
+
+/* --------------------------------------------- *
+ *
+ * user settings 页面
+ *
+ * --------------------------------------------- */
+
+/* 右侧栏内部容器 */
+#stigmod-pg-user-settings .stigmod-settings-left-inner {
+  margin: 20px 0 20px;
+}
+
+/* 左侧栏未激活 */
+#stigmod-pg-user-settings .list-group-item {
+  color: #428bca;
+}
+
+/* 左侧栏点击激活 */
+#stigmod-pg-user-settings .list-group-item.active {
+  font-weight: bold;
+  color: #555;
+  background-color: #fff;
+  padding-left: 10px;
+  border-top-color: #ddd;
+  border-bottom-color: #ddd;
+  border-left: 5px groove;
+}
+
+/* panel 标题栏 */
+#stigmod-pg-user-settings .panel-heading {
+  font-weight: bold;
+}
+
+/* 编辑区 */
+#stigmod-pg-user-settings dl {
+  color: #888;
+  font-size: 13px;
+}
+#stigmod-pg-user-settings dd {
+  margin-top: 7px;
+}
+
 
 /* --------------------------------------------- *
  *

@@ -556,7 +556,7 @@ define(function (require, exports, module) {
                         throw new Error('Model.log(): Unexpected operation code.');
                 }
 
-                console.log(item);
+                //console.log(item);
                 this.operationLog.push(item);
 
             };

@@ -207,50 +207,6 @@ define(function (require, exports, module) {
     }
 
 
-    ///*  -------------------  *
-    // *  页面变量、组件获取函数
-    // *  -------------------  */
-    //
-    //// 用于获取 model 的同步ajax请求
-    //function getModel(user, modelName) {
-    //    var model = null;
-    //
-    //    $.ajax({
-    //        type: 'GET',
-    //        url: '/model/' + user + '/' + modelName,
-    //        dataType: 'json',
-    //        async: false,
-    //        success: function (modelReceived) {
-    //            model = modelReceived;
-    //        },
-    //        error: function () {
-    //            alert('Sorry, The requested model "' + modelName + '" could not be found.');
-    //        }
-    //    });
-    //
-    //    return model;
-    //}
-    //
-    //// 用于获取页面组件的同步ajax请求，在生产环境下需要直接替换成html代码。
-    //function getHtmlCompo(compoName) {
-    //    var compo = null;
-    //
-    //    $.ajax({
-    //        type: 'GET',
-    //        url: '/components/' + compoName,
-    //        dataType: 'html',
-    //        async: false,
-    //        success: function (page) {
-    //            compo = page;
-    //        },
-    //        error: function () {
-    //            alert('Sorry, The requested page "' + compoName + '" could not be found.');
-    //        }
-    //    });
-    //
-    //    return compo;
-    //}
-
     /*  ----------  *
      *  页面修改函数
      *  ----------  */

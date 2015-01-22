@@ -166,31 +166,15 @@ app.get('/comment',routes.test.getComment);
 app.get('/about', routes.home.getAbout);
 
 // workspace 页面 get 方法
+//app.get('/:user/:model/workspace',routes.state.checkNotLogin);
 app.get('/:user/:model/workspace', routes.model.enterWorkspace);
 
-// info 页面 get 方法
+// model info 页面 get 方法
 app.get('/:user/:model/info', routes.model.getInfo);
 
-//// workspace 页面组件
-//var pathCompo = './views/components/';
-//app.get("/components/workspace_left_class", function(req, res) {
-//    res.sendfile(pathCompo + 'workspace_left_class.html');
-//});
-//app.get("/components/workspace_left_relationgroup", function(req, res) {
-//    res.sendfile(pathCompo + 'workspace_left_relationgroup.html');
-//});
-//app.get("/components/workspace_mid_att_basic", function(req, res) {
-//    res.sendfile(pathCompo + 'workspace_mid_att_basic.html');
-//});
-//app.get("/components/workspace_mid_att", function(req, res) {
-//    res.sendfile(pathCompo + 'workspace_mid_att.html');
-//});
-//app.get("/components/workspace_mid_rel_basic", function(req, res) {
-//    res.sendfile(pathCompo + 'workspace_mid_rel_basic.html');
-//});
-//app.get("/components/workspace_mid_rel", function(req, res) {
-//    res.sendfile(pathCompo + 'workspace_mid_rel.html');
-//});
+// user settings 页面 get 方法
+app.get('/u/:user/settings', routes.user.settings);
+
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));
