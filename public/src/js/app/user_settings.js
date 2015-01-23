@@ -25,10 +25,16 @@ define(function (require, exports, module) {
          *  注册主功能监听器
          *  --------------  */
 
-        // 左侧导航栏点击激活 并跳转
+        // 左侧栏点击激活 并跳转
         $(document).on('click', '#stigmod-settings-left .list-group-item', handleClkLeft);
     }
 
+
+    /*  ----------  *
+     *  事件处理函数
+     *  ----------  */
+
+    // 处理：左侧栏点击激活 并跳转
     function handleClkLeft() {
 
         // 激活

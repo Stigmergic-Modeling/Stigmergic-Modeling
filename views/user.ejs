@@ -59,59 +59,8 @@
         </div>
       </div>
       <hr />
-      <!-- Model 显示组件 -->
-      <div class="stigmod-modelshow">
-        <div class="row">
-          <div class="col-xs-9 stigmod-modelshow-title">
-            <a href="/<%= user.mail %>/CourseManagementSystem/workspace">CourseManagementSystem</a>
-          </div>
-          <div class="col-xs-3 stigmod-modelshow-info">
-            <span class="glyphicon glyphicon-th-large"></span>
-            <span>37</span> &nbsp;&nbsp;
-            <span class="glyphicon glyphicon-random"></span>
-            <span>41</span>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xs-9">
-            The course management system helps teachers to post course infomation and helps students to choose the courses.
-          </div>
-          <div class="col-xs-3">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xs-12 stigmod-modelshow-date">
-            Updated 7 days ago
-          </div>
-        </div>
-        <hr />
-      </div>
-      <!-- Project 显示组件 -->
-      <div class="stigmod-modelshow">
-        <div class="row">
-          <div class="col-xs-9 stigmod-modelshow-title">
-            <a href="/workspace">CDStore</a>
-          </div>
-          <div class="col-xs-3 stigmod-modelshow-info">
-            <span class="glyphicon glyphicon-th-large"></span>
-            <span>15</span> &nbsp;&nbsp;
-            <span class="glyphicon glyphicon-random"></span>
-            <span>7</span>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xs-9">
-            A CD store engaged in ordering, renting and saling CDs. There are different categories of CDs. The inventory of each has upper and lower limits, while the number of cds is lower than limit, we should order new ones. Member of the store can get a sale in buying CDs.
-          </div>
-          <div class="col-xs-3">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-xs-12 stigmod-modelshow-date">
-            Updated 22 days ago
-          </div>
-        </div>
-        <hr />
+      <div id="stigmod-model-info-container">
+        <!-- ModelInfo 显示组件位置 -->
       </div>
     </div>
   </div>
@@ -122,25 +71,23 @@
   <div class="stigmod-modelshow">
     <div class="row">
       <div class="col-xs-9 stigmod-modelshow-title">
-        <a href="/<%= user.mail %>/CourseManagementSystem/workspace">CourseManagementSystem</a>
+        <a href=""></a>
       </div>
       <div class="col-xs-3 stigmod-modelshow-info">
         <span class="glyphicon glyphicon-th-large"></span>
-        <span>37</span> &nbsp;&nbsp;
+        <span class="stigmod-modelshow-class">37</span> &nbsp;&nbsp;
         <span class="glyphicon glyphicon-random"></span>
-        <span>41</span>
+        <span class="stigmod-modelshow-relation">41</span>
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-9">
-        The course management system helps teachers to post course infomation and helps students to choose the courses.
+      <div class="col-xs-9 stigmod-modelshow-description">
       </div>
       <div class="col-xs-3">
       </div>
     </div>
     <div class="row">
       <div class="col-xs-12 stigmod-modelshow-date">
-        Updated 7 days ago
       </div>
     </div>
     <hr />
@@ -149,6 +96,8 @@
 
 <script src="/src/js/sea/sea.js"></script>
 <script>
+  var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
+
   seajs.config({
     paths: {
       'js': 'http://localhost:3000/src/js'

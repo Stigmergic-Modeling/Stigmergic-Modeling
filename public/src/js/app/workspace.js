@@ -185,7 +185,7 @@ define(function (require, exports, module) {
         $(document).on('show.bs.dropdown', '.stigmod-hovershow-trig', handleAddPropDrpdn);
 
         // 输入框中每输入一个字符，进行一次内容合法性检查
-        // keyup 事件保证 input 的 value 改变后才调用 checkInput  TODO: 真的能保证吗？
+        // keyup 事件保证 input 的 value 改变后才调用 checkInput
         $(document).on('keyup', 'input[type=text]', handleCheckInputs);
 
         // 输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
@@ -798,7 +798,7 @@ define(function (require, exports, module) {
 
     // 输入框出现后聚焦到第一个输入框上
     function focusOnInputIn($framework) {
-        $framework.find('input[type=text]').eq(0).focus();
+        $framework.find('input[type=text]').eq(0).select();
     }
 
     // 失能保存按钮
