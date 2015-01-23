@@ -9,7 +9,7 @@ function User(user) {
     this.mail = user.mail;
     this.link = user.link;
 
-    // 信息属性
+    // 附加信息属性
     this.name = '';
     this.location = '';
     this.url = '';
@@ -64,16 +64,24 @@ User.prototype.updateLink = function updateLink(callback) {
     });
 };
 
-User.prototype.updatePW = function updatePW(callback) {
+User.prototype.updatePW = function updatePW(pw, callback) {
     var user = this;
 
     mongodb.getCollection('users',function(collection){
 
         //update操作
-        collection.update( {mail:user.mail} , {$set:{password:user.password}});
+        collection.update({
+            mail: user.mail
+        }, {
+            $set: {
+                password: pw
+            }
+        });
+
         return callback(null);
     });
 };
+
 
 User.get = function get(mail, callback) {
     mongodb.getCollection('users',function(collection){
@@ -89,3 +97,4 @@ User.get = function get(mail, callback) {
         });
     });
 };
+

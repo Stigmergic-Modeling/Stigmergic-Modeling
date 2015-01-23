@@ -350,15 +350,11 @@ exports.doRevisePW = function(req,res){
     var md5 = crypto.createHash('md5');
     var password = md5.update(req.body.password).digest('base64');
 
-    User.get(req.session.mail, function(err, user) {
+    User.get(req.session.user.mail, function(err, user) {
+
         if (!user) {
             req.flash('error', 'User not Existed/login');
             return res.redirect('/login');
-        }
-        if (user.password != password) {
-            req.flash('error', 'Wrong password/login');
-            //return res.redirect('/login');
-            return res.refresh();
         }
 
         if (user.state === 0)
@@ -366,15 +362,17 @@ exports.doRevisePW = function(req,res){
             req.flash('error', 'User is not activated/login');
             return res.redirect('/checkmail');
         }
+
         //密码修改操作
-        user.updatePW(function(err) {
+        user.updatePW(password, function(err) {
             if(err){
                 req.flash('error', err);
                 return res.redirect('/reg');
             }
         });
+
         req.flash('success', 'Password successfully revised/login');
-        res.redirect('/u/'+req.body.mail);
+        res.redirect('/u/'+ user.mail);
     });
 };
 

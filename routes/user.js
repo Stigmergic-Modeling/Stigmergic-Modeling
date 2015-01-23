@@ -15,7 +15,7 @@ exports.user = function(req, res) {
         }
 
         console.log(req.session.user);
-        console.log('dfdsfasfdsafdsfsd');
+
         res.render('user', {
             title: user.mail,
             user: req.session.user,
