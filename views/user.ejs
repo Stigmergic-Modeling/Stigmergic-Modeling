@@ -5,7 +5,7 @@
       <% if (undefined !== userInfo.avatar && null !== userInfo.avatar && '' !== userInfo.avatar) { %>
         <img src="<%= userInfo.avatar %>" class="img-responsive img-rounded"/>
       <% } else {%>
-        <a href="/u/<%= userInfo.mail %>/settings">
+        <a href="/u/<%= userInfo.mail %>/settings/profile">
           <img src="/src/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
         </a>
       <% } %>

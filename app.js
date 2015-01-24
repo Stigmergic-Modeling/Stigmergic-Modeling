@@ -163,20 +163,20 @@ app.get('/reset',routes.test.reset);
 app.get('/comment',routes.test.getComment);
 
 // about 页面 get 方法
-app.get('/about', routes.home.getAbout);
+app.get('/about', routes.home.getAbout);  // 不需要登录状态验证
 
 // workspace 页面 get 方法
-//app.get('/:user/:model/workspace',routes.state.checkNotLogin);
+app.all('/:user/:model/workspace',routes.state.checkLogin);
 app.get('/:user/:model/workspace', routes.model.enterWorkspace);
 
 // model info 页面 get 方法
+app.all('/:user/:model/info',routes.state.checkLogin);
 app.get('/:user/:model/info', routes.model.getInfo);
 
-// user settings 页面 get 方法
-app.get('/u/:user/settings', routes.user.settings);
-
-// user settings 页面 post 方法
-app.post('/u/:user/settings', routes.user.updateProfile);
+// user settings 页面 get、post 方法
+app.all('/u/:user/settings/profile',routes.state.checkLogin);
+app.get('/u/:user/settings/profile', routes.user.settings);
+app.post('/u/:user/settings/profile', routes.user.updateProfile);
 
 
 http.createServer(app).listen(app.get('port'), function(){

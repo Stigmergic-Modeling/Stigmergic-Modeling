@@ -4,13 +4,18 @@ var fs = require('fs');
  * workspace 页面 get 方法
  */
 exports.enterWorkspace = function(req, res){
+
+    console.log("GET PAGE: Workspace");
+    console.log(req.session.user);
+    console.log(req.params.model);
+
     res.render('workspace', {
         title: 'workspace' + req.params.model,
         user : req.session.user,
         model: req.params.model,
         data: makeDataForWorkspace(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
-        success : '',
-        error : ''
+        success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+        error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
     });
 };
 
@@ -18,6 +23,11 @@ exports.enterWorkspace = function(req, res){
  * info 页面 get 方法
  */
 exports.getInfo = function(req, res){
+
+    console.log("GET PAGE: Model info");
+    console.log(req.session.user);
+    console.log(req.params.model);
+
     res.render('model_info', {
         title: 'Model Info' + req.params.model,
         user : req.session.user,

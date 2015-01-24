@@ -21,27 +21,29 @@
               <!--<dt>Profile picture</dt>-->
               <!--<dd></dd>-->
             <!--</dl>-->
-            <dl>
-              <dt>Profile picture</dt>
-              <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-avatar" /></dd>
-            </dl>
-            <dl>
-              <dt>Name</dt>
-              <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-name" /></dd>
-            </dl>
-            <dl>
-              <dt>Email</dt>
-              <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-email" disabled /></dd>
-            </dl>
-            <dl>
-              <dt>Location</dt>
-              <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-location" /></dd>
-            </dl>
-            <dl>
-              <dt>URL</dt>
-              <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" /></dd>
-            </dl>
-            <button type="button" class="btn btn-success" id="stigmod-update-pf-btn">Update profile</button>
+            <form method="post">
+              <dl>
+                <dt>Profile picture</dt>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-avatar" name="avatar" /></dd>
+              </dl>
+              <dl>
+                <dt>Name</dt>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-name" name="name" /></dd>
+              </dl>
+              <dl>
+                <dt>Email</dt>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-email" name="mail" disabled /></dd>
+              </dl>
+              <dl>
+                <dt>Location</dt>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-location" name="location" /></dd>
+              </dl>
+              <dl>
+                <dt>URL</dt>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" name="url" /></dd>
+              </dl>
+              <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Update profile</button>
+            </form>
           </div>
           <div class="col-xs-4"></div>
         </div>
