@@ -10,11 +10,11 @@ function User(user) {
     this.link = user.link;
 
     // 附加信息属性
-    this.name = '';
-    this.location = '';
-    this.url = '';
-    this.signUpDate = '';
-    this.avatar = '';
+    this.name = user.name;
+    this.location = user.location;
+    this.url = user.url;
+    this.signUpDate = user.signUpDate;
+    this.avatar = user.avatar;
 
 };
 module.exports = User;
@@ -23,10 +23,15 @@ User.prototype.save = function save(callback) {
 
 	//外部已先做了一次存在性判断
     var user = {
-		password : this.password,
-        state : 0,
-        mail : this.mail,
-        link : this.link
+		password: this.password,
+        state: 0,
+        mail: this.mail,
+        link: this.link,
+        name: this.name,
+        location: this.location,
+        url: this.url,
+        signUpDate: this.signUpDate,
+        avatar: this.avatar
     };
 
     mongodb.getCollection('users',function(collection){
@@ -82,6 +87,26 @@ User.prototype.updatePW = function updatePW(pw, callback) {
     });
 };
 
+// 更新用户 profile
+User.prototype.updateProfile = function updateProfile(profile, callback) {
+    var user = this;
+
+    mongodb.getCollection('users',function(collection){
+
+        //update操作
+        collection.update({
+            mail: user.mail
+        } , {
+            $set: {
+                name: profile.name,
+                location: profile.location,
+                url: profile.url
+            }
+        });
+
+        return callback(null);
+    });
+};
 
 User.get = function get(mail, callback) {
     mongodb.getCollection('users',function(collection){

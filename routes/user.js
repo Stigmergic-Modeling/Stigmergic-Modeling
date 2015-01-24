@@ -22,8 +22,8 @@ exports.user = function(req, res) {
             userInfo: user,
             data: makeDataForUser(user.mail),
             //active: active,
-            success: "",
-            error: ""
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
         });
     });
 };
@@ -46,15 +46,48 @@ exports.settings = function(req, res) {
             title: user.mail + ' - settings',
             user: req.session.user,
             userInfo: user,
-            //data: makeDataForSettings(user.mail),
-            success: "",
-            error: ""
+            data: makeDataForSettings(user),
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
         });
     });
 };
 
 /**
- * 构造传入给 settings 页面的数据
+ * settings 页面 post 方法
+ */
+exports.updateProfile = function(req, res) {
+    var profile = req.body.profile;
+
+    console.log("User updateProfile");
+    User.get(req.params.user, function(err, user) {
+
+        if (!user) {
+            req.flash('error', 'User not Existed/login');
+            return res.redirect('/login');
+        }
+
+        if (user.state === 0) {
+            req.flash('error', 'User is not activated/login');
+            return res.redirect('/checkmail');
+        }
+
+        //更新 profile 操作
+        user.updateProfile(profile, function(err) {
+            if(err){
+                req.flash('error', err);
+                return res.redirect('/u/' + user.mail + '/settings/');
+            }
+        });
+
+        req.flash('success', 'Profile successfully updated');
+        //res.redirect('/u/'+ user.mail + '/settings/');
+    });
+};
+
+
+/**
+ * 构造传入给 user 页面的数据
  */
 function makeDataForUser(user) {
     var data = {};
@@ -106,6 +139,24 @@ function makeDataForUser(user) {
             relNum: 7
         }
     ];
+
+    return data;
+}
+
+
+/**
+ * 构造传入给 settings 页面的数据
+ */
+function makeDataForSettings(user) {
+    var data = {};
+
+    data.user = user.mail;
+
+    data.profile = {
+        name: user.name,
+        location: user.location,
+        url: user.url
+    };
 
     return data;
 }

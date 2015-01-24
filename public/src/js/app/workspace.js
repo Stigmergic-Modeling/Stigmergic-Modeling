@@ -1757,7 +1757,7 @@ define(function (require, exports, module) {
 
         // 向后端传送 model 操作日志
         $.ajax({
-            url: '/post/workspace',
+            url: '/post/workspace', // TODO: 写法需要改进
             type: 'POST',
             data: JSON.stringify(postData),
             dataType: 'json',

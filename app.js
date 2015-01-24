@@ -175,6 +175,9 @@ app.get('/:user/:model/info', routes.model.getInfo);
 // user settings 页面 get 方法
 app.get('/u/:user/settings', routes.user.settings);
 
+// user settings 页面 post 方法
+app.post('/u/:user/settings', routes.user.updateProfile);
+
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));

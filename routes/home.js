@@ -70,13 +70,18 @@ exports.doReg = function(req, res) {
     var sha1 = crypto.createHash('sha1');
     var time = new Date().toString();
     var link = sha1.update(time).digest('hex');
+    var dateArray = time.split(' ');
 
     var newUser = new User({
         //name: req.body.username,
         password: password,
         state: 0,
         mail : req.body.mail,
-        link: link
+        link: link,
+        name: '',
+        location: '',
+        url: '',
+        signUpDate: dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3]
     });
 
     //检查用户名是否已经存在
@@ -350,15 +355,14 @@ exports.doRevisePW = function(req,res){
     var md5 = crypto.createHash('md5');
     var password = md5.update(req.body.password).digest('base64');
 
-    User.get(req.session.user.mail, function(err, user) {
+    User.get(req.params.user, function(err, user) {  // TODO: 用 req.session.user.mail 好，还是 req.params.user 好？
 
         if (!user) {
             req.flash('error', 'User not Existed/login');
             return res.redirect('/login');
         }
 
-        if (user.state === 0)
-        {
+        if (user.state === 0) {
             req.flash('error', 'User is not activated/login');
             return res.redirect('/checkmail');
         }

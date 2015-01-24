@@ -41,7 +41,7 @@
               <dt>URL</dt>
               <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" /></dd>
             </dl>
-            <button type="button" class="btn btn-success">Update profile</button>
+            <button type="button" class="btn btn-success" id="stigmod-update-pf-btn">Update profile</button>
           </div>
           <div class="col-xs-4"></div>
         </div>
@@ -54,6 +54,8 @@
 
 <script src="/src/js/sea/sea.js"></script>
 <script>
+  var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
+
   seajs.config({
     paths: {
       'js': 'http://localhost:3000/src/js'
