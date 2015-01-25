@@ -28,19 +28,19 @@
               </dl>
               <dl>
                 <dt>Name</dt>
-                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-name" name="name" /></dd>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-name" name="name" value="<%= userInfo.name %>" /></dd>
               </dl>
               <dl>
                 <dt>Email</dt>
-                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-email" name="mail" disabled /></dd>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-email" name="mail" value="<%= userInfo.mail %>" disabled /></dd>
               </dl>
               <dl>
                 <dt>Location</dt>
-                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-location" name="location" /></dd>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-location" name="location" value="<%= userInfo.location %>" /></dd>
               </dl>
               <dl>
                 <dt>URL</dt>
-                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" name="url" /></dd>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" name="url" value="<%= userInfo.url %>" /></dd>
               </dl>
               <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Update profile</button>
             </form>
@@ -56,12 +56,10 @@
 
 <script src="/src/js/sea/sea.js"></script>
 <script>
-  var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
-
   seajs.config({
     paths: {
       'js': 'http://localhost:3000/src/js'
     }
   });
-  seajs.use('js/app/user_settings.js');
+  seajs.use('js/app/index');
 </script>

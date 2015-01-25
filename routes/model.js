@@ -10,7 +10,7 @@ exports.enterWorkspace = function(req, res){
     console.log(req.params.model);
 
     res.render('workspace', {
-        title: 'workspace' + req.params.model,
+        title: 'Workspace - ' + req.params.model,
         user : req.session.user,
         model: req.params.model,
         data: makeDataForWorkspace(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
@@ -29,9 +29,11 @@ exports.getInfo = function(req, res){
     console.log(req.params.model);
 
     res.render('model_info', {
-        title: 'Model Info' + req.params.model,
+        title: 'Model Info - ' + req.params.model,
         user : req.session.user,
         model: req.params.model,
+        modelInfo: makeModelInfo(), // 构造传入后端 ejs 模板的数据
+        //data: makeDataForModelInfo(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
         success : '',
         error : ''
     });
@@ -47,7 +49,7 @@ function makeDataForWorkspace(user, modelName) {
     data.user = user;
     data.modelName = modelName;
 
-    data.model = // 测试数据。 以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
+    data.model = // 测试数据。 TODO：以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
 
             [
                 {
@@ -421,3 +423,36 @@ function makeDataForWorkspace(user, modelName) {
     return data;
 }
 
+/**
+ * 构造 workspace 页面的前端 js 需要用到的数据
+ */
+function makeDataForModelInfo(user, modelName) {
+    var data = {};
+
+    return data;
+}
+
+function makeModelInfo() {
+    var modelInfo = {};
+
+    modelInfo.icm = {  // 假数据 TODO：从数据提取真数据
+        name: 'CourseManagementSystem',
+        description: 'The course management system helps teachers to post course infomation and helps students to choose the courses. The course management system helps teachers to post course infomation and helps students to choose the courses. The course management system helps teachers to post course infomation and helps students to choose the courses.',
+        creationDate: 'Oct 25th, 2014',
+        updateDate: 'Nov 24th, 2014',
+        classNum: 17,
+        relationNum: 29
+    };
+
+    modelInfo.ccm = {  // 假数据 TODO：从数据提取真数据
+        name: 'CourseElectingSystem',
+        description: 'The course management system helps teachers to post course infomation and helps students to choose the courses.',
+        creationDate: 'Dec 7th, 2013',
+        updateDate: 'Nov 24th, 2014',
+        classNum: 17,
+        relationNum: 29,
+        peopleNum: 2117
+    };
+
+    return modelInfo;
+}

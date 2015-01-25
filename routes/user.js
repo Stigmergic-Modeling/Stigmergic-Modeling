@@ -56,7 +56,7 @@ exports.settings = function (req, res) {
             title: user.mail + ' - settings',
             user: req.session.user,
             userInfo: user,
-            data: makeDataForSettings(user),
+            //data: makeDataForSettings(user),
             success: req.flash('success').toString(),
             error: req.flash('error').toString()
         });
@@ -111,7 +111,7 @@ function makeDataForUser(user) {
 
     data.user = user;
 
-    data.models =   // 假数据。以后要通过 getUserModelInfo() 函数获得，该函数从数据库中提取数据
+    data.models =   // 假数据。TODO：以后要通过 getUserModelInfo() 函数获得，该函数从数据库中提取数据
     [
         {
             name: 'CourseManagementSystem',
@@ -162,7 +162,7 @@ function makeDataForUser(user) {
 
 
 /**
- * 构造传入给 settings 页面的数据
+ * 构造传入给 settings 页面的数据 TODO：考虑不用前端js，而是用后端模板填入数据，因为profile页面现在是靠表单提交的，无需考虑ajax。
  */
 function makeDataForSettings(user) {
     var data = {};
