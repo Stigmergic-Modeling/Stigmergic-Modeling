@@ -18,11 +18,13 @@ var Merge = function(dataSet,newInfo){
     };
     for(var key in newInfo){
         var tmpKey = key.split(".");
+
         var tmpDIr=this;
-        for(var i=0;i<tmp.length;i++){
+        for(var i=0;i<(tmpKey.length-1);i++){
+            if(tmpDIr[tmpKey[i]] == undefined)  tmpDIr[tmpKey[i]] = {};
             tmpDIr = tmpDIr[tmpKey[i]];
         }
-        tmpDIr = newInfo[key];
+        tmpDIr[tmpKey[i]] = newInfo[key];
     };
 }
 
@@ -171,7 +173,6 @@ var individualModel = {
         return newAttributeSet;
     },
     transRelation : function(relationSet){
-        console.log(relationSet)
         var newRelationSet = {};
         for(var key in relationSet){
             var relationName = relationSet[key][0]['class'];
@@ -193,22 +194,26 @@ var individualModel = {
 /**
  *  add,delete,revise
  */
-exports.class = {
+
+
+var entity = {
     add : function(projectID,user,className,type,callback){
         var dateSetBase = {
             projectID: projectID,
             user: user
         };
         //save index
+
         var dataSet = new Merge(dateSetBase,{
             'collection':"conceptDiag_index",
             'source':'Class',
             'target':className,
             'relation':{direction:'',attribute:'instance'}
         });
-        saveData(dataSet,function(err,doc){});
-
+        saveData(dataSet,function(err,doc){
+        });
         //save class edge (type of class)
+
         if(type != null || type != 'normal'){
             var dataSet = new Merge(dateSetBase,{
                 'collection': "conceptDiag_edge",
@@ -219,7 +224,8 @@ exports.class = {
                     'attribute':'type'
                 }
             });
-            saveData(dataSet,function(err,doc){})
+            saveData(dataSet,function(err,doc){
+            })
         }
     },
     delete: function(projectID,user,className,callback){
@@ -278,8 +284,9 @@ exports.class = {
         });
     }
 }
+exports.class = entity;
 
-exports.attribute = {
+var attribute = {
     getId:function(projectID,user,className,attributeName,callback){
         var filter = {
             projectID : projectID,
@@ -332,28 +339,33 @@ exports.attribute = {
     },
     add : function(projectID,user,className,attributeName,callback){
         this.getId(projectID,user,className,attributeName,function(attributeId){
-            if(attributeId != undefined)  return callback("Aleady Exists");
+            if(attributeId != undefined)  return callback("Aleady Exists",null);
+            //not exist
             var dateSetBase = {
                 projectID: projectID,
                 user: user
             };
             //save attribute vertex
             var dataSet = new Merge(dateSetBase,{
-                'collection': "conceptDiag_vertex",
-                'name': ""
+                'name': "",
+                'user': [user]
             });
-            saveData(dataSet,function(err,doc){
+            dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
+                attributeId = docs[0]._id;
                 //save edge for class
-                var newDataSet = new Merge(dataSet,{
+                var newDataSet = new Merge(dateSetBase,{
+                    'collection': "conceptDiag_edge",
+                    'source': attributeId,
                     'relation.direction': '0',
                     'relation.attribute': 'class',
                     'target':className
                 });
-                saveData(newDataSet,function(err,doc){});
-                //save attribute edges
-                this.attributeProperty.add(projectID,user,attributeId,'isAttribute','1',function(){
+                saveData(newDataSet,function(err,doc){
                 });
-                this.attributeProperty.add(projectID,user,attributeId,'role',attributeName,function(){
+                //save attribute edges
+                attributeProperty.add(projectID,user,attributeId,'isAttribute','1',function(){
+                });
+                attributeProperty.add(projectID,user,attributeId,'role',attributeName,function(){
                 });
             })
         });
@@ -362,7 +374,6 @@ exports.attribute = {
         //find Attirubte
         this.getId(projectID,user,className,attributeName,function(attributeId){
             if(attributeId == undefined)  return callback("Not Exists");
-
             var dateSetBase = {
                 projectID: projectID,
                 user: user
@@ -374,9 +385,10 @@ exports.attribute = {
             });
             deleteData(dataSet,function(err,doc){});
             //delete attribute edges
+
             var dataSet = new Merge(dateSetBase,{
                 'collection': "conceptDiag_edge",
-                'source': attributeId,
+                'source': attributeId
             });
             deleteData(dataSet,function(err,doc){});
         });
@@ -404,8 +416,9 @@ exports.attribute = {
         */
     }
 }
+exports.attribute = attribute;
 
-exports.attributeProperty = {
+var attributeProperty = {
     add : function(projectID,user,attributeId,propertyName,propertyValue,callback){
         var dataSet = {
             projectID: projectID,
@@ -449,9 +462,10 @@ exports.attributeProperty = {
         deleteData(dataSet,function(err,doc){});
 
         var newDataSet = new Merge(dataSet,{"target":newPropertyValue});
-        saveData(dataSet,function(err,doc){});
+        saveData(newDataSet,function(err,doc){});
     }
 }
+exports.attributeProperty = attributeProperty;
 
 exports.relation = {
     getId:function(projectID,user,className1,className2,relationType,callback){
@@ -503,11 +517,11 @@ exports.relation = {
         };
         //save vertex
         var dataSet = new Merge(dateSetBase,{
-            'collection': "conceptDiag_vertex",
-            'name': relationName
+            'name': relationName,
+            'user': [user]
         });
-        saveData(dataSet,function(err,doc){
-            var relationId = doc._id;
+        dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
+            var relationId = docs._id;
             //save Index
             var dataSet = new Merge(dateSetBase,{
                 'collection':"conceptDiag_index",
@@ -524,18 +538,27 @@ exports.relation = {
             projectID: projectID,
             user: user
         };
-        //save vertex
+        //delete index
         var dataSet = new Merge(dateSetBase,{
             'collection':"conceptDiag_index",
             'target': relationId,
             'relation':{direction:'',attribute:'instance'}
         });
+        console.log(dataSet)
         deleteData(dataSet,function(err,doc){});
-
+        //delete vertex
         var dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_vertex",
+            '_id': relationId
+        });
+        console.log(dataSet)
+        deleteData(dataSet,function(err,doc){});
+        //delete edge
+        var dataSet = new Merge(dateSetBase,{
+            'collection': "conceptDiag_edge",
             'source': relationId
         });
+        console.log(dataSet)
         deleteData(dataSet,function(err,doc){});
     },
     revise:function(){
@@ -592,7 +615,7 @@ exports.relationProperty = {
         var newDateSet = new Merge(dataSet,{
             target: newPropertyValue
         })
-        saveData(dataSet,function(err,doc){});
+        saveData(newDateSet,function(err,doc){});
     }
 }
 
@@ -603,8 +626,9 @@ var flowControl = function(){
     //直接添加边
     async.series([
         function(callback){
-            if(m_flowList.length == 0)  return callback(null,null);
+            //if(m_flowList.length == 0)  return callback(null,null);
             var dateSet = new Copy(m_flowList[0][1]);
+
             switch(m_flowList[0][0]){
                 case 0 ://DELETE
                     deleteFunc(dateSet,function(err,results){
@@ -624,14 +648,16 @@ var flowControl = function(){
     ],function(err, results){
         var x = m_flowList.shift();
         if(m_flowList.length > 0) flowControl();
+        //这里写return callback；
     });
+
 }
 
 //for save
 var saveData = function(dataSet,callback){
     //console.log(dataSet)
     var newSet = new Copy(dataSet);
-    if(flowControl.length == 0){
+    if(m_flowList.length == 0){
         m_flowList.push([1,newSet]);
         flowControl();
     }else{
@@ -647,7 +673,6 @@ var saveFunc = function(dataSet,callback){
 
     var filter = new Copy(dataSet);
     dbOperation.get(collectionName,filter,function(err,docs){
-
         if(docs.length === 0){
             //如果记录不存在则添加
             dataSet.user = [user];
@@ -668,7 +693,7 @@ var saveFunc = function(dataSet,callback){
 //for delete
 var deleteData = function(dataSet,callback){
     var newSet = new Copy(dataSet);
-    if(flowControl.length === 0){
+    if(m_flowList.length === 0){
         m_flowList.push([0,newSet]);
         flowControl();
     }else{
@@ -687,11 +712,12 @@ var deleteFunc = function(dataSet,callback){
     dbOperation.get(collectionName,filter,function(err,docs){
         if(docs.length === 0){
             //如果记录不存在则不做处理
-            return callback(err,doc);
+            return callback(err,docs);
         }else{
             //如果记录存在则删除用户
             dataSet = {};
             dataSet["user"] = user;
+            console.log(filter);
             dbOperation.update(collectionName,filter,{"$pull": dataSet},function(err,doc){
                 return callback(err,doc);
             });
@@ -714,4 +740,8 @@ exports.getData = function(){
             fs.appendFile('./graphInfo.csv',docString,'utf-8',function(){})
         }
     })
+}
+
+exports.saveData = function(dataSet,callback){
+    saveData(dataSet,function(){})
 }

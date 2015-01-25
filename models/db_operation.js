@@ -4,7 +4,7 @@
 var db = require('./db');
 var mongodb = new db();
 var ObjectID = require("mongodb").ObjectID;
-var logger = require('./logger.js');
+var logger = require('../models/logger.js');
 
 // 数组查询
 // "ne"判断数组中不存在，"$push"进行数组的插入，
@@ -49,6 +49,18 @@ exports.create = function(collectionName,filter,data,callback){
     });
 };
 
+//强制创建
+exports.forceToCreate = function(collectionName,data,callback){
+    mongodb.getCollection(collectionName,function(collection){
+        collection.insert(data, {safe: true}, function(err, doc) {
+            //logger.generateLogData('INFO','icd','insert',icdData);
+            updateTimeTag(collectionName,data,function(){
+            });
+            return callback(err, doc);
+        });
+    });
+};
+
 //更新
 exports.update = function(collectionName,filter,data,callback){
     mongodb.getCollection(collectionName,function(collection){
@@ -60,7 +72,7 @@ exports.update = function(collectionName,filter,data,callback){
                 err = "not Exist";
                 return callback(err, docs);
             }
-            collection.update(filter,data, {safe: true}, function(err, doc) {
+            collection.update(filter,data, {safe: true,multi:true}, function(err, doc) {
                 //logger.generateLogData('INFO','icd','insert',icdData);
                 updateTimeTag(collectionName,filter,function(){
                 });

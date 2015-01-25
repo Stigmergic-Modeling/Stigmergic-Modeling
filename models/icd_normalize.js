@@ -30,13 +30,48 @@ Dupli = function(dataSet) {
 
 //测试代码
 exports.test = function(icd){
-    this.icdInfoNormalize(icd);   //将模型树转化为模型图并存储
+    //this.icdInfoNormalize(icd);   //将模型树转化为模型图并存储
     //dbOperationControl.getData({}); //获得所有数据
     //dbOperationControl.getIndividualModel(ObjectID("53300bb73b2fd2644e000001"),"jiangsfls@163.com",function(docs){console.log(JSON.stringify(docs))});    //获得个体模型数据
     //dbOperationControl.getIndivClassInfo(ObjectID("53300bb73b2fd2644e000001"),"jiangsfls@163.com",'Department',function(docs){console.log(docs)});    //获得类数据信息
 
     //dbOperationControl.getIndivClass(ObjectID("53300bb73b2fd2644e000001"),"jiangsfls@163.com",'Department',function(docs){console.log(docs)});    //获得所有的类
     //dbOperationControl.getIndivRelation(ObjectID("53300bb73b2fd2644e000001"),"jiangsfls@163.com",['331d17cb90a5379e28437-338ab7bbd1e1537190b5a8067a860f0553f69b2f7f'],function(docs){console.log(docs)}); //获得所有的属性
+    var projectID = ObjectID("53300bb73b2fd2644e000001");
+    var user = "jiangsfls@163.com";
+    var className = "testClass";
+    var type = 'virtual';
+    var oldClassName = "testClass";
+    var newClassName = "testClassRevised";
+
+    //dbOperationControl.class.add(projectID,user,className,type,function(err,doc){});
+    //dbOperationControl.class.delete(projectID,user,className,function(err,doc){});
+    //dbOperationControl.class.revise(projectID,user,oldClassName,newClassName,function(err,doc){});
+
+    var attributeName = "testAttribute";
+    var attributeId =  ObjectID("54c4a8aaa06cd6701d000001");
+    var propertyName = 'role';
+    var oldPropertyValue = "testAttribute";
+    var newPropertyValue = "testAttributeRevised";
+    //dbOperationControl.attribute.add(projectID,user,className,attributeName,function(err,doc){});
+    //dbOperationControl.attribute.delete(projectID,user,className,attributeName,function(err,doc){});
+    //dbOperationControl.attributeProperty.add();
+    //dbOperationControl.attributeProperty.delete();
+    //dbOperationControl.attributeProperty.revise(projectID,user,attributeId,propertyName,oldPropertyValue,newPropertyValue);
+    var relationName = "testRelation"
+    var type = "association"
+    var relationId = ObjectID("54c4adda6177faec18000002");
+    var direction ='0';
+    var propertyName = 'class';
+    var propertyValue = 'testClass';
+    //dbOperationControl.relation.add(projectID,user,relationName,type,function(){});
+    dbOperationControl.relation.delete(projectID,user,relationId,function(){});
+    //dbOperationControl.relationProperty.add(projectID,user,relationId,direction,propertyName,propertyValue,function(){});
+    //dbOperationControl.relationProperty.delete();
+    var oldPropertyValue = 'testClass';
+    var newPropertyValue = 'testClassRevised';
+    //dbOperationControl.relationProperty.revise(projectID,user,relationId,direction,propertyName,oldPropertyValue,newPropertyValue,function(){});
+
 }
 
 exports.icdInfoNormalize = function(icd){
@@ -45,9 +80,7 @@ exports.icdInfoNormalize = function(icd){
     dateSetBase.user = icd.user;
     //console.log(dateSetBase.user);
     generateClass(dateSetBase,icd); //生成类信息
-    return;
     generateRelation(dateSetBase,icd); //生成关系集信息
-
 }
 
 generateClass = function(dateSetBase, icd){
