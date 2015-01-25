@@ -586,6 +586,19 @@ fieldset[disabled] .stigmod-input {
   margin-top: 10px;
 }
 
+/* 左侧栏条目中向右的箭头 */
+#stigmod-pg-workspace .list-group-item > .glyphicon-chevron-right {
+  color: #fff;
+  /*display: none;*/
+}
+#stigmod-pg-workspace .list-group-item:hover > .glyphicon-chevron-right {
+  color: #888;
+}
+#stigmod-pg-workspace .list-group-item.active:hover > .glyphicon-chevron-right {
+  color: #fff;
+}
+
+
 /* 右侧内容栏中数据的显示格式 */
 #stigmod-pg-workspace #stigmod-attr-title,
 #stigmod-pg-workspace #stigmod-rel-title {
@@ -947,6 +960,7 @@ fieldset[disabled] .stigmod-input {
   margin-top: 7px;
 }
 
+/* 左侧、中间栏的 向右和向下的箭头 */
 #stigmod-pg-user-settings .glyphicon-chevron-right,
 #stigmod-pg-user-settings .glyphicon-chevron-down {
   color: #888;

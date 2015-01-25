@@ -155,8 +155,8 @@ define(function (require, exports, module) {
         $(document).on('click', '#stigmod-btn-addrelation', handleAddRelOk);
 
         // att 或 rel 的 .panel 的上下移动
-        $(document).on('click', '.fa-arrow-up', handleMoveAttrPanel);
-        $(document).on('click', '.fa-arrow-down', handleMoveRelPanel);
+        $(document).on('click', '.fa-arrow-up', handleMoveAttRelPanelUp);
+        $(document).on('click', '.fa-arrow-down', handleMoveAttRelPanelDown);
 
         // 所有 remove 按钮的入口
         $(document).on('click', '.fa-remove, .glyphicon-trash, .stigmod-remove-trig', handleRemoveEntrance);
@@ -1560,7 +1560,7 @@ define(function (require, exports, module) {
     }
 
     // 处理：att 或 rel 的 .panel 的上下移动
-    function handleMoveAttrPanel() {
+    function handleMoveAttRelPanelUp() {
         var $thisPanel = $(this).closest('.panel');
         var $prevPanel = $thisPanel.prev();
 
@@ -1573,8 +1573,7 @@ define(function (require, exports, module) {
             // 更新显示
             stateOfPage.addAttrRel.position = $prevPanel.attr('stigmod-attrel-name');
             stateOfPage.addAttrRel.direction = 0;
-            insertMiddle(icm, name, true);  // 前插
-            $thisPanel.remove(); // 删除
+            $prevPanel.before($thisPanel);  // 上移当前 panel 节点
 
             enableSave();
 
@@ -1582,7 +1581,7 @@ define(function (require, exports, module) {
             // 已经在最上，不必操作
         }
     }
-    function handleMoveRelPanel() {
+    function handleMoveAttRelPanelDown() {
         var $thisPanel = $(this).closest('.panel');
         var $nextPanel = $thisPanel.next();
 
@@ -1595,8 +1594,7 @@ define(function (require, exports, module) {
             // 更新显示
             stateOfPage.addAttrRel.position = $nextPanel.attr('stigmod-attrel-name');
             stateOfPage.addAttrRel.direction = 1;
-            insertMiddle(icm, name, true);  // 后插
-            $thisPanel.remove(); // 删除
+            $nextPanel.after($thisPanel);  // 下移当前 panel 节点
 
             enableSave();
 
