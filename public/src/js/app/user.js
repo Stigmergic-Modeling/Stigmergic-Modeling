@@ -14,7 +14,7 @@ define(function (require, exports, module) {
 
     console.log(modelInfo);
 
-    // 左侧栏的类组件
+    // 右侧栏的 model info 组件
     var componentModelInfo = document.getElementById('template-model-info').innerHTML;
 
 
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
      *  页面修改函数
      *  ----------  */
 
-    // 右侧栏填入模型信息
+    // 右侧栏填入模型信息  TODO：可被搜索模块复用
     function fillModelInfo(user, modelInfo) {
         var id, link, update, updateInfo;
 

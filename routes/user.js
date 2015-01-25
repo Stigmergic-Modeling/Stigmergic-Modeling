@@ -32,75 +32,6 @@ exports.user = function (req, res) {
     });
 };
 
-/**
- * settings 页面 get 方法
- */
-exports.settings = function (req, res) {
-
-    console.log("GET PAGE: User settings / profile");
-    console.log(req.session.user);
-
-    User.get(req.params.user, function (err, user) {
-        if (!user) {
-            req.flash('error', 'Account does not exist');
-
-            return res.redirect('/');
-        }
-
-        if (user.state === 0) {
-            req.flash('error', 'Account not activated');
-            return res.redirect('/checkmail');
-        }
-
-        res.render('user_settings', {
-            title: user.mail + ' - settings',
-            user: req.session.user,
-            userInfo: user,
-            //data: makeDataForSettings(user),
-            success: req.flash('success').toString(),
-            error: req.flash('error').toString()
-        });
-    });
-};
-
-/**
- * settings 页面 post 方法
- */
-exports.updateProfile = function (req, res) {
-
-    console.log("POST DATA: User settings / profile");
-    console.log(req.session.user);
-
-    var profile = {
-        name: req.body.name,
-        location: req.body.location,
-        url: req.body.url
-    };
-
-    User.get(req.params.user, function (err, user) {
-
-        if (!user) {
-            req.flash('error', 'Account does not exist');
-            return res.redirect('/login');
-        }
-
-        if (user.state === 0) {
-            req.flash('error', 'Account not activated');
-            return res.redirect('/checkmail');
-        }
-
-        //更新 profile 操作
-        user.updateProfile(profile, function (err) {
-            if (err) {
-                req.flash('error', err);
-                return res.redirect('/u/' + user.mail + '/settings/profile');
-            }
-        });
-
-        req.flash('success', 'Profile updated successfully');
-        res.redirect('/u/'+ user.mail + '/settings/profile');
-    });
-};
 
 
 /**
@@ -156,24 +87,6 @@ function makeDataForUser(user) {
             relNum: 7
         }
     ];
-
-    return data;
-}
-
-
-/**
- * 构造传入给 settings 页面的数据 TODO：考虑不用前端js，而是用后端模板填入数据，因为profile页面现在是靠表单提交的，无需考虑ajax。
- */
-function makeDataForSettings(user) {
-    var data = {};
-
-    data.user = user.mail;
-
-    data.profile = {
-        name: user.name,
-        location: user.location,
-        url: user.url
-    };
 
     return data;
 }

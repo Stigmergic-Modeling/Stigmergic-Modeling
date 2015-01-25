@@ -5,13 +5,16 @@
       <div class="panel panel-default">
         <div class="panel-heading">Personal Settings</div>
         <div class="list-group">
-          <a class="list-group-item stigmod-cursor-pointer active">Profile</a>
-          <a class="list-group-item stigmod-cursor-pointer">Account settings</a>
-          <a class="list-group-item stigmod-cursor-pointer">Model settings</a>
+          <a class="list-group-item stigmod-cursor-pointer active">
+            <span>Profile</span>
+            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+          </a>
+          <a href="/u/<%= user.mail %>/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
+          <a href="/u/<%= user.mail %>/settings/model" class="list-group-item stigmod-cursor-pointer">Model settings</a>
         </div>
       </div>
     </div>
-    <!-- 右侧Project栏 -->
+    <!-- 右侧栏 -->
     <div class="col-xs-9 stigmod-settings-right">
       <div class="panel panel-default">
         <div class="panel-heading">Profile</div>

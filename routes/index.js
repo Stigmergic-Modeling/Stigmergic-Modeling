@@ -39,6 +39,7 @@ exports.statistic = Statistic;
 var Model = require('./model');
 exports.model = Model;
 
-
+var Settings = require('./settings');
+exports.settings = Settings;
 
 

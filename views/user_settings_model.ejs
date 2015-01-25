@@ -1,0 +1,68 @@
+<div id="stigmod-pg-user-settings">
+  <div class="row">
+    <!-- 左侧信息栏 -->
+    <div class="col-xs-3" id="stigmod-settings-left">
+      <div class="panel panel-default">
+        <div class="panel-heading">Personal Settings</div>
+        <div class="list-group">
+          <a href="/u/<%= user.mail %>/settings/profile" class="list-group-item stigmod-cursor-pointer">Profile</a>
+          <a href="/u/<%= user.mail %>/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
+          <a class="list-group-item stigmod-cursor-pointer active">
+            <span>Model settings</span>
+            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- 中间栏 -->
+    <div class="col-xs-3" id="stigmod-settings-mid">
+      <div class="panel panel-default">
+        <div class="panel-heading">Model settings</div>
+        <div class="list-group">
+          <a class="list-group-item stigmod-cursor-pointer">General</a>
+          <a class="list-group-item stigmod-cursor-pointer active">
+            <span>CourseManagementSystem</span>
+            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+          </a>
+          <a class="list-group-item stigmod-cursor-pointer">CD Store</a>
+          <a class="list-group-item stigmod-cursor-pointer">Ticketing System</a>
+        </div>
+      </div>
+    </div>
+    <!-- 右侧栏 -->
+    <div class="col-xs-6 stigmod-settings-right">
+      <div class="panel panel-default">
+        <div class="panel-heading">CourseManagementSystem</div>
+        <div class="row stigmod-settings-left-inner">
+          <div class="col-xs-12">
+            <form method="post">
+              <dl>
+                <dt>Name</dt>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>
+              </dl>
+              <dl>
+                <dt>Description</dt>
+                <dd>
+                  <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
+                </dd>
+              </dl>
+              <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Update model info</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="/src/js/sea/sea.js"></script>
+<script>
+  seajs.config({
+    paths: {
+      'js': 'http://localhost:3000/src/js'
+    }
+  });
+  seajs.use('js/app/index');
+</script>

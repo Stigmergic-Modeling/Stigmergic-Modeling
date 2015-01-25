@@ -173,10 +173,15 @@ app.get('/:user/:model/workspace', routes.model.enterWorkspace);
 app.all('/:user/:model/info',routes.state.checkLogin);
 app.get('/:user/:model/info', routes.model.getInfo);
 
-// user settings 页面 get、post 方法
+// user settings/profile 页面 get、post 方法
 app.all('/u/:user/settings/profile',routes.state.checkLogin);
-app.get('/u/:user/settings/profile', routes.user.settings);
-app.post('/u/:user/settings/profile', routes.user.updateProfile);
+app.get('/u/:user/settings/profile', routes.settings.setProfile);
+app.post('/u/:user/settings/profile', routes.settings.updateProfile);
+
+// user settings/model 页面 get、post 方法
+app.all('/u/:user/settings/model',routes.state.checkLogin);
+app.get('/u/:user/settings/model', routes.settings.setModel);
+app.post('/u/:user/settings/model', routes.settings.updateModel);
 
 
 http.createServer(app).listen(app.get('port'), function(){

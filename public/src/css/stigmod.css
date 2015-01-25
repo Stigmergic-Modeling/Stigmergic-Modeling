@@ -320,6 +320,15 @@ fieldset[disabled] .stigmod-input {
   height: 37px;
 }
 
+/* 文本区域（需要在 .stigmod-input 之后载入） */
+.stigmod-textarea {
+  resize: none;
+  /*width: 200px;*/
+  height: 100px;
+  /*max-width: 200px;*/
+  max-height: 100px;
+}
+
 /* 点击编辑功能中，编辑组件的样式控制 */
 .stigmod-clickedit-edit {
   width: 100%;
@@ -938,6 +947,11 @@ fieldset[disabled] .stigmod-input {
   margin-top: 7px;
 }
 
+#stigmod-pg-user-settings .glyphicon-chevron-right,
+#stigmod-pg-user-settings .glyphicon-chevron-down {
+  color: #888;
+}
+
 
 /* --------------------------------------------- *
  *
@@ -1063,4 +1077,5 @@ span.twitter-typeahead {
 span.twitter-typeahead .tt-hint {
   color: #999;
 }
+
 
