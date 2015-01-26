@@ -127,6 +127,10 @@ define(function (require, exports, module) {
         this.operationLog = [];
         this.operationLogHistory = [];  // 用于保存 log 的历史，便于回滚
 
+        // 记录在“保存操作”区间内有哪些类的属性或哪些关系组中的关系发生了顺序变化，便于生成 AttRelOrderChanges。此记录便于后端更新数据。
+        this.attRelOrderChanged = [{}, {}];  // 第一个对象中保存 class 名，第二个对象中保存 relationGroup 名
+        this.attRelOrderChangedHistory = [];
+
         // 如果传入了参数，则用传入参数初始化模型
         if (arguments.length > 0) {
             this[0] = JSON.parse(JSON.stringify(modelPassIn[0]));
@@ -218,6 +222,10 @@ define(function (require, exports, module) {
 
                 this.log('RMV', path, key);
 
+                if (1 === path.length) {  // 当删除类或关系组时
+                    this.attRelOrderChanged[path[0]][key] = 0;  // 表示该 classRelGrp 内的元素顺序有变
+                }
+
                 var subModel = this.getSubModel(path);
 
                 delete subModel[key];
@@ -234,6 +242,7 @@ define(function (require, exports, module) {
                 }
 
                 this.log('INS_ORD', [flagCRG, classRelGrpName], [attrRelName, position, direction]);
+                this.attRelOrderChanged[flagCRG][classRelGrpName] = 1;  // 表示该 classRelGrp 内的元素顺序有变
 
                 var order = this.getSubModel([flagCRG, classRelGrpName, 1, 'order']);
 
@@ -252,6 +261,7 @@ define(function (require, exports, module) {
                 }
 
                 this.log('MOD_ORD', [flagCRG, classRelGrpName], [attrRelName, newName]);
+                this.attRelOrderChanged[flagCRG][classRelGrpName] = 1;  // 表示该 classRelGrp 内的元素顺序有变
 
                 var order = this.getSubModel([flagCRG, classRelGrpName, 1, 'order']);
 
@@ -266,6 +276,7 @@ define(function (require, exports, module) {
                 }
 
                 this.log('RMV_ORD', [flagCRG, classRelGrpName], attrRelName);
+                this.attRelOrderChanged[flagCRG][classRelGrpName] = 1;  // 表示该 classRelGrp 内的元素顺序有变
 
                 var order = this.getSubModel([flagCRG, classRelGrpName, 1, 'order']);
 
@@ -283,6 +294,7 @@ define(function (require, exports, module) {
                 }
 
                 this.log('MOV_ORD', [flagCRG, classRelGrpName], [attrRelName, direction]);
+                this.attRelOrderChanged[flagCRG][classRelGrpName] = 1;  // 表示该 classRelGrp 内的元素顺序有变
 
                 var order = this.getSubModel([flagCRG, classRelGrpName, 1, 'order']);
                 var index = order.indexOf(attrRelName);
@@ -556,7 +568,7 @@ define(function (require, exports, module) {
                         throw new Error('Model.log(): Unexpected operation code.');
                 }
 
-                //console.log(item);
+                console.log(item);
                 this.operationLog.push(item);
 
             };
@@ -579,6 +591,50 @@ define(function (require, exports, module) {
 
                 return 0 === this.operationLog.length;
             };
+
+            // 获取最终状态的顺序数组，便于后端更新数据
+            Model.prototype.getAttRelOrderChanges = function () {
+
+                var attRel = this.attRelOrderChanged;
+                var changes = {
+                    classes: {},
+                    relationGroups: {}
+                };
+
+                // 获取“此刻属性顺序有变化的类”的最终状态的顺序数组，便于后端更新数据
+                for (var cls in attRel[0]) {
+                    if (attRel[0].hasOwnProperty(cls)) {
+
+                        if (1 === attRel[0][cls]) {  // class 未被删除
+                            changes.classes[cls] = this[0][cls][1]['order'];
+                        } else {  // class 已被删除
+                            changes.classes[cls] = [];
+                        }
+                    }
+                }
+
+                // 获取“此刻关系顺序有变化的关系组”的最终状态的顺序数组，便于后端更新数据
+                for (var rlg in attRel[1]) {
+                    if (attRel[1].hasOwnProperty(rlg)) {
+
+                        if (1 === attRel[1][rlg]) {  // relationGroups 未被删除
+                            changes.relationGroups[rlg] = this[1][rlg][1]['order'];
+                        } else {  // relationGroups 已被删除
+                            changes.relationGroups[rlg] = [];
+                        }
+                    }
+                }
+
+                return changes;
+            };
+
+            // 清空 顺序变动记录
+            Model.prototype.clearAttRelOrderChanges = function () {
+
+                this.attRelOrderChangedHistory.push([Date.now(), this.attRelOrderChanged]); // 保存 顺序变动记录 的历史，便于回滚
+                this.attRelOrderChanged = [{}, {}];  // 清空当前 顺序变动记录
+            };
+
 
             /*  ------- *
              *  高层方法

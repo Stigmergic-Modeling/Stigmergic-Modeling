@@ -28,7 +28,7 @@ define(function (require, exports, module) {
     // 记录 workspace 页面的状态
     var stateOfPage = {
         user: dataPassedIn.user,  // dataPassedIn 通过后端的 .ejs 模板传入
-        mode: dataPassedIn.modelName,  // dataPassedIn 通过后端的 .ejs 模板传入
+        model: dataPassedIn.modelName,  // dataPassedIn 通过后端的 .ejs 模板传入
 
         flagCRG: 0,        // 0: class, 1: relationGroup
         flagDepth: 0,      // for class: (0: class, 1: attribute, 2: propertyOfA)
@@ -1610,7 +1610,7 @@ define(function (require, exports, module) {
         }, 10);
     }
 
-    // 确认：点击 remove 确认按钮
+    // 处理：点击 remove 确认按钮
     function handleRemoveOk() {  // TODO: 删除后，stateOfPage的更新。
         switch (stateOfPage.flagDepth) {
             case 0:
@@ -1745,13 +1745,15 @@ define(function (require, exports, module) {
         var postData = {};
 
         postData.date = Date.now();
-        postData.user = 'Lilei';
-        postData.model = 'CourseManagementSystem';
+        postData.user = stateOfPage.user;
+        postData.model = stateOfPage.model;
 
-        postData.log = icm.getLog();
+        postData.log = icm.getLog();  // 获取日志
+        postData.orderChanges = icm.getAttRelOrderChanges();  // 获取有变动的顺序数组
 
-        // 清空 model 操作日志
+        // 清空 model 操作日志 & 顺序变动记录
         icm.clearLog();
+        icm.clearAttRelOrderChanges();
 
         // 向后端传送 model 操作日志
         $.ajax({
