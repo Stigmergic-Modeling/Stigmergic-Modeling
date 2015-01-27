@@ -551,6 +551,20 @@ define(function (require, exports, module) {
         $('#stigmod-rcmd-right-scroll').height(windowHeight - panelHeight.right);
     }
 
+    // 显示遮罩
+    function showMask() {
+        $('.stigmod-mask-white').show();
+        $('.stigmod-loader').show();
+        $('.stigmod-loader-text').show();
+    }
+
+    // 隐藏遮罩
+    function hideMask() {
+        $('.stigmod-mask-white').hide();
+        $('.stigmod-loader').hide();
+        $('.stigmod-loader-text').hide();
+    }
+
     /*  ----------  *
      *  辅助功能函数
      *  ----------  */
@@ -1771,20 +1785,23 @@ define(function (require, exports, module) {
 
         // 向后端传送 model 操作日志
         $.ajax({
-            url: '/post/workspace', // TODO: 写法需要改进
+            url: '/' + stateOfPage.user + '/' + stateOfPage.model + '/workspace',
             type: 'POST',
             data: JSON.stringify(postData),
             dataType: 'json',
             success: function (msg) {
                 // TODO：后端写好后，这里应该放 disableSave(); （这是最终状态）
+                hideMask();
             },
             error: function () {
                 //alert('Model save failed.');
                 // TODO：后端写好后，这里应该放 enableSave(); （返回可保存状态）
                 // TODO：回滚 icm 的 log？
+                hideMask();
             }
         });
 
+        showMask();
         disableSave();  // TODO：后端写好后，这里应该是pendSave()，暂时失能保存按钮（这是中间状态）
 
     }

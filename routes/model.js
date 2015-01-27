@@ -20,7 +20,23 @@ exports.enterWorkspace = function(req, res){
 };
 
 /**
- * info 页面 get 方法
+ * workspace 页面 post 方法
+ */
+exports.updateModel = function(req, res){
+
+    console.log("POST DATA: Workspace");
+    console.log(req.session.user);
+    console.log(req.params.model);
+
+    setTimeout(function(){
+        res.send('hello world');  // 测试前端载入动画用 TODO：真正保存模型、发送反馈
+    }, 2000);
+
+    
+};
+
+/**
+ * model info 页面 get 方法
  */
 exports.getInfo = function(req, res){
 

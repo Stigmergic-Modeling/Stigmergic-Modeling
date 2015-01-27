@@ -404,6 +404,88 @@ fieldset[disabled] .stigmod-input {
   padding-top: 5px;
 }
 
+/* 遮罩层 */
+.stigmod-mask-white {  /* 默认不透明度 70% */
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  z-index: 1031;  /* 为了压过 bootstrap 中 .nav 高达 1030 的 z-index */
+  top: 0;
+  left: 0;
+  opacity: 0.7;
+}
+.stigmod-mask-white-op {  /* 不透明度 100% */
+  opacity: 1;
+}
+
+/* 载入动画 */
+.stigmod-loader {
+  display: none;
+  padding-left: 20px;  /* 不好的修补，用于配合居中 */
+  position: fixed;
+  z-index: 1032;
+  top: 200px;
+}
+.stigmod-loader span {
+  display: inline-block;
+  vertical-align: middle;
+  width: 10px;
+  height: 10px;
+  margin: 50px auto;
+  background: black;
+  border-radius: 50px;
+  -webkit-animation: stigmod-loader 0.9s infinite alternate;
+  -moz-animation: stigmod-loader 0.9s infinite alternate;
+}
+.stigmod-loader span:nth-of-type(2) {
+  -webkit-animation-delay: 0.3s;
+  -moz-animation-delay: 0.3s;
+}
+.stigmod-loader span:nth-of-type(3) {
+  -webkit-animation-delay: 0.6s;
+  -moz-animation-delay: 0.6s;
+}
+@-webkit-keyframes stigmod-loader {
+  0% {
+    width: 10px;
+    height: 10px;
+    opacity: 0.9;
+    -webkit-transform: translateY(0);
+  }
+  100% {
+    width: 24px;
+    height: 24px;
+    opacity: 0.1;
+    -webkit-transform: translateY(-21px);
+  }
+}
+@-moz-keyframes stigmod-loader {
+  0% {
+    width: 10px;
+    height: 10px;
+    opacity: 0.9;
+    -moz-transform: translateY(0);
+  }
+  100% {
+    width: 24px;
+    height: 24px;
+    opacity: 0.1;
+    -moz-transform: translateY(-21px);
+  }
+}
+.stigmod-loader-text {
+  display: none;
+  padding-left: 10px;  /* 不好的修补，用于配合居中 */
+  position: fixed;
+  z-index: 1032;
+  top: 280px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
 /* --------------------------------------------- *
  *
  * modal（弹出框）
@@ -812,6 +894,7 @@ fieldset[disabled] .stigmod-input {
   position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 1;
 }
 
 /* 初始时，不是全屏，所以这些元素要隐藏 */

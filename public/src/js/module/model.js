@@ -595,6 +595,34 @@ define(function (require, exports, module) {
             // 获取最终状态的顺序数组，便于后端更新数据
             Model.prototype.getAttRelOrderChanges = function () {
 
+                /*  -------------------------------------------------------- *
+                 *  顺序数组的格式：
+                 *
+                 *  changes:
+                 *    |
+                 *    |-- classes:
+                 *    |     |
+                 *    |     |-- class1:
+                 *    |     |     |
+                 *    |     |      -- [ (attribute order array) ]
+                 *    |     |
+                 *    |      -- class2:
+                 *    |           |
+                 *    |            -- [ (attribute order array) ]
+                 *    |
+                 *     -- relationGroups:
+                 *          |
+                 *          |-- relationGroup1:
+                 *          |     |
+                 *          |      -- [ (relation order array) ]
+                 *          |
+                 *           -- relationGroup2:
+                 *                |
+                 *                 -- [ (relation order array) ]
+                 *
+                 *
+                 *  -------------------------------------------------------- */
+
                 var attRel = this.attRelOrderChanged;
                 var changes = {
                     classes: {},

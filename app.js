@@ -165,9 +165,10 @@ app.get('/comment',routes.test.getComment);
 // about 页面 get 方法
 app.get('/about', routes.home.getAbout);  // 不需要登录状态验证
 
-// workspace 页面 get 方法
+// workspace 页面 get、post 方法
 app.all('/:user/:model/workspace',routes.state.checkLogin);
 app.get('/:user/:model/workspace', routes.model.enterWorkspace);
+app.post('/:user/:model/workspace', routes.model.updateModel);
 
 // model info 页面 get 方法
 app.all('/:user/:model/info',routes.state.checkLogin);
