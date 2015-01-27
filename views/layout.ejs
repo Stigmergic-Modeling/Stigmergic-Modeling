@@ -13,7 +13,7 @@
   <body>
 
     <!-- 顶部导航条 -->
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation" id="navbarTop">
+    <nav class="navbar navbar-default navbar-fixed-top stigmod-hide-when-full-screen" role="navigation" id="navbarTop">
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="/"><img src="/src/img/stigmod_logo_sm.png" alt="stigmod-logo-sm"/></a>
@@ -59,8 +59,8 @@
       <% } %>
       <!-- 内容 -->
     	<%- body %>
-      <hr class="stigmod-hr-narrow"/>
-      <footer>
+      <hr class="stigmod-hr-narrow stigmod-hide-when-full-screen" />
+      <footer class="stigmod-hide-when-full-screen">
           <p class="text-center stigmod-gray stigmod-websitefooter">&copy; 2015 Peking University</p>
       </footer>
     </div>

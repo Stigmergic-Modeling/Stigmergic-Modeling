@@ -390,10 +390,8 @@ fieldset[disabled] .stigmod-input {
   font-weight: 100;
 }
 
-/* ModelInfo按钮 */
-#stigmod-model-info,
-#stigmod-model-view,
-#stigmod-model-sync {
+/* workspace、modelinfo 页面 顶部右侧侧按钮 */
+.stigmod-btn-left {
   margin-top: -6px;
   margin-bottom: -11px;
 }
@@ -801,12 +799,24 @@ fieldset[disabled] .stigmod-input {
 }
 
 /* 可保存时的存盘按钮 */
-#stigmod-model-save {
+.stigmod-model-save {
   display: none;
 }
 /* 不可保存时的存盘按钮 */
-#stigmod-model-saved {
+.stigmod-model-saved {
   color: #ccc;
+}
+
+/* 悬浮窗 */
+#stigmod-nav-float {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+/* 初始时，不是全屏，所以这些元素要隐藏 */
+.stigmod-show-when-full-screen {
+  display: none;
 }
 
 

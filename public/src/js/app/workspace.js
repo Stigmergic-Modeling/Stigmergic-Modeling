@@ -44,6 +44,12 @@ define(function (require, exports, module) {
         }
     };
 
+    var panelHeight = {
+        left: 257,
+        middle: 202,
+        right: 202
+    };
+
 
     // 左侧栏的类组件
     var componentLeftClass = document.getElementById('template-left-class').innerHTML;
@@ -168,10 +174,16 @@ define(function (require, exports, module) {
         $(window).on('beforeunload', handleLeavePage);
 
         // 点击保存按钮
-        $(document).on('click', '#stigmod-model-save', handleClkSave);
+        $(document).on('click', '.stigmod-model-save, .stigmod-model-save-btn', handleClkSave);
 
         // 点击左侧搜索按钮
         $(document).on('click', '#stigmod-search-left-btn', handleClkSearchLeft);
+
+        // 点击进入全屏
+        $(document).on('click', '.stigmod-enter-full-screen-btn', handleClkEnterFS);
+
+        // 点击退出全屏
+        $(document).on('click', '.stigmod-exit-full-screen-btn', handleClkExitFS);
 
         /*  --------------  *
          *  注册辅功能监听器
@@ -534,9 +546,9 @@ define(function (require, exports, module) {
     function resizePanel() {
         var windowHeight = $(window).height();
 
-        $('#stigmod-nav-left-scroll').height(windowHeight - 257);
-        $('#stigmod-cont-right-scroll').height(windowHeight - 202);
-        $('#stigmod-rcmd-right-scroll').height(windowHeight - 202);
+        $('#stigmod-nav-left-scroll').height(windowHeight - panelHeight.left);
+        $('#stigmod-cont-right-scroll').height(windowHeight - panelHeight.middle);
+        $('#stigmod-rcmd-right-scroll').height(windowHeight - panelHeight.right);
     }
 
     /*  ----------  *
@@ -803,14 +815,16 @@ define(function (require, exports, module) {
 
     // 失能保存按钮
     function disableSave() {
-        $('#stigmod-model-save').hide();
-        $('#stigmod-model-saved').show();
+        $('.stigmod-model-save').hide();
+        $('.stigmod-model-saved').show();
+        $('.stigmod-model-save-btn').attr({'disabled': ''});
     }
 
     // 使能保存按钮
     function enableSave() {
-        $('#stigmod-model-save').show();
-        $('#stigmod-model-saved').hide();
+        $('.stigmod-model-save').show();
+        $('.stigmod-model-saved').hide();
+        $('.stigmod-model-save-btn').removeAttr('disabled');
     }
 
     /*  ----------  *
@@ -1790,6 +1804,38 @@ define(function (require, exports, module) {
         }
 
         $(this).blur(); // 按钮单击事件处理完成后去除按钮焦点
+    }
+
+    // 处理：点击进入全屏
+    function handleClkEnterFS() {
+
+        $('.stigmod-hide-when-full-screen').hide();
+        $('.stigmod-show-when-full-screen').show();
+
+        $('body').css({'padding-top': '20px'});
+
+        panelHeight = {
+            left: 117,
+            middle: 62,
+            right: 62
+        };
+        resizePanel();
+    }
+
+    // 处理：点击退出全屏
+    function handleClkExitFS() {
+
+        $('.stigmod-show-when-full-screen').hide();
+        $('.stigmod-hide-when-full-screen').show();
+
+        $('body').css({'padding-top': '70px'});
+
+        panelHeight = {
+            left: 257,
+            middle: 202,
+            right: 202
+        };
+        resizePanel();
     }
 
 });

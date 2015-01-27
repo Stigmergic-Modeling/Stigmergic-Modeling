@@ -1,6 +1,18 @@
 <div id="stigmod-pg-workspace">
+  <!-- 悬浮窗 -->
+  <div id="stigmod-nav-float" class="btn-group-vertical stigmod-show-when-full-screen" role="group">
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#stigmod-modal-d3view">
+      <span class="fa fa-sitemap"></span>
+    </button>
+    <button type="button" class="btn btn-default stigmod-model-save-btn" disabled>
+      <span class="glyphicon glyphicon-floppy-disk"></span>
+    </button>
+    <button type="button" class="btn btn-default stigmod-exit-full-screen-btn">
+      <span class="glyphicon glyphicon-resize-small"></span>
+    </button>
+  </div>
   <!-- 顶部项目名称栏 -->
-  <div class="row">
+  <div class="row stigmod-hide-when-full-screen">
     <div class="col-xs-8">
       <h1 id="stigmod-model-title">
         <span class="fa fa-cube" id="stigmod-model-title-icon"></span>
@@ -17,26 +29,34 @@
             <li role="presentation"><a role="menuitem" tabindex="-1" href="#">ElectiveSys</a></li>
           </ul>
         </span>&nbsp;
-        <span class="stigmod-a-pseudo stigmod-a-nounderline" id="stigmod-model-save"><span class="glyphicon glyphicon-floppy-disk"></span></span>
-        <span id="stigmod-model-saved"><span class="glyphicon glyphicon-floppy-disk"></span></span>
+        <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><span class="glyphicon glyphicon-floppy-disk"></span></span>
+        <span class="stigmod-model-saved"><span class="glyphicon glyphicon-floppy-disk"></span></span>
       </h1>
     </div>
     <div class="col-xs-4">
-      <span class="pull-right" id="stigmod-model-info">
+      <span class="pull-right stigmod-btn-left" id="stigmod-model-info">
         <a href="/<%= user.mail %>/<%= model %>/info" class="stigmod-a-nounderline">
           <span class="glyphicon glyphicon-stats"></span>&nbsp;
           Model Info
         </a>
       </span>
-      <span class="pull-right" id="stigmod-model-view">
+      <span class="pull-right stigmod-btn-left">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+      <span class="pull-right stigmod-btn-left" id="stigmod-model-view">
         <span class="stigmod-a-pseudo stigmod-a-nounderline" data-toggle="modal" data-target="#stigmod-modal-d3view">
           <span class="fa fa-sitemap"></span>&nbsp;
-          Model View &nbsp;&nbsp;&nbsp;&nbsp;
+          Model View
+        </span>
+      </span>
+      <span class="pull-right stigmod-btn-left">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+      <span class="pull-right stigmod-btn-left stigmod-enter-full-screen-btn">
+        <span class="stigmod-a-pseudo stigmod-a-nounderline">
+          <span class="glyphicon glyphicon-fullscreen"></span>&nbsp;
+          Full Screen
         </span>
       </span>
     </div>
   </div>
-  <hr />
+  <hr class="stigmod-hide-when-full-screen" />
   <!-- 项目名称栏以下 -->
   <div class="row" id="stigmod-workspace">
     <!-- 左侧导航栏 -->
