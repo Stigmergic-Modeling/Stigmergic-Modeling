@@ -187,8 +187,8 @@ define(function (require, exports, module) {
 
         // panel 拖放排序
         $(document).on('dragstart', '#stigmod-cont-right > .panel', handleDragStart);
-        $(document).on('dragover', '#stigmod-cont-right > .panel, #stigmod-cont-right > .list-group', handleDragOver);
-        $(document).on('drop', '#stigmod-cont-right > .panel, #stigmod-cont-right > .list-group', handleDrop);
+        $(document).on('dragover', '#stigmod-cont-right > .panel', handleDragOver);
+        $(document).on('drop', '#stigmod-cont-right > .panel', handleDrop);
 
         /*  --------------  *
          *  注册辅功能监听器
@@ -1875,22 +1875,27 @@ define(function (require, exports, module) {
 
         var step = $(this).index() - $panel.index();
 
-        // 当被拖放到原位置之上或下一个位置之上时，位置不变
-        if (0 === step || 1 === step) {
+        // 当被拖放到原位置时，位置不变
+        if (0 === step) {
             return false;
         }
 
-        // 被向下拖放时，由于拖放和模型修改函数计数差异问题，需要对 step 减 1
-        if (step > 1) {
-            step--;
+        // 被向下拖放时，向上挤压；
+        if (step > 0) {
+
+            // 更新显示
+            $(this).after($panel);  // 被向下拖放时，向上挤压该处原有的 panel
+
+        } else if (step < 0) {
+
+            // 更新显示
+            $(this).before($panel);  // 被向上拖放时，向下挤压该处原有的 panel
         }
 
         // 更新模型
         icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.class, name, step);
 
-        // 更新显示
-        $(this).before($panel);
-
+        enableSave();
         event.preventDefault();
     }
 
