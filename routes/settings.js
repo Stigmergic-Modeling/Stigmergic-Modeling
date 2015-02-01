@@ -72,11 +72,11 @@ exports.updateProfile = function (req, res) {
 
 
 /**
- * settings/model 页面 get 方法
+ * settings/model specific 页面 get 方法
  */
-exports.setModel = function (req, res) {
+exports.setModelSpecific = function (req, res) {
 
-    console.log("GET PAGE: User settings / model");
+    console.log("GET PAGE: User settings / model specific");
     console.log(req.session.user);
 
     User.get(req.params.user, function (err, user) {
@@ -91,11 +91,11 @@ exports.setModel = function (req, res) {
             return res.redirect('/checkmail');
         }
 
-        res.render('user_settings_model', {
+        res.render('user_settings_model_specific', {
             title: user.mail + ' - settings',
             user: req.session.user,
             userInfo: user,
-            //data: makeDataForSettings(user),
+            model: req.params.model,
             success: req.flash('success').toString(),
             error: req.flash('error').toString()
         });
@@ -105,9 +105,9 @@ exports.setModel = function (req, res) {
 /**
  * settings/model 页面 post 方法
  */
-exports.updateModel = function (req, res) {
+exports.updateModelSpecific = function (req, res) {
 
-    console.log("POST DATA: User settings / model");
+    console.log("POST DATA: User settings / model specific");
     console.log(req.session.user);
 
     //var profile = {

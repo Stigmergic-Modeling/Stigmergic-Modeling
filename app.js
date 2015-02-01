@@ -179,11 +179,19 @@ app.all('/u/:user/settings/profile',routes.state.checkLogin);
 app.get('/u/:user/settings/profile', routes.settings.setProfile);
 app.post('/u/:user/settings/profile', routes.settings.updateProfile);
 
-// user settings/model 页面 get、post 方法
+// user settings/model （General）页面 get、post 方法
 app.all('/u/:user/settings/model',routes.state.checkLogin);
-app.get('/u/:user/settings/model', routes.settings.setModel);
-app.post('/u/:user/settings/model', routes.settings.updateModel);
+app.get('/u/:user/settings/model', routes.settings.setModelGeneral);
+app.post('/u/:user/settings/model', routes.settings.updateModelGeneral);
 
+// user settings/model （Specific）页面 get、post 方法
+app.all('/u/:user/settings/model/:model',routes.state.checkLogin);
+app.get('/u/:user/settings/model/:model', routes.settings.setModelSpecific);
+app.post('/u/:user/settings/model/:model', routes.settings.updateModelSpecific);
+
+// new model 页面 get 方法 (调试)
+app.all('/newmodel', routes.state.checkLogin);
+app.get('/newmodel', routes.model.createModel);
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));

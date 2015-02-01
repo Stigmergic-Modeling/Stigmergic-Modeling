@@ -56,6 +56,19 @@ exports.getInfo = function(req, res){
 };
 
 
+exports.createModel = function(req, res) {
+
+    console.log("GET PAGE: New Model");
+    console.log(req.session.user);
+
+    res.render('new_model', {
+        title: 'New Model',
+        user : req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString()
+    });
+};
+
 /**
  * 构造 workspace 页面的前端 js 需要用到的数据
  */
