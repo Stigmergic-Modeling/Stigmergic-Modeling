@@ -185,6 +185,11 @@ define(function (require, exports, module) {
         // 点击退出全屏
         $(document).on('click', '.stigmod-exit-full-screen-btn', handleClkExitFS);
 
+        // panel 拖放排序
+        $(document).on('dragstart', '#stigmod-cont-right > .panel', handleDragStart);
+        $(document).on('dragover', '#stigmod-cont-right > .panel, #stigmod-cont-right > .list-group', handleDragOver);
+        $(document).on('drop', '#stigmod-cont-right > .panel, #stigmod-cont-right > .list-group', handleDrop);
+
         /*  --------------  *
          *  注册辅功能监听器
          *  --------------  */
@@ -1599,8 +1604,6 @@ define(function (require, exports, module) {
             icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.class, name, -1);
 
             // 更新显示
-            stateOfPage.addAttrRel.position = $prevPanel.attr('stigmod-attrel-name');
-            stateOfPage.addAttrRel.direction = 0;
             $prevPanel.before($thisPanel);  // 上移当前 panel 节点
 
             enableSave();
@@ -1620,8 +1623,6 @@ define(function (require, exports, module) {
             icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.class, name, 1);
 
             // 更新显示
-            stateOfPage.addAttrRel.position = $nextPanel.attr('stigmod-attrel-name');
-            stateOfPage.addAttrRel.direction = 1;
             $nextPanel.after($thisPanel);  // 下移当前 panel 节点
 
             enableSave();
@@ -1853,6 +1854,44 @@ define(function (require, exports, module) {
             right: 202
         };
         resizePanel();
+    }
+
+    // 处理：panel 拖放排序
+    function handleDragStart(event) {
+
+        // 记录被拖动 panel 的 id （实为其子节点 panel-collapse 的 id）
+        var id = $(this).find('.panel-collapse').attr('id');
+        event.originalEvent.dataTransfer.setData('id', id);
+    }
+    function handleDragOver(event) {
+
+        event.preventDefault();
+    }
+    function handleDrop(event) {
+
+        var id = event.originalEvent.dataTransfer.getData('id');
+        var $panel = $(document).find('#' + id).parent();
+        var name = $panel.attr('stigmod-attrel-name');
+
+        var step = $(this).index() - $panel.index();
+
+        // 当被拖放到原位置之上或下一个位置之上时，位置不变
+        if (0 === step || 1 === step) {
+            return false;
+        }
+
+        // 被向下拖放时，由于拖放和模型修改函数计数差异问题，需要对 step 减 1
+        if (step > 1) {
+            step--;
+        }
+
+        // 更新模型
+        icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.class, name, step);
+
+        // 更新显示
+        $(this).before($panel);
+
+        event.preventDefault();
     }
 
 });
