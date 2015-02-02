@@ -1,4 +1,6 @@
 var fs = require('fs');
+var ObjectID = require('mongodb').ObjectID;
+var ModelInfo = require('../models/model_info.js');
 
 /**
  * workspace 页面 get 方法
@@ -55,7 +57,9 @@ exports.getInfo = function(req, res){
     });
 };
 
-
+/**
+ * new model 页面 get 方法
+ */
 exports.createModel = function(req, res) {
 
     console.log("GET PAGE: New Model");
@@ -67,6 +71,49 @@ exports.createModel = function(req, res) {
         success: req.flash('success').toString(),
         error: req.flash('error').toString()
     });
+};
+
+/**
+ * new model 页面 post 方法
+ */
+exports.doCreateModel = function (req, res) {
+
+    console.log("POST DATA: Sign up");
+    console.log(req.session.user);
+
+    var time = new Date().toString();
+    var dateArray = time.split(' ');  // 作为生成用户注册日期的原料
+    var date = dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3];
+    var newID = new ObjectID();
+
+    var newCCM = new ModelInfo({
+        _id: newID,
+        ccmId: newID,
+        user: '@',  // @ 表示是 CCM
+        name: req.body.name,
+        description: req.body.description,
+        creationDate: date,
+        updateDate: date,
+        classNum: 0,
+        relationNum: 0
+    });
+
+    newCCM.save(function (err) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/newmodel');
+        }
+
+        // 返回数据
+        //req.session.user = {
+        //    state:newUser.state,
+        //    mail:newUser.mail
+        //};
+
+        req.flash('success', 'Create model successfully');
+        res.redirect('/newmodel');
+    });
+
 };
 
 /**

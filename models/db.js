@@ -41,7 +41,11 @@ module.exports = function(){
         m_db.collection('users', function(err, collection) {
             collection.ensureIndex('mail', {unique: true});
             m_collection["users"] = collection;
-            //console.log("collection.icd-cd");
+        });
+
+        m_db.collection('modelinfo', function(err, collection) {
+            collection.ensureIndex('name', {unique: true});
+            m_collection["modelinfo"] = collection;
         });
 
         var collectionList = ['icd','icd_index','ccd','ccd_index','operationScore','operationScore2','icd_attribute_sort'

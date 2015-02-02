@@ -38,12 +38,12 @@
             <form method="post">
               <dl>
                 <dt>Name</dt>
-                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="<%= model %>" disabled /></dd>
+                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="<%= name %>" disabled /></dd>
               </dl>
               <dl>
                 <dt>Description</dt>
                 <dd>
-                  <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
+                  <textarea type="text" class="stigmod-input stigmod-textarea" name="description"><%= description %></textarea>
                 </dd>
               </dl>
               <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Update model info</button>

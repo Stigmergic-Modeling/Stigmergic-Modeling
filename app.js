@@ -192,6 +192,7 @@ app.post('/u/:user/settings/model/:model', routes.settings.updateModelSpecific);
 // new model 页面 get 方法 (调试)
 app.all('/newmodel', routes.state.checkLogin);
 app.get('/newmodel', routes.model.createModel);
+app.post('/newmodel', routes.model.doCreateModel);
 
 http.createServer(app).listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));

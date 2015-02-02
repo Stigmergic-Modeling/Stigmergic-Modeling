@@ -1,34 +1,41 @@
 var db = require('./db');
 var mongodb = new db();
 
-function Model(model) {
+function ModelInfo(modelInfo) {
 
-    // 附加信息属性
-    this.name = model.name;
-    this.description = user.description;
+    // 属性
+    this._id = modelInfo._id;
+    this.ccmId = modelInfo.ccmId;
+    this.user = modelInfo.user;
+    this.name = modelInfo.name;
+    this.description = modelInfo.description;
+    this.creationDate = modelInfo.creationDate;
+    this.updateDate = modelInfo.updateDate;
+    this.classNum = modelInfo.classNum;
+    this.relationNum = modelInfo.relationNum;
 };
 
-module.exports = Model;
+module.exports = ModelInfo;
 
-Model.prototype.save = function save(callback) {
+ModelInfo.prototype.save = function save(callback) {
 
 	// 外部已先做了一次存在性判断
-    var user = {
-		password: this.password,
-        state: 0,
-        mail: this.mail,
-        link: this.link,
+    var modelInfo = {
+        _id: this._id,
+        ccmId: this.ccmId,
+        user: this.user,
         name: this.name,
-        location: this.location,
-        url: this.url,
-        signUpDate: this.signUpDate,
-        avatar: this.avatar
+        description: this.description,
+        creationDate: this.creationDate,
+        updateDate: this.updateDate,
+        classNum: this.classNum,
+        relationNum: this.relationNum
     };
 
-    mongodb.getCollection('users',function(collection){
+    mongodb.getCollection('modelinfo',function(collection){
 
-        collection.insert(user, {safe: true}, function(err, user) {
-            callback(err, user);
+        collection.insert(modelInfo, {safe: true}, function(err, modelInfo) {
+            callback(err, modelInfo);
         });
     });
 };
@@ -99,14 +106,15 @@ Model.prototype.save = function save(callback) {
 //    });
 //};
 
-Model.get = function get(mail, callback) {
-    mongodb.getCollection('users',function(collection){
+ModelInfo.get = function get(name, callback) {
+    mongodb.getCollection('modelinfo',function(collection){
 
 	    //find
-        collection.findOne({mail: mail}, function(err, doc) {
+        collection.findOne({name: name}, function(err, doc) {
             if (doc) {
-                var user = new User(doc);
-                callback(err, user);
+                var modelInfo = new ModelInfo(doc);
+                //console.log(modelInfo);
+                callback(err, modelInfo);
             } else {
                 callback(err, null);
             }

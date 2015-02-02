@@ -1,4 +1,5 @@
 var User = require('../models/user.js');
+var ModelInfo = require('../models/model_info.js');
 
 /**
  * settings/profile 页面 get 方法
@@ -79,23 +80,23 @@ exports.setModelSpecific = function (req, res) {
     console.log("GET PAGE: User settings / model specific");
     console.log(req.session.user);
 
-    User.get(req.params.user, function (err, user) {
-        if (!user) {
-            req.flash('error', 'Account does not exist');
+    ModelInfo.get(req.params.model, function (err, modelInfo) {
+        if (!modelInfo) {
+            req.flash('error', 'Model does not exist');
 
-            return res.redirect('/');
+            return res.redirect('/');  // TODO: 此处不应跳转到/
         }
 
-        if (user.state === 0) {
-            req.flash('error', 'Account not activated');
-            return res.redirect('/checkmail');
-        }
+        //if (user.state === 0) {
+        //    req.flash('error', 'Account not activated');
+        //    return res.redirect('/checkmail');
+        //}
 
         res.render('user_settings_model_specific', {
-            title: user.mail + ' - settings',
+            title: modelInfo.user + ' - settings',
             user: req.session.user,
-            userInfo: user,
-            model: req.params.model,
+            name: modelInfo.name,
+            description: modelInfo.description,
             success: req.flash('success').toString(),
             error: req.flash('error').toString()
         });
