@@ -1,3 +1,4 @@
+var host = require('../settings').host;
 var fs = require('fs');
 var ObjectID = require('mongodb').ObjectID;
 var ModelInfo = require('../models/model_info.js');
@@ -36,6 +37,7 @@ exports.enterWorkspace = function(req, res){
             }
 
             res.render('workspace', {
+                host: host,
                 title: 'Workspace - ' + req.params.model,
                 user : req.session.user,
                 model: req.params.model,  // 该用户当前 model 的 name
@@ -125,6 +127,7 @@ exports.getInfo = function(req, res){
                 };
 
                 res.render('model_info', {
+                    host: host,
                     title: 'Model Info - ' + req.params.model,
                     user : req.session.user,
                     model: req.params.model,  // 该用户当前 model 的 name
@@ -147,6 +150,7 @@ exports.createModel = function(req, res) {
     console.log(req.session.user);
 
     res.render('new_model', {
+        host: host,
         title: 'New Model',
         user : req.session.user,
         success: req.flash('success').toString(),

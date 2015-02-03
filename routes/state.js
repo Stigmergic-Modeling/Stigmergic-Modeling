@@ -1,3 +1,4 @@
+var host = require('../settings').host;
 
 exports.checkLogin = function (req, res, next) {
 

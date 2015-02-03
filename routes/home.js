@@ -1,3 +1,4 @@
+var host = require('../settings').host;
 var crypto = require('crypto');
 var User = require('../models/user.js');
 var Smtp = require('../models/smtp.js');
@@ -19,6 +20,7 @@ exports.index = function (req, res) {
     }
 
     res.render('index', {
+        host: host,
         title: 'HomePage',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -35,6 +37,7 @@ exports.reg = function (req, res) {
     console.log(req.session.user);
 
     res.render('reg', {
+        host: host,
         title: 'Sign up',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -135,6 +138,7 @@ exports.login = function (req, res) {
     console.log(req.session.user);
 
     res.render('login', {
+        host: host,
         title: 'Sign In',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -203,6 +207,7 @@ exports.checkMail = function (req, res){
     console.log(req.session.user);
 
     res.render('checkmail', {
+        host: host,
         title: 'Account activation',
         user: req.session.user,                    //aboute cookie
         success: req.flash('success').toString(),
@@ -315,6 +320,7 @@ exports.forget = function (req, res) {
     console.log(req.session.user);
 
     res.render('forget', {
+        host: host,
         title: 'Resend password',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -399,6 +405,7 @@ exports.revisePW = function (req, res) {
         };
 
         res.render('revisePW', {
+            host: host,
             title: "Password Revise",
             user: req.session.user,
             success: req.flash('success').toString(),
@@ -453,6 +460,7 @@ exports.getAbout = function (req, res) {
     console.log(req.session.user);
 
     res.render('about', {
+        host: host,
         title: 'About',
         user: req.session.user,
         success: '',

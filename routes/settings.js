@@ -1,3 +1,4 @@
+var host = require('../settings').host;
 var User = require('../models/user.js');
 var ModelInfo = require('../models/model_info.js');
 
@@ -22,6 +23,7 @@ exports.setProfile = function (req, res) {
         }
 
         res.render('user_settings', {
+            host: host,
             title: user.mail + ' - settings',
             user: req.session.user,
             userInfo: user,
@@ -92,6 +94,7 @@ exports.setAccount = function (req, res) {
         }
 
         res.render('user_settings_account', {
+            host: host,
             title: user.mail + ' - settings',
             user: req.session.user,
             userInfo: user,
@@ -128,6 +131,7 @@ exports.setModelGeneral = function (req, res) {
         //console.log('templateData done');
 
         res.render('user_settings_model', {
+            host: host,
             title: req.session.user.mail + ' - settings',
             user: req.session.user,
             modelInfo: templateData,
@@ -170,6 +174,7 @@ exports.setModelSpecific = function (req, res) {
             }
 
             res.render('user_settings_model_specific', {
+                host: host,
                 title: modelInfo.user + ' - settings',
                 user: req.session.user,
                 modelInfo: templateData,  // 该用户所有的 model 信息集合（仅包含 name）

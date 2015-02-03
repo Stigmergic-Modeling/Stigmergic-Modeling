@@ -99,10 +99,6 @@ app.post('/revisePW/:user/:link',routes.home.doRevisePW);
 
 app.get('/u/:user',routes.state.checkLogin);
 app.get('/u/:user', routes.user.user);
-//app.get('/u/:user', routes.user);
-
-//app.get('/:user/involved/:id',routes.state.checkLogin);
-app.get('/:user/involved/:id',routes.involve.on);
 
 //统计
 app.get('/:user/statistic/:id',routes.statistic.on);
@@ -115,52 +111,6 @@ app.get('/:user/statistic-operationScore',routes.statistic.operationScoreGet);
 app.post('/:user/statistic-operationScore',routes.statistic.operationScorePost);
 
 app.get('/:user/statistic-cite/:id',routes.statistic.citedOrderGet);
-
-
-app.get('/:user/uninvolved/:id',routes.state.checkLogin);
-app.get('/:user/uninvolved/:id',routes.involve.create);
-//app.get('/:user/uninvolved/:id',routes.involve.intro);
-//app.post('/:user/uninvolved/:id',routes.involve.create);
-
-app.get('/:user/own',routes.state.checkLogin);
-app.get('/:user/own',routes.own.on);
-
-app.post('/:user/own/create',routes.state.checkLogin);
-app.post('/:user/own/create',routes.own.create);
-
-//app.get('/own/:id',routes.state.checkLogin);
-//app.get('/own/:id',routes.own.on);
-
-app.get('/:user/intro/:id',routes.state.checkLogin);
-app.get('/:user/intro/:id',routes.intro.on);
-
-
-app.post('/post/html/:file',routes.html.getHtml);
-app.get('/test/:id',routes.test.testUI);
-app.post('/post/modal',routes.test.testPost);
-app.post('/post/search',routes.test.testSearch);
-app.post('/post/search/cd',routes.test.testSearchCD);
-app.post('/post/search/class',routes.test.testSearchClass);
-app.post('/post/search/relation',routes.test.testSearchRelation);
-
-app.post('/post/data/icd',routes.data.icd);
-//app.post('/post/data/icd-cd',routes.data.icdCD);
-//app.post('/post/data/icd-class',routes.data.icdClass);
-//app.post('/post/data/icd-relation',routes.data.icdRelation);
-app.post('/post/data/icd-element',routes.data.icdElement);
-app.post('/post/data/icd-operationValue',routes.data.icdOperationValue);
-
-app.post('/post/data/ccd',routes.data.ccd);
-
-app.post('/post/data/index',routes.data.index);
-app.post('/post/data/intro',routes.data.intro);
-
-
-app.post('/post/data/icd-attributeSort',routes.data.icdAttributeSort);
-
-app.get('/reset',routes.test.reset);
-
-app.get('/comment',routes.test.getComment);
 
 // about 页面 get 方法
 app.get('/about', routes.home.getAbout);  // 不需要登录状态验证
