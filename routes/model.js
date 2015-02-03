@@ -11,13 +11,40 @@ exports.enterWorkspace = function(req, res){
     console.log(req.session.user);
     console.log(req.params.model);
 
-    res.render('workspace', {
-        title: 'Workspace - ' + req.params.model,
-        user : req.session.user,
-        model: req.params.model,
-        data: makeDataForWorkspace(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
-        success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
-        error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+        var templateData = [];
+
+        console.log(modelInfo);
+        //console.log('modelInfo done');
+
+        modelInfo.forEach(function(info) {
+            var modelInfoShow = {};
+            modelInfoShow.name = info.name;
+
+            //console.log(modelInfoShow);
+            templateData.push(modelInfoShow);
+        });
+
+        //console.log(templateData);
+        //console.log('templateData done');
+
+        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
+            if (!modelInfo) {
+                req.flash('error', 'Model does not exist');
+
+                return res.redirect('/u/'+ user.mail);
+            }
+
+            res.render('workspace', {
+                title: 'Workspace - ' + req.params.model,
+                user : req.session.user,
+                model: req.params.model,  // 该用户当前 model 的 name
+                modelInfo: templateData,  // 该用户所有的 model 信息集合（仅包含 name）
+                data: makeDataForWorkspace(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
+                success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+                error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+            });
+        });
     });
 };
 
@@ -46,14 +73,68 @@ exports.getInfo = function(req, res){
     console.log(req.session.user);
     console.log(req.params.model);
 
-    res.render('model_info', {
-        title: 'Model Info - ' + req.params.model,
-        user : req.session.user,
-        model: req.params.model,
-        modelInfo: makeModelInfo(), // 构造传入后端 ejs 模板的数据
-        //data: makeDataForModelInfo(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
-        success : '',
-        error : ''
+    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+        var modelNames = [];
+
+        console.log(modelInfo);
+        //console.log('modelInfo done');
+
+        modelInfo.forEach(function(info) {
+            var modelInfoShow = {};
+            modelInfoShow.name = info.name;
+
+            //console.log(modelInfoShow);
+            modelNames.push(modelInfoShow);
+        });
+
+        //console.log(templateData);
+        //console.log('templateData done');
+
+        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, icmInfo) {
+            if (!icmInfo) {
+                req.flash('error', 'Model does not exist');
+
+                return res.redirect('/u/'+ user.mail);
+            }
+
+            ModelInfo.getOneByUserAndName('@', req.params.model, function (err, ccmInfo) {
+                if (!ccmInfo) {
+                    req.flash('error', 'Model does not exist');
+
+                    return res.redirect('/u/'+ user.mail);
+                }
+
+                // 构造将传入模板的模型信息
+                var modelInfo = {};
+
+                modelInfo.icm = {
+                    name: icmInfo.name,
+                    description: icmInfo.description,
+                    creationDate: icmInfo.creation_date,
+                    updateDate: icmInfo.update_date,
+                    classNum: icmInfo.class_num,
+                    relationNum: icmInfo.relation_num
+                };
+                modelInfo.ccm = {
+                    name: ccmInfo.name,
+                    description: ccmInfo.description,
+                    creationDate: ccmInfo.creation_date,
+                    updateDate: ccmInfo.update_date,
+                    classNum: ccmInfo.class_num,
+                    relationNum: ccmInfo.relation_num,
+                };
+
+                res.render('model_info', {
+                    title: 'Model Info - ' + req.params.model,
+                    user : req.session.user,
+                    model: req.params.model,  // 该用户当前 model 的 name
+                    modelNames: modelNames,  // 该用户所有的 model 信息集合（仅包含 name）
+                    modelInfo: modelInfo, // 构造传入后端 ejs 模板的数据
+                    success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+                    error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+                });
+            });
+        });
     });
 };
 
@@ -518,39 +599,4 @@ function makeDataForWorkspace(user, modelName) {
     return data;
 }
 
-/**
- * 构造 model info 页面的前端 js 需要用到的数据
- */
-function makeDataForModelInfo(user, modelName) {
-    var data = {};
 
-    return data;
-}
-
-/**
- * 构造 model info 页面需要的模板数据
- */
-function makeModelInfo() {
-    var modelInfo = {};
-
-    modelInfo.icm = {  // 假数据 TODO：从数据提取真数据
-        name: 'CourseManagementSystem',
-        description: 'The course management system helps teachers to post course infomation and helps students to choose the courses. The course management system helps teachers to post course infomation and helps students to choose the courses. The course management system helps teachers to post course infomation and helps students to choose the courses.',
-        creationDate: 'Oct 25th, 2014',
-        updateDate: 'Nov 24th, 2014',
-        classNum: 17,
-        relationNum: 29
-    };
-
-    modelInfo.ccm = {  // 假数据 TODO：从数据提取真数据
-        name: 'CourseElectingSystem',
-        description: 'The course management system helps teachers to post course infomation and helps students to choose the courses.',
-        creationDate: 'Dec 7th, 2013',
-        updateDate: 'Nov 24th, 2014',
-        classNum: 17,
-        relationNum: 29,
-        peopleNum: 2117
-    };
-
-    return modelInfo;
-}

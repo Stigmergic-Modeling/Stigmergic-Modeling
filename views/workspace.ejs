@@ -31,13 +31,14 @@
         <span>&nbsp;/&nbsp;</span>
         <span class="dropdown">
           <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
-            CourseManagementSystem
+            <%= model %>
           </span>
           <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">CDStore</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">TrainTicketingSystem</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">TimeRelatedConcepts</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="#">ElectiveSys</a></li>
+            <% modelInfo.forEach(function(info) {
+                if (model !== info.name) { %>
+                  <li role="presentation"><a href="/<%= user.mail %>/<%= info.name %>/workspace" role="menuitem" tabindex="-1" href="#"><%= info.name %></a></li>
+              <% } %>
+            <% }); %>
           </ul>
         </span>&nbsp;
         <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><span class="glyphicon glyphicon-floppy-disk"></span></span>

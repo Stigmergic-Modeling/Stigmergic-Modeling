@@ -42,7 +42,7 @@
     <!-- 右侧栏 -->
     <div class="col-xs-6 stigmod-settings-right">
       <div class="panel panel-default">
-        <div class="panel-heading">CourseManagementSystem</div>
+        <div class="panel-heading"><%= name %></div>
         <div class="row stigmod-settings-left-inner">
           <div class="col-xs-12">
             <form method="post">
@@ -55,6 +55,10 @@
                 <dd>
                   <textarea type="text" class="stigmod-input stigmod-textarea" name="description"><%= description %></textarea>
                 </dd>
+              </dl>
+              <dl>
+                <dt>TODO: 针对此模型的个性化设置，如attribute中默认的property个数等</dt>
+                <dd></dd>
               </dl>
               <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Update model info</button>
             </form>

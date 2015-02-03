@@ -72,6 +72,37 @@ exports.updateProfile = function (req, res) {
 };
 
 /**
+ * settings/account 页面 get 方法
+ */
+exports.setAccount = function (req, res) {
+
+    console.log("GET PAGE: User settings / account");
+    console.log(req.session.user);
+
+    User.get(req.params.user, function (err, user) {
+        if (!user) {
+            req.flash('error', 'Account does not exist');
+
+            return res.redirect('/');
+        }
+
+        if (user.state === 0) {
+            req.flash('error', 'Account not activated');
+            return res.redirect('/checkmail');
+        }
+
+        res.render('user_settings_account', {
+            title: user.mail + ' - settings',
+            user: req.session.user,
+            userInfo: user,
+            //data: makeDataForSettings(user),
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+};
+
+/**
  * settings/model general 页面 get 方法
  */
 exports.setModelGeneral = function (req, res) {
@@ -82,7 +113,7 @@ exports.setModelGeneral = function (req, res) {
     ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
         var templateData = [];
 
-        console.log(modelInfo);
+        //console.log(modelInfo);
         //console.log('modelInfo done');
 
         modelInfo.forEach(function(info) {
@@ -93,7 +124,7 @@ exports.setModelGeneral = function (req, res) {
             templateData.push(modelInfoShow);
         });
 
-        console.log(templateData);
+        //console.log(templateData);
         //console.log('templateData done');
 
         res.render('user_settings_model', {
@@ -117,7 +148,7 @@ exports.setModelSpecific = function (req, res) {
     ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
         var templateData = [];
 
-        console.log(modelInfo);
+        //console.log(modelInfo);
         //console.log('modelInfo done');
 
         modelInfo.forEach(function(info) {
@@ -128,7 +159,7 @@ exports.setModelSpecific = function (req, res) {
             templateData.push(modelInfoShow);
         });
 
-        console.log(templateData);
+        //console.log(templateData);
         //console.log('templateData done');
 
         ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {

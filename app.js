@@ -179,6 +179,11 @@ app.all('/u/:user/settings/profile',routes.state.checkLogin);
 app.get('/u/:user/settings/profile', routes.settings.setProfile);
 app.post('/u/:user/settings/profile', routes.settings.updateProfile);
 
+// user settings/account 页面 get、post 方法
+app.all('/u/:user/settings/account',routes.state.checkLogin);
+app.get('/u/:user/settings/account', routes.settings.setAccount);
+app.post('/u/:user/settings/account', routes.settings.updateAccount);
+
 // user settings/model （General）页面 get、post 方法
 app.all('/u/:user/settings/model',routes.state.checkLogin);
 app.get('/u/:user/settings/model', routes.settings.setModelGeneral);
@@ -189,7 +194,7 @@ app.all('/u/:user/settings/model/:model',routes.state.checkLogin);
 app.get('/u/:user/settings/model/:model', routes.settings.setModelSpecific);
 app.post('/u/:user/settings/model/:model', routes.settings.updateModelSpecific);
 
-// new model 页面 get 方法 (调试)
+// new model 页面 get 方法
 app.all('/newmodel', routes.state.checkLogin);
 app.get('/newmodel', routes.model.createModel);
 app.post('/newmodel', routes.model.doCleanCreateModel);
