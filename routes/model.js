@@ -76,9 +76,9 @@ exports.createModel = function(req, res) {
 /**
  * new model 页面 post 方法
  */
-exports.doCreateModel = function (req, res) {
+exports.doCleanCreateModel = function (req, res) {
 
-    console.log("POST DATA: Sign up");
+    console.log("POST DATA: doCleanCreateModel");
     console.log(req.session.user);
 
     var time = new Date().toString();
@@ -86,33 +86,52 @@ exports.doCreateModel = function (req, res) {
     var date = dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3];
     var newID = new ObjectID();
 
+    // 创建 CCM
     var newCCM = new ModelInfo({
         _id: newID,
-        ccmId: newID,
+        ccm_id: newID,
         user: '@',  // @ 表示是 CCM
         name: req.body.name,
         description: req.body.description,
-        creationDate: date,
-        updateDate: date,
-        classNum: 0,
-        relationNum: 0
+        creation_date: date,
+        update_date: date,
+        class_num: 0,
+        relation_num: 0
     });
 
     newCCM.save(function (err) {
         if (err) {
-            req.flash('error', err);
+            req.flash('error', err.toString());
             return res.redirect('/newmodel');
         }
 
-        // 返回数据
-        //req.session.user = {
-        //    state:newUser.state,
-        //    mail:newUser.mail
-        //};
+        // 创建 ICM  TODO: 目前是同步写法。若改成异步，如何保证 icm 和 ccm 都保存完成后才向前端 render 页面？
+        var newID_icm = new ObjectID();
 
-        req.flash('success', 'Create model successfully');
-        res.redirect('/newmodel');
+        var newICM = new ModelInfo({
+            _id: newID_icm,
+            ccm_id: newID,  // 此 id 与刚刚创建的 ccm id 相同
+            user: req.session.user.mail,
+            name: req.body.name,
+            description: req.body.description,
+            creation_date: date,
+            update_date: date,
+            class_num: 0,
+            relation_num: 0
+        });
+
+        newICM.save(function (err) {
+            if (err) {
+                req.flash('error', err.toString());
+                return res.redirect('/newmodel');
+            }
+
+            req.flash('success', 'Create model successfully');
+            res.redirect('/u/' + req.session.user.mail);
+        });
     });
+
+
 
 };
 
@@ -500,7 +519,7 @@ function makeDataForWorkspace(user, modelName) {
 }
 
 /**
- * 构造 workspace 页面的前端 js 需要用到的数据
+ * 构造 model info 页面的前端 js 需要用到的数据
  */
 function makeDataForModelInfo(user, modelName) {
     var data = {};
@@ -508,6 +527,9 @@ function makeDataForModelInfo(user, modelName) {
     return data;
 }
 
+/**
+ * 构造 model info 页面需要的模板数据
+ */
 function makeModelInfo() {
     var modelInfo = {};
 

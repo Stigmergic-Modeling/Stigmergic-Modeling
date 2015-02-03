@@ -5,31 +5,30 @@ function ModelInfo(modelInfo) {
 
     // 属性
     this._id = modelInfo._id;
-    this.ccmId = modelInfo.ccmId;
+    this.ccm_id = modelInfo.ccm_id;
     this.user = modelInfo.user;
     this.name = modelInfo.name;
     this.description = modelInfo.description;
-    this.creationDate = modelInfo.creationDate;
-    this.updateDate = modelInfo.updateDate;
-    this.classNum = modelInfo.classNum;
-    this.relationNum = modelInfo.relationNum;
+    this.creation_date = modelInfo.creation_date;
+    this.update_date = modelInfo.update_date;
+    this.class_num = modelInfo.class_num;
+    this.relation_num = modelInfo.relation_num;
 };
 
 module.exports = ModelInfo;
 
 ModelInfo.prototype.save = function save(callback) {
 
-	// 外部已先做了一次存在性判断
     var modelInfo = {
         _id: this._id,
-        ccmId: this.ccmId,
+        ccm_id: this.ccm_id,
         user: this.user,
         name: this.name,
         description: this.description,
-        creationDate: this.creationDate,
-        updateDate: this.updateDate,
-        classNum: this.classNum,
-        relationNum: this.relationNum
+        creation_date: this.creation_date,
+        update_date: this.update_date,
+        class_num: this.class_num,
+        relation_num: this.relation_num
     };
 
     mongodb.getCollection('modelinfo',function(collection){
@@ -106,11 +105,18 @@ ModelInfo.prototype.save = function save(callback) {
 //    });
 //};
 
-ModelInfo.get = function get(name, callback) {
+
+/**
+ * 提取某用户的某 icm
+ * @param user
+ * @param name
+ * @param callback
+ */
+ModelInfo.getOneByName = function getOneByUserAndName(user, name, callback) {
     mongodb.getCollection('modelinfo',function(collection){
 
 	    //find
-        collection.findOne({name: name}, function(err, doc) {
+        collection.findOne({user: user, name: name}, function(err, doc) {
             if (doc) {
                 var modelInfo = new ModelInfo(doc);
                 //console.log(modelInfo);
@@ -122,3 +128,31 @@ ModelInfo.get = function get(name, callback) {
     });
 };
 
+/**
+ * 提取某用户的全部 icm 信息
+ * @param user
+ * @param callback
+ */
+ModelInfo.getByUser = function getByUser(user, callback) {
+    mongodb.getCollection('modelinfo',function(collection){
+
+        //find
+        collection.find({user: user}).toArray(function (err, docs) {
+            if (docs) {
+                //console.log(docs);
+                var modelInfo = [];
+
+                docs.forEach(function(doc) {
+                    var item = new ModelInfo(doc);
+                    modelInfo.push(item);
+                });
+                //console.log(modelInfo);
+                callback(err, modelInfo);
+
+            } else {
+                callback(err, null);
+            }
+        });
+
+    });
+};

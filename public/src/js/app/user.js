@@ -65,7 +65,8 @@ define(function (require, exports, module) {
             id = 'stigmod-modelshow-' + i;
             link = '/'+ user + '/' + modelInfo[i].name + '/workspace';
             update = modelInfo[i].update;
-            updateInfo = 'Updated ' + update + (update > 1 ? ' days ago' : ' day ago');
+            updateInfo = 'Updated on ' + update;
+            //updateInfo = 'Updated ' + update + (update > 1 ? ' days ago' : ' day ago');
 
             // 逐个 model 加载模型信息
             var $compo = $('#stigmod-model-info-container').append(componentModelInfo).find('.stigmod-modelshow:last');

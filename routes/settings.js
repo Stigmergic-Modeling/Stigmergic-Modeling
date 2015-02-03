@@ -80,7 +80,7 @@ exports.setModelSpecific = function (req, res) {
     console.log("GET PAGE: User settings / model specific");
     console.log(req.session.user);
 
-    ModelInfo.get(req.params.model, function (err, modelInfo) {
+    ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
         if (!modelInfo) {
             req.flash('error', 'Model does not exist');
 
@@ -104,7 +104,7 @@ exports.setModelSpecific = function (req, res) {
 };
 
 /**
- * settings/model 页面 post 方法
+ * settings/model specific 页面 post 方法
  */
 exports.updateModelSpecific = function (req, res) {
 

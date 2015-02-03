@@ -1,4 +1,5 @@
 var User = require('../models/user.js');
+var ModelInfo = require('../models/model_info.js');
 
 
 /**
@@ -21,72 +22,63 @@ exports.user = function (req, res) {
             return res.redirect('/checkmail');
         }
 
-        res.render('user', {
-            title: user.mail,
-            user: req.session.user,
-            userInfo: user,
-            data: makeDataForUser(user.mail),
-            success: req.flash('success').toString(),
-            error: req.flash('error').toString()
-        });
+        makeDataAndRender(req, res, user);
+
+        //res.render('user', {
+        //    title: user.mail,
+        //    user: req.session.user,
+        //    userInfo: user,
+        //    data: data,
+        //    success: req.flash('success').toString(),
+        //    error: req.flash('error').toString()
+        //});
     });
 };
 
 
 
 /**
- * 构造传入给 user 页面的数据
+ * 构造传入给 user 页面的数据，并回传页面
  */
-function makeDataForUser(user) {
+function makeDataAndRender(req, res, user) {
     var data = {};
 
-    data.user = user;
+    data.user = user.mail;
 
-    data.models =   // 假数据。TODO：以后要通过 getUserModelInfo() 函数获得，该函数从数据库中提取数据
-    [
-        {
-            name: 'CourseManagementSystem',
-            description: 'The course management system helps teachers to post course information and helps students to choose the courses.',
-            update: 1,
-            classNum: 37,
-            relNum: 41
-        },
-        {
-            name: 'CDStore',
-            description: 'A CD store engaged in ordering, renting and selling CDs. There are different categories of CDs. The inventory of each has upper and lower limits, while the number of cds is lower than limit, we should order new ones. Member of the store can get a sale in buying CDs.',
-            update: 22,
-            classNum: 15,
-            relNum: 7
-        },
-        {
-            name: 'CourseManagementSystem',
-            description: 'The course management system helps teachers to post course information and helps students to choose the courses.',
-            update: 1,
-            classNum: 37,
-            relNum: 41
-        },
-        {
-            name: 'CDStore',
-            description: 'A CD store engaged in ordering, renting and selling CDs. There are different categories of CDs. The inventory of each has upper and lower limits, while the number of cds is lower than limit, we should order new ones. Member of the store can get a sale in buying CDs.',
-            update: 22,
-            classNum: 15,
-            relNum: 7
-        },
-        {
-            name: 'CourseManagementSystem',
-            description: 'The course management system helps teachers to post course information and helps students to choose the courses.',
-            update: 1,
-            classNum: 37,
-            relNum: 41
-        },
-        {
-            name: 'CDStore',
-            description: 'A CD store engaged in ordering, renting and selling CDs. There are different categories of CDs. The inventory of each has upper and lower limits, while the number of cds is lower than limit, we should order new ones. Member of the store can get a sale in buying CDs.',
-            update: 22,
-            classNum: 15,
-            relNum: 7
-        }
-    ];
+    data.models = [];
 
-    return data;
+    ModelInfo.getByUser(user.mail, function (err, modelInfo) {
+        //if (!modelInfo) {
+        //    req.flash('error', 'Model info does not exist');
+        //
+        //    return res.redirect('/');
+        //}
+
+        //console.log(modelInfo);
+        //console.log('modelInfo done');
+
+        modelInfo.forEach(function(info) {
+            var modelInfoShow = {};
+            modelInfoShow.name = info.name;
+            modelInfoShow.description = info.description;
+            modelInfoShow.update = info.update_date;
+            modelInfoShow.classNum = info.class_num;
+            modelInfoShow.relNum = info.relation_num;
+
+            //console.log(modelInfoShow);
+            data.models.push(modelInfoShow);
+        });
+
+        //console.log(data.models);
+        //console.log('data.models done');
+
+        res.render('user', {
+            title: user.mail,
+            user: req.session.user,
+            userInfo: user,
+            data: data,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
 }

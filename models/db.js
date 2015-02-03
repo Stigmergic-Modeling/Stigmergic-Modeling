@@ -44,7 +44,7 @@ module.exports = function(){
         });
 
         m_db.collection('modelinfo', function(err, collection) {
-            collection.ensureIndex('name', {unique: true});
+            //collection.ensureIndex('name', {unique: true});
             m_collection["modelinfo"] = collection;
         });
 
