@@ -19,22 +19,14 @@
       <div class="panel panel-default">
         <div class="panel-heading">Model settings</div>
         <div class="list-group">
-          <a href="/u/<%= user.mail %>/settings/model" class="list-group-item stigmod-cursor-pointer">General</a>
-          <% modelInfo.forEach(function(info) { %>
-          <a
-          <% if (name !== info.name) { %>
-           href="/u/<%= user.mail %>/settings/model/<%= info.name %>"
-          <% } %>
-           class="list-group-item stigmod-cursor-pointer
-          <% if (name === info.name) { %>
-           active
-          <% } %>
-          ">
-            <span><%= info.name %></span>
-            <% if (name === info.name) { %>
-              <span class="glyphicon glyphicon-chevron-right pull-right"></span>
-            <% } %>
+          <a class="list-group-item stigmod-cursor-pointer active">
+            <span>General</span>
+            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
           </a>
+          <% modelInfo.forEach(function(info) { %>
+           <a href="/u/<%= user.mail %>/settings/model/<%= info.name %>" class="list-group-item stigmod-cursor-pointer">
+             <span><%= info.name %></span>
+           </a>
           <% }); %>
         </div>
       </div>
@@ -45,19 +37,7 @@
         <div class="panel-heading">CourseManagementSystem</div>
         <div class="row stigmod-settings-left-inner">
           <div class="col-xs-12">
-            <form method="post">
-              <dl>
-                <dt>Name</dt>
-                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="<%= name %>" disabled /></dd>
-              </dl>
-              <dl>
-                <dt>Description</dt>
-                <dd>
-                  <textarea type="text" class="stigmod-input stigmod-textarea" name="description"><%= description %></textarea>
-                </dd>
-              </dl>
-              <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Update model info</button>
-            </form>
+            To be done.
           </div>
         </div>
       </div>

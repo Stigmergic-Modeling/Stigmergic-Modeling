@@ -71,6 +71,40 @@ exports.updateProfile = function (req, res) {
     });
 };
 
+/**
+ * settings/model general 页面 get 方法
+ */
+exports.setModelGeneral = function (req, res) {
+
+    console.log("GET PAGE: User settings / model general");
+    console.log(req.session.user);
+
+    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+        var templateData = [];
+
+        console.log(modelInfo);
+        //console.log('modelInfo done');
+
+        modelInfo.forEach(function(info) {
+            var modelInfoShow = {};
+            modelInfoShow.name = info.name;
+
+            //console.log(modelInfoShow);
+            templateData.push(modelInfoShow);
+        });
+
+        console.log(templateData);
+        //console.log('templateData done');
+
+        res.render('user_settings_model', {
+            title: req.session.user.mail + ' - settings',
+            user: req.session.user,
+            modelInfo: templateData,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+};
 
 /**
  * settings/model specific 页面 get 方法
@@ -80,27 +114,43 @@ exports.setModelSpecific = function (req, res) {
     console.log("GET PAGE: User settings / model specific");
     console.log(req.session.user);
 
-    ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
-        if (!modelInfo) {
-            req.flash('error', 'Model does not exist');
+    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+        var templateData = [];
 
-            return res.redirect('/');  // TODO: 此处不应跳转到/
-        }
+        console.log(modelInfo);
+        //console.log('modelInfo done');
 
-        //if (user.state === 0) {
-        //    req.flash('error', 'Account not activated');
-        //    return res.redirect('/checkmail');
-        //}
+        modelInfo.forEach(function(info) {
+            var modelInfoShow = {};
+            modelInfoShow.name = info.name;
 
-        res.render('user_settings_model_specific', {
-            title: modelInfo.user + ' - settings',
-            user: req.session.user,
-            name: modelInfo.name,
-            description: modelInfo.description,
-            success: req.flash('success').toString(),
-            error: req.flash('error').toString()
+            //console.log(modelInfoShow);
+            templateData.push(modelInfoShow);
+        });
+
+        console.log(templateData);
+        //console.log('templateData done');
+
+        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
+            if (!modelInfo) {
+                req.flash('error', 'Model does not exist');
+
+                return res.redirect('/u/'+ user.mail + '/settings/model');
+            }
+
+            res.render('user_settings_model_specific', {
+                title: modelInfo.user + ' - settings',
+                user: req.session.user,
+                modelInfo: templateData,  // 该用户所有的 model 信息集合（仅包含 name）
+                name: modelInfo.name,  // 该用户选择的特定 model 的信息
+                description: modelInfo.description,  // 该用户选择的特定 model 的信息
+                success: req.flash('success').toString(),
+                error: req.flash('error').toString()
+            });
         });
     });
+
+
 };
 
 /**

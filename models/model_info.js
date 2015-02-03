@@ -1,6 +1,8 @@
 var db = require('./db');
 var mongodb = new db();
 
+module.exports = ModelInfo;
+
 function ModelInfo(modelInfo) {
 
     // 属性
@@ -14,8 +16,6 @@ function ModelInfo(modelInfo) {
     this.class_num = modelInfo.class_num;
     this.relation_num = modelInfo.relation_num;
 };
-
-module.exports = ModelInfo;
 
 ModelInfo.prototype.save = function save(callback) {
 
@@ -112,7 +112,7 @@ ModelInfo.prototype.save = function save(callback) {
  * @param name
  * @param callback
  */
-ModelInfo.getOneByName = function getOneByUserAndName(user, name, callback) {
+ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callback) {
     mongodb.getCollection('modelinfo',function(collection){
 
 	    //find
