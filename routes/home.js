@@ -83,7 +83,8 @@ exports.doReg = function (req, res) {
     var sha1 = crypto.createHash('sha1');
     var time = new Date().toString();
     var link = sha1.update(time).digest('hex');
-    var dateArray = time.split(' ');  // 作为生成用户注册日期的原料
+    //var dateArray = time.split(' ');  // 作为生成用户注册日期的原料
+    var date = new Date();
 
     var newUser = new User({
         //name: req.body.username,
@@ -94,7 +95,7 @@ exports.doReg = function (req, res) {
         name: '',
         location: '',
         url: '',
-        signUpDate: dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3]
+        sign_up_date: date
     });
 
     // 检查用户名是否已经存在

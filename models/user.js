@@ -13,7 +13,7 @@ function User(user) {
     this.name = user.name;
     this.location = user.location;
     this.url = user.url;
-    this.signUpDate = user.signUpDate;
+    this.sign_up_date = user.sign_up_date;
     this.avatar = user.avatar;
 
 };
@@ -30,7 +30,7 @@ User.prototype.save = function save(callback) {
         name: this.name,
         location: this.location,
         url: this.url,
-        signUpDate: this.signUpDate,
+        sign_up_date: this.sign_up_date,
         avatar: this.avatar
     };
 

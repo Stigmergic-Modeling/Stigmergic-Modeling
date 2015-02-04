@@ -3,6 +3,11 @@ var mongodb = new db();
 
 module.exports = ModelInfo;
 
+/**
+ * 模型信息构造函数
+ * @param modelInfo
+ * @constructor
+ */
 function ModelInfo(modelInfo) {
 
     // 属性
@@ -17,6 +22,10 @@ function ModelInfo(modelInfo) {
     this.relation_num = modelInfo.relation_num;
 };
 
+/**
+ * 新建doc并插入
+ * @param callback
+ */
 ModelInfo.prototype.save = function save(callback) {
 
     var modelInfo = {
@@ -84,26 +93,29 @@ ModelInfo.prototype.save = function save(callback) {
 //    });
 //};
 //
-//// 更新用户 profile
-//Model.prototype.updateProfile = function updateProfile(profile, callback) {
-//    var user = this;
-//
-//    mongodb.getCollection('users',function(collection){
-//
-//        //update操作
-//        collection.update({
-//            mail: user.mail
-//        } , {
-//            $set: {
-//                name: profile.name,
-//                location: profile.location,
-//                url: profile.url
-//            }
-//        });
-//
-//        return callback(null);
-//    });
-//};
+
+
+ModelInfo.prototype.updateModelInfo = function updateModelInfo(modelInfo, callback) {
+    var model = this;
+
+    mongodb.getCollection('modelinfo',function(collection){
+
+        //update操作
+        collection.update({
+            user: model.user,
+            name: model.name
+        } , {
+            $set: {
+                description: modelInfo.description,
+                update_date: modelInfo.update_date
+            }
+        });
+
+        return callback(null);
+    });
+};
+
+// TODO: 删除 modelinfo
 
 
 /**

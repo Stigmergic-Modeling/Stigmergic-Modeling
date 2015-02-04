@@ -1,4 +1,5 @@
 var host = require('../settings').host;
+var util = require('../models/util.js');
 var User = require('../models/user.js');
 var ModelInfo = require('../models/model_info.js');
 
@@ -23,6 +24,8 @@ exports.user = function (req, res) {
             return res.redirect('/checkmail');
         }
 
+
+        var userSignUpDate = util.toHumanDate(user.sign_up_date);  // 在传入模板前先进行日期格式转换
         var data = {};
 
         data.user = user.mail;
@@ -38,7 +41,7 @@ exports.user = function (req, res) {
                 var modelInfoShow = {};
                 modelInfoShow.name = info.name;
                 modelInfoShow.description = info.description;
-                modelInfoShow.update = info.update_date;
+                modelInfoShow.update = util.toHumanDate(info.update_date);
                 modelInfoShow.classNum = info.class_num;
                 modelInfoShow.relNum = info.relation_num;
 
@@ -54,6 +57,7 @@ exports.user = function (req, res) {
                 title: user.mail,
                 user: req.session.user,
                 userInfo: user,
+                userSignUpDate: userSignUpDate,
                 data: data,
                 success: req.flash('success').toString(),
                 error: req.flash('error').toString()

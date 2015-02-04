@@ -39,12 +39,12 @@ module.exports = function(){
         console.log("collection.init");
 
         m_db.collection('users', function(err, collection) {
-            collection.ensureIndex('mail', {unique: true});
+            collection.ensureIndex({mail: 1}, {unique: true});
             m_collection["users"] = collection;
         });
 
         m_db.collection('modelinfo', function(err, collection) {
-            //collection.ensureIndex('name', {unique: true});
+            collection.ensureIndex({user: 1, name: 1}, {unique: true});
             m_collection["modelinfo"] = collection;
         });
 

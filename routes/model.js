@@ -1,4 +1,5 @@
 var host = require('../settings').host;
+var util = require('../models/util.js');
 var fs = require('fs');
 var ObjectID = require('mongodb').ObjectID;
 var ModelInfo = require('../models/model_info.js');
@@ -112,16 +113,16 @@ exports.getInfo = function(req, res){
                 modelInfo.icm = {
                     name: icmInfo.name,
                     description: icmInfo.description,
-                    creationDate: icmInfo.creation_date,
-                    updateDate: icmInfo.update_date,
+                    creationDate: util.toHumanDate(icmInfo.creation_date),
+                    updateDate: util.toHumanDate(icmInfo.update_date),
                     classNum: icmInfo.class_num,
                     relationNum: icmInfo.relation_num
                 };
                 modelInfo.ccm = {
                     name: ccmInfo.name,
                     description: ccmInfo.description,
-                    creationDate: ccmInfo.creation_date,
-                    updateDate: ccmInfo.update_date,
+                    creationDate: util.toHumanDate(ccmInfo.creation_date),
+                    updateDate: util.toHumanDate(ccmInfo.update_date),
                     classNum: ccmInfo.class_num,
                     relationNum: ccmInfo.relation_num,
                 };
@@ -167,8 +168,9 @@ exports.doCleanCreateModel = function (req, res) {
     console.log(req.session.user);
 
     var time = new Date().toString();
-    var dateArray = time.split(' ');  // 作为生成用户注册日期的原料
-    var date = dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3];
+    //var dateArray = time.split(' ');  // 作为生成用户注册日期的原料
+    //var date = dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3];
+    var date = new Date();
     var newID = new ObjectID();
 
     // 创建 CCM
