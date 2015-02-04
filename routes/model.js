@@ -13,7 +13,7 @@ exports.enterWorkspace = function(req, res){
     console.log(req.session.user);
     console.log(req.params.model);
 
-    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+    ModelInfo.getByUser(req.params.user, function(err, modelInfo) {
         var templateData = [];
 
         console.log(modelInfo);
@@ -30,7 +30,7 @@ exports.enterWorkspace = function(req, res){
         //console.log(templateData);
         //console.log('templateData done');
 
-        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
+        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, modelInfo) {
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
@@ -54,13 +54,13 @@ exports.enterWorkspace = function(req, res){
 /**
  * workspace 页面 post 方法
  */
-exports.updateModel = function(req, res){
+exports.updateModel = function(req, res) {
 
     console.log("POST DATA: Workspace");
     console.log(req.session.user);
     console.log(req.params.model);
 
-    setTimeout(function(){
+    setTimeout(function() {
         res.send('hello world');  // 测试前端载入动画用 TODO：真正保存模型、发送反馈
     }, 2000);
 
@@ -76,10 +76,10 @@ exports.getInfo = function(req, res){
     console.log(req.session.user);
     console.log(req.params.model);
 
-    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+    ModelInfo.getByUser(req.params.user, function(err, modelInfo) {
         var modelNames = [];
 
-        console.log(modelInfo);
+        //console.log(modelInfo);
         //console.log('modelInfo done');
 
         modelInfo.forEach(function(info) {
@@ -93,14 +93,16 @@ exports.getInfo = function(req, res){
         //console.log(templateData);
         //console.log('templateData done');
 
-        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, icmInfo) {
+        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, icmInfo) {
             if (!icmInfo) {
                 req.flash('error', 'Model does not exist');
 
                 return res.redirect('/u/'+ user.mail);
             }
 
-            ModelInfo.getOneByUserAndName('@', req.params.model, function (err, ccmInfo) {
+            var ccmID = icmInfo.ccm_id;
+
+            ModelInfo.getOneByID(ccmID, function(err, ccmInfo) {
                 if (!ccmInfo) {
                     req.flash('error', 'Model does not exist');
 
@@ -150,26 +152,43 @@ exports.createModel = function(req, res) {
     console.log("GET PAGE: New Model");
     console.log(req.session.user);
 
-    res.render('new_model', {
-        host: host,
-        title: 'New Model',
-        user : req.session.user,
-        success: req.flash('success').toString(),
-        error: req.flash('error').toString()
+    // 获取所有的 CCM    TODO：此为临时方案，省略了搜索
+    ModelInfo.getByUser('@', function(err, modelInfo) {
+        var ccmNames = [];
+
+        //console.log(modelInfo);
+        //console.log('modelInfo done');
+
+        modelInfo.forEach(function(info) {
+            var modelInfoShow = {};
+            modelInfoShow.name = info.name;
+
+            //console.log(modelInfoShow);
+            ccmNames.push(modelInfoShow);
+        });
+
+        //console.log(templateData);
+        //console.log('templateData done');
+
+        res.render('new_model', {
+            host: host,
+            title: 'New Model',
+            user : req.session.user,
+            ccmNames: ccmNames,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
     });
 };
 
 /**
- * new model 页面 post 方法
+ * new model 页面 post 方法 (clean creation)
  */
-exports.doCleanCreateModel = function (req, res) {
+exports.doCleanCreateModel = function(req, res) {
 
     console.log("POST DATA: doCleanCreateModel");
     console.log(req.session.user);
 
-    var time = new Date().toString();
-    //var dateArray = time.split(' ');  // 作为生成用户注册日期的原料
-    //var date = dateArray[1] + ' ' + dateArray[2] + ', ' + dateArray[3];
     var date = new Date();
     var newID = new ObjectID();
 
@@ -186,13 +205,13 @@ exports.doCleanCreateModel = function (req, res) {
         relation_num: 0
     });
 
-    newCCM.save(function (err) {
+    newCCM.save(function(err) {
         if (err) {
             req.flash('error', err.toString());
             return res.redirect('/newmodel');
         }
 
-        // 创建 ICM  TODO: 目前是同步写法。若改成异步，如何保证 icm 和 ccm 都保存完成后才向前端 render 页面？
+        // 创建 ICM
         var newID_icm = new ObjectID();
 
         var newICM = new ModelInfo({
@@ -207,7 +226,7 @@ exports.doCleanCreateModel = function (req, res) {
             relation_num: 0
         });
 
-        newICM.save(function (err) {
+        newICM.save(function(err) {
             if (err) {
                 req.flash('error', err.toString());
                 return res.redirect('/newmodel');
@@ -217,9 +236,49 @@ exports.doCleanCreateModel = function (req, res) {
             res.redirect('/u/' + req.session.user.mail);
         });
     });
+};
 
+/**
+ * new model 页面 post 方法 (inherited creation)
+ */
+exports.doInheritedCreateModel = function(req, res) {
 
+    console.log("POST DATA: doInheritedCreateModel");
+    console.log(req.session.user);
 
+    var date = new Date();
+    var newID = new ObjectID();
+
+    ModelInfo.getOneByUserAndName('@', req.body.ccm, function(err, ccmInfo) {
+        if (!ccmInfo) {
+            req.flash('error', 'Model does not exist');
+
+            return res.redirect('/newmodel');
+        }
+
+        var ccmID = ccmInfo._id;
+        var newICM = new ModelInfo({
+            _id: newID,
+            ccm_id: ccmID,
+            user: req.session.user.mail,
+            name: req.body.name,
+            description: req.body.description,
+            creation_date: date,
+            update_date: date,
+            class_num: 0,
+            relation_num: 0
+        });
+
+        newICM.save(function(err) {
+            if (err) {
+                req.flash('error', err.toString());
+                return res.redirect('/newmodel');
+            }
+
+            req.flash('success', 'Create model successfully');
+            res.redirect('/u/' + req.session.user.mail);
+        });
+    });
 };
 
 /**

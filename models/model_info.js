@@ -116,6 +116,27 @@ ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callbac
     });
 };
 
+/**
+ * 根据 _id 号提取某个 model info
+ * @param id
+ * @param callback
+ */
+ModelInfo.getOneByID = function getOneByID(id, callback) {
+    mongodb.getCollection('modelinfo',function(collection){
+
+        // find
+        collection.findOne({_id: id}, function(err, doc) {
+            if (doc) {
+                var modelInfo = new ModelInfo(doc);
+                //console.log(modelInfo);
+                callback(err, modelInfo);
+            } else {
+                callback(err, null);
+            }
+        });
+    });
+};
+
 
 /**
  * 提取某用户的全部 icm 信息

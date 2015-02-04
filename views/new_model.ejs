@@ -7,22 +7,32 @@
         <div class="panel-body">
           <p>Base your model on an existing Collective Concept Model, and build your model with the help of Stigmergic-Modeling's powerful element recommendation function.</p>
           <hr />
-          <form method="post">
+          <form action="/newmodel/inherited" method="post">
             <dl>
               <dt>Collective Concept Model</dt>
-              <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>
+              <dd>
+                <select type="text" class="stigmod-input stigmod-input-lg" name="ccm" >
+                  <% ccmNames.forEach(function(ccm) { %>
+                    <option><%= ccm.name %></option>
+                  <% }) %>
+                </select>
+              </dd>
             </dl>
             <!--<dl>-->
-              <!--<dt>Name</dt>-->
-              <!--<dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>-->
+              <!--<dt>CCM description</dt>-->
+              <!--<dd>lalalala</dd>-->
             <!--</dl>-->
-            <!--<dl>-->
-              <!--<dt>Description</dt>-->
-              <!--<dd>-->
-                <!--<textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>-->
-              <!--</dd>-->
-            <!--</dl>-->
-            <button type="submit" class="btn btn-success disabled" id="stigmod-update-pf-btn">Search</button>
+            <dl>
+              <dt>Name</dt>
+              <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>
+            </dl>
+            <dl>
+              <dt>Description</dt>
+              <dd>
+                <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
+              </dd>
+            </dl>
+            <button type="submit" class="btn btn-success">Create</button>
           </form>
         </div>
       </div>
@@ -34,7 +44,7 @@
         <div class="panel-body">
           <p>Create a new model that does not based on any existing Collective Concept Model. (Would automatically create a new CCM and base your model on it.)</p>
           <hr />
-          <form method="post">
+          <form action="/newmodel/clean" method="post">
             <dl>
               <dt>Name</dt>
               <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>
@@ -45,7 +55,7 @@
                 <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
               </dd>
             </dl>
-            <button type="submit" class="btn btn-success" id="stigmod-update-pf-btn">Create</button>
+            <button type="submit" class="btn btn-default" id="stigmod-update-pf-btn">Create</button>
           </form>
         </div>
       </div>
