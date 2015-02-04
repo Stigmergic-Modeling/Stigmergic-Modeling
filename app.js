@@ -142,7 +142,8 @@ app.post('/u/:user/settings/model', routes.settings.updateModelGeneral);
 // user settings/model （Specific）页面 get、post 方法
 app.all('/u/:user/settings/model/:model',routes.state.checkLogin);
 app.get('/u/:user/settings/model/:model', routes.settings.setModelSpecific);
-app.post('/u/:user/settings/model/:model', routes.settings.updateModelSpecific);
+app.post('/u/:user/settings/model/:model/update', routes.settings.updateModelSpecific);
+app.post('/u/:user/settings/model/:model/delete', routes.settings.deleteModel);
 
 // new model 页面 get 方法
 app.all('/newmodel', routes.state.checkLogin);

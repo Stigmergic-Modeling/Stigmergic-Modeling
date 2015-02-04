@@ -83,6 +83,11 @@ body {
   width: 100%;
 }
 
+/* 简单垂直居中 */
+.stigmod-vert-align-center {
+  vertical-align: middle !important;
+}
+
 /* 禁用响应式布局，container宽度恒定 */
 .container {
   width: 1200px !important;
@@ -324,9 +329,9 @@ fieldset[disabled] .stigmod-input {
 .stigmod-textarea {
   resize: none;
   /*width: 200px;*/
-  height: 100px;
+  height: 200px;
   /*max-width: 200px;*/
-  max-height: 100px;
+  max-height: 200px;
 }
 
 /* 点击编辑功能中，编辑组件的样式控制 */

@@ -167,6 +167,9 @@ exports.setModelSpecific = function (req, res) {
         //console.log('templateData done');
 
         ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
+            console.log(req.params.user);
+            console.log(req.params.model);
+            console.log(modelInfo);
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
@@ -190,11 +193,11 @@ exports.setModelSpecific = function (req, res) {
 };
 
 /**
- * settings/model specific 页面 post 方法
+ * settings/model specific 页面 post 方法 (update)
  */
 exports.updateModelSpecific = function (req, res) {
 
-    console.log("POST DATA: User settings / model specific");
+    console.log("POST DATA: User settings / model specific (update)");
     console.log(req.session.user);
 
     var info = {
@@ -219,5 +222,25 @@ exports.updateModelSpecific = function (req, res) {
 
         req.flash('success', 'Model info updated successfully');
         res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+    });
+};
+
+/**
+ * settings/model specific 页面 post 方法 (delete)
+ */
+exports.deleteModel = function (req, res) {
+
+    console.log("POST DATA: User settings / model specific (delete)");
+    console.log(req.session.user);
+
+    ModelInfo.deleteOneByUserAndName(req.params.user, req.params.model, function(err) {
+
+        if (err) {
+            req.flash('error', err.toString());
+            return res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+        }
+
+        req.flash('success', 'Model info delete successfully');
+        res.redirect('/u/'+ req.params.user + '/settings/model');
     });
 };

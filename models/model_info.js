@@ -3,6 +3,7 @@ var mongodb = new db();
 
 module.exports = ModelInfo;
 
+
 /**
  * 模型信息构造函数
  * @param modelInfo
@@ -21,6 +22,7 @@ function ModelInfo(modelInfo) {
     this.class_num = modelInfo.class_num;
     this.relation_num = modelInfo.relation_num;
 };
+
 
 /**
  * 新建doc并插入
@@ -48,59 +50,18 @@ ModelInfo.prototype.save = function save(callback) {
     });
 };
 
-//Model.prototype.activate = function activate(callback) {
-//    var user = {
-//        password : this.password,
-//        state : 1,
-//        mail : this.mail,
-//        link : null
-//    };
-//
-//    mongodb.getCollection('users',function(collection){
-//
-//        //update操作
-//        collection.update( {mail:user.mail} , {$set:{state:1}});
-//        return callback(null,user);
-//    });
-//};
-//
-//Model.prototype.updateLink = function updateLink(callback) {
-//    var user = this;
-//
-//    mongodb.getCollection('users',function(collection){
-//
-//        //update操作
-//        collection.update( {mail:user.mail} , {$set:{link:user.link}});
-//        return callback(null);
-//    });
-//};
-//
-//Model.prototype.updatePW = function updatePW(pw, callback) {
-//    var user = this;
-//
-//    mongodb.getCollection('users',function(collection){
-//
-//        //update操作
-//        collection.update({
-//            mail: user.mail
-//        }, {
-//            $set: {
-//                password: pw
-//            }
-//        });
-//
-//        return callback(null);
-//    });
-//};
-//
 
-
+/**
+ * 更新模型信息
+ * @param modelInfo
+ * @param callback
+ */
 ModelInfo.prototype.updateModelInfo = function updateModelInfo(modelInfo, callback) {
     var model = this;
 
     mongodb.getCollection('modelinfo',function(collection){
 
-        //update操作
+        // update操作
         collection.update({
             user: model.user,
             name: model.name
@@ -115,7 +76,22 @@ ModelInfo.prototype.updateModelInfo = function updateModelInfo(modelInfo, callba
     });
 };
 
-// TODO: 删除 modelinfo
+
+/**
+ * 删除模型
+ * @param user
+ * @param name
+ * @param callback
+ */
+ModelInfo.deleteOneByUserAndName = function deleteOneByUserAndName(user, name, callback) {
+    mongodb.getCollection('modelinfo',function(collection){
+
+        // delete
+        collection.findAndRemove({user: user, name: name}, function(err) {
+            callback(err);
+        });
+    });
+};
 
 
 /**
@@ -127,7 +103,7 @@ ModelInfo.prototype.updateModelInfo = function updateModelInfo(modelInfo, callba
 ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callback) {
     mongodb.getCollection('modelinfo',function(collection){
 
-	    //find
+	    // find
         collection.findOne({user: user, name: name}, function(err, doc) {
             if (doc) {
                 var modelInfo = new ModelInfo(doc);
@@ -140,6 +116,7 @@ ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callbac
     });
 };
 
+
 /**
  * 提取某用户的全部 icm 信息
  * @param user
@@ -148,7 +125,7 @@ ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callbac
 ModelInfo.getByUser = function getByUser(user, callback) {
     mongodb.getCollection('modelinfo',function(collection){
 
-        //find
+        // find
         collection.find({user: user}).toArray(function (err, docs) {
             if (docs) {
                 //console.log(docs);
