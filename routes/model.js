@@ -3,6 +3,7 @@ var util = require('../models/util.js');
 var fs = require('fs');
 var ObjectID = require('mongodb').ObjectID;
 var ModelInfo = require('../models/model_info.js');
+var Model = require('../models/model.js')
 
 /**
  * workspace 页面 get 方法
@@ -57,14 +58,20 @@ exports.enterWorkspace = function(req, res){
 exports.updateModel = function(req, res) {
 
     console.log("POST DATA: Workspace");
-    console.log(req.session.user);
+    //console.log(req.session.user);
+    console.log(req.params.user);
     console.log(req.params.model);
 
+    Model.modelOperation(req.body.model,req.body.user,req.body.log,function(err){
+        console.log("get "+err);
+        return res.send(err);
+    })
+
+    /*
     setTimeout(function() {
         res.send('hello world');  // 测试前端载入动画用 TODO：真正保存模型、发送反馈
     }, 2000);
-
-
+    */
 };
 
 /**
