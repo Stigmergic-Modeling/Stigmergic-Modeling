@@ -1788,7 +1788,7 @@ define(function (require, exports, module) {
         $.ajax({
             url: '/' + stateOfPage.user + '/' + stateOfPage.model + '/workspace',
             type: 'POST',
-            data: JSON.stringify(postData),
+            data: postData,
             dataType: 'json',
             success: function (msg) {
                 // TODO：后端写好后，这里应该放 disableSave(); （这是最终状态）
