@@ -111,7 +111,7 @@ exports.modelOperation = function(projectID,user,dataSet,callback){
 var classOperation = function(projectID,user,order,dataItem,callback){
     switch(dataItem[1]){
         case 'ADD':
-            dbOperationControl.class.add(projectID,user,order,dataItem[3],"normal",function(err,doc){
+            dbOperationControl.class.add(projectID,user,dataItem[3],"normal",function(err,doc){
                 return callback(err,doc);
             });
             break;
