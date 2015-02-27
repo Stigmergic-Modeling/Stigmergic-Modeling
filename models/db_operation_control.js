@@ -28,6 +28,13 @@ var Merge = function(dataSet,newInfo){
     };
 }
 
+var ErrUpdate = function(state,newError){
+    if(newError != null){
+        state += newError;
+    }
+    return state;
+}
+
 /**
  *  get
  */
@@ -48,7 +55,7 @@ exports.getIndividualModel = function(projectID,user,callback){
                 else {
                     model[0] = classSet;
                     {
-                        return callback(model);
+                        return callback(null,model);
                     }
                 }
             })
@@ -61,7 +68,7 @@ exports.getIndividualModel = function(projectID,user,callback){
         model[1] = relationSet;
         if(mutex>0) {;}
         else{
-            return callback(model);
+            return callback(null,model);
         }
     });
 }
@@ -202,15 +209,20 @@ var entity = {
             projectID: projectID,
             user: user
         };
+        var errs = null;
+        var mutex = 0;
         //save index
-
         var dataSet = new Merge(dateSetBase,{
             'collection':"conceptDiag_index",
             'source':'Class',
             'target':className,
             'relation':{direction:'',attribute:'instance'}
         });
+        mutex ++;
         saveData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
         });
         //save class edge (type of class)
 
@@ -224,7 +236,11 @@ var entity = {
                     'attribute':'type'
                 }
             });
+            mutex ++;
             saveData(dataSet,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex == 0) return callback(errs);
             })
         }
     },
@@ -233,6 +249,8 @@ var entity = {
             projectID: projectID,
             user: user
         };
+        var errs = null;
+        var mutex = 0;
         //delete index
         var dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_index",
@@ -240,14 +258,24 @@ var entity = {
             'target': className,
             'relation': {direction:'',attribute:'instance'}
         });
-        deleteData(dataSet,function(err,doc){});
+        mutex ++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
 
         //delete edges start from class
         var dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': className
         });
-        deleteData(dataSet,function(err,doc){});
+        mutex ++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
     revise:function(projectID,user,oldClassName,newClassName,callback){
         //class的revise是什么意思
@@ -255,6 +283,8 @@ var entity = {
             projectID: projectID,
             user: user
         };
+        var errs = null;
+        var mutex = 0;
         //revise index
         var oldDataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_index",
@@ -262,24 +292,46 @@ var entity = {
             'target': oldClassName,
             'relation': {direction:'',attribute:'instance'}
         });
-        deleteData(oldDataSet,function(err,doc){});
+        mutex ++;
+        deleteData(oldDataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
         var newDataSet = new Merge(oldDataSet,{
             'target':newClassName
         });
-        saveData(newDataSet,function(err,doc){});
+        mutex ++;
+        saveData(newDataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
 
         //revise edges start from class
         var oldDataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': oldClassName
         });
+        mutex ++;
         dbOperation.get("conceptDiag_edge",oldDataSet,function(err,docs){
             //删除
-            deleteData(oldDataSet,function(err,doc){});
+            mutex --;
+            mutex ++;
+            deleteData(oldDataSet,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex ==0) return callback(errs);
+            });
             //新增
             docs.forEach(function(element){
                 element.source = newClassName;
-                saveData(element,function(err,doc){});
+                mutex ++;
+                saveData(element,function(err,doc){
+                    mutex--;
+                    errs = ErrUpdate(errs,err);
+                    if(mutex ==0) return callback(errs);
+                });
             });
         });
     }
@@ -338,6 +390,8 @@ var attribute = {
         });
     },
     add : function(projectID,user,className,attributeName,callback){
+        var errs = null;
+        var mutex = 0;
         this.getId(projectID,user,className,attributeName,function(attributeId){
             if(attributeId != undefined)  return callback("Aleady Exists",null);
             //not exist
@@ -360,12 +414,22 @@ var attribute = {
                     'relation.attribute': 'class',
                     'target':className
                 });
+                mutex ++;
                 saveData(newDataSet,function(err,doc){
+                    mutex--;
+                    errs = ErrUpdate(errs,err);
+                    if(mutex ==0) return callback(errs);
                 });
                 //save attribute edges
+                mutex ++;
                 attributeProperty.add(projectID,user,attributeId,'isAttribute','1',function(){
+                    mutex--;
+                    if(mutex ==0) return callback(errs);
                 });
+                mutex ++;
                 attributeProperty.add(projectID,user,attributeId,'role',attributeName,function(){
+                    mutex--;
+                    if(mutex ==0) return callback(errs);
                 });
             })
         });
@@ -383,14 +447,26 @@ var attribute = {
                 'collection': 'conceptDiag_vertex',
                 '_id': attributeId
             });
-            deleteData(dataSet,function(err,doc){});
+            var errs = null;
+            var mutex = 0;
+            mutex++;
+            deleteData(dataSet,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex ==0) return callback(errs);
+            });
             //delete attribute edges
 
             var dataSet = new Merge(dateSetBase,{
                 'collection': "conceptDiag_edge",
                 'source': attributeId
             });
-            deleteData(dataSet,function(err,doc){});
+            mutex++;
+            deleteData(dataSet,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex ==0) return callback(errs);
+            });
         });
     },
     revise:function(projectID,user,className,oldAttributeName,newAttributeName,callback){
@@ -431,9 +507,16 @@ var attributeProperty = {
             },
             target:propertyValue
         };
-        saveData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        saveData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
-    delete: function(projectID,user,attributeId,propertyName,propertyValue,callback){
+    delete: function(projectID,user,attributeId,propertyName,callback){
         var dataSet = {
             projectID: projectID,
             user: user,
@@ -442,12 +525,19 @@ var attributeProperty = {
             relation:{
                 direction:'1',
                 attribute:propertyName
-            },
-            target:propertyValue
+            }
+            //,target:propertyValue
         };
-        deleteData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
-    revise:function(projectID,user,attributeId,propertyName,oldPropertyValue,newPropertyValue,callback){
+    revise:function(projectID,user,attributeId,propertyName,newPropertyValue,callback){
         var dataSet = {
             projectID: projectID,
             user: user,
@@ -456,13 +546,25 @@ var attributeProperty = {
             relation:{
                 direction:'1',
                 attribute:propertyName
-            },
-            target:oldPropertyValue
+            }
+            //,target:oldPropertyValue
         };
-        deleteData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
 
         var newDataSet = new Merge(dataSet,{"target":newPropertyValue});
-        saveData(newDataSet,function(err,doc){});
+        mutex++;
+        saveData(newDataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     }
 }
 exports.attributeProperty = attributeProperty;
@@ -520,8 +622,10 @@ exports.relation = {
             'name': relationName,
             'user': [user]
         });
+        var errs = null;
+        var mutex = 0;
         dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
-            var relationId = docs._id;
+            var relationId = docs[0]._id;
             //save Index
             var dataSet = new Merge(dateSetBase,{
                 'collection':"conceptDiag_index",
@@ -529,7 +633,12 @@ exports.relation = {
                 'target': relationId,
                 'relation':{direction:'',attribute:'instance'}
             });
-            saveData(dataSet,function(err,doc){});
+            mutex ++;
+            saveData(dataSet,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex ==0) return callback(errs);
+            });
         });
     },
     delete: function(projectID,user,relationId,callback){
@@ -544,22 +653,36 @@ exports.relation = {
             'target': relationId,
             'relation':{direction:'',attribute:'instance'}
         });
-        console.log(dataSet)
-        deleteData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
         //delete vertex
         var dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_vertex",
             '_id': relationId
         });
-        console.log(dataSet)
-        deleteData(dataSet,function(err,doc){});
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
         //delete edge
         var dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': relationId
         });
-        console.log(dataSet)
-        deleteData(dataSet,function(err,doc){});
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
     revise:function(){
         //暂不提供
@@ -580,9 +703,16 @@ exports.relationProperty = {
             },
             target:propertyValue
         };
-        saveData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        saveData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
-    delete: function(projectID,user,relationId,direction,propertyName,propertyValue,callback){
+    delete: function(projectID,user,relationId,direction,propertyName,callback){
         //删除relation的Property
         var dataSet = {
             projectID: projectID,
@@ -592,12 +722,19 @@ exports.relationProperty = {
             relation:{
                 direction:direction,
                 attribute:propertyName
-            },
-            target:propertyValue
+            }
+            //,target:propertyValue
         };
-        deleteData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
-    revise:function(projectID,user,relationId,direction,propertyName,oldPropertyValue,newPropertyValue,callback){
+    revise:function(projectID,user,relationId,direction,propertyName,newPropertyValue,callback){
         //修改relation的Property
         var dataSet = {
             projectID: projectID,
@@ -607,23 +744,35 @@ exports.relationProperty = {
             relation:{
                 direction:direction,
                 attribute:propertyName
-            },
-            target:oldPropertyValue
+            }
+            //,target:oldPropertyValue
         };
-        deleteData(dataSet,function(err,doc){});
+        var errs = null;
+        var mutex = 0;
+        mutex++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
 
         var newDateSet = new Merge(dataSet,{
             target: newPropertyValue
         })
-        saveData(newDateSet,function(err,doc){});
+        mutex++;
+        saveData(newDateSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     }
 }
 
 //DELETE = 0; SAVE = 1;  UPDATE = 2
 //pool for operations
 var m_flowList = [];
-var flowControl = function(){
-    //直接添加边
+var flowOffset = 0; //
+var flowControl = function(errs,results,callback){
     async.series([
         function(callback){
             //if(m_flowList.length == 0)  return callback(null,null);
@@ -631,35 +780,55 @@ var flowControl = function(){
 
             switch(m_flowList[0][0]){
                 case 0 ://DELETE
-                    deleteFunc(dateSet,function(err,results){
-                        return callback(err,results);
+                    deleteFunc(dateSet,function(err,result){
+                        errs.push(err);
+                        results.push(result);
+                        return callback(errs,results);
                     });
                     break;
                 case 1 ://SAVE
-                    saveFunc(dateSet,function(err,results){
-                        return callback(err,results);
+                    saveFunc(dateSet,function(err,result){
+                        errs.push(err);
+                        results.push(result);
+                        return callback(errs,results);
                     });
                     break;
                 default :
-                    return callback(null,null);
+                    errs.push(null);
+                    results.push(null);
+                    return callback(errs,results);
                     break;
             };
         }
-    ],function(err, results){
+    ],function(errs, results){
+        results = results[0];//async.series会将result放入数组中
         var x = m_flowList.shift();
-        if(m_flowList.length > 0) flowControl();
-        //这里写return callback；
+        if(m_flowList.length > 0){
+            flowControl(errs,results,function(errs,results){
+                return callback(errs,results);
+            });
+        }else{
+            console.log(errs,results)
+            for(var i=0;i<callbackList.length;i++){
+                callbackList[i](errs[i],results[i]);
+            }
+            callbackList = [];
+            return //callback(errs,results);
+        };
     });
-
 }
+
+var callbackList = [];
 
 //for save
 var saveData = function(dataSet,callback){
+    callbackList.push(callback);
     //console.log(dataSet)
     var newSet = new Copy(dataSet);
     if(m_flowList.length == 0){
         m_flowList.push([1,newSet]);
-        flowControl();
+        flowControl([],[],function(errs,results){
+        });
     }else{
         m_flowList.push([1,newSet]);
     }
@@ -692,10 +861,14 @@ var saveFunc = function(dataSet,callback){
 
 //for delete
 var deleteData = function(dataSet,callback){
+    callbackList.push(callback);
+    //console.log(dataSet)
     var newSet = new Copy(dataSet);
+    //m_flowList.push([0,newSet]);
     if(m_flowList.length === 0){
         m_flowList.push([0,newSet]);
-        flowControl();
+        flowControl([],[],function(errs,results){
+        });
     }else{
         m_flowList.push([0,newSet]);
     }
@@ -712,12 +885,13 @@ var deleteFunc = function(dataSet,callback){
     dbOperation.get(collectionName,filter,function(err,docs){
         if(docs.length === 0){
             //如果记录不存在则不做处理
+            console.log("not get");
             return callback(err,docs);
         }else{
             //如果记录存在则删除用户
+            console.log("delete");
             dataSet = {};
             dataSet["user"] = user;
-            console.log(filter);
             dbOperation.update(collectionName,filter,{"$pull": dataSet},function(err,doc){
                 return callback(err,doc);
             });
