@@ -5,3 +5,5 @@ mongodb/
 public/node_modules/
 public/build/
 public/dist/
+*.swp
+*.swo

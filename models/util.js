@@ -5,7 +5,7 @@ module.exports = {
         var year = date.getFullYear();
         var monthRaw = date.getMonth();
         var month;
-        var day = date.getDay() + 1;
+        var day = date.getDate();
         var daySuffix;
 
         switch (monthRaw) {
