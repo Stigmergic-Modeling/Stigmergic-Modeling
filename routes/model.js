@@ -15,9 +15,15 @@ exports.enterWorkspace = function(req, res){
     console.log(req.params.model);
 
     ModelInfo.getByUser(req.params.user, function(err, modelInfo) {
+        if (!modelInfo) {
+            req.flash('error', 'No model exists');
+
+            return res.redirect('/u/'+ req.session.user.mail);
+        }
+
         var templateData = [];
 
-        console.log(modelInfo);
+        //console.log(modelInfo);
         //console.log('modelInfo done');
 
         modelInfo.forEach(function(info) {
@@ -35,18 +41,35 @@ exports.enterWorkspace = function(req, res){
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
-                return res.redirect('/u/'+ user.mail);
+                return res.redirect('/u/'+ req.session.user.mail);
             }
 
-            res.render('workspace', {
-                host: host,
-                title: 'Workspace - ' + req.params.model,
-                user : req.session.user,
-                model: req.params.model,  // 该用户当前 model 的 name
-                modelInfo: templateData,  // 该用户所有的 model 信息集合（仅包含 name）
-                data: makeDataForWorkspace(req.params.user, modelInfo._id, modelInfo.name),  // 构造需要传入前端 js 的数据
-                success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
-                error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+            Model.modelGet(modelInfo._id, req.params.user, function(err, model) {
+                if (!model) {
+                    req.flash('error', 'Model entity does not exist' + err);
+
+                    return res.redirect('/u/'+ req.session.user.mail);
+                }
+
+                var data = {};
+
+                data.user = req.params.user;
+                data.modelID = modelInfo._id;
+                data.modelName = modelInfo.name;
+                data.model = model;
+
+                console.log(model);
+
+                res.render('workspace', {
+                    host: host,
+                    title: 'Workspace - ' + req.params.model,
+                    user : req.session.user,
+                    model: req.params.model,  // 该用户当前 model 的 name
+                    modelInfo: templateData,  // 该用户所有的 model 信息集合（仅包含 name）
+                    data: data,  // 传给前端 js 的数据
+                    success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+                    error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
+                });
             });
         });
     });
@@ -58,8 +81,8 @@ exports.enterWorkspace = function(req, res){
 exports.updateModel = function(req, res) {
 
     console.log("POST DATA: Workspace");
-    //console.log(req.session.user);
-    console.log(req.params.user);
+    console.log(req.session.user);
+    //console.log(req.params.user);
     console.log(req.params.model);
 
     Model.modelOperation(req.body.modelID, req.body.user, req.body.log, function(err){
@@ -104,7 +127,7 @@ exports.getInfo = function(req, res){
             if (!icmInfo) {
                 req.flash('error', 'Model does not exist');
 
-                return res.redirect('/u/'+ user.mail);
+                return res.redirect('/u/'+ req.session.user.mail);
             }
 
             var ccmID = icmInfo.ccm_id;
@@ -113,7 +136,7 @@ exports.getInfo = function(req, res){
                 if (!ccmInfo) {
                     req.flash('error', 'Model does not exist');
 
-                    return res.redirect('/u/'+ user.mail);
+                    return res.redirect('/u/'+ req.session.user.mail);
                 }
 
                 // 构造将传入模板的模型信息
@@ -288,390 +311,397 @@ exports.doInheritedCreateModel = function(req, res) {
     });
 };
 
-/**
- * 构造 workspace 页面的前端 js 需要用到的数据
- */
-function makeDataForWorkspace(user, modelID, modelName) {
-    var data = {};
-
-    data.user = user;
-    data.modelID = modelID;
-    data.modelName = modelName;
-
-    data.model =
-
-            // 测试数据。 TODO：以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
-
-            [
-                {
-                    "Course": [
-                        {
-                            "code": [
-                                {
-                                    "name": "code",
-                                    "type": "string",
-                                    "visibility": "public"
-                                }
-                            ],
-                            "credit": [
-                                {
-                                    "name": "credit",
-                                    "type": "float",
-                                    "visibility": "private"
-                                }
-                            ],
-                            "availability": [
-                                {
-                                    "name": "availability",
-                                    "type": "CourseAvailability",
-                                    "visibility": "protected",
-                                    "readOnly": "True"
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["code", "credit", "availability"]
-                        }
-                    ],
-                    "CourseActivity": [
-                        {
-                            "startTime": [
-                                {
-                                    "name": "startTime",
-                                    "type": "Time"
-                                }
-                            ],
-                            "endTime": [
-                                {
-                                    "name": "endTime",
-                                    "type": "Time"
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["startTime", "endTime"]
-                        }
-                    ],
-                    "Student": [
-                        {
-                            "code": [
-                                {
-                                    "name": "code",
-                                    "type": "string"
-                                }
-                            ],
-                            "enrollmentDate": [
-                                {
-                                    "name": "enrollmentDate",
-                                    "type": "Date"
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["code", "enrollmentDate"]
-                        }
-                    ],
-                    "Teacher": [
-                        {
-                            "facultyCode": [
-                                {
-                                    "name": "facultyCode",
-                                    "type": "string"
-                                }
-                            ],
-                            "title": [
-                                {
-                                    "name": "title",
-                                    "type": "Title"
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["facultyCode", "title"]
-                        }
-                    ],
-                    "User": [
-                        {
-                            "email": [
-                                {
-                                    "name": "email",
-                                    "type": "string"
-                                }
-                            ],
-                            "username": [
-                                {
-                                    "name": "username",
-                                    "type": "string"
-                                }
-                            ],
-                            "photo": [
-                                {
-                                    "name": "photo",
-                                    "type": "Image"
-                                }
-                            ],
-                            "password": [
-                                {
-                                    "name": "password",
-                                    "type": "string"
-                                }
-                            ],
-                            "birthDate": [
-                                {
-                                    "name": "birthDate",
-                                    "type": "Date"
-                                }
-                            ],
-                            "name": [
-                                {
-                                    "name": "name",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["username", "password", "name", "birthDate", "email", "photo"]
-                        }
-                    ],
-                    "Department": [
-                        {
-                            "name": [
-                                {
-                                    "name": "name",
-                                    "type": "string"
-                                }
-                            ],
-                            "code": [
-                                {
-                                    "name": "code",
-                                    "type": "string"
-                                }
-                            ],
-                            "requiredCreditOfM": [
-                                {
-                                    "name": "requiredCreditOfM",
-                                    "type": "RequiredCredit"
-                                }
-                            ],
-                            "requiredCreditOfB": [
-                                {
-                                    "name": "requiredCreditOfB",
-                                    "type": "RequiredCredit"
-                                }
-                            ],
-                            "requiredCreditOfD": [
-                                {
-                                    "name": "requiredCreditOfD",
-                                    "type": "RequiredCredit"
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["name", "code", "requiredCreditOfB", "requiredCreditOfM", "requiredCreditOfD"]
-                        }
-                    ]
-                },
-                {
-                    "Course-CourseActivity": [
-                        {
-                            "tempid1419265720151": [
-                                {
-                                    "type": [
-                                        "Composition",
-                                        "possess"
-                                    ],
-                                    "role": [
-                                        "whole",
-                                        "part"
-                                    ],
-                                    "class": [
-                                        "Course",
-                                        "CourseActivity"
-                                    ],
-                                    "multiplicity": [
-                                        "1",
-                                        "*"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419265720151"]
-                        }
-                    ],
-                    "Course-Student": [
-                        {
-                            "tempid1419597303227": [
-                                {
-                                    "type": [
-                                        "Association",
-                                        ""
-                                    ],
-                                    "class": [
-                                        "Course",
-                                        "Student"
-                                    ],
-                                    "multiplicity": [
-                                        "0..*",
-                                        "*"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597303227"]
-                        }
-                    ],
-                    "Course-Teacher": [
-                        {
-                            "tempid1419597378206": [
-                                {
-                                    "type": [
-                                        "Association",
-                                        ""
-                                    ],
-                                    "class": [
-                                        "Course",
-                                        "Teacher"
-                                    ],
-                                    "multiplicity": [
-                                        "0..*",
-                                        "1..*"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597378206"]
-                        }
-                    ],
-                    "Student-User": [
-                        {
-                            "tempid1419597406622": [
-                                {
-                                    "type": [
-                                        "Generalization",
-                                        ""
-                                    ],
-                                    "role": [
-                                        "father",
-                                        "child"
-                                    ],
-                                    "class": [
-                                        "User",
-                                        "Student"
-                                    ],
-                                    "multiplicity": [
-                                        "1",
-                                        "1"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597406622"]
-                        }
-                    ],
-                    "Teacher-User": [
-                        {
-                            "tempid1419597442832": [
-                                {
-                                    "type": [
-                                        "Generalization",
-                                        ""
-                                    ],
-                                    "role": [
-                                        "father",
-                                        "child"
-                                    ],
-                                    "class": [
-                                        "User",
-                                        "Teacher"
-                                    ],
-                                    "multiplicity": [
-                                        "1",
-                                        "1"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597442832"]
-                        }
-                    ],
-                    "Course-Department": [
-                        {
-                            "tempid1419597640012": [
-                                {
-                                    "type": [
-                                        "Association",
-                                        ""
-                                    ],
-                                    "class": [
-                                        "Course",
-                                        "Department"
-                                    ],
-                                    "multiplicity": [
-                                        "*",
-                                        "1"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597640012"]
-                        }
-                    ],
-                    "Department-Student": [
-                        {
-                            "tempid1419597702615": [
-                                {
-                                    "type": [
-                                        "Association",
-                                        ""
-                                    ],
-                                    "class": [
-                                        "Department",
-                                        "Student"
-                                    ],
-                                    "multiplicity": [
-                                        "1..*",
-                                        "*"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597702615"]
-                        }
-                    ],
-                    "Department-Teacher": [
-                        {
-                            "tempid1419597718239": [
-                                {
-                                    "type": [
-                                        "Association",
-                                        ""
-                                    ],
-                                    "class": [
-                                        "Department",
-                                        "Teacher"
-                                    ],
-                                    "multiplicity": [
-                                        "1..*",
-                                        "*"
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "order": ["tempid1419597718239"]
-                        }
-                    ]
-                }
-            ];
-
-    return data;
-}
+///**
+// * 构造 workspace 页面的前端 js 需要用到的数据
+// */
+//function makeDataForWorkspace(user, modelID, modelName) {
+//    var data = {};
+//
+//    data.user = user;
+//    data.modelID = modelID;
+//    data.modelName = modelName;
+//
+//
+//    //var data = {};
+//    //
+//    //data.user = user;
+//    //data.modelID = modelID;
+//    //data.modelName = modelName;
+//    //
+//    //data.model =
+//    //
+//    //        // 测试数据。 TODO：以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
+//    //
+//    //        [
+//    //            {
+//    //                "Course": [
+//    //                    {
+//    //                        "code": [
+//    //                            {
+//    //                                "name": "code",
+//    //                                "type": "string",
+//    //                                "visibility": "public"
+//    //                            }
+//    //                        ],
+//    //                        "credit": [
+//    //                            {
+//    //                                "name": "credit",
+//    //                                "type": "float",
+//    //                                "visibility": "private"
+//    //                            }
+//    //                        ],
+//    //                        "availability": [
+//    //                            {
+//    //                                "name": "availability",
+//    //                                "type": "CourseAvailability",
+//    //                                "visibility": "protected",
+//    //                                "readOnly": "True"
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["code", "credit", "availability"]
+//    //                    }
+//    //                ],
+//    //                "CourseActivity": [
+//    //                    {
+//    //                        "startTime": [
+//    //                            {
+//    //                                "name": "startTime",
+//    //                                "type": "Time"
+//    //                            }
+//    //                        ],
+//    //                        "endTime": [
+//    //                            {
+//    //                                "name": "endTime",
+//    //                                "type": "Time"
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["startTime", "endTime"]
+//    //                    }
+//    //                ],
+//    //                "Student": [
+//    //                    {
+//    //                        "code": [
+//    //                            {
+//    //                                "name": "code",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "enrollmentDate": [
+//    //                            {
+//    //                                "name": "enrollmentDate",
+//    //                                "type": "Date"
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["code", "enrollmentDate"]
+//    //                    }
+//    //                ],
+//    //                "Teacher": [
+//    //                    {
+//    //                        "facultyCode": [
+//    //                            {
+//    //                                "name": "facultyCode",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "title": [
+//    //                            {
+//    //                                "name": "title",
+//    //                                "type": "Title"
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["facultyCode", "title"]
+//    //                    }
+//    //                ],
+//    //                "User": [
+//    //                    {
+//    //                        "email": [
+//    //                            {
+//    //                                "name": "email",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "username": [
+//    //                            {
+//    //                                "name": "username",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "photo": [
+//    //                            {
+//    //                                "name": "photo",
+//    //                                "type": "Image"
+//    //                            }
+//    //                        ],
+//    //                        "password": [
+//    //                            {
+//    //                                "name": "password",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "birthDate": [
+//    //                            {
+//    //                                "name": "birthDate",
+//    //                                "type": "Date"
+//    //                            }
+//    //                        ],
+//    //                        "name": [
+//    //                            {
+//    //                                "name": "name",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["username", "password", "name", "birthDate", "email", "photo"]
+//    //                    }
+//    //                ],
+//    //                "Department": [
+//    //                    {
+//    //                        "name": [
+//    //                            {
+//    //                                "name": "name",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "code": [
+//    //                            {
+//    //                                "name": "code",
+//    //                                "type": "string"
+//    //                            }
+//    //                        ],
+//    //                        "requiredCreditOfM": [
+//    //                            {
+//    //                                "name": "requiredCreditOfM",
+//    //                                "type": "RequiredCredit"
+//    //                            }
+//    //                        ],
+//    //                        "requiredCreditOfB": [
+//    //                            {
+//    //                                "name": "requiredCreditOfB",
+//    //                                "type": "RequiredCredit"
+//    //                            }
+//    //                        ],
+//    //                        "requiredCreditOfD": [
+//    //                            {
+//    //                                "name": "requiredCreditOfD",
+//    //                                "type": "RequiredCredit"
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["name", "code", "requiredCreditOfB", "requiredCreditOfM", "requiredCreditOfD"]
+//    //                    }
+//    //                ]
+//    //            },
+//    //            {
+//    //                "Course-CourseActivity": [
+//    //                    {
+//    //                        "tempid1419265720151": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Composition",
+//    //                                    "possess"
+//    //                                ],
+//    //                                "role": [
+//    //                                    "whole",
+//    //                                    "part"
+//    //                                ],
+//    //                                "class": [
+//    //                                    "Course",
+//    //                                    "CourseActivity"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "1",
+//    //                                    "*"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419265720151"]
+//    //                    }
+//    //                ],
+//    //                "Course-Student": [
+//    //                    {
+//    //                        "tempid1419597303227": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Association",
+//    //                                    ""
+//    //                                ],
+//    //                                "class": [
+//    //                                    "Course",
+//    //                                    "Student"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "0..*",
+//    //                                    "*"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597303227"]
+//    //                    }
+//    //                ],
+//    //                "Course-Teacher": [
+//    //                    {
+//    //                        "tempid1419597378206": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Association",
+//    //                                    ""
+//    //                                ],
+//    //                                "class": [
+//    //                                    "Course",
+//    //                                    "Teacher"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "0..*",
+//    //                                    "1..*"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597378206"]
+//    //                    }
+//    //                ],
+//    //                "Student-User": [
+//    //                    {
+//    //                        "tempid1419597406622": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Generalization",
+//    //                                    ""
+//    //                                ],
+//    //                                "role": [
+//    //                                    "father",
+//    //                                    "child"
+//    //                                ],
+//    //                                "class": [
+//    //                                    "User",
+//    //                                    "Student"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "1",
+//    //                                    "1"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597406622"]
+//    //                    }
+//    //                ],
+//    //                "Teacher-User": [
+//    //                    {
+//    //                        "tempid1419597442832": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Generalization",
+//    //                                    ""
+//    //                                ],
+//    //                                "role": [
+//    //                                    "father",
+//    //                                    "child"
+//    //                                ],
+//    //                                "class": [
+//    //                                    "User",
+//    //                                    "Teacher"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "1",
+//    //                                    "1"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597442832"]
+//    //                    }
+//    //                ],
+//    //                "Course-Department": [
+//    //                    {
+//    //                        "tempid1419597640012": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Association",
+//    //                                    ""
+//    //                                ],
+//    //                                "class": [
+//    //                                    "Course",
+//    //                                    "Department"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "*",
+//    //                                    "1"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597640012"]
+//    //                    }
+//    //                ],
+//    //                "Department-Student": [
+//    //                    {
+//    //                        "tempid1419597702615": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Association",
+//    //                                    ""
+//    //                                ],
+//    //                                "class": [
+//    //                                    "Department",
+//    //                                    "Student"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "1..*",
+//    //                                    "*"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597702615"]
+//    //                    }
+//    //                ],
+//    //                "Department-Teacher": [
+//    //                    {
+//    //                        "tempid1419597718239": [
+//    //                            {
+//    //                                "type": [
+//    //                                    "Association",
+//    //                                    ""
+//    //                                ],
+//    //                                "class": [
+//    //                                    "Department",
+//    //                                    "Teacher"
+//    //                                ],
+//    //                                "multiplicity": [
+//    //                                    "1..*",
+//    //                                    "*"
+//    //                                ]
+//    //                            }
+//    //                        ]
+//    //                    },
+//    //                    {
+//    //                        "order": ["tempid1419597718239"]
+//    //                    }
+//    //                ]
+//    //            }
+//    //        ];
+//    //
+//    //return data;
+//}
 
 
