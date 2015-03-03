@@ -3,7 +3,7 @@ var util = require('../models/util.js');
 var fs = require('fs');
 var ObjectID = require('mongodb').ObjectID;
 var ModelInfo = require('../models/model_info.js');
-var Model = require('../models/model.js')
+var Model = require('../models/model.js');
 
 /**
  * workspace 页面 get 方法
@@ -44,7 +44,7 @@ exports.enterWorkspace = function(req, res){
                 user : req.session.user,
                 model: req.params.model,  // 该用户当前 model 的 name
                 modelInfo: templateData,  // 该用户所有的 model 信息集合（仅包含 name）
-                data: makeDataForWorkspace(req.params.user, req.params.model),  // 构造需要传入前端 js 的数据
+                data: makeDataForWorkspace(req.params.user, modelInfo._id, modelInfo.name),  // 构造需要传入前端 js 的数据
                 success : '',  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
                 error : ''  // 为不破坏页面结构，workspace 页面不使用 flash 作为消息显示机制
             });
@@ -62,10 +62,10 @@ exports.updateModel = function(req, res) {
     console.log(req.params.user);
     console.log(req.params.model);
 
-    Model.modelOperation(req.body.model,req.body.user,req.body.log,function(err){
+    Model.modelOperation(req.body.modelID, req.body.user, req.body.log, function(err){
         console.log("get "+err);
         return res.send(err);
-    })
+    });
 
     /*
     setTimeout(function() {
@@ -291,13 +291,16 @@ exports.doInheritedCreateModel = function(req, res) {
 /**
  * 构造 workspace 页面的前端 js 需要用到的数据
  */
-function makeDataForWorkspace(user, modelName) {
+function makeDataForWorkspace(user, modelID, modelName) {
     var data = {};
 
     data.user = user;
+    data.modelID = modelID;
     data.modelName = modelName;
 
-    data.model = // 测试数据。 TODO：以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
+    data.model =
+
+            // 测试数据。 TODO：以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
 
             [
                 {

@@ -117,7 +117,7 @@ ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callbac
 };
 
 /**
- * 根据 _id 号提取某个 model info
+ * 根据 _id 提取某个 model info
  * @param id
  * @param callback
  */

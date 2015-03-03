@@ -28,7 +28,8 @@ define(function (require, exports, module) {
     // 记录 workspace 页面的状态
     var stateOfPage = {
         user: dataPassedIn.user,  // dataPassedIn 通过后端的 .ejs 模板传入
-        model: dataPassedIn.modelName,  // dataPassedIn 通过后端的 .ejs 模板传入
+        modelID: dataPassedIn.modelID,  // dataPassedIn 通过后端的 .ejs 模板传入
+        modelName: dataPassedIn.modelName,  // dataPassedIn 通过后端的 .ejs 模板传入
 
         flagCRG: 0,        // 0: class, 1: relationGroup
         flagDepth: 0,      // for class: (0: class, 1: attribute, 2: propertyOfA)
@@ -1775,7 +1776,8 @@ define(function (require, exports, module) {
 
         postData.date = Date.now();
         postData.user = stateOfPage.user;
-        postData.model = stateOfPage.model;
+        postData.modelID = stateOfPage.modelID;
+        postData.modelName = stateOfPage.modelName;
 
         postData.log = icm.getLog();  // 获取日志
         postData.orderChanges = icm.getAttRelOrderChanges();  // 获取有变动的顺序数组
@@ -1786,7 +1788,7 @@ define(function (require, exports, module) {
 
         // 向后端传送 model 操作日志
         $.ajax({
-            url: '/' + stateOfPage.user + '/' + stateOfPage.model + '/workspace',
+            url: '/' + stateOfPage.user + '/' + stateOfPage.modelName + '/workspace',
             type: 'POST',
             data: postData,
             dataType: 'json',
