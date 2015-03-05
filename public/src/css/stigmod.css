@@ -1125,6 +1125,16 @@ fieldset[disabled] .stigmod-input {
   width: 40%;
 }
 
+#stigmod-pg-newmodel #stigmod-newmodel-left-inner,
+#stigmod-pg-newmodel #stigmod-newmodel-right-inner {
+  display: none;
+}
+
+#stigmod-pg-newmodel #sigmod-newmodel-left .panel-heading,
+#stigmod-pg-newmodel #sigmod-newmodel-right .panel-heading {
+  text-align: center;
+}
+
 /* --------------------------------------------- *
  *
  * twitter-typeahead 的样式

@@ -189,17 +189,13 @@ exports.createModel = function(req, res) {
 
     // 获取所有的 CCM    TODO：此为临时方案，省略了搜索
     ModelInfo.getByUser('@', function(err, modelInfo) {
-        var ccmNames = [];
+        var ccmInfo = {};
 
         //console.log(modelInfo);
         //console.log('modelInfo done');
 
         modelInfo.forEach(function(info) {
-            var modelInfoShow = {};
-            modelInfoShow.name = info.name;
-
-            //console.log(modelInfoShow);
-            ccmNames.push(modelInfoShow);
+            ccmInfo[info.name] = info.description;
         });
 
         //console.log(templateData);
@@ -209,7 +205,7 @@ exports.createModel = function(req, res) {
             host: host,
             title: 'New Model',
             user : req.session.user,
-            ccmNames: ccmNames,
+            data: {ccmInfo: ccmInfo},  // 传给前端JS
             success: req.flash('success').toString(),
             error: req.flash('error').toString()
         });
@@ -242,6 +238,12 @@ exports.doCleanCreateModel = function(req, res) {
 
     newCCM.save(function(err) {
         if (err) {
+            if ('duplicate key'.indexOf(err) === -1) {
+
+                req.flash('error', 'Model name collision with an exiting CCM');
+                return res.redirect('/newmodel');
+            }
+
             req.flash('error', err.toString());
             return res.redirect('/newmodel');
         }
@@ -263,6 +265,13 @@ exports.doCleanCreateModel = function(req, res) {
 
         newICM.save(function(err) {
             if (err) {
+                console.log('err', err);
+
+                if ('duplicate key'.indexOf(err) === -1) {
+                    req.flash('error', 'Model name collision with one ICM you already possessed');
+                    return res.redirect('/newmodel');
+                }
+
                 req.flash('error', err.toString());
                 return res.redirect('/newmodel');
             }
@@ -306,6 +315,12 @@ exports.doInheritedCreateModel = function(req, res) {
 
         newICM.save(function(err) {
             if (err) {
+                if ('duplicate key'.indexOf(err) === -1) {
+
+                    req.flash('error', 'Model name collision with one ICM you already possessed');
+                    return res.redirect('/newmodel');
+                }
+
                 req.flash('error', err.toString());
                 return res.redirect('/newmodel');
             }
