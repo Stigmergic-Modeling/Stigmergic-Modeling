@@ -238,7 +238,7 @@ exports.doCleanCreateModel = function(req, res) {
 
     newCCM.save(function(err) {
         if (err) {
-            if ('duplicate key'.indexOf(err) === -1) {
+            if (err.toString().indexOf('duplicate key') !== -1) {
 
                 req.flash('error', 'Model name collision with an exiting CCM');
                 return res.redirect('/newmodel');
@@ -267,7 +267,7 @@ exports.doCleanCreateModel = function(req, res) {
             if (err) {
                 console.log('err', err);
 
-                if ('duplicate key'.indexOf(err) === -1) {
+                if (err.toString().indexOf('duplicate key') !== -1) {
                     req.flash('error', 'Model name collision with one ICM you already possessed');
                     return res.redirect('/newmodel');
                 }
@@ -277,7 +277,7 @@ exports.doCleanCreateModel = function(req, res) {
             }
 
             req.flash('success', 'Create model successfully');
-            res.redirect('/u/' + req.session.user.mail);
+            res.redirect('/' + req.session.user.mail + '/' + req.body.name + '/workspace');
         });
     });
 };
@@ -315,7 +315,7 @@ exports.doInheritedCreateModel = function(req, res) {
 
         newICM.save(function(err) {
             if (err) {
-                if ('duplicate key'.indexOf(err) === -1) {
+                if (err.toString().indexOf('duplicate key') !== -1) {
 
                     req.flash('error', 'Model name collision with one ICM you already possessed');
                     return res.redirect('/newmodel');
@@ -326,7 +326,7 @@ exports.doInheritedCreateModel = function(req, res) {
             }
 
             req.flash('success', 'Create model successfully');
-            res.redirect('/u/' + req.session.user.mail);
+            res.redirect('/' + req.session.user.mail + '/' + req.body.name + '/workspace');
         });
     });
 };
@@ -350,7 +350,7 @@ exports.doInheritedCreateModel = function(req, res) {
 //    //
 //    //data.model =
 //    //
-//    //        // 测试数据。 TODO：以后需要使用 getModel(user, modelName) 函数获取 （这个 getModel 函数应该写在 /models 中）
+//    //        // 测试数据。
 //    //
 //    //        [
 //    //            {
