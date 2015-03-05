@@ -650,7 +650,17 @@ fieldset[disabled] .stigmod-input {
  *
  * --------------------------------------------- */
 
-/* 左侧右侧自动框内滚动 */
+
+/* 左中右三大框体初始高度 */
+#stigmod-pg-workspace #stigmod-nav-left-scroll {
+  height: 125px;
+}
+#stigmod-pg-workspace #stigmod-cont-right-scroll,
+#stigmod-pg-workspace #stigmod-rcmd-right-scroll {
+  height: 180px;
+}
+
+/* 左中右自动框内滚动 */
 #stigmod-pg-workspace #stigmod-nav-left-scroll,
 #stigmod-pg-workspace #stigmod-cont-right-scroll,
 #stigmod-pg-workspace #stigmod-rcmd-right-scroll {

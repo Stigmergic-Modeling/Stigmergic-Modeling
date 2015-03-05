@@ -16,7 +16,7 @@ var Merge = function(dataSet,newInfo){
     for(var key in dataSet){
         this[key] = dataSet[key];
     };
-    for(var key in newInfo){
+    for(key in newInfo){
         var tmpKey = key.split(".");
 
         var tmpDIr=this;
@@ -44,7 +44,9 @@ exports.getIndividualModel = function(projectID,user,callback){
     var mutex = 0;
     mutex++;
     individualModel.getClass(projectID,user,function(classSet){//get class
+        //console.log('typeof projectID', typeof projectID);
         mutex--;
+        //console.log(classSet);
         for(var key in classSet){
             mutex++;
             individualModel.getAttribute(projectID,user,key,function(className,attributeSet){
@@ -82,6 +84,7 @@ var individualModel = {
         };
         dbOperation.get("conceptDiag_index",filter,function(err,docs){
             var classSet = {};
+            //console.log(docs);
             docs.forEach(function(element){
                 classSet[element.target] = [];
             });
@@ -205,12 +208,17 @@ var individualModel = {
 
 var entity = {
     add : function(projectID,user,className,type,callback){
+        //console.log('projectID', projectID);
+
         var dateSetBase = {
             projectID: projectID,
             user: user
         };
+        //console.log('typeof projectID', typeof projectID);
+        //console.log('dateSetBase', dateSetBase);
         var errs = null;
         var mutex = 0;
+
         //save index
         var dataSet = new Merge(dateSetBase,{
             'collection':"conceptDiag_index",
@@ -218,16 +226,18 @@ var entity = {
             'target':className,
             'relation':{direction:'',attribute:'instance'}
         });
+
+        //console.log('dataSet', dataSet);
         mutex ++;
         saveData(dataSet,function(err,doc){
             mutex--;
             errs = ErrUpdate(errs,err);
             if(mutex ==0) return callback(errs);
         });
-        //save class edge (type of class)
 
-        if(type != null || type != 'normal'){
-            var dataSet = new Merge(dateSetBase,{
+        //save class edge (type of class)
+        if (type) {
+            dataSet = new Merge(dateSetBase,{
                 'collection': "conceptDiag_edge",
                 'source': className,
                 'target': type,
@@ -266,7 +276,7 @@ var entity = {
         });
 
         //delete edges start from class
-        var dataSet = new Merge(dateSetBase,{
+        dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': className
         });
@@ -309,7 +319,7 @@ var entity = {
         });
 
         //revise edges start from class
-        var oldDataSet = new Merge(dateSetBase,{
+        oldDataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': oldClassName
         });
@@ -443,7 +453,7 @@ var attribute = {
                 user: user
             };
             //delete attribute vertex
-            var dataSet = new Merge(dateSetBase,{
+            dataSet = new Merge(dateSetBase,{
                 'collection': 'conceptDiag_vertex',
                 '_id': attributeId
             });
@@ -457,7 +467,7 @@ var attribute = {
             });
             //delete attribute edges
 
-            var dataSet = new Merge(dateSetBase,{
+            dataSet = new Merge(dateSetBase,{
                 'collection': "conceptDiag_edge",
                 'source': attributeId
             });
@@ -662,7 +672,7 @@ exports.relation = {
             if(mutex ==0) return callback(errs);
         });
         //delete vertex
-        var dataSet = new Merge(dateSetBase,{
+        dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_vertex",
             '_id': relationId
         });
@@ -673,7 +683,7 @@ exports.relation = {
             if(mutex ==0) return callback(errs);
         });
         //delete edge
-        var dataSet = new Merge(dateSetBase,{
+        dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': relationId
         });
@@ -803,12 +813,16 @@ var flowControl = function(errs,results,callback){
     ],function(errs, results){
         results = results[0];//async.series会将result放入数组中
         var x = m_flowList.shift();
+
+        console.log('m_flowList', m_flowList);
+        console.log('callbackList', callbackList);
+
         if(m_flowList.length > 0){
             flowControl(errs,results,function(errs,results){
                 return callback(errs,results);
             });
         }else{
-            console.log(errs,results)
+            console.log('errs', errs, 'results', results)
             for(var i=0;i<callbackList.length;i++){
                 callbackList[i](errs[i],results[i]);
             }
@@ -822,8 +836,9 @@ var callbackList = [];
 
 //for save
 var saveData = function(dataSet,callback){
+    console.log('saveData');
     callbackList.push(callback);
-    //console.log(dataSet)
+    console.log('dataSet', dataSet);
     var newSet = new Copy(dataSet);
     if(m_flowList.length == 0){
         m_flowList.push([1,newSet]);

@@ -24,6 +24,7 @@ define(function (require, exports, module) {
     // ICM 前端模型
     var icm = new Model(dataPassedIn.model);  // dataPassedIn 通过后端的 .ejs 模板传入
     //var icm = new Model(debug.model);  // 调试时使用，从 debug 模块获取 model 数据
+    //console.log('typeof dataPassedIn.modelID', typeof dataPassedIn.modelID);
 
     // 记录 workspace 页面的状态
     var stateOfPage = {
@@ -1787,6 +1788,9 @@ define(function (require, exports, module) {
         icm.clearAttRelOrderChanges();
 
         // 向后端传送 model 操作日志
+        //console.log('postData', postData);
+        //console.log('postDataStringified', JSON.stringify(postData));
+
         $.ajax({
             url: '/' + stateOfPage.user + '/' + stateOfPage.modelName + '/workspace',
             type: 'POST',

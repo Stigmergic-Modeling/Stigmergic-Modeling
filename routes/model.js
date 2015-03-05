@@ -45,6 +45,8 @@ exports.enterWorkspace = function(req, res){
             }
 
             Model.modelGet(modelInfo._id, req.params.user, function(err, model) {
+                //console.log('modelInfo._id', modelInfo._id);
+
                 if (!model) {
                     req.flash('error', 'Model entity does not exist' + err);
 
@@ -58,7 +60,8 @@ exports.enterWorkspace = function(req, res){
                 data.modelName = modelInfo.name;
                 data.model = model;
 
-                console.log(model);
+                //console.log('typeof modelInfo._id', typeof modelInfo._id);
+                //console.log('modelInfo._id', modelInfo._id);
 
                 res.render('workspace', {
                     host: host,
@@ -85,7 +88,9 @@ exports.updateModel = function(req, res) {
     //console.log(req.params.user);
     console.log(req.params.model);
 
-    Model.modelOperation(req.body.modelID, req.body.user, req.body.log, function(err){
+    var modelID = new ObjectID(req.body.modelID);  // 重要，从前端传回的ID都是字符串，需要恢复成ObjectID
+
+    Model.modelOperation(modelID, req.body.user, req.body.log, function(err){
         console.log("get "+err);
         return res.send(err);
     });
