@@ -206,7 +206,7 @@ var individualModel = {
  */
 
 
-var entity = {
+var class_ = {
     add : function(projectID,user,className,type,callback){
         //console.log('projectID', projectID);
 
@@ -224,7 +224,10 @@ var entity = {
             'collection':"conceptDiag_index",
             'source':'Class',
             'target':className,
-            'relation':{direction:'',attribute:'instance'}
+            'relation':{
+                direction:'',  // 不是连在relationship两端的edge，因此direction是空串(所有index的direction都是空串)
+                attribute:'instance'
+            }
         });
 
         //console.log('dataSet', dataSet);
@@ -242,7 +245,7 @@ var entity = {
                 'source': className,
                 'target': type,
                 'relation':{
-                    'direction': '',
+                    'direction': '',  // 不是连在relationship两端的edge，因此direction是空串
                     'attribute':'type'
                 }
             });
@@ -288,7 +291,7 @@ var entity = {
         });
     },
     revise:function(projectID,user,oldClassName,newClassName,callback){
-        //class的revise是什么意思
+        //class的revise的含义：修改 class name
         var dateSetBase = {
             projectID: projectID,
             user: user
@@ -316,6 +319,7 @@ var entity = {
             mutex--;
             errs = ErrUpdate(errs,err);
             if(mutex ==0) return callback(errs);
+            //if(mutex ==0) return callback(errs);  // TODO：多写了一行？
         });
 
         //revise edges start from class
@@ -323,19 +327,34 @@ var entity = {
             'collection': "conceptDiag_edge",
             'source': oldClassName
         });
+        var filter = new Merge(dateSetBase, {
+            'source': oldClassName
+        });
         mutex ++;
-        dbOperation.get("conceptDiag_edge",oldDataSet,function(err,docs){
+        dbOperation.get("conceptDiag_edge",filter,function(err,docs){
             //删除
             mutex --;
             mutex ++;
+            //console.log('get conceptDiag_edge');
+            //console.log('oldDataSet1', oldDataSet);
+            //console.log('docs', docs);
             deleteData(oldDataSet,function(err,doc){
                 mutex--;
                 errs = ErrUpdate(errs,err);
                 if(mutex ==0) return callback(errs);
             });
+            //console.log('oldDataSet2', oldDataSet);
             //新增
             docs.forEach(function(element){
+                //console.log('elementOld', element);
+
+                // 修改 element 以使其符合 saveDate 函数的参数格式
                 element.source = newClassName;
+                element.collection = 'conceptDiag_edge';
+                delete element._id;
+                delete element.lastRevise;
+                //console.log('elementNew', element);
+
                 mutex ++;
                 saveData(element,function(err,doc){
                     mutex--;
@@ -346,7 +365,7 @@ var entity = {
         });
     }
 }
-exports.class = entity;
+exports.class = class_;
 
 var attribute = {
     getId:function(projectID,user,className,attributeName,callback){
@@ -814,8 +833,8 @@ var flowControl = function(errs,results,callback){
         results = results[0];//async.series会将result放入数组中
         var x = m_flowList.shift();
 
-        console.log('m_flowList', m_flowList);
-        console.log('callbackList', callbackList);
+        //console.log('m_flowList', m_flowList);
+        //console.log('callbackList', callbackList);
 
         if(m_flowList.length > 0){
             flowControl(errs,results,function(errs,results){
@@ -876,8 +895,9 @@ var saveFunc = function(dataSet,callback){
 
 //for delete
 var deleteData = function(dataSet,callback){
+    console.log('deleteData');
     callbackList.push(callback);
-    //console.log(dataSet)
+    console.log('dataSet', dataSet);
     var newSet = new Copy(dataSet);
     //m_flowList.push([0,newSet]);
     if(m_flowList.length === 0){
@@ -900,11 +920,11 @@ var deleteFunc = function(dataSet,callback){
     dbOperation.get(collectionName,filter,function(err,docs){
         if(docs.length === 0){
             //如果记录不存在则不做处理
-            console.log("not get");
+            //console.log("not get");
             return callback(err,docs);
         }else{
             //如果记录存在则删除用户
-            console.log("delete");
+            //console.log("delete");
             dataSet = {};
             dataSet["user"] = user;
             dbOperation.update(collectionName,filter,{"$pull": dataSet},function(err,doc){

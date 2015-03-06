@@ -16,8 +16,9 @@ var logger = require('../models/logger.js');
 exports.get = function(collectionName,filter,callback){
     mongodb.getCollection(collectionName,function(collection){
         collection.find(filter).toArray(function(err, docs) {
-            console.log('filter', filter);
-            console.log('docs', docs);
+            //console.log('collectionName', collectionName);
+            //console.log('filter', filter);
+            //console.log('docs', docs);
 
             if(err != null){
                 console.log('err');

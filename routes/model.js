@@ -44,7 +44,7 @@ exports.enterWorkspace = function(req, res){
                 return res.redirect('/u/'+ req.session.user.mail);
             }
 
-            Model.modelGet(modelInfo._id, req.params.user, function(err, model) {
+            Model.modelGet(modelInfo.ccm_id, req.params.user, function(err, model) {  // 注意这里是CCM的ID
                 //console.log('modelInfo._id', modelInfo._id);
 
                 if (!model) {
@@ -56,7 +56,7 @@ exports.enterWorkspace = function(req, res){
                 var data = {};
 
                 data.user = req.params.user;
-                data.modelID = modelInfo._id;
+                data.modelID = modelInfo.ccm_id;  // 注意这里是CCM的ID
                 data.modelName = modelInfo.name;
                 data.model = model;
 
@@ -97,7 +97,7 @@ exports.updateModel = function(req, res) {
 
     /*
     setTimeout(function() {
-        res.send('hello world');  // 测试前端载入动画用 TODO：真正保存模型、发送反馈
+        res.send('hello world');  // 测试前端载入动画用
     }, 2000);
     */
 };

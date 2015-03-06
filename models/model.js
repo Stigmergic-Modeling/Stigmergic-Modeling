@@ -120,7 +120,7 @@ var classOperation = function(projectID,user,order,dataItem,callback){
                 return callback(err,doc);
             });
             break;
-        case 'REMOVE':
+        case 'RMV':
             dbOperationControl.class.delete(projectID,user,dataItem[3],function(err,doc){
                 return callback(err,doc);
             });
@@ -145,7 +145,7 @@ var attributeOperation = function(projectID,user,order,dataItem,callback){
                 }
             });
             break;
-        case 'REMOVE':
+        case 'RMV':
             dbOperationControl.attribute.delete(projectID,user,dataItem[3],dataItem[4],function(err,doc){
                 return callback(err,doc);
             });
@@ -166,7 +166,7 @@ var attributePropertyOperation = function(projectID,user,order,dataItem,callback
                     return callback(err,doc);
                 });
                 break;
-            case 'REMOVE':
+            case 'RMV':
                 dbOperationControl.attributeProperty.delete(projectID,user,attributeId,dataItem[5],function(err,doc){
                     return callback(err,doc);
                 });
@@ -182,7 +182,7 @@ var relationOperation = function(projectID,user,order,dataItem,callback){
                 return callback(err,doc);
             });
             break;
-        case 'REMOVE':
+        case 'RMV':
             dbOperationControl.relation.delete(projectID,user,dataItem[4],function(err,doc){
                 return callback(err,doc);
             });
@@ -207,7 +207,7 @@ var relationPropertyOperation = function(projectID,user,order,dataItem,callback)
                 }
             });
             break;
-        case 'REMOVE':
+        case 'RMV':
             dbOperationControl.attribute.delete(projectID,user,dataItem[4],'1',dataItem[5],function(err,doc){
                 return callback(err,doc);
             });
