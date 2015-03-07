@@ -48,16 +48,19 @@ exports.getIndividualModel = function(projectID,user,callback){
         mutex--;
         //console.log('classSet', classSet);
         for(var key in classSet){
+            //console.log(key);
             mutex++;
             individualModel.getAttribute(projectID,user,key,function(className,attributeSet){
                 mutex--;
                 attributeSet=individualModel.transAttribute(attributeSet);
                 classSet[className][0] = attributeSet;
+                //console.log('className', className);
 
                 mutex++;
-                individualModel.getAttributeOrder(projectID,user,key,function(className,order){
+                individualModel.getAttributeOrder(projectID,user,className,function(className,order){
                     mutex--;
 
+                    //console.log('className', className);
                     //console.log('classSet', classSet);
                     //console.log('order', order);
                     classSet[className][1] = order;
@@ -154,9 +157,9 @@ var individualModel = {
             type: 'class',
             identifier: className  // name or ID
         };
-        console.log('filter', filter);
+        //console.log('filter', filter);
         dbOperation.get("conceptDiag_order", filter, function(err, docs) {
-            console.log('docs', docs);
+            //console.log('docs', docs);
             return callback(className, docs[0].order);
         });
     },
