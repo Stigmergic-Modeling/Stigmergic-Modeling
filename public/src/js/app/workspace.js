@@ -1789,7 +1789,7 @@ define(function (require, exports, module) {
         icm.clearAttRelOrderChanges();
 
         // 向后端传送 model 操作日志
-        //console.log('postData', postData);
+        console.log('postData', postData);
         //console.log('postDataStringified', JSON.stringify(postData));
 
         $.ajax({

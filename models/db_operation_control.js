@@ -63,7 +63,7 @@ exports.getIndividualModel = function(projectID,user,callback){
                     //console.log('className', className);
                     //console.log('classSet', classSet);
                     //console.log('order', order);
-                    classSet[className][1] = order;
+                    classSet[className][1] = {'order': order};
 
                     if(mutex>0) {;}
                     else {
@@ -287,20 +287,25 @@ var class_ = {
         }
 
         // 为 class 中 attribute 的顺序数组开辟 document
-        dataSet = new Merge(dateSetBase,{
-            'collection':"conceptDiag_order",
-            'type':'class',
-            'identifier':className,
-            'order': {
-                'order': []
-            }
-        });
+        var dataSet4Order = {};
 
-        //console.log('dataSet', dataSet);
+        dataSet4Order.collection = 'conceptDiag_order';
+        dataSet4Order.filter = {
+            projectID: projectID,
+            user: user,
+            type: 'class',
+            identifier: className
+        };
+        dataSet4Order.updateData = {
+            order: []
+        };
+
+        console.log('dataSet4Order', dataSet4Order);
         mutex ++;
-        saveData(dataSet,function(err,doc){
+        updateData(dataSet4Order,function(err,doc){
             mutex--;
             errs = ErrUpdate(errs,err);
+            console.log('attribute order [] updated');
             if(mutex ==0) return callback(errs);
         });
     },
@@ -337,18 +342,20 @@ var class_ = {
             if(mutex ==0) return callback(errs);
         });
 
-        // delete attribute orders of this class
-        dataSet = new Merge(dateSetBase,{
-            'collection': "conceptDiag_order",
-            'type': 'class',
-            'identifier': className
-        });
-        mutex ++;
-        deleteData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
-        });
+        //// delete attribute orders of this class
+        //dataSet = new Merge(dateSetBase,{
+        //    'collection': "conceptDiag_order",
+        //    'type': 'class',
+        //    'identifier': className
+        //});
+        //mutex ++;
+        //deleteData(dataSet,function(err,doc){
+        //    mutex--;
+        //    errs = ErrUpdate(errs,err);
+        //    if(mutex ==0) return callback(errs);
+        //});
+        // TODO: 优化此处
+
     },
     revise:function(projectID,user,oldClassName,newClassName,callback){
 
@@ -429,49 +436,26 @@ var class_ = {
         });
 
         // revise order of attribute
-        var oldDataSet4Order = new Merge(dateSetBase,{
-            'collection': "conceptDiag_order",
-            'type': 'class',
-            'identifier': oldClassName,
-        });
-        var filter4Order = new Merge(dateSetBase, {
-            'identifier':oldClassName
-        });
+        var dataSet4Order = {};
 
+        dataSet4Order.collection = 'conceptDiag_order';
+        dataSet4Order.filter = {
+            projectID: projectID,
+            user: user,
+            type: 'class',
+            identifier: oldClassName
+        };
+        dataSet4Order.updateData = {
+            identifier: newClassName
+        };
+
+        console.log('dataSet4Order', dataSet4Order);
         mutex ++;
-        dbOperation.get("conceptDiag_order",filter4Order,function(err,docs){
-
-            //删除
-            mutex --;
-            mutex ++;
-            //console.log('get conceptDiag_order');
-            //console.log('oldDataSet1', oldDataSet4Order);
-            //console.log('docs', docs);
-            deleteData(oldDataSet4Order,function(err,doc){
-                mutex--;
-                errs = ErrUpdate(errs,err);
-                if(mutex ==0) return callback(errs);
-            });
-
-            //新增
-            docs.forEach(function(element){
-                //console.log('elementOld', element);
-
-                // 修改 element 以使其符合 saveDate 函数的参数格式
-                element.identifier = newClassName;
-                element.collection = 'conceptDiag_order';
-                element.user = user;
-                delete element._id;
-                delete element.lastRevise;
-                //console.log('elementNew', element);
-
-                mutex ++;
-                saveData(element,function(err,doc){
-                    mutex--;
-                    errs = ErrUpdate(errs,err);
-                    if(mutex ==0) return callback(errs);
-                });
-            });
+        updateData(dataSet4Order,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            console.log('attribute order [] updated');
+            if(mutex ==0) return callback(errs);
         });
     }
 }
@@ -907,10 +891,63 @@ exports.relationProperty = {
     }
 }
 
+exports.order = {
+    update: function (projectID, user, orderChanges, callback) {
+        var dataSet4C = {};
+        var classes = orderChanges.classes;
+
+        for (var class_ in classes) {
+            dataSet4C.collection = 'conceptDiag_order';
+            dataSet4C.filter = {
+                projectID: projectID,
+                user: user,
+                type: 'class',
+                identifier: class_
+            };
+
+            dataSet4C.updateData = {
+                order: classes[class_]
+            };
+
+            mutex++;
+            saveData(dataSet4C,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if (!mutex) return callback(errs);
+            });
+        }
+
+        var dataSet4R = {};
+        var relationGroups = orderChanges.relationGroups;
+
+        for (var relationGroup in relationGroups) {
+            dataSet4R.collection = 'conceptDiag_order';
+            dataSet4R.filter = {
+                projectID: projectID,
+                user: user,
+                type: 'relation_group',
+                identifier: relationGroup
+            };
+
+            dataSet4R.updateData = {
+                order: relationGroups[relationGroup]
+            };
+
+            mutex++;
+            saveData(dataSet4R,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if (!mutex) return callback(errs);
+            });
+        }
+
+    }
+}
+
 //DELETE = 0; SAVE = 1;  UPDATE = 2
 //pool for operations
 var m_flowList = [];
-var flowOffset = 0; //
+var flowOffset = 0;
 var flowControl = function(errs,results,callback){
     async.series([
         function(callback){
@@ -918,25 +955,31 @@ var flowControl = function(errs,results,callback){
             var dateSet = new Copy(m_flowList[0][1]);
 
             switch(m_flowList[0][0]){
-                case 0 ://DELETE
+                case 0: // DELETE
                     deleteFunc(dateSet,function(err,result){
                         errs.push(err);
                         results.push(result);
                         return callback(errs,results);
                     });
                     break;
-                case 1 ://SAVE
+                case 1: // SAVE
                     saveFunc(dateSet,function(err,result){
                         errs.push(err);
                         results.push(result);
                         return callback(errs,results);
                     });
                     break;
-                default :
+                case 2:  // UPDATE
+                    updateFunc(dateSet,function(err,result){
+                        errs.push(err);
+                        results.push(result);
+                        return callback(errs,results);
+                    });
+                    break;
+                default:
                     errs.push(null);
                     results.push(null);
                     return callback(errs,results);
-                    break;
             };
         }
     ],function(errs, results){
@@ -1042,6 +1085,29 @@ var deleteFunc = function(dataSet,callback){
             });
         }
     })
+}
+
+//for update
+var updateData = function(dataSet,callback){
+    console.log('updateData');
+    callbackList.push(callback);
+    console.log('dataSet', dataSet);
+    var newSet = new Copy(dataSet);
+    if(m_flowList.length == 0){
+        m_flowList.push([2,newSet]);
+        flowControl([],[],function(errs,results){
+        });
+    }else{
+        m_flowList.push([2,newSet]);
+    }
+}
+
+var updateFunc = function(dataSet,callback){
+
+    // 若存在则更新，若不存在则创建
+    dbOperation.forceToUpdate(dataSet.collection, dataSet.filter, {'$set': dataSet.updateData}, function(err, doc) {
+        return callback(err,doc);
+    });
 }
 
 //just for test

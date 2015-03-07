@@ -58,8 +58,8 @@ exports.modelGet = function(projectID,user,callback){
  *
  *  -------------------------------------------------------- */
 
-exports.modelOperation = function(projectID,user,dataSet,callback){
-    var mutex = dataSet.length;
+exports.modelOperation = function(projectID, user, dataSet, orderChanges, callback){
+    var mutex = dataSet.length + 1;
     var errState = null;
     for(var i=0;i<dataSet.length;i++){
         var dataItem = dataSet[i];
@@ -104,6 +104,18 @@ exports.modelOperation = function(projectID,user,dataSet,callback){
                 break;
             default:break;
         }
+    }
+
+    // 更新 attribute 或 relationship 的顺序
+    if (orderChanges) {
+        dbOperationControl.order.update(projectID, user, orderChanges, function(err, doc) {
+            mutex--;
+            console.log('Order Updated');
+            if(err) errState = "err";
+            if(mutex == 0) return callback(errState);
+        });
+    } else {
+        mutex--;
     }
 }
 

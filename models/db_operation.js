@@ -78,12 +78,26 @@ exports.update = function(collectionName,filter,data,callback){
                 err = "not Exist";
                 return callback(err, docs);
             }
-            collection.update(filter,data, {safe: true,multi:true}, function(err, doc) {
+            collection.update(filter, data, {safe: true, multi: true}, function(err, doc) {
                 //logger.generateLogData('INFO','icd','insert',icdData);
-                updateTimeTag(collectionName,filter,function(){
+                updateTimeTag(collectionName, filter, function() {
                 });
                 return callback(err, doc);
             });
+        });
+    });
+};
+
+// 强制更新
+exports.forceToUpdate = function(collectionName,filter,data,callback){
+    mongodb.getCollection(collectionName,function(collection){
+        //console.log('Before collection.update:')
+        //console.log('filter', filter);
+        //console.log('data', data);
+        collection.update(filter, data, {upsert: true}, function(err, doc) {
+            updateTimeTag(collectionName, filter, function() {
+            });
+            return callback(err, doc);
         });
     });
 };
