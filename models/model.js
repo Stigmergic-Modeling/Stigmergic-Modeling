@@ -60,24 +60,31 @@ exports.modelGet = function(projectID,user,callback){
 
 exports.modelOperation = function(projectID, user, dataSet, orderChanges, callback){
     var mutex = dataSet.length + 1;
+    console.log('mutex', mutex);
     var errState = null;
     for(var i=0;i<dataSet.length;i++){
         var dataItem = dataSet[i];
-        console.log(dataItem);
+        console.log('dataItem', i, dataItem);
+        //console.log('dataItem[2]', dataItem[2]);
         switch (dataItem[2]){
             case 'CLS': //class
                 classOperation(projectID,user,i,dataItem,function(err,doc){
                     mutex --;
                     if(err) errState = "err";
+                    console.log('CLS mutex', mutex);
                     if(mutex == 0) return callback(errState);
                 });
                 break;
             case 'RLG': //relationGroup
+                mutex --;  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
+                console.log('RLG mutex', mutex);
+                //if(mutex == 0) return callback(errState);
                 break;
             case 'ATT': //class attribute
                 attributeOperation(projectID,user,i,dataItem,function(err,doc){
                     mutex --;
                     if(err) errState = "err";
+                    console.log('ATT mutex', mutex);
                     if(mutex == 0) return callback(errState);
                 });
                 break;
@@ -85,6 +92,7 @@ exports.modelOperation = function(projectID, user, dataSet, orderChanges, callba
                 relationOperation(projectID,user,i,dataItem,function(err,doc){
                     mutex --;
                     if(err) errState = "err";
+                    console.log('RLT mutex', mutex);
                     if(mutex == 0) return callback(errState);
                 });
                 break;
@@ -92,6 +100,7 @@ exports.modelOperation = function(projectID, user, dataSet, orderChanges, callba
                 attributePropertyOperation(projectID,user,i,dataItem,function(err,doc){
                     mutex --;
                     if(err) errState = "err";
+                    console.log('POA mutex', mutex);
                     if(mutex == 0) return callback(errState);
                 });
                 break;
@@ -99,23 +108,30 @@ exports.modelOperation = function(projectID, user, dataSet, orderChanges, callba
                 relationPropertyOperation(projectID,user,i,dataItem,function(err,doc){
                     mutex --;
                     if(err) errState = "err";
+                    console.log('POR mutex', mutex);
                     if(mutex == 0) return callback(errState);
                 });
                 break;
-            default:break;
+            default:
+                //mutex --;  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
+                //console.log('default Op mutex', mutex);
+                ////if(mutex == 0) return callback(errState);
         }
     }
 
     // 更新 attribute 或 relationship 的顺序
     if (orderChanges) {
-        dbOperationControl.order.update(projectID, user, orderChanges, function(err, doc) {
+        orderOperation(projectID, user, orderChanges, function(err,doc){
             mutex--;
             console.log('Order Updated');
             if(err) errState = "err";
+            console.log('orderChanges mutex', mutex);
             if(mutex == 0) return callback(errState);
         });
     } else {
         mutex--;
+        console.log('No orderChanges mutex', mutex);
+        if(mutex == 0) return callback(errState);
     }
 }
 
@@ -162,6 +178,8 @@ var attributeOperation = function(projectID,user,order,dataItem,callback){
                 return callback(err,doc);
             });
             break;
+        default:
+            return callback(null, null);  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
     }
 }
 
@@ -199,6 +217,8 @@ var relationOperation = function(projectID,user,order,dataItem,callback){
                 return callback(err,doc);
             });
             break;
+        default:
+            return callback(null, null);  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
     }
 }
 
@@ -225,5 +245,11 @@ var relationPropertyOperation = function(projectID,user,order,dataItem,callback)
             });
             break;
     }
+}
+
+var orderOperation = function(projectID, user, orderChanges, callback) {
+    dbOperationControl.order.update(projectID, user, orderChanges, function(err, doc) {
+        return callback(err,doc);
+    });
 }
 

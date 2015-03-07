@@ -467,13 +467,14 @@ var attribute = {
             projectID : projectID,
             user : user
         }
-        //找到className存在的关系Relation
+        // 找到className存在的关系Relation (有可能是非属性关系、可能是role不是attributeName的属性关系、
+        // 也有可能是该class作为类型的属性关系（可能吗？这样的class可能在E0端吗？）。这都不是我们想要的)
         var classFilter = new Merge(filter,{
             "relation":{
                 "direction":'0',
                 "attribute": 'class'
             },
-            "target": className
+            "target": className  // 关键
         });
         dbOperation.get("conceptDiag_edge",classFilter,function(err,docs){
             var relationArray = [];
@@ -481,31 +482,31 @@ var attribute = {
                 //attribute or relation
                 relationArray.push(element.source);
             });
-            //找到className，attributeName同时存在的关系Relation
+            // 找到className，attributeName同时存在的关系Relation (有可能是非属性关系)
             var relationFilter = new Merge(filter,{
                 'source':  {"$in":relationArray},
                 "relation":{
                     "direction":'1',
                     "attribute": 'role'
                 },
-                "target": attributeName
+                "target": attributeName  // 关键
             })
             dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
-                //找到此关系中属于属性的关系
+                // 找到此关系中属于属性的关系 (唯一)
                 var attributeArray = [];
                 docs.forEach(function(element){
-                    attributeArray.push(element.source);    //direction 默认为1
+                    attributeArray.push(element.source);  // direction 默认为1
                 });
                 var attributeFilter = new Merge(filter,{
                     'source':  {"$in":attributeArray},
                     "relation":{
                         "direction":'1',
-                        "attribute": 'isAttribute'
+                        "attribute": 'isAttribute'  // 关键
                     },
                     "target": '1'
                 });
                 dbOperation.get("conceptDiag_edge",attributeFilter,function(err,docs){
-                    var attributeId;    //attribute应该只有一个否则存在问题
+                    var attributeId;  // attribute应该只有一个否则存在问题
                     if(docs.length === 1) attributeId = docs[0].source;
                     return callback(attributeId);
                 });
@@ -619,6 +620,12 @@ exports.attribute = attribute;
 
 var attributeProperty = {
     add : function(projectID,user,attributeId,propertyName,propertyValue,callback){
+
+        // 由于role特性的存在，不需要存储name特性
+        if ('name' === propertyName) {
+            return callback(errs);
+        }
+
         var dataSet = {
             projectID: projectID,
             user: user,
@@ -893,6 +900,9 @@ exports.relationProperty = {
 
 exports.order = {
     update: function (projectID, user, orderChanges, callback) {
+        var mutex = 0;
+        var errs = null;
+
         var dataSet4C = {};
         var classes = orderChanges.classes;
 
@@ -910,7 +920,7 @@ exports.order = {
             };
 
             mutex++;
-            saveData(dataSet4C,function(err,doc){
+            updateData(dataSet4C,function(err,doc){
                 mutex--;
                 errs = ErrUpdate(errs,err);
                 if (!mutex) return callback(errs);
@@ -934,7 +944,7 @@ exports.order = {
             };
 
             mutex++;
-            saveData(dataSet4R,function(err,doc){
+            updateData(dataSet4R,function(err,doc){
                 mutex--;
                 errs = ErrUpdate(errs,err);
                 if (!mutex) return callback(errs);
