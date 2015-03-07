@@ -46,20 +46,30 @@ exports.getIndividualModel = function(projectID,user,callback){
     individualModel.getClass(projectID,user,function(classSet){//get class
         //console.log('typeof projectID', typeof projectID);
         mutex--;
-        //console.log(classSet);
+        //console.log('classSet', classSet);
         for(var key in classSet){
             mutex++;
             individualModel.getAttribute(projectID,user,key,function(className,attributeSet){
                 mutex--;
                 attributeSet=individualModel.transAttribute(attributeSet);
                 classSet[className][0] = attributeSet;
-                if(mutex>0) {;}
-                else {
-                    model[0] = classSet;
-                    {
-                        return callback(null,model);
+
+                mutex++;
+                individualModel.getAttributeOrder(projectID,user,key,function(className,order){
+                    mutex--;
+
+                    //console.log('classSet', classSet);
+                    //console.log('order', order);
+                    classSet[className][1] = order;
+
+                    if(mutex>0) {;}
+                    else {
+                        model[0] = classSet;
+                        {
+                            return callback(null,model);
+                        }
                     }
-                }
+                });
             })
         }
     });
@@ -134,6 +144,20 @@ var individualModel = {
                     return callback(className,attributeSet);
                 });
             })
+        });
+    },
+
+    getAttributeOrder : function(projectID, user, className, callback) {
+        var filter = {
+            projectID: projectID,
+            user: user,
+            type: 'class',
+            identifier: className  // name or ID
+        };
+        console.log('filter', filter);
+        dbOperation.get("conceptDiag_order", filter, function(err, docs) {
+            console.log('docs', docs);
+            return callback(className, docs[0].order);
         });
     },
     getRelation : function(projectID,user,callback){
@@ -254,8 +278,28 @@ var class_ = {
                 mutex--;
                 errs = ErrUpdate(errs,err);
                 if(mutex == 0) return callback(errs);
-            })
+
+
+                })
         }
+
+        // 为 class 中 attribute 的顺序数组开辟 document
+        dataSet = new Merge(dateSetBase,{
+            'collection':"conceptDiag_order",
+            'type':'class',
+            'identifier':className,
+            'order': {
+                'order': []
+            }
+        });
+
+        //console.log('dataSet', dataSet);
+        mutex ++;
+        saveData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
     delete: function(projectID,user,className,callback){
         var dateSetBase = {
@@ -289,8 +333,22 @@ var class_ = {
             errs = ErrUpdate(errs,err);
             if(mutex ==0) return callback(errs);
         });
+
+        // delete attribute orders of this class
+        dataSet = new Merge(dateSetBase,{
+            'collection': "conceptDiag_order",
+            'type': 'class',
+            'identifier': className
+        });
+        mutex ++;
+        deleteData(dataSet,function(err,doc){
+            mutex--;
+            errs = ErrUpdate(errs,err);
+            if(mutex ==0) return callback(errs);
+        });
     },
     revise:function(projectID,user,oldClassName,newClassName,callback){
+
         //class的revise的含义：修改 class name
         var dateSetBase = {
             projectID: projectID,
@@ -298,6 +356,7 @@ var class_ = {
         };
         var errs = null;
         var mutex = 0;
+
         //revise index
         var oldDataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_index",
@@ -319,31 +378,32 @@ var class_ = {
             mutex--;
             errs = ErrUpdate(errs,err);
             if(mutex ==0) return callback(errs);
-            //if(mutex ==0) return callback(errs);  // TODO：多写了一行？
         });
 
         //revise edges start from class
-        oldDataSet = new Merge(dateSetBase,{
+        var oldDataSet4Edge = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': oldClassName
         });
         var filter = new Merge(dateSetBase, {
             'source': oldClassName
         });
+
         mutex ++;
         dbOperation.get("conceptDiag_edge",filter,function(err,docs){
+
             //删除
             mutex --;
             mutex ++;
             //console.log('get conceptDiag_edge');
-            //console.log('oldDataSet1', oldDataSet);
-            //console.log('docs', docs);
-            deleteData(oldDataSet,function(err,doc){
+            console.log('oldDataSet1', oldDataSet4Edge);
+            console.log('docs', docs);
+            deleteData(oldDataSet4Edge,function(err,doc){
                 mutex--;
                 errs = ErrUpdate(errs,err);
                 if(mutex ==0) return callback(errs);
             });
-            //console.log('oldDataSet2', oldDataSet);
+
             //新增
             docs.forEach(function(element){
                 //console.log('elementOld', element);
@@ -351,6 +411,53 @@ var class_ = {
                 // 修改 element 以使其符合 saveDate 函数的参数格式
                 element.source = newClassName;
                 element.collection = 'conceptDiag_edge';
+                element.user = user;  // 注意这里不能使用原数组，而应该使用user名的字符串
+                delete element._id;
+                delete element.lastRevise;
+                //console.log('elementNew', element);
+
+                mutex ++;
+                saveData(element,function(err,doc){
+                    mutex--;
+                    errs = ErrUpdate(errs,err);
+                    if(mutex ==0) return callback(errs);
+                });
+            });
+        });
+
+        // revise order of attribute
+        var oldDataSet4Order = new Merge(dateSetBase,{
+            'collection': "conceptDiag_order",
+            'type': 'class',
+            'identifier': oldClassName,
+        });
+        var filter4Order = new Merge(dateSetBase, {
+            'identifier':oldClassName
+        });
+
+        mutex ++;
+        dbOperation.get("conceptDiag_order",filter4Order,function(err,docs){
+
+            //删除
+            mutex --;
+            mutex ++;
+            //console.log('get conceptDiag_order');
+            //console.log('oldDataSet1', oldDataSet4Order);
+            //console.log('docs', docs);
+            deleteData(oldDataSet4Order,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex ==0) return callback(errs);
+            });
+
+            //新增
+            docs.forEach(function(element){
+                //console.log('elementOld', element);
+
+                // 修改 element 以使其符合 saveDate 函数的参数格式
+                element.identifier = newClassName;
+                element.collection = 'conceptDiag_order';
+                element.user = user;
                 delete element._id;
                 delete element.lastRevise;
                 //console.log('elementNew', element);

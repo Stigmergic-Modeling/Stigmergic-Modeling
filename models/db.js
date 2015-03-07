@@ -48,8 +48,7 @@ module.exports = function(){
             m_collection["modelinfo"] = collection;
         });
 
-        var collectionList = ['icd','icd_index','ccd','ccd_index','operationScore','operationScore2','icd_attribute_sort'
-            ,'conceptDiag_edge','conceptDiag_vertex','conceptDiag_index'];
+        var collectionList = ['conceptDiag_edge','conceptDiag_vertex','conceptDiag_index','conceptDiag_order'];
         for(var i=0;i<collectionList.length;i++){
             generateCollection(collectionList[i]);
         }

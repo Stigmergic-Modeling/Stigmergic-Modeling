@@ -24,7 +24,8 @@ define(function (require, exports, module) {
     // ICM 前端模型
     var icm = new Model(dataPassedIn.model);  // dataPassedIn 通过后端的 .ejs 模板传入
     //var icm = new Model(debug.model);  // 调试时使用，从 debug 模块获取 model 数据
-    //console.log('typeof dataPassedIn.modelID', typeof dataPassedIn.modelID);
+    console.log('dataPassedIn.model', dataPassedIn.model);
+    console.log('icm', icm);
 
     // 记录 workspace 页面的状态
     var stateOfPage = {
@@ -1815,6 +1816,10 @@ define(function (require, exports, module) {
 
     // 处理：点击左侧搜索按钮
     function handleClkSearchLeft() {
+
+        // 调试用：输出icm
+        console.log(icm);
+
         var name = $('#stigmod-search-left-input').val();
 
         if (icm.doesNodeExist(0, name) || icm.doesNodeExist(1, name)) {  // 如果模型中存在名为 name 的类或关系组
