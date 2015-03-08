@@ -71,7 +71,7 @@ exports.getIndividualModel = function (projectID, user, callback) {
 
                 if (!attributeSetLen) {
                     model[0][className][0] = {};
-                    model[0][className][1] = {'order': []};
+                    model[0][className][1] = {'order': []};  // TODO: 这一行使 add class 时对 order 数组的初始化变得有点多余了
 
                     if (--mutex === 0) {
                         return callback(null, model);
@@ -95,14 +95,16 @@ exports.getIndividualModel = function (projectID, user, callback) {
                 });
 
                 // 对某个 class 的所有 attribute
-                for (var attributeName in attributeSet) {
-                    //individualModel.getAttributeProperty(projectID, user, className, attributeName, function(className, attributeName, propertySet) {  // TODO：回调函数没有attributeName参数，下面要出大事！
-                    //    console.log('getAttributeProperty mutex', mutex);
-                    //    classSet[className][0][attributeName][0] = propertySet;
-                    if (--mutex === 0) {
-                        return callback(null, model);
-                    }
-                    //});
+                for (key in attributeSet) {
+                    model[0][className][0][key] = [];
+
+                    individualModel.getAttributeProperty(projectID, user, className, key, function(className, attributeName, propertySet) {
+                        model[0][className][0][attributeName][0] = propertySet;
+
+                        if (--mutex === 0) {
+                            return callback(null, model);
+                        }
+                    });
                 }
             });
         }
@@ -213,10 +215,39 @@ var individualModel = {
         });
     },
 
-    getAttributeProperty: function(projectID, user, className, attributeName, callback) {
-        attribute.getId(projectID, user, className, attributeName, function(attributeId) {
+    getAttributeProperty: function (projectID, user, className, attributeName, callback) {
 
-            return callback(className, attributeName, attributeId);
+        attribute.getId(projectID, user, className, attributeName, function(attributeId) {
+            var filter = {
+                projectID: projectID,
+                user: user,
+                source: attributeId,
+                'relation.direction': '1'
+            }
+
+            dbOperation.get("conceptDiag_edge", filter, function (err, docs) {
+                var propertySet = {};
+
+                docs.forEach(function (element) {
+                    var proertyName = element.relation.attribute;
+
+                    if ('role' === proertyName) {
+                        propertySet.name = element.target;
+
+                    } else if ('class' === proertyName) {
+                        propertySet.type = element.target;
+
+                    } else if ('isAttribute' === proertyName) {
+                        // do nothing
+
+                    } else {
+                        propertySet[proertyName] = element.target;
+                    }
+                });
+
+                return callback(className, attributeName, propertySet);
+
+            });
         });
     },
 
@@ -508,7 +539,7 @@ var class_ = {
             identifier: newClassName
         };
 
-        console.log('dataSet4Order', dataSet4Order);
+        //console.log('dataSet4Order', dataSet4Order);
         mutex ++;
         updateData(dataSet4Order,function(err,doc){
             mutex--;
@@ -571,7 +602,7 @@ var attribute = {
                 dbOperation.get("conceptDiag_edge",attributeFilter,function(err,docs){
                     var attributeId;  // attribute应该只有一个否则存在问题
                     if(docs.length === 1) attributeId = docs[0].source;
-                    return callback(attributeId);
+                    return callback(attributeId);  // TODO: 需要在第一个参数处加入err
                 });
             })
         });
