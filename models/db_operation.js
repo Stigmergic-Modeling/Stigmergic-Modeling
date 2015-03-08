@@ -21,11 +21,11 @@ exports.get = function(collectionName,filter,callback){
             //console.log('docs', docs);
 
             if(err != null){
-                console.log('err');
+                console.log('Error when getting docs:', err);
                 return callback(err, docs);
             }
             if(docs === null){
-                console.log('docs');
+                console.log('docs not exist');
                 err = "not Exist";
                 return callback(err, docs);
             }

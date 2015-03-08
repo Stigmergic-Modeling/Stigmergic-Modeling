@@ -58,85 +58,72 @@ exports.modelGet = function(projectID,user,callback){
  *
  *  -------------------------------------------------------- */
 
-exports.modelOperation = function(projectID, user, dataSet, orderChanges, callback){
-    var mutex = dataSet.length + 1;
-    console.log('mutex', mutex);
-    var errState = null;
-    for(var i=0;i<dataSet.length;i++){
-        var dataItem = dataSet[i];
-        console.log('dataItem', i, dataItem);
-        //console.log('dataItem[2]', dataItem[2]);
-        switch (dataItem[2]){
-            case 'CLS': //class
-                classOperation(projectID,user,i,dataItem,function(err,doc){
-                    mutex --;
-                    if(err) errState = "err";
-                    console.log('CLS mutex', mutex);
-                    if(mutex == 0) return callback(errState);
-                });
-                break;
-            case 'RLG': //relationGroup
-                mutex --;  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
-                console.log('RLG mutex', mutex);
-                //if(mutex == 0) return callback(errState);
-                break;
-            case 'ATT': //class attribute
-                attributeOperation(projectID,user,i,dataItem,function(err,doc){
-                    mutex --;
-                    if(err) errState = "err";
-                    console.log('ATT mutex', mutex);
-                    if(mutex == 0) return callback(errState);
-                });
-                break;
-            case 'RLT': //relationGroup relation
-                relationOperation(projectID,user,i,dataItem,function(err,doc){
-                    mutex --;
-                    if(err) errState = "err";
-                    console.log('RLT mutex', mutex);
-                    if(mutex == 0) return callback(errState);
-                });
-                break;
-            case 'POA': //class attribute property value
-                attributePropertyOperation(projectID,user,i,dataItem,function(err,doc){
-                    mutex --;
-                    if(err) errState = "err";
-                    console.log('POA mutex', mutex);
-                    if(mutex == 0) return callback(errState);
-                });
-                break;
-            case 'POR': //relationGroup relation property value
-                relationPropertyOperation(projectID,user,i,dataItem,function(err,doc){
-                    mutex --;
-                    if(err) errState = "err";
-                    console.log('POR mutex', mutex);
-                    if(mutex == 0) return callback(errState);
-                });
-                break;
-            default:
-                //mutex --;  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
-                //console.log('default Op mutex', mutex);
-                ////if(mutex == 0) return callback(errState);
-        }
-    }
+exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
 
-    // 更新 attribute 或 relationship 的顺序
-    if (orderChanges) {
-        orderOperation(projectID, user, orderChanges, function(err,doc){
-            mutex--;
-            console.log('Order Updated');
-            if(err) errState = "err";
-            console.log('orderChanges mutex', mutex);
-            if(mutex == 0) return callback(errState);
-        });
-    } else {
-        mutex--;
-        console.log('No orderChanges mutex', mutex);
-        if(mutex == 0) return callback(errState);
-    }
+    // 使用递归嵌套保证 ops 的执行顺序
+    (function next(index) {
+
+        console.log('index', index);
+        console.log('ops.length', ops.length);
+
+        // 若已执行完所有 ops，则执行 orderChanges
+        if (index === ops.length) {
+
+            // 更新 attribute 或 relationship 的顺序
+            if (orderChanges) {
+                orderOperation(projectID, user, orderChanges, function(err, doc){
+                    console.log('Order Updated');
+
+                    return callback(err);
+                });
+            }
+
+            return callback(null);
+        }
+
+        var op = ops[index];
+        console.log('op', op);
+        var theCallbackFunc = function (err, doc) {
+            if (err) {
+                return callback(err);
+            }
+            next(index + 1);
+        };
+
+        switch (op[2]) {
+            case 'CLS':  // class
+                console.log('CLS');
+                classOperation(projectID, user, op, theCallbackFunc);
+                break;
+
+            case 'RLG':  // relationGroup
+                next(index + 1);
+                break;
+
+            case 'ATT':  // class attribute
+                attributeOperation(projectID, user, op, theCallbackFunc);
+                break;
+
+            case 'RLT':  // relationGroup relation
+                relationOperation(projectID, user, op, theCallbackFunc);
+                break;
+
+            case 'POA':  // class attribute property value
+                attributePropertyOperation(projectID, user, op, theCallbackFunc);
+                break;
+
+            case 'POR':  // relationGroup relation property value
+                relationPropertyOperation(projectID, user, op, theCallbackFunc);
+                break;
+
+            default:
+                next(index + 1);
+        }
+    })(0);
 }
 
 
-var classOperation = function(projectID,user,order,dataItem,callback){
+var classOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
             dbOperationControl.class.add(projectID,user,dataItem[3],"normal",function(err,doc){
@@ -156,7 +143,7 @@ var classOperation = function(projectID,user,order,dataItem,callback){
     }
 }
 
-var attributeOperation = function(projectID,user,order,dataItem,callback){
+var attributeOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
             dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],function(err,doc){
@@ -183,10 +170,12 @@ var attributeOperation = function(projectID,user,order,dataItem,callback){
     }
 }
 
-var attributePropertyOperation = function(projectID,user,order,dataItem,callback){
+var attributePropertyOperation = function (projectID, user, dataItem, callback) {
     dbOperationControl.attribute.getId(projectID,user,dataItem[3],dataItem[4],function(attributeId){
         switch(dataItem[1]){
             case 'ADD':
+                // TODO: 此处attributeId总是undefined，是因为取attributeId 时attribute.add的操作还没完成。为了保证attribute.add完成后这里再取id，需要序列化操作。
+                console.log('attributePropertyOperation ADD attributeId', attributeId, dataItem[3], dataItem[4]);
                 dbOperationControl.attributeProperty.add(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
                     return callback(err,doc);
                 });
@@ -203,9 +192,42 @@ var attributePropertyOperation = function(projectID,user,order,dataItem,callback
                 break;
         }
     });
+
+
+    //async.waterfall([
+    //    function (callback) {
+    //        dbOperationControl.attribute.getId(projectID,user,dataItem[3],dataItem[4],function(err, attributeId){
+    //            callback(err, attributeId);
+    //        });
+    //    },
+    //    function (attributeId, callback){
+    //        switch(dataItem[1]){
+    //            case 'ADD':
+    //                // TODO: 此处attributeId总是undefined，是因为取attributeId 时attribute.add的操作还没完成。为了保证attribute.add完成后这里再取id，需要序列化操作。
+    //                console.log('attributePropertyOperation ADD attributeId', attributeId, dataItem[3], dataItem[4]);
+    //                dbOperationControl.attributeProperty.add(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
+    //                    return callback(err,doc);
+    //                });
+    //                break;
+    //            case 'MOD':
+    //                dbOperationControl.attributeProperty.revise(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
+    //                    return callback(err,doc);
+    //                });
+    //                break;
+    //            case 'RMV':
+    //                dbOperationControl.attributeProperty.delete(projectID,user,attributeId,dataItem[5],function(err,doc){
+    //                    return callback(err,doc);
+    //                });
+    //                break;
+    //        }
+    //    }
+    //],
+    //function (err, result) {
+    //    // do nothing
+    //});
 }
 
-var relationOperation = function(projectID,user,order,dataItem,callback){
+var relationOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
             dbOperationControl.relation.add(projectID,user,null,function(err,doc){
@@ -222,7 +244,7 @@ var relationOperation = function(projectID,user,order,dataItem,callback){
     }
 }
 
-var relationPropertyOperation = function(projectID,user,order,dataItem,callback){
+var relationPropertyOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
             dbOperationControl.relationProperty.add(projectID,user,dataItem[4],'1',dataItem[5],dataItem[6],function(err,doc){
@@ -247,7 +269,7 @@ var relationPropertyOperation = function(projectID,user,order,dataItem,callback)
     }
 }
 
-var orderOperation = function(projectID, user, orderChanges, callback) {
+var orderOperation = function (projectID, user, orderChanges, callback) {
     dbOperationControl.order.update(projectID, user, orderChanges, function(err, doc) {
         return callback(err,doc);
     });
