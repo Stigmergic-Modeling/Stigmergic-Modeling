@@ -36,71 +36,85 @@ var ErrUpdate = function(state,newError){
 }
 
 /**
- *  get
+ *  get individual model
  */
-//get individual model
-exports.getIndividualModel = function(projectID,user,callback){
-    var model = [{},{}];
-    var mutex = 0;
-    mutex++;
+exports.getIndividualModel = function (projectID, user, callback) {
+    var model = [{}, {}];
+    var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
 
     // 获取所有 class
-    individualModel.getClass(projectID,user,function(classSet){//get class
-        //console.log('typeof projectID', typeof projectID);
-        mutex--;
-        //console.log('classSet', classSet);
+    individualModel.getClass(projectID, user, function (classSet) {
+
+        //console.log('classSet', classSet, Object.keys(classSet).length);
+        var classSetLen = Object.keys(classSet).length;
+
+        // 若 class 个数为 0，则直接退出 getClass 任务
+        if (!classSetLen) {
+            if (--mutex === 0) {
+                return callback(null, model);
+            }
+            return;
+        }
+
+        // 若 class 个数不为 0，则退出 getClass 任务，同时加入所有 class 之下的任务（原子性得到保证）
+        mutex += classSetLen - 1;
 
         // 对每个 class
-        for (var key in classSet){
-            //console.log(key);
-            mutex++;
+        for (var key in classSet) {
+            model[0][key] = [];
 
             // 对某个 class，获取所有 attribute
-            individualModel.getAttribute(projectID,user,key,function(className,attributeSet){
-                mutex--;
-                attributeSet=individualModel.transAttribute(attributeSet);
-                classSet[className][0] = attributeSet;
-                //console.log('className', className);
+            individualModel.getAttribute(projectID, user, key, function (className, attributeSet) {
 
-                mutex++;
+                //console.log('attributeSet', attributeSet, Object.keys(attributeSet).length);
+                var attributeSetLen = Object.keys(attributeSet).length;
+
+                if (!attributeSetLen) {
+                    model[0][className][0] = {};
+                    model[0][className][1] = {'order': []};
+
+                    if (--mutex === 0) {
+                        return callback(null, model);
+                    }
+                    return;
+                }
+
+                // +attributeSetLen 对应 getAttributeProperty 任务，+1 对应 getAttributeOrder 任务
+                mutex += attributeSetLen;  // attributeSetLen + 1 - 1
+
+                attributeSet = individualModel.transAttribute(attributeSet);
+                model[0][className][0] = attributeSet;
 
                 // 对某个 class，获取 attribute order 数组
-                individualModel.getAttributeOrder(projectID,user,className,function(className,order){
-                    mutex--;
-                    console.log('getAttributeOrder mutex', mutex);
-                    //console.log('className', className);
-                    //console.log('classSet', classSet);
-                    //console.log('order', order);
-                    classSet[className][1] = {'order': order};
+                individualModel.getAttributeOrder(projectID, user, className, function (className, order) {
+                    model[0][className][1] = {'order': order};
 
-                    console.log('attributeSet', attributeSet);
-                    // 对某个 class 的所有 attribute
-                    //for (var attributeName in attributeSet) {
-                    //    if (attributeSet.hasOwnProperty(attributeName)) {
-                    //        mutex++;
-                    //        individualModel.getAttributeProperty(projectID, user, className, attributeName, function(className, attributeName, propertySet) {  // TODO：回调函数没有attributeName参数，下面要出大事！
-                    //            mutex--;
-                    //            console.log('getAttributeProperty mutex', mutex);
-                    //            classSet[className][0][attributeName][0] = propertySet;
-
-                                if (!mutex) {
-                                    model[0] = classSet;
-                                    return callback(null, model);
-                                }
-                    //        });
-                    //    }
-                    //}
+                    if (--mutex === 0) {
+                        return callback(null, model);
+                    }
                 });
+
+                // 对某个 class 的所有 attribute
+                for (var attributeName in attributeSet) {
+                    //individualModel.getAttributeProperty(projectID, user, className, attributeName, function(className, attributeName, propertySet) {  // TODO：回调函数没有attributeName参数，下面要出大事！
+                    //    console.log('getAttributeProperty mutex', mutex);
+                    //    classSet[className][0][attributeName][0] = propertySet;
+                    if (--mutex === 0) {
+                        return callback(null, model);
+                    }
+                    //});
+                }
             });
         }
     });
-    mutex++;
-    individualModel.getRelation(projectID,user,function(relationSet){//get relation
-        mutex--;
-        relationSet=individualModel.transRelation(relationSet);
+
+    // get relation
+    individualModel.getRelation(projectID,user,function(relationSet){
+
+        relationSet = individualModel.transRelation(relationSet);
         model[1] = relationSet;
-        if(mutex>0) {;}
-        else{
+
+        if (--mutex == 0) {
             return callback(null,model);
         }
     });
@@ -122,50 +136,63 @@ var individualModel = {
             return callback(classSet);
         });
     },
-    getAttribute: function(projectID,user,className,callback){
+
+    getAttribute: function (projectID, user, className, callback) {
         var filter = {
-            projectID : projectID,
-            user : user
+            projectID: projectID,
+            user: user
         }
-        var classFilter = new Merge(filter,{  // 这里似乎应直接加入 "relation.direction":'0' 这个条件
-            "relation.attribute":'class',
-            'target':className
+        var classFilter = new Merge(filter, {
+            target: className
         });
-        dbOperation.get("conceptDiag_edge",classFilter,function(err,docs){
+        classFilter['relation.direction'] = '0';  // 带“点”的查询条件不能用Merge来合并，不然会丢失“点结构”，无法进行内嵌文档查询
+        classFilter['relation.attribute'] = 'class';
+
+        dbOperation.get("conceptDiag_edge", classFilter ,function (err, docs) {
             var relationArray = [];
-            //console.log('classFilter', classFilter);
-            //console.log('docs',docs);
+
+            console.log('classFilter', classFilter);
+            console.log('docs',docs);
+
             docs.forEach(function(element){
-                //attribute or relation
+                // attribute or relation
                 relationArray.push(element.source);
             });
-            //find attribute ones
+
+            // find attribute ones
             var relationFilter = new Merge(filter,{
                 "source":{"$in":relationArray},
-                "relation.attribute":'isAttribute',
                 "target":'1'
             });
-            dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
-                //find attributes
+            relationFilter['relation.attribute'] = 'isAttribute';
+
+            dbOperation.get("conceptDiag_edge", relationFilter, function (err, docs) {
+
+                // find attributes
                 var attributeArray = [];
                 //console.log('docs',docs);
+
                 docs.forEach(function(element){
-                    attributeArray.push(element.source);    //direction 默认为1
+                    attributeArray.push(element.source);  // direction 默认为1
                 });
                 var attributeFilter = new Merge(filter,{
-                    "source":{"$in":attributeArray},
-                    "relation.direction":'1'
+                    "source":{"$in":attributeArray}
                 });
+                classFilter['relation.direction'] = '1';
+
                 dbOperation.get("conceptDiag_edge",attributeFilter,function(err,docs){
-                    //这里Attribute是以Relation为连接的一组节点
-                    //按照relation的不同进行处理
+
+                    // 这里Attribute是以Relation为连接的一组节点
+                    // 按照relation的不同进行处理
                     var attributeSet = {};
                     //console.log('docs',docs);
+
                     docs.forEach(function(element){
                         if(attributeSet[element.source]==null)    attributeSet[element.source] = [{}];
                         attributeSet[element.source][0][element.relation.attribute] = element.target;
                     });
-                    //此时还是以Attribute Relation的ID进行命名的
+
+                    // 此时还是以Attribute Relation的ID进行命名的
                     return callback(className,attributeSet);
                 });
             })

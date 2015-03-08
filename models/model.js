@@ -166,7 +166,7 @@ var attributeOperation = function (projectID, user, dataItem, callback) {
             });
             break;
         default:
-            return callback(null, null);  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
+            return callback(null, null);  // dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理）
     }
 }
 
@@ -240,7 +240,7 @@ var relationOperation = function (projectID, user, dataItem, callback) {
             });
             break;
         default:
-            return callback(null, null);  // 由于dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理），对于略过的循环mutex也应当减一
+            return callback(null, null);  // dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理）
     }
 }
 
@@ -271,7 +271,8 @@ var relationPropertyOperation = function (projectID, user, dataItem, callback) {
 
 var orderOperation = function (projectID, user, orderChanges, callback) {
     dbOperationControl.order.update(projectID, user, orderChanges, function(err, doc) {
-        return callback(err,doc);
+
+        return callback(err, doc);
     });
 }
 
