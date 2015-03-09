@@ -70,6 +70,7 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
         if (index === ops.length) {
 
             // 更新 attribute 或 relationship 的顺序
+            console.log('orderChanges', orderChanges);
             if (orderChanges) {
                 orderOperation(projectID, user, orderChanges, function(err, doc){
                     console.log('Order Updated');
@@ -130,11 +131,13 @@ var classOperation = function (projectID, user, dataItem, callback) {
                 return callback(err,doc);
             });
             break;
+
         case 'MOD':
             dbOperationControl.class.revise(projectID,user,dataItem[3],dataItem[4],function(err,doc){
                 return callback(err,doc);
             });
             break;
+
         case 'RMV':
             dbOperationControl.class.delete(projectID,user,dataItem[3],function(err,doc){
                 return callback(err,doc);
@@ -150,81 +153,55 @@ var attributeOperation = function (projectID, user, dataItem, callback) {
                 return callback(err,doc);
             });
             break;
+
         case 'MOD':
-            dbOperationControl.attribute.delete(projectID,user,dataItem[3],dataItem[4],function(err,doc){
-                if(err) return callback(err,doc);
-                else{
-                    dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],function(err,doc){
-                        return callback(err,doc);
-                    });
-                }
-            });
+            //dbOperationControl.attribute.delete(projectID,user,dataItem[3],dataItem[4],function(err,doc){
+            //    if(err) return callback(err,doc);
+            //    else{
+            //        dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],function(err,doc){
+            //            return callback(err,doc);
+            //        });
+            //    }
+            //});
+
+            // Attribute 的修改就是更改其 property 的 name（数据库中是 role）
+            return callback(null, null);
             break;
+
         case 'RMV':
             dbOperationControl.attribute.delete(projectID,user,dataItem[3],dataItem[4],function(err,doc){
                 return callback(err,doc);
             });
             break;
+
         default:
             return callback(null, null);  // dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理）
     }
 }
 
 var attributePropertyOperation = function (projectID, user, dataItem, callback) {
-    dbOperationControl.attribute.getId(projectID,user,dataItem[3],dataItem[4],function(attributeId){
+
+    dbOperationControl.attribute.getId(projectID, user, dataItem[3], dataItem[4], function (attributeId) {
         switch(dataItem[1]){
             case 'ADD':
-                // TODO: 此处attributeId总是undefined，是因为取attributeId 时attribute.add的操作还没完成。为了保证attribute.add完成后这里再取id，需要序列化操作。
-                console.log('attributePropertyOperation ADD attributeId', attributeId, dataItem[3], dataItem[4]);
-                dbOperationControl.attributeProperty.add(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
-                    return callback(err,doc);
+                dbOperationControl.attributeProperty.add(projectID, user, attributeId, dataItem[5], dataItem[6], function (err, doc) {
+                    return callback(err, doc);
                 });
                 break;
+
             case 'MOD':
-                dbOperationControl.attributeProperty.revise(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
-                    return callback(err,doc);
+                dbOperationControl.attributeProperty.revise(projectID, user, attributeId, dataItem[5], dataItem[6], function (err, doc) {
+                    return callback(err, doc);
                 });
                 break;
+
             case 'RMV':
-                dbOperationControl.attributeProperty.delete(projectID,user,attributeId,dataItem[5],function(err,doc){
-                    return callback(err,doc);
+                dbOperationControl.attributeProperty.delete(projectID, user, attributeId, dataItem[5], function (err, doc) {
+                    return callback(err, doc);
                 });
                 break;
         }
     });
-
-
-    //async.waterfall([
-    //    function (callback) {
-    //        dbOperationControl.attribute.getId(projectID,user,dataItem[3],dataItem[4],function(err, attributeId){
-    //            callback(err, attributeId);
-    //        });
-    //    },
-    //    function (attributeId, callback){
-    //        switch(dataItem[1]){
-    //            case 'ADD':
-    //                // TODO: 此处attributeId总是undefined，是因为取attributeId 时attribute.add的操作还没完成。为了保证attribute.add完成后这里再取id，需要序列化操作。
-    //                console.log('attributePropertyOperation ADD attributeId', attributeId, dataItem[3], dataItem[4]);
-    //                dbOperationControl.attributeProperty.add(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
-    //                    return callback(err,doc);
-    //                });
-    //                break;
-    //            case 'MOD':
-    //                dbOperationControl.attributeProperty.revise(projectID,user,attributeId,dataItem[5],dataItem[6],function(err,doc){
-    //                    return callback(err,doc);
-    //                });
-    //                break;
-    //            case 'RMV':
-    //                dbOperationControl.attributeProperty.delete(projectID,user,attributeId,dataItem[5],function(err,doc){
-    //                    return callback(err,doc);
-    //                });
-    //                break;
-    //        }
-    //    }
-    //],
-    //function (err, result) {
-    //    // do nothing
-    //});
 }
 
 var relationOperation = function (projectID, user, dataItem, callback) {

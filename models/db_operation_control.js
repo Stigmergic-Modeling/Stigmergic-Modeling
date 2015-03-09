@@ -395,7 +395,7 @@ var class_ = {
         updateData(dataSet4Order,function(err,doc){
             mutex--;
             errs = ErrUpdate(errs,err);
-            console.log('attribute order [] updated');
+            //console.log('attribute order [] updated');
             if(mutex ==0) return callback(errs);
         });
     },
@@ -480,7 +480,8 @@ var class_ = {
             if(mutex ==0) return callback(errs);
         });
 
-        //revise edges start from class
+        // TODO: 这里（更新以该 class 为源或目标的边）代码冗余太多，需要整合
+        // revise edges start from class
         var oldDataSet4Edge = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
             'source': oldClassName
@@ -495,9 +496,6 @@ var class_ = {
             //删除
             mutex --;
             mutex ++;
-            //console.log('get conceptDiag_edge');
-            console.log('oldDataSet1', oldDataSet4Edge);
-            console.log('docs', docs);
             deleteData(oldDataSet4Edge,function(err,doc){
                 mutex--;
                 errs = ErrUpdate(errs,err);
@@ -510,6 +508,48 @@ var class_ = {
 
                 // 修改 element 以使其符合 saveDate 函数的参数格式
                 element.source = newClassName;
+                element.collection = 'conceptDiag_edge';
+                element.user = user;  // 注意这里不能使用原数组，而应该使用user名的字符串
+                delete element._id;
+                delete element.lastRevise;
+                //console.log('elementNew', element);
+
+                mutex ++;
+                saveData(element,function(err,doc){
+                    mutex--;
+                    errs = ErrUpdate(errs,err);
+                    if(mutex ==0) return callback(errs);
+                });
+            });
+        });
+
+        // revise edges end with class
+        var oldDataSet4EdgeEnd = new Merge(dateSetBase,{
+            'collection': "conceptDiag_edge",
+            'target': oldClassName
+        });
+        var filterEnd = new Merge(dateSetBase, {
+            'target': oldClassName
+        });
+
+        mutex ++;
+        dbOperation.get("conceptDiag_edge",filterEnd,function(err,docs){
+
+            //删除
+            mutex --;
+            mutex ++;
+            deleteData(oldDataSet4EdgeEnd,function(err,doc){
+                mutex--;
+                errs = ErrUpdate(errs,err);
+                if(mutex ==0) return callback(errs);
+            });
+
+            //新增
+            docs.forEach(function(element){
+                //console.log('elementOld', element);
+
+                // 修改 element 以使其符合 saveDate 函数的参数格式
+                element.target = newClassName;
                 element.collection = 'conceptDiag_edge';
                 element.user = user;  // 注意这里不能使用原数组，而应该使用user名的字符串
                 delete element._id;
@@ -544,7 +584,7 @@ var class_ = {
         updateData(dataSet4Order,function(err,doc){
             mutex--;
             errs = ErrUpdate(errs,err);
-            console.log('attribute order [] updated');
+            //console.log('attribute order [] updated');
             if(mutex ==0) return callback(errs);
         });
     }
@@ -655,7 +695,7 @@ var attribute = {
     delete: function(projectID,user,className,attributeName,callback){
         //find Attirubte
         this.getId(projectID,user,className,attributeName,function(attributeId){
-            if(attributeId == undefined)  return callback("Not Exists");
+            if(attributeId == undefined)  return callback("Not Exists");  // TODO: getId 的回调函数增加err后，这里也要改动。
             var dateSetBase = {
                 projectID: projectID,
                 user: user
@@ -688,39 +728,21 @@ var attribute = {
         });
     },
     revise:function(projectID,user,className,oldAttributeName,newAttributeName,callback){
-        //暂不提供
-        /*//对属性名的修改
-        this.getId(projectID,user,className,oldAttributeName,function(attributeId){
-            var dateSetBase = {
-                projectID: projectID,
-                user: user
-            };
-            //only revise role Name?
-            var dataSet = new Merge(dateSetBase,{
-                'collection': "conceptDiag_edge",
-                'source': attributeId,
-                'target': oldAttributeName,
-                'relation': {direction:'1',attribute:'role'}
-            });
-            deleteData(dataSet,function(err,doc){});
 
-            var newDataSet = new Merge(dataSet,{'target':newAttributeName});
-            saveData(newDataSet,function(err,doc){});
-        });
-        */
+        // Attribute 的修改就是更改其 property 的 name（数据库中是 role）
     }
 }
 exports.attribute = attribute;
 
 var attributeProperty = {
-    add : function(projectID,user,attributeId,propertyName,propertyValue,callback){
+    add: function (projectID, user, attributeId, propertyName, propertyValue, callback) {
 
         // 由于 role 特性的存在，不需要存储 name 特性
         if ('name' === propertyName) {
-            return callback(errs);
+            return callback(null);
         }
 
-        // attribute 的类型在底层数据库中是以 class 的形式存在的
+        // attribute 的 type 在底层数据库中是以 class 的形式存在的
         if ('type' === propertyName) {
             propertyName = 'class';
         }
@@ -745,7 +767,14 @@ var attributeProperty = {
             if(mutex ==0) return callback(errs);
         });
     },
-    delete: function(projectID,user,attributeId,propertyName,callback){
+
+    delete: function (projectID, user, attributeId, propertyName, callback) {
+
+        // attribute 的 type 在底层数据库中是以 class 的形式存在的
+        if ('type' === propertyName) {
+            propertyName = 'class';
+        }
+
         var dataSet = {
             projectID: projectID,
             user: user,
@@ -766,7 +795,19 @@ var attributeProperty = {
             if(mutex ==0) return callback(errs);
         });
     },
-    revise:function(projectID,user,attributeId,propertyName,newPropertyValue,callback){
+
+    revise: function (projectID, user, attributeId, propertyName, newPropertyValue, callback) {
+
+        // name 的 type 在底层数据库中是以 role 的形式存在的
+        if ('name' === propertyName) {
+            propertyName = 'role';
+        }
+
+        // attribute 的类型在底层数据库中是以 class 的形式存在的
+        if ('type' === propertyName) {
+            propertyName = 'class';
+        }
+
         var dataSet = {
             projectID: projectID,
             user: user,
