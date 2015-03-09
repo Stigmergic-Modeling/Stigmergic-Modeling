@@ -93,12 +93,11 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
 
         switch (op[2]) {
             case 'CLS':  // class
-                console.log('CLS');
                 classOperation(projectID, user, op, theCallbackFunc);
                 break;
 
             case 'RLG':  // relationGroup
-                next(index + 1);
+                relationGroupOperation(projectID, user, op, theCallbackFunc);
                 break;
 
             case 'ATT':  // class attribute
@@ -155,14 +154,6 @@ var attributeOperation = function (projectID, user, dataItem, callback) {
             break;
 
         case 'MOD':
-            //dbOperationControl.attribute.delete(projectID,user,dataItem[3],dataItem[4],function(err,doc){
-            //    if(err) return callback(err,doc);
-            //    else{
-            //        dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],function(err,doc){
-            //            return callback(err,doc);
-            //        });
-            //    }
-            //});
 
             // Attribute 的修改就是更改其 property 的 name（数据库中是 role）
             return callback(null, null);
@@ -204,6 +195,22 @@ var attributePropertyOperation = function (projectID, user, dataItem, callback) 
     });
 }
 
+var relationGroupOperation = function (projectID, user, dataItem, callback) {
+    switch(dataItem[1]){
+        case 'ADD':
+            dbOperationControl.relationGroup.add(projectID,user,dataItem[3],"normal",function(err,doc){
+                return callback(err,doc);
+            });
+            break;
+
+        case 'RMV':
+            dbOperationControl.relationGroup.delete(projectID,user,dataItem[3],function(err,doc){
+                return callback(err,doc);
+            });
+            break;
+    }
+}
+
 var relationOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
@@ -211,11 +218,13 @@ var relationOperation = function (projectID, user, dataItem, callback) {
                 return callback(err,doc);
             });
             break;
+
         case 'RMV':
             dbOperationControl.relation.delete(projectID,user,dataItem[4],function(err,doc){
                 return callback(err,doc);
             });
             break;
+
         default:
             return callback(null, null);  // dataSet中所有涉及order的操作都被忽略（最后由orderOperation处理）
     }
@@ -228,6 +237,7 @@ var relationPropertyOperation = function (projectID, user, dataItem, callback) {
                 return callback(err,doc);
             });
             break;
+
         case 'MOD':
             dbOperationControl.relationProperty.delete(projectID,user,dataItem[4],'1',dataItem[5],function(err,doc){
                 if(err) return callback(err,doc);
@@ -238,6 +248,7 @@ var relationPropertyOperation = function (projectID, user, dataItem, callback) {
                 }
             });
             break;
+
         case 'RMV':
             dbOperationControl.attribute.delete(projectID,user,dataItem[4],'1',dataItem[5],function(err,doc){
                 return callback(err,doc);

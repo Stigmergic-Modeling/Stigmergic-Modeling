@@ -839,6 +839,17 @@ var attributeProperty = {
 }
 exports.attributeProperty = attributeProperty;
 
+exports.relationGroup = {
+    add: function () {
+
+    },
+
+    delete: function () {
+
+    }
+}
+
+
 exports.relation = {
     getId:function(projectID,user,className1,className2,relationType,callback){
         //不确定

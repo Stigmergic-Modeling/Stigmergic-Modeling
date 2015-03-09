@@ -7,7 +7,8 @@ define(function (require, exports, module) {
     // 通用库模块
     var $ = require('../lib/jquery');
     require('../lib/bootstrap');
-    require('../lib/mousewheel')($);  // jQuery鼠标滚轮事件插件
+    require('../lib/mousewheel')($);  // jQuery 鼠标滚轮事件插件
+    var ObjectId = require('../lib/objectid');  // 用于在浏览器端生成 Mongodb 的 ObjectId
 
     // 内部模块
     var Model = require('../module/model');
@@ -1055,7 +1056,7 @@ define(function (require, exports, module) {
                                 var attrType = attributes[nameA][0]['type'];
 
                                 if (originalTitle === attrType) {
-                                    attrType = newTitle;
+                                    classes[nameC][0][nameA][0]['type'] = newTitle;
 
                                     // 如果当前类中就有以当前类为属性类型的属性，则需要即时更新模型
                                     if (nameC === stateOfPage.class) {
@@ -1554,8 +1555,8 @@ define(function (require, exports, module) {
 
         if (checkInputs(icm, $visibleInputs) && isValidRelation($reltypeBtn)) {
 
-            // 生成 前端 relation id
-            var idRelFront = 'tempid' + Date.now();
+            // 生成 relation id
+            var idRelFront = new ObjectId().toString();
 
             // 添加 relation id 作为该relation在前端的Key
             icm.addRelation(stateOfPage.class, idRelFront, stateOfPage.addAttrRel);
@@ -1819,6 +1820,8 @@ define(function (require, exports, module) {
 
         // 调试用：输出icm
         console.log(icm);
+        //var id = new ObjectId().toString();
+        //console.log('id', id);
 
         var name = $('#stigmod-search-left-input').val();
 
