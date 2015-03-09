@@ -2,6 +2,7 @@
  *  dbOperation flow control
  */
 var dbOperation  = require('./db_operation');
+var ObjectID = require("mongodb").ObjectID;
 var async = require("async");
 var fs = require('fs');
 
@@ -111,19 +112,71 @@ var getIndividualModel = function (projectID, user, callback) {
     });
 
     // get relation
-    individualModel.getRelation(projectID,user,function(relationSet){
+    individualModel.getRelationGroupAndRelation(projectID, user, function (err, relationGroupSet) {
+        var rlgSetLen = Object.keys(relationGroupSet).length;
 
-        relationSet = individualModel.transRelation(relationSet);
-        model[1] = relationSet;
+        // 若 relationGroup 个数为 0，则直接退出 getRelationGroupAndRelation 任务
+        if (!rlgSetLen) {
+            if (--mutex === 0) {
+                return callback(null, model);
+            }
+            return;
+        }
 
-        if (--mutex == 0) {
-            return callback(null,model);
+        // 若 relationGroup 个数不为 0，则退出 getRelationGroupAndRelation 任务，同时加入所有 relationGroup 之下的任务（原子性得到保证）
+        mutex += rlgSetLen - 1;
+
+        model[1] = relationGroupSet;
+        console.log('model', model);
+        console.log('model[1]', model[1]);
+        console.log('relationGroupSet', relationGroupSet);
+
+        // 对每一个 relationGroup
+        for (var rlg in relationGroupSet) {
+            var relationArray = relationGroupSet[rlg][1]['order'];
+            var relationArrayLen = relationArray.length;
+
+            // 若 relation 个数为 0，则直接退出 getRelationGroupAndRelation 任务
+            if (!relationArrayLen) {
+                if (--mutex === 0) {
+                    return callback(null, model);
+                }
+                return;
+            }
+
+            // 若 relation 个数不为 0，则退出 getRelationGroupAndRelation 任务，同时加入所有 relation 之下的任务（原子性得到保证）
+            mutex += relationArrayLen - 1;
+
+            for (var i = 0; i < relationArrayLen; i++) {
+                individualModel.getRelationProperty(projectID, user, rlg, ObjectID(relationArray[i]), function (err, relationGroupName, relationId, propertySet) {
+
+                    console.log('relationId', relationId);
+                    console.log('relationId.toString()', relationId.toString());
+                    console.log('propertySet', propertySet);
+                    console.log('model[1]', model[1]);
+                    model[1][relationGroupName][0][relationId.toString()] = [propertySet];
+
+                    if (--mutex == 0) {
+                        return callback(err, model);
+                    }
+                });
+            }
         }
     });
+
+    //individualModel.getRelation(projectID, user, function (relationSet) {
+    //
+    //    relationSet = individualModel.transRelation(relationSet);
+    //    model[1] = relationSet;
+    //
+    //    if (--mutex == 0) {
+    //        return callback(null,model);
+    //    }
+    //});
 }
 
 var individualModel = {
-    getClass: function(projectID,user,callback){
+    getClass: function(projectID, user, callback) {
         var filter = {
             projectID : projectID,
             user : user,
@@ -250,37 +303,137 @@ var individualModel = {
         });
     },
 
-    getRelation: function(projectID,user,callback){
+    getRelationGroupAndRelation: function (projectID, user, callback) {
         var filter = {
             projectID : projectID,
             user : user,
-            source : {"$in":['Association','Generalization']}
+            type : 'relation_group'
         }
-        dbOperation.get("conceptDiag_index",filter,function(err,docs){
-            var relationArray = [];
-            var relationTypeArray = {};
-            docs.forEach(function(element){
-                relationArray.push(element.target)
-                relationTypeArray[element.target] = element.source.toLowerCase();
+
+        // 获取所有的 relation group 的name，以及其中所有 relation 的 id
+        dbOperation.get("conceptDiag_order", filter, function (err, docs) {
+            if (err) {
+                return callback(err, null);
+            }
+            var relationGroupSet = {};
+
+            docs.forEach(function (element) {
+                relationGroupSet[element.identifier] = [];  // relationGroupSet[element.identifier][0] 的位置被预留
+                relationGroupSet[element.identifier][0] = {};
+                relationGroupSet[element.identifier][1] = {
+                    order: element.order
+                };
             });
-            //查找数据
-            var relationFilter = new Merge(filter,{
-                'source':{"$in":relationArray}
+
+            return callback(err, relationGroupSet);
+        });
+    },
+
+    getRelationProperty: function (projectID, user, relationGroupName, relationId, callback) {
+        var filter = {
+            projectID: projectID,
+            user: user,
+            source: relationId
+        };
+
+        dbOperation.get("conceptDiag_edge", filter, function (err, docs) {
+            if (err) {
+                return callback(err, null);
+            }
+            var propertySet = {};
+
+            docs.forEach(function (element) {
+                var propertyName = element.relation.attribute;  // 这里缺少 name 和 type，需要从另外获取
+                var direction = ('0' === element.relation.direction) ? 0 : 1;
+                var propertyValue = element.target;
+
+                if (propertySet[propertyName] === void 0) {
+                    propertySet[propertyName] = [];
+                }
+                propertySet[propertyName][direction] = propertyValue;
             });
-            dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
-                //找到relation数据集合
-                var relationSet = {};
-                docs.forEach(function(element){
-                    if(relationSet[element.source] == undefined)    {
-                        relationSet[element.source] = [{}];
-                        relationSet[element.source][0]['type'] = relationTypeArray[element.source];
+
+            // 获取 type
+            filter = {
+                target: relationId,
+                projectID: projectID,
+                user: user
+            };
+
+            dbOperation.get("conceptDiag_index", filter, function (err, docs) {
+                if (err) {
+                    return callback(err, null);
+                }
+                var mutex = 2;
+                propertySet['type'] = [];
+
+                if ('Generalization' === docs[0].source) {  // Generalization 则直接赋值
+                    propertySet['type'][0] = 'Generalization';
+                    mutex--;
+
+                } else {  // Association 则需要进一步查找准确类型
+                    filter = {
+                        projectID: projectID,
+                        user: user,
+                        source: relationId,
+                        target: '1',
+                        'relation.direction': '1'
+                    };
+
+                    dbOperation.get("conceptDiag_edge", filter, function (err, docs) {
+                        if (err) {
+                            return callback(err, null);
+                        }
+                        var possibleType = [];
+
+                        docs.forEach(function (element) {
+                            possibleType.push(element.relation.attribute);
+                        });
+
+                        // TODO：这么判断太麻烦，应该把isAssociation这种值的类型设成数字，这样就不会和其他property混淆了
+                        if (possibleType.indexOf('isAssociation') !== -1) {
+                            propertySet['type'][0] = 'Association';
+
+                        } else if (possibleType.indexOf('isComposition') !== -1) {
+                            propertySet['type'][0] = 'Composition';
+
+                        } else if (possibleType.indexOf('isAggregation') !== -1) {
+                            propertySet['type'][0] = 'Aggregation';
+
+                        } else {  // 不应该走这分支
+                            console.log('Unkown relation type');
+                            propertySet['type'][0] = 'Association';
+                        }
+
+                        if (--mutex === 0) {
+                            return callback(err, relationGroupName, relationId, propertySet);
+                        }
+                    });
+                }
+
+                // 获取 name
+                filter = {
+                    _id: relationId,
+                    projectID: projectID,
+                    user: user
+                };
+
+                dbOperation.get("conceptDiag_vertex", filter, function (err, docs) {
+                    if (err) {
+                        return callback(err, null);
                     }
-                    if(relationSet[element.source][0][element.relation.attribute] == undefined) relationSet[element.source][0][element.relation.attribute] = [];
-                    relationSet[element.source][0][element.relation.attribute][element.relation.direction]= element.target;
+
+                    propertySet['type'][1] = docs[0].name ? docs[0].name : '';  // 在前端模型中，name 存储在 ‘type’ 中
+
+                    if (--mutex === 0) {
+                        return callback(err, relationGroupName, relationId, propertySet);
+                    }
                 });
-                //此时还是以Attribute Relation的ID进行命名的
-                return callback(relationSet);
+
             });
+
+
+
         });
     },
 
@@ -296,25 +449,25 @@ var individualModel = {
             }
         }
         return newAttributeSet;
-    },
-
-    transRelation: function(relationSet){
-        var newRelationSet = {};
-        for(var key in relationSet){
-            var relationName = relationSet[key][0]['class'];
-            if(relationName[0]<relationName[1]){
-                relationName = relationName[0]+'-'+relationName[1];
-            }else{
-                relationName = relationName[1]+'-'+relationName[0];
-            }
-            //这里可能有问题
-            if(newRelationSet[relationName] == undefined) newRelationSet[relationName] = [{}];
-            var subSet = {};
-            subSet[key] = relationSet[key];
-            newRelationSet[relationName] = [subSet];
-        }
-        return newRelationSet;
     }
+
+    //transRelation: function(relationSet){
+    //    var newRelationSet = {};
+    //    for(var key in relationSet){
+    //        var relationName = relationSet[key][0]['class'];
+    //        if(relationName[0]<relationName[1]){
+    //            relationName = relationName[0]+'-'+relationName[1];
+    //        }else{
+    //            relationName = relationName[1]+'-'+relationName[0];
+    //        }
+    //        //这里可能有问题
+    //        if(newRelationSet[relationName] == undefined) newRelationSet[relationName] = [{}];
+    //        var subSet = {};
+    //        subSet[key] = relationSet[key];
+    //        newRelationSet[relationName] = [subSet];
+    //    }
+    //    return newRelationSet;
+    //}
 }
 
 /**
