@@ -59,6 +59,7 @@ exports.create = function(collectionName,filter,data,callback){
 exports.forceToCreate = function(collectionName,data,callback){
     mongodb.getCollection(collectionName,function(collection){
         collection.insert(data, {safe: true}, function(err, doc) {
+            //console.log('data', data);
             //logger.generateLogData('INFO','icd','insert',icdData);
             updateTimeTag(collectionName,data,function(){
             });
@@ -103,14 +104,16 @@ exports.forceToUpdate = function(collectionName,filter,data,callback){
 };
 
 //提供时间戳，用于版本管理
-var updateTimeTag = function(collectionName,filter,callback){
-    mongodb.getCollection(collectionName,function(collection){
-        var time =parseInt(new Date().valueOf()).toString(16);
+var updateTimeTag = function(collectionName, filter, callback) {
+
+    mongodb.getCollection(collectionName, function (collection) {
+        var time = parseInt(new Date().valueOf()).toString(16);
         var updateLastRevise = {};
         updateLastRevise["lastRevise"] = time;
-        collection.update(filter,{"$set" : updateLastRevise}, {safe: true}, function(err, doc) {
+
+        collection.update(filter, {"$set" : updateLastRevise}, {safe: true}, function (err, doc) {
             //logger.generateLogData('INFO','icd','update',[filter[0],{"$set" : filter[1]}]);
-            return callback();
+            return callback(err, doc);
         });
     });
 };

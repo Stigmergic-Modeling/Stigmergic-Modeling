@@ -38,7 +38,7 @@ var ErrUpdate = function(state,newError){
 /**
  *  get individual model
  */
-exports.getIndividualModel = function (projectID, user, callback) {
+var getIndividualModel = function (projectID, user, callback) {
     var model = [{}, {}];
     var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
 
@@ -153,8 +153,8 @@ var individualModel = {
         dbOperation.get("conceptDiag_edge", classFilter ,function (err, docs) {
             var relationArray = [];
 
-            console.log('classFilter', classFilter);
-            console.log('docs',docs);
+            //console.log('classFilter', classFilter);
+            //console.log('docs',docs);
 
             docs.forEach(function(element){
                 // attribute or relation
@@ -246,7 +246,6 @@ var individualModel = {
                 });
 
                 return callback(className, attributeName, propertySet);
-
             });
         });
     },
@@ -319,9 +318,8 @@ var individualModel = {
 }
 
 /**
- *  add,delete,revise
+ *  add, delete, revise
  */
-
 
 var class_ = {
     add : function(projectID,user,className,type,callback){
@@ -567,7 +565,6 @@ var class_ = {
 
         // revise order of attribute
         var dataSet4Order = {};
-
         dataSet4Order.collection = 'conceptDiag_order';
         dataSet4Order.filter = {
             projectID: projectID,
@@ -589,7 +586,6 @@ var class_ = {
         });
     }
 }
-exports.class = class_;
 
 var attribute = {
     getId: function(projectID, user, className, attributeName, callback){
@@ -732,7 +728,6 @@ var attribute = {
         // Attribute 的修改就是更改其 property 的 name（数据库中是 role）
     }
 }
-exports.attribute = attribute;
 
 var attributeProperty = {
     add: function (projectID, user, attributeId, propertyName, propertyValue, callback) {
@@ -837,9 +832,8 @@ var attributeProperty = {
         });
     }
 }
-exports.attributeProperty = attributeProperty;
 
-exports.relationGroup = {
+var relationGroup = {
     add: function () {
 
     },
@@ -849,8 +843,7 @@ exports.relationGroup = {
     }
 }
 
-
-exports.relation = {
+var relation = {
     getId:function(projectID,user,className1,className2,relationType,callback){
         //不确定
         return callback(null);
@@ -892,42 +885,33 @@ exports.relation = {
         });
         */
     },
-    add : function(projectID,user,relationName,type,callback){
-        //仅仅添加relation节点
-        var dateSetBase = {
-            projectID: projectID,
-            user: user
-        };
+
+    add: function (projectID, user, relationId, callback) {
+
         //save vertex
-        var dataSet = new Merge(dateSetBase,{
-            'name': relationName,
-            'user': [user]
-        });
-        var errs = null;
-        var mutex = 0;
-        dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
-            var relationId = docs[0]._id;
-            //save Index
-            var dataSet = new Merge(dateSetBase,{
-                'collection':"conceptDiag_index",
-                'source':type,
-                'target': relationId,
-                'relation':{direction:'',attribute:'instance'}
-            });
-            mutex ++;
-            saveData(dataSet,function(err,doc){
-                mutex--;
-                errs = ErrUpdate(errs,err);
-                if(mutex ==0) return callback(errs);
-            });
+        var dataSet = {
+            _id: relationId,
+            projectID: projectID,
+            name: '',
+            user: [user]
+        };
+
+        // TODO：这里没有序列化，Vertex和Index可能很久都没建出来：影响？
+        dbOperation.forceToCreate("conceptDiag_vertex", dataSet, function (err, docs) {
+
+            // 直接回调，Index在ADDPOR的时候再建立，此时尚缺少type数据
+            return callback(err, docs);
         });
     },
+
     delete: function(projectID,user,relationId,callback){
+
         //删除relation节点
         var dateSetBase = {
             projectID: projectID,
             user: user
         };
+
         //delete index
         var dataSet = new Merge(dateSetBase,{
             'collection':"conceptDiag_index",
@@ -942,6 +926,7 @@ exports.relation = {
             errs = ErrUpdate(errs,err);
             if(mutex ==0) return callback(errs);
         });
+
         //delete vertex
         dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_vertex",
@@ -953,6 +938,7 @@ exports.relation = {
             errs = ErrUpdate(errs,err);
             if(mutex ==0) return callback(errs);
         });
+
         //delete edge
         dataSet = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
@@ -965,35 +951,123 @@ exports.relation = {
             if(mutex ==0) return callback(errs);
         });
     },
-    revise:function(){
+
+    revise: function(){
         //暂不提供
     }
 }
 
-exports.relationProperty = {
-    add : function(projectID,user,relationId,direction,propertyName,propertyValue,callback){
-        //添加relation的Property
-        var dataSet = {
-            projectID: projectID,
-            user: user,
-            collection: "conceptDiag_edge",
-            source: relationId,
-            relation:{
-                direction:direction,
-                attribute:propertyName
-            },
-            target:propertyValue
-        };
+var relationProperty = {
+    add: function (projectID, user, relationId, propertyName, propertyValue, callback) {
+
         var errs = null;
         var mutex = 0;
-        mutex++;
-        saveData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
-        });
+
+        // 当 propertyName 是 type 时，特殊对待
+        if ('type' === propertyName) {
+            var type = propertyValue[0];
+            var name = propertyValue[1];
+
+            // 增加 relation 的 index (Association or Generalization)
+            var dataSet4Index = {
+                projectID: projectID,
+                user: user,
+                collection: 'conceptDiag_index',
+                source: 'Generalization' === type ? type : 'Association',
+                target: relationId,
+                relation: {
+                    direction: '',  // 不是连在relationship两端的edge，因此direction是空串(所有index的direction都是空串)
+                    attribute: 'instance'
+                }
+            };
+            mutex ++;
+
+            saveData(dataSet4Index, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if(--mutex == 0) return callback(errs);
+            });
+
+            // 若是Association，需要增加一条edge标识其具体类型（Association、Composition or Aggregation）
+            if ('Generalization' !== type) {
+                var dataSet4AssoTypeEdge = {
+                    projectID: projectID,
+                    user: user,
+                    collection: 'conceptDiag_edge',
+                    source: relationId,
+                    target: '1',
+                    relation: {
+                        direction: '1',  // 固定加在 E1 端，与 isAttribute 的位置一致
+                        attribute: 'is' + type  // 'isAssociation', 'isComposition' or 'isAggregation'
+                    }
+                }
+                mutex ++;
+
+                saveData(dataSet4AssoTypeEdge, function (err, doc) {
+                    errs = ErrUpdate(errs, err);
+                    if(--mutex == 0) return callback(errs);
+                });
+            }
+
+            // 更新该 relation 的 vertex 中的 name
+            var dataSet4Vertex = {};
+            dataSet4Vertex.collection = 'conceptDiag_vertex';
+            dataSet4Vertex.filter = {
+                _id: relationId,
+                projectID: projectID,
+                user: user
+            }
+            dataSet4Vertex.updateData = {
+                name : name
+            }
+
+            mutex ++;
+            updateData(dataSet4Vertex, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if(--mutex == 0) return callback(errs);
+            });
+
+        } else {  // 当 propertyName 不是 type 时
+
+            // 添加 relation 的 property （增加 edge）
+            mutex += 2;
+            var dataSet4left = {
+                projectID: projectID,
+                user: user,
+                collection: "conceptDiag_edge",
+                source: relationId,
+                relation: {
+                    direction: '0',
+                    attribute: propertyName
+                },
+                target: propertyValue[0]
+            };
+
+            saveData(dataSet4left, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if (--mutex == 0) return callback(errs);
+            });
+
+            var dataSet4right = {
+                projectID: projectID,
+                user: user,
+                collection: "conceptDiag_edge",
+                source: relationId,
+                relation: {
+                    direction: '1',
+                    attribute: propertyName
+                },
+                target: propertyValue[1]
+            };
+
+            saveData(dataSet4right, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if (--mutex == 0) return callback(errs);
+            });
+        }
     },
+
     delete: function(projectID,user,relationId,direction,propertyName,callback){
+
         //删除relation的Property
         var dataSet = {
             projectID: projectID,
@@ -1015,7 +1089,9 @@ exports.relationProperty = {
             if(mutex ==0) return callback(errs);
         });
     },
+
     revise:function(projectID,user,relationId,direction,propertyName,newPropertyValue,callback){
+
         //修改relation的Property
         var dataSet = {
             projectID: projectID,
@@ -1031,6 +1107,7 @@ exports.relationProperty = {
         var errs = null;
         var mutex = 0;
         mutex++;
+
         deleteData(dataSet,function(err,doc){
             mutex--;
             errs = ErrUpdate(errs,err);
@@ -1041,6 +1118,7 @@ exports.relationProperty = {
             target: newPropertyValue
         })
         mutex++;
+
         saveData(newDateSet,function(err,doc){
             mutex--;
             errs = ErrUpdate(errs,err);
@@ -1049,7 +1127,7 @@ exports.relationProperty = {
     }
 }
 
-exports.order = {
+var order = {
     update: function (projectID, user, orderChanges, callback) {
         var mutex = 0;
         var errs = null;
@@ -1185,6 +1263,7 @@ var saveData = function(dataSet,callback){
 var saveFunc = function(dataSet,callback){
     var collectionName = dataSet.collection;
     delete dataSet.collection;
+
     var user = dataSet.user;
     delete dataSet.user;
 
@@ -1249,7 +1328,7 @@ var deleteFunc = function(dataSet,callback){
 }
 
 //for update
-var updateData = function(dataSet,callback){
+var updateData = function (dataSet, callback) {
     //console.log('updateData');
     //console.log('dataSet', dataSet);
     callbackList.push(callback);
@@ -1263,13 +1342,27 @@ var updateData = function(dataSet,callback){
     }
 }
 
-var updateFunc = function(dataSet,callback){
+var updateFunc = function (dataSet, callback) {  // dataSet需要3个属性：collection, filter, updateData
 
     // 若存在则更新，若不存在则创建
     dbOperation.forceToUpdate(dataSet.collection, dataSet.filter, {'$set': dataSet.updateData}, function(err, doc) {
+        console.log('doc', doc);
         return callback(err,doc);
     });
 }
+
+
+/**
+ * exports
+ */
+exports.getIndividualModel = getIndividualModel;
+exports.class = class_;
+exports.attribute = attribute;
+exports.attributeProperty = attributeProperty;
+exports.relationGroup = relationGroup;
+exports.relation = relation;
+exports.relationProperty = relationProperty;
+exports.order = order;
 
 //just for test
 exports.getData = function(){

@@ -196,32 +196,33 @@ var attributePropertyOperation = function (projectID, user, dataItem, callback) 
 }
 
 var relationGroupOperation = function (projectID, user, dataItem, callback) {
-    switch(dataItem[1]){
-        case 'ADD':
-            dbOperationControl.relationGroup.add(projectID,user,dataItem[3],"normal",function(err,doc){
-                return callback(err,doc);
-            });
-            break;
-
-        case 'RMV':
-            dbOperationControl.relationGroup.delete(projectID,user,dataItem[3],function(err,doc){
-                return callback(err,doc);
-            });
-            break;
-    }
+    //switch(dataItem[1]){
+    //    case 'ADD':
+    //        dbOperationControl.relationGroup.add(projectID,user,dataItem[3],"normal",function(err,doc){
+    //            return callback(err,doc);
+    //        });
+    //        break;
+    //
+    //    case 'RMV':
+    //        dbOperationControl.relationGroup.delete(projectID,user,dataItem[3],function(err,doc){
+    //            return callback(err,doc);
+    //        });
+    //        break;
+    //}
+    callback(null, null);
 }
 
 var relationOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            dbOperationControl.relation.add(projectID,user,null,function(err,doc){
-                return callback(err,doc);
+            dbOperationControl.relation.add(projectID, user, ObjectID(dataItem[4]), function (err, doc) {
+                return callback(err, doc);
             });
             break;
 
         case 'RMV':
-            dbOperationControl.relation.delete(projectID,user,dataItem[4],function(err,doc){
-                return callback(err,doc);
+            dbOperationControl.relation.delete(projectID, user, ObjectID(dataItem[4]), function (err, doc) {
+                return callback(err, doc);
             });
             break;
 
@@ -233,8 +234,8 @@ var relationOperation = function (projectID, user, dataItem, callback) {
 var relationPropertyOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            dbOperationControl.relationProperty.add(projectID,user,dataItem[4],'1',dataItem[5],dataItem[6],function(err,doc){
-                return callback(err,doc);
+            dbOperationControl.relationProperty.add(projectID, user, ObjectID(dataItem[4]), dataItem[5], dataItem[6], function (err, doc) {
+                return callback(err, doc);
             });
             break;
 
