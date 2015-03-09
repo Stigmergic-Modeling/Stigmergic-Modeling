@@ -347,93 +347,47 @@ var individualModel = {
                 var direction = ('0' === element.relation.direction) ? 0 : 1;
                 var propertyValue = element.target;
 
-                if (propertySet[propertyName] === void 0) {
-                    propertySet[propertyName] = [];
+                // 若有表示relation类型的edge，则记录类型
+                if ('isAssociation' === propertyName) {
+                    propertySet['type'] = [];
+                    propertySet['type'][0] = 'Association';
+
+                } else if ('isComposition' === propertyName) {
+                    propertySet['type'] = [];
+                    propertySet['type'][0] = 'Composition';
+
+                } else if ('isAggregation' === propertyName) {
+                    propertySet['type'] = [];
+                    propertySet['type'][0] = 'Aggregation';
+
+                } else {  // 若不是表示relation类型的edge，则正常记录property
+                    if (propertySet[propertyName] === void 0) {
+                        propertySet[propertyName] = [];
+                    }
+                    propertySet[propertyName][direction] = propertyValue;
                 }
-                propertySet[propertyName][direction] = propertyValue;
             });
 
-            // 获取 type
+            // 获取 name
             filter = {
-                target: relationId,
+                _id: relationId,
                 projectID: projectID,
                 user: user
             };
 
-            dbOperation.get("conceptDiag_index", filter, function (err, docs) {
+            dbOperation.get("conceptDiag_vertex", filter, function (err, docs) {
                 if (err) {
                     return callback(err, null);
                 }
-                var mutex = 2;
-                propertySet['type'] = [];
-
-                if ('Generalization' === docs[0].source) {  // Generalization 则直接赋值
-                    propertySet['type'][0] = 'Generalization';
-                    mutex--;
-
-                } else {  // Association 则需要进一步查找准确类型
-                    filter = {
-                        projectID: projectID,
-                        user: user,
-                        source: relationId,
-                        target: '1',
-                        'relation.direction': '1'
-                    };
-
-                    dbOperation.get("conceptDiag_edge", filter, function (err, docs) {
-                        if (err) {
-                            return callback(err, null);
-                        }
-                        var possibleType = [];
-
-                        docs.forEach(function (element) {
-                            possibleType.push(element.relation.attribute);
-                        });
-
-                        // TODO：这么判断太麻烦，应该把isAssociation这种值的类型设成数字，这样就不会和其他property混淆了
-                        if (possibleType.indexOf('isAssociation') !== -1) {
-                            propertySet['type'][0] = 'Association';
-
-                        } else if (possibleType.indexOf('isComposition') !== -1) {
-                            propertySet['type'][0] = 'Composition';
-
-                        } else if (possibleType.indexOf('isAggregation') !== -1) {
-                            propertySet['type'][0] = 'Aggregation';
-
-                        } else {  // 不应该走这分支
-                            console.log('Unkown relation type');
-                            propertySet['type'][0] = 'Association';
-                        }
-
-                        if (--mutex === 0) {
-                            return callback(err, relationGroupName, relationId, propertySet);
-                        }
-                    });
+                if (propertySet['type'] === void 0) {  // 若 propertySet['type'] 未定义，则说明类型不是edge中可能有的那3种
+                    propertySet['type'] = [];
+                    propertySet['type'][0] = 'Generalization';  // 不是那3种，就是这一种了
                 }
 
-                // 获取 name
-                filter = {
-                    _id: relationId,
-                    projectID: projectID,
-                    user: user
-                };
+                propertySet['type'][1] = docs[0].name ? docs[0].name : '';  // 在前端模型中，name 存储在 ‘type’ 中
 
-                dbOperation.get("conceptDiag_vertex", filter, function (err, docs) {
-                    if (err) {
-                        return callback(err, null);
-                    }
-
-                    propertySet['type'][1] = docs[0].name ? docs[0].name : '';  // 在前端模型中，name 存储在 ‘type’ 中
-
-                    if (--mutex === 0) {
-                        return callback(err, relationGroupName, relationId, propertySet);
-                    }
-                });
-
+                return callback(err, relationGroupName, relationId, propertySet);
             });
-
-
-
         });
     },
 
@@ -450,24 +404,6 @@ var individualModel = {
         }
         return newAttributeSet;
     }
-
-    //transRelation: function(relationSet){
-    //    var newRelationSet = {};
-    //    for(var key in relationSet){
-    //        var relationName = relationSet[key][0]['class'];
-    //        if(relationName[0]<relationName[1]){
-    //            relationName = relationName[0]+'-'+relationName[1];
-    //        }else{
-    //            relationName = relationName[1]+'-'+relationName[0];
-    //        }
-    //        //这里可能有问题
-    //        if(newRelationSet[relationName] == undefined) newRelationSet[relationName] = [{}];
-    //        var subSet = {};
-    //        subSet[key] = relationSet[key];
-    //        newRelationSet[relationName] = [subSet];
-    //    }
-    //    return newRelationSet;
-    //}
 }
 
 /**
