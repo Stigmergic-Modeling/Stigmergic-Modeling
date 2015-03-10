@@ -141,7 +141,7 @@ var getIndividualModel = function (projectID, user, callback) {
                 if (--mutex === 0) {
                     return callback(null, model);
                 }
-                return;
+                continue;
             }
 
             // 若 relation 个数不为 0，则退出 getRelationGroupAndRelation 任务，同时加入所有 relation 之下的任务（原子性得到保证）
@@ -885,12 +885,52 @@ var attributeProperty = {
 }
 
 var relationGroup = {
-    add: function () {
+    add: function (projectID, user, relationGroupName, callback) {
+        var dataSet = {};
+        dataSet.collection = 'conceptDiag_order';
+        dataSet.filter = {
+            projectID: projectID,
+            user: user,
+            type: 'relation_group',
+            identifier: relationGroupName
+        };
+        dataSet.updateData = {
+            order: []  // 以空数组初始化
+        };
 
+        updateData(dataSet, function (err, doc) {
+            return callback(err, doc);
+        });
     },
 
-    delete: function () {
+    delete: function (projectID, user, relationGroupName, callback) {
 
+        // 获取 relationGroup 下包含的全部 relation 的 id
+        var filter = {
+            projectID: projectID,
+            user: user,
+            type: 'relation_group',
+            identifier: relationGroupName
+        };
+
+        dbOperation.get('conceptDiag_order', filter, function (err, docs) {
+            if (err) {
+                return callback(err, null);
+            }
+            var relationIds = docs[0].order;
+
+            if (0 === relationIds.length) {
+                return callback(null, null);
+            }
+
+            // 删除所有集合中的 relation
+            relationIds.forEach(function (relationId) {
+
+                relation.delete(projectID, user, ObjectID(relationId), function (err, doc) {
+                    return callback(err, doc);
+                });
+            });
+        });
     }
 }
 

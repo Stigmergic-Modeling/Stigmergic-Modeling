@@ -196,20 +196,20 @@ var attributePropertyOperation = function (projectID, user, dataItem, callback) 
 }
 
 var relationGroupOperation = function (projectID, user, dataItem, callback) {
-    //switch(dataItem[1]){
-    //    case 'ADD':
-    //        dbOperationControl.relationGroup.add(projectID,user,dataItem[3],"normal",function(err,doc){
-    //            return callback(err,doc);
-    //        });
-    //        break;
-    //
-    //    case 'RMV':
-    //        dbOperationControl.relationGroup.delete(projectID,user,dataItem[3],function(err,doc){
-    //            return callback(err,doc);
-    //        });
-    //        break;
-    //}
-    callback(null, null);
+    switch(dataItem[1]){
+        case 'ADD':
+            dbOperationControl.relationGroup.add(projectID, user, dataItem[3], function (err, doc) {
+                return callback(err, doc);
+            });
+            break;
+
+        case 'RMV':
+            dbOperationControl.relationGroup.delete(projectID, user, dataItem[3], function (err, doc) {
+                return callback(err, doc);
+            });
+            break;
+    }
+    //callback(null, null);
 }
 
 var relationOperation = function (projectID, user, dataItem, callback) {
