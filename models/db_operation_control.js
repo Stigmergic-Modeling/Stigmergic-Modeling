@@ -127,9 +127,9 @@ var getIndividualModel = function (projectID, user, callback) {
         mutex += rlgSetLen - 1;
 
         model[1] = relationGroupSet;
-        console.log('model', model);
-        console.log('model[1]', model[1]);
-        console.log('relationGroupSet', relationGroupSet);
+        //console.log('model', model);
+        //console.log('model[1]', model[1]);
+        //console.log('relationGroupSet', relationGroupSet);
 
         // 对每一个 relationGroup
         for (var rlg in relationGroupSet) {
@@ -150,29 +150,19 @@ var getIndividualModel = function (projectID, user, callback) {
             for (var i = 0; i < relationArrayLen; i++) {
                 individualModel.getRelationProperty(projectID, user, rlg, ObjectID(relationArray[i]), function (err, relationGroupName, relationId, propertySet) {
 
-                    console.log('relationId', relationId);
-                    console.log('relationId.toString()', relationId.toString());
-                    console.log('propertySet', propertySet);
-                    console.log('model[1]', model[1]);
+                    //console.log('relationId', relationId);
+                    //console.log('relationId.toString()', relationId.toString());
+                    //console.log('propertySet', propertySet);
+                    //console.log('model[1]', model[1]);
                     model[1][relationGroupName][0][relationId.toString()] = [propertySet];
 
-                    if (--mutex == 0) {
+                    if (--mutex === 0) {
                         return callback(err, model);
                     }
                 });
             }
         }
     });
-
-    //individualModel.getRelation(projectID, user, function (relationSet) {
-    //
-    //    relationSet = individualModel.transRelation(relationSet);
-    //    model[1] = relationSet;
-    //
-    //    if (--mutex == 0) {
-    //        return callback(null,model);
-    //    }
-    //});
 }
 
 var individualModel = {
@@ -437,9 +427,8 @@ var class_ = {
         //console.log('dataSet', dataSet);
         mutex ++;
         saveData(dataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
 
         //save class edge (type of class)
@@ -455,12 +444,9 @@ var class_ = {
             });
             mutex ++;
             saveData(dataSet,function(err,doc){
-                mutex--;
                 errs = ErrUpdate(errs,err);
-                if(mutex == 0) return callback(errs);
-
-
-                })
+                if(--mutex === 0) return callback(errs);
+            })
         }
 
         // 为 class 中 attribute 的顺序数组开辟 document
@@ -477,13 +463,12 @@ var class_ = {
             order: []
         };
 
-        console.log('dataSet4Order', dataSet4Order);
+        //console.log('dataSet4Order', dataSet4Order);
         mutex ++;
         updateData(dataSet4Order,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
             //console.log('attribute order [] updated');
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
     },
     delete: function(projectID,user,className,callback){
@@ -502,9 +487,8 @@ var class_ = {
         });
         mutex ++;
         deleteData(dataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
 
         //delete edges start from class
@@ -514,9 +498,8 @@ var class_ = {
         });
         mutex ++;
         deleteData(dataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
 
         //// delete attribute orders of this class
@@ -553,18 +536,16 @@ var class_ = {
         });
         mutex ++;
         deleteData(oldDataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
         var newDataSet = new Merge(oldDataSet,{
             'target':newClassName
         });
         mutex ++;
         saveData(newDataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
 
         // TODO: 这里（更新以该 class 为源或目标的边）代码冗余太多，需要整合
@@ -581,12 +562,9 @@ var class_ = {
         dbOperation.get("conceptDiag_edge",filter,function(err,docs){
 
             //删除
-            mutex --;
-            mutex ++;
             deleteData(oldDataSet4Edge,function(err,doc){
-                mutex--;
                 errs = ErrUpdate(errs,err);
-                if(mutex ==0) return callback(errs);
+                if(--mutex === 0) return callback(errs);
             });
 
             //新增
@@ -603,9 +581,8 @@ var class_ = {
 
                 mutex ++;
                 saveData(element,function(err,doc){
-                    mutex--;
                     errs = ErrUpdate(errs,err);
-                    if(mutex ==0) return callback(errs);
+                    if(--mutex === 0) return callback(errs);
                 });
             });
         });
@@ -623,12 +600,9 @@ var class_ = {
         dbOperation.get("conceptDiag_edge",filterEnd,function(err,docs){
 
             //删除
-            mutex --;
-            mutex ++;
             deleteData(oldDataSet4EdgeEnd,function(err,doc){
-                mutex--;
                 errs = ErrUpdate(errs,err);
-                if(mutex ==0) return callback(errs);
+                if(--mutex === 0) return callback(errs);
             });
 
             //新增
@@ -645,9 +619,8 @@ var class_ = {
 
                 mutex ++;
                 saveData(element,function(err,doc){
-                    mutex--;
                     errs = ErrUpdate(errs,err);
-                    if(mutex ==0) return callback(errs);
+                    if(--mutex === 0) return callback(errs);
                 });
             });
         });
@@ -668,10 +641,9 @@ var class_ = {
         //console.log('dataSet4Order', dataSet4Order);
         mutex ++;
         updateData(dataSet4Order,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
             //console.log('attribute order [] updated');
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
     }
 }
@@ -759,20 +731,17 @@ var attribute = {
                 });
                 mutex ++;
                 saveData(newDataSet,function(err,doc){
-                    mutex--;
                     errs = ErrUpdate(errs,err);
-                    if(mutex ==0) return callback(errs);
+                    if(--mutex === 0) return callback(errs);
                 });
                 //save attribute edges
                 mutex ++;
                 attributeProperty.add(projectID,user,attributeId,'isAttribute','1',function(){
-                    mutex--;
-                    if(mutex ==0) return callback(errs);
+                    if(--mutex === 0) return callback(errs);
                 });
                 mutex ++;
                 attributeProperty.add(projectID,user,attributeId,'role',attributeName,function(){
-                    mutex--;
-                    if(mutex ==0) return callback(errs);
+                    if(--mutex === 0) return callback(errs);
                 });
             })
         });
@@ -794,9 +763,8 @@ var attribute = {
             var mutex = 0;
             mutex++;
             deleteData(dataSet,function(err,doc){
-                mutex--;
                 errs = ErrUpdate(errs,err);
-                if(mutex ==0) return callback(errs);
+                if(--mutex === 0) return callback(errs);
             });
             //delete attribute edges
 
@@ -806,9 +774,8 @@ var attribute = {
             });
             mutex++;
             deleteData(dataSet,function(err,doc){
-                mutex--;
                 errs = ErrUpdate(errs,err);
-                if(mutex ==0) return callback(errs);
+                if(--mutex === 0) return callback(errs);
             });
         });
     },
@@ -846,9 +813,8 @@ var attributeProperty = {
         var mutex = 0;
         mutex++;
         saveData(dataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
     },
 
@@ -868,18 +834,17 @@ var attributeProperty = {
                 direction:'1',
                 attribute:propertyName
             }
-            //,target:propertyValue
         };
         var errs = null;
         var mutex = 0;
         mutex++;
         deleteData(dataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
     },
 
+    // TODO：精简掉revise，用delete+add代替
     revise: function (projectID, user, attributeId, propertyName, newPropertyValue, callback) {
 
         // name 的 type 在底层数据库中是以 role 的形式存在的
@@ -901,23 +866,20 @@ var attributeProperty = {
                 direction:'1',
                 attribute:propertyName
             }
-            //,target:oldPropertyValue
         };
         var errs = null;
         var mutex = 0;
         mutex++;
         deleteData(dataSet,function(err,doc){
-            mutex--;
             errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+            if(--mutex === 0) return callback(errs);
         });
 
-        var newDataSet = new Merge(dataSet,{"target":newPropertyValue});
+        var newDataSet = new Merge(dataSet, {"target": newPropertyValue});
         mutex++;
-        saveData(newDataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+        saveData(newDataSet, function(err, doc){
+            errs = ErrUpdate(errs, err);
+            if(--mutex === 0) return callback(errs);
         });
     }
 }
@@ -933,48 +895,6 @@ var relationGroup = {
 }
 
 var relation = {
-    getId:function(projectID,user,className1,className2,relationType,callback){
-        //不确定
-        return callback(null);
-        /*
-        var filter = {
-            projectID : projectID,
-            user : user,
-            source : relationType
-        }
-        dbOperation.get("conceptDiag_index",filter,function(err,docs){
-            var relationArray = [];
-            docs.forEach(function(element){
-                relationArray.push(element.target)
-            });
-            //查找数据
-            var relationFilter = new Merge(filter,{
-                relation:{
-                    'attribute': 'class'
-                },
-                'target': className1
-            });
-            dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
-                //找到relation数据集合
-                var relationArray = [];
-                docs.forEach(function(element){
-                    relationArray.push(element.target)
-                });
-                //查找数据
-                var relationFilter = new Merge(filter,{
-                    relation:{
-                        'attribute': 'class'
-                    },
-                    'target': className2
-                });
-                dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
-                    return callback();
-                })
-            });
-        });
-        */
-    },
-
     add: function (projectID, user, relationId, callback) {
 
         //save vertex
@@ -1002,7 +922,7 @@ var relation = {
         };
 
         //delete index
-        var dataSet = new Merge(dateSetBase,{
+        var dataSet = new Merge(dateSetBase, {
             'collection':"conceptDiag_index",
             'target': relationId,
             'relation':{direction:'',attribute:'instance'}
@@ -1010,39 +930,32 @@ var relation = {
         var errs = null;
         var mutex = 0;
         mutex++;
-        deleteData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+        deleteData(dataSet, function (err, doc) {
+            errs = ErrUpdate(errs, err);
+            if(--mutex === 0) return callback(errs);
         });
 
         //delete vertex
-        dataSet = new Merge(dateSetBase,{
+        dataSet = new Merge(dateSetBase, {
             'collection': "conceptDiag_vertex",
             '_id': relationId
         });
         mutex++;
-        deleteData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+        deleteData(dataSet, function (err, doc) {
+            errs = ErrUpdate(errs, err);
+            if(--mutex === 0) return callback(errs);
         });
 
         //delete edge
-        dataSet = new Merge(dateSetBase,{
+        dataSet = new Merge(dateSetBase, {
             'collection': "conceptDiag_edge",
             'source': relationId
         });
         mutex++;
-        deleteData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
+        deleteData(dataSet, function (err, doc) {
+            errs = ErrUpdate(errs, err);
+            if(--mutex === 0) return callback(errs);
         });
-    },
-
-    revise: function(){
-        //暂不提供
     }
 }
 
@@ -1073,7 +986,7 @@ var relationProperty = {
 
             saveData(dataSet4Index, function (err, doc) {
                 errs = ErrUpdate(errs, err);
-                if(--mutex == 0) return callback(errs);
+                if(--mutex === 0) return callback(errs);
             });
 
             // 若是Association，需要增加一条edge标识其具体类型（Association、Composition or Aggregation）
@@ -1093,7 +1006,7 @@ var relationProperty = {
 
                 saveData(dataSet4AssoTypeEdge, function (err, doc) {
                     errs = ErrUpdate(errs, err);
-                    if(--mutex == 0) return callback(errs);
+                    if(--mutex === 0) return callback(errs);
                 });
             }
 
@@ -1112,7 +1025,7 @@ var relationProperty = {
             mutex ++;
             updateData(dataSet4Vertex, function (err, doc) {
                 errs = ErrUpdate(errs, err);
-                if(--mutex == 0) return callback(errs);
+                if(--mutex === 0) return callback(errs);
             });
 
         } else {  // 当 propertyName 不是 type 时
@@ -1133,7 +1046,7 @@ var relationProperty = {
 
             saveData(dataSet4left, function (err, doc) {
                 errs = ErrUpdate(errs, err);
-                if (--mutex == 0) return callback(errs);
+                if (--mutex === 0) return callback(errs);
             });
 
             var dataSet4right = {
@@ -1150,69 +1063,94 @@ var relationProperty = {
 
             saveData(dataSet4right, function (err, doc) {
                 errs = ErrUpdate(errs, err);
-                if (--mutex == 0) return callback(errs);
+                if (--mutex === 0) return callback(errs);
             });
         }
     },
 
-    delete: function(projectID,user,relationId,direction,propertyName,callback){
+    delete: function(projectID, user, relationId, propertyName, callback) {
 
-        //删除relation的Property
-        var dataSet = {
-            projectID: projectID,
-            user: user,
-            collection: "conceptDiag_edge",
-            source: relationId,
-            relation:{
-                direction:direction,
-                attribute:propertyName
-            }
-            //,target:propertyValue
-        };
         var errs = null;
         var mutex = 0;
-        mutex++;
-        deleteData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
-        });
-    },
 
-    revise:function(projectID,user,relationId,direction,propertyName,newPropertyValue,callback){
+        // 当 propertyName 是 type 时，特殊对待
+        if ('type' === propertyName) {
 
-        //修改relation的Property
-        var dataSet = {
-            projectID: projectID,
-            user: user,
-            collection: "conceptDiag_edge",
-            source: relationId,
-            relation:{
-                direction:direction,
-                attribute:propertyName
+            // 删除 relation 的 index (Association or Generalization)
+            var dataSet4Index = {
+                projectID: projectID,
+                user: user,
+                collection: 'conceptDiag_index',
+                target: relationId,
+                relation: {
+                    direction: '',  // 不是连在relationship两端的edge，因此direction是空串(所有index的direction都是空串)
+                    attribute: 'instance'
+                }
+            };
+            mutex ++;
+
+            deleteData(dataSet4Index, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if(--mutex === 0) return callback(errs);
+            });
+
+            // 若是Association，需要删除标识其具体类型（Association、Composition or Aggregation）的 edge
+            var dataSet4AssoTypeEdge = {
+                projectID: projectID,
+                user: user,
+                collection: 'conceptDiag_edge',
+                source: relationId,
+                target: '1',
+                relation: {
+                    direction: '1',  // 固定加在 E1 端，与 isAttribute 的位置一致
+                    attribute: {'$in': ['isAssociation', 'isComposition', 'isAggregation']}
+                }
             }
-            //,target:oldPropertyValue
-        };
-        var errs = null;
-        var mutex = 0;
-        mutex++;
+            mutex ++;
 
-        deleteData(dataSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
-        });
+            deleteData(dataSet4AssoTypeEdge, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if(--mutex === 0) return callback(errs);
+            });
 
-        var newDateSet = new Merge(dataSet,{
-            target: newPropertyValue
-        })
-        mutex++;
+            // name 的删除只在修改时出现，而修改name时相关操作都交由新建处理
 
-        saveData(newDateSet,function(err,doc){
-            mutex--;
-            errs = ErrUpdate(errs,err);
-            if(mutex ==0) return callback(errs);
-        });
+        } else {  // 当 propertyName 不是 type 时
+
+            // 删除 relation 的 property （删除 edge）
+            mutex += 2;
+            var dataSet4left = {
+                projectID: projectID,
+                user: user,
+                collection: "conceptDiag_edge",
+                source: relationId,
+                relation: {
+                    direction: '0',
+                    attribute: propertyName
+                }
+            };
+
+            deleteData(dataSet4left, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if (--mutex === 0) return callback(errs);
+            });
+
+            var dataSet4right = {
+                projectID: projectID,
+                user: user,
+                collection: "conceptDiag_edge",
+                source: relationId,
+                relation: {
+                    direction: '1',
+                    attribute: propertyName
+                }
+            };
+
+            deleteData(dataSet4right, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if (--mutex === 0) return callback(errs);
+            });
+        }
     }
 }
 
@@ -1238,9 +1176,9 @@ var order = {
             };
 
             mutex++;
-            updateData(dataSet4C,function(err,doc){
+            updateData(dataSet4C, function (err, doc) {
                 mutex--;
-                errs = ErrUpdate(errs,err);
+                errs = ErrUpdate(errs, err);
                 if (!mutex) return callback(errs);
             });
         }
@@ -1256,19 +1194,17 @@ var order = {
                 type: 'relation_group',
                 identifier: relationGroup
             };
-
             dataSet4R.updateData = {
                 order: relationGroups[relationGroup]
             };
 
             mutex++;
-            updateData(dataSet4R,function(err,doc){
+            updateData(dataSet4R, function (err, doc) {
                 mutex--;
-                errs = ErrUpdate(errs,err);
+                errs = ErrUpdate(errs, err);
                 if (!mutex) return callback(errs);
             });
         }
-
     }
 }
 
@@ -1322,7 +1258,7 @@ var flowControl = function(errs,results,callback){
                 return callback(errs,results);
             });
         }else{
-            console.log('errs', errs, 'results', results)
+            //console.log('errs', errs, 'results', results)
             for(var i=0;i<callbackList.length;i++){
                 callbackList[i](errs[i],results[i]);
             }
@@ -1435,7 +1371,7 @@ var updateFunc = function (dataSet, callback) {  // dataSet需要3个属性：co
 
     // 若存在则更新，若不存在则创建
     dbOperation.forceToUpdate(dataSet.collection, dataSet.filter, {'$set': dataSet.updateData}, function(err, doc) {
-        console.log('doc', doc);
+        //console.log('doc', doc);
         return callback(err,doc);
     });
 }

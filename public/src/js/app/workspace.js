@@ -1796,8 +1796,8 @@ define(function (require, exports, module) {
         $.ajax({
             url: '/' + stateOfPage.user + '/' + stateOfPage.modelName + '/workspace',
             type: 'POST',
-            data: postData,
-            dataType: 'json',
+            data: JSON.stringify(postData),
+            contentType: 'application/json',
             success: function (msg) {
                 // TODO：后端写好后，这里应该放 disableSave(); （这是最终状态）
                 hideMask();

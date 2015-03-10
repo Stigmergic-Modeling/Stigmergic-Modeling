@@ -63,8 +63,8 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
     // 使用递归嵌套保证 ops 的执行顺序
     (function next(index) {
 
-        console.log('index', index);
-        console.log('ops.length', ops.length);
+        //console.log('index', index);
+        //console.log('ops.length', ops.length);
 
         // 若已执行完所有 ops，则执行 orderChanges
         if (index === ops.length) {
@@ -73,7 +73,7 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
             console.log('orderChanges', orderChanges);
             if (orderChanges) {
                 orderOperation(projectID, user, orderChanges, function(err, doc){
-                    console.log('Order Updated');
+                    //console.log('Order Updated');
 
                     return callback(err);
                 });
@@ -83,7 +83,7 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
         }
 
         var op = ops[index];
-        console.log('op', op);
+        //console.log('op', op);
         var theCallbackFunc = function (err, doc) {
             if (err) {
                 return callback(err);
@@ -240,19 +240,20 @@ var relationPropertyOperation = function (projectID, user, dataItem, callback) {
             break;
 
         case 'MOD':
-            dbOperationControl.relationProperty.delete(projectID,user,dataItem[4],'1',dataItem[5],function(err,doc){
-                if(err) return callback(err,doc);
-                else{
-                    dbOperationControl.attribute.add(projectID,user,dataItem[4],'1',dataItem[5],dataItem[6],function(err,doc){
-                        return callback(err,doc);
-                    });
+            dbOperationControl.relationProperty.delete(projectID, user, ObjectID(dataItem[4]), dataItem[5], function (err, doc) {
+                if (err) {
+                    return callback(err, doc);
                 }
+
+                dbOperationControl.relationProperty.add(projectID, user, ObjectID(dataItem[4]), dataItem[5], dataItem[6], function (err, doc) {
+                    return callback(err, doc);
+                });
             });
             break;
 
         case 'RMV':
-            dbOperationControl.attribute.delete(projectID,user,dataItem[4],'1',dataItem[5],function(err,doc){
-                return callback(err,doc);
+            dbOperationControl.relationProperty.delete(projectID, user, ObjectID(dataItem[4]), dataItem[5], function (err, doc) {
+                return callback(err, doc);
             });
             break;
     }
