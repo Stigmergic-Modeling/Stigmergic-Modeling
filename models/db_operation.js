@@ -68,6 +68,17 @@ exports.forceToCreate = function(collectionName,data,callback){
     });
 };
 
+// 删除
+exports.delete = function(collectionName, filter, callback){
+    mongodb.getCollection(collectionName, function (collection) {
+
+        collection.remove(filter, function(err, doc) {
+            console.log('done!');
+            return callback(err, doc);
+        });
+    });
+};
+
 //更新
 exports.update = function(collectionName,filter,data,callback){
     mongodb.getCollection(collectionName,function(collection){

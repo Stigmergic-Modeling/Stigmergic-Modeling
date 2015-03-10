@@ -636,7 +636,10 @@ define(function (require, exports, module) {
                         if (1 === attRel[0][cls]) {  // class 未被删除
                             changes.classes[cls] = this[0][cls][1]['order'];
                         } else {  // class 已被删除
-                            changes.classes[cls] = [];
+                            //changes.classes[cls] = [];
+                            if (changes.classes[cls] !== void 0) {
+                                delete changes.classes[cls];  // 服务器端现在不需要class的空数组
+                            }
                         }
                     }
                 }
@@ -648,7 +651,10 @@ define(function (require, exports, module) {
                         if (1 === attRel[1][rlg]) {  // relationGroups 未被删除
                             changes.relationGroups[rlg] = this[1][rlg][1]['order'];
                         } else {  // relationGroups 已被删除
-                            changes.relationGroups[rlg] = [];
+                            //changes.relationGroups[rlg] = [];
+                            if (changes.relationGroups[rlg] !== void 0) {
+                                delete changes.relationGroups[rlg];  // 服务器端现在不需要relationGroup的空数组
+                            }
                         }
                     }
                 }

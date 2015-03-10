@@ -90,8 +90,8 @@ exports.updateModel = function(req, res) {
 
     var modelID = new ObjectID(req.body.modelID);  // 重要，从前端传回的ID都是字符串，需要恢复成ObjectID
 
-    console.log('req.body in routes: ', req.body);
-    console.log('req.body.orderChanges in routes: ', req.body.orderChanges);
+    //console.log('req.body in routes: ', req.body);
+    //console.log('req.body.orderChanges in routes: ', req.body.orderChanges);
     Model.modelOperation(modelID, req.body.user, req.body.log, req.body.orderChanges, function(err){
         if (err) {
             console.log('ModelOperation Error: ', err);

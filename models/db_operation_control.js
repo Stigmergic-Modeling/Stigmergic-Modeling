@@ -471,6 +471,7 @@ var class_ = {
             if(--mutex === 0) return callback(errs);
         });
     },
+
     delete: function(projectID,user,className,callback){
         var dateSetBase = {
             projectID: projectID,
@@ -502,21 +503,20 @@ var class_ = {
             if(--mutex === 0) return callback(errs);
         });
 
-        //// delete attribute orders of this class
-        //dataSet = new Merge(dateSetBase,{
-        //    'collection': "conceptDiag_order",
-        //    'type': 'class',
-        //    'identifier': className
-        //});
-        //mutex ++;
-        //deleteData(dataSet,function(err,doc){
-        //    mutex--;
-        //    errs = ErrUpdate(errs,err);
-        //    if(mutex ==0) return callback(errs);
-        //});
-        // TODO: 优化此处
-
+        // 删除该 class 的 order TODO: 此处没参与序列化，不安全。
+        var filter4Delete = {
+            projectID: projectID,
+            user: user,
+            type: 'class',
+            identifier: className,
+            order: []  // 必须是为空时才能删除
+        };
+        mutex ++;
+        dbOperation.delete('conceptDiag_order', filter4Delete, function (err, doc) {
+            if (--mutex === 0) return callback(err, doc);
+        });
     },
+
     revise:function(projectID,user,oldClassName,newClassName,callback){
 
         //class的revise的含义：修改 class name
@@ -548,7 +548,7 @@ var class_ = {
             if(--mutex === 0) return callback(errs);
         });
 
-        // TODO: 这里（更新以该 class 为源或目标的边）代码冗余太多，需要整合
+        // TODO: 这里（更新应该 class 为源或目标的边）代码冗余太多，需要整合
         // revise edges start from class
         var oldDataSet4Edge = new Merge(dateSetBase,{
             'collection': "conceptDiag_edge",
@@ -638,13 +638,56 @@ var class_ = {
             identifier: newClassName
         };
 
-        //console.log('dataSet4Order', dataSet4Order);
+        console.log('mutex', mutex);
         mutex ++;
         updateData(dataSet4Order,function(err,doc){
             errs = ErrUpdate(errs,err);
             //console.log('attribute order [] updated');
             if(--mutex === 0) return callback(errs);
         });
+
+        //// 修改一端包含该类的 relationGroup 的名字（relationGroup在order中体现）！！！！废弃！！！！（现在通过MOD_RLG实现）
+        //var regRlgName = new RegExp('(^' + oldClassName + '-)|(-' + oldClassName + '$)');
+        //var filter4RlgName = {
+        //    projectID: projectID,
+        //    user: user,
+        //    type: 'relation_group',
+        //    identifier: regRlgName
+        //}
+        //dbOperation.get('conceptDiag_order', filter4RlgName, function (err, docs) {
+        //
+        //    docs.forEach(function (doc) {
+        //        var id = doc._id;
+        //        var rlgName = doc.identifier;
+        //        var newRlgName;
+        //        var regRlgName = new RegExp('^' + oldClassName + '(-.*)$|^(.*-)' + oldClassName + '$');
+        //        var match = rlgName.match(regRlgName);
+        //
+        //        // 计算 relationGroup 的新 name
+        //        if (match[1] !== void 0) {  // oldClassName-XXX 模式
+        //            newRlgName = newClassName + match[1];
+        //        } else if (match[2] !== void 0) {  // XXX-oldClassName 模式
+        //            newRlgName = match[2] + newClassName;
+        //        }
+        //        console.log('rlgName', rlgName);
+        //        console.log('newRlgName', newRlgName);
+        //
+        //        // 更新 name
+        //        var dataSet4RlgName = {};
+        //        dataSet4Order.collection = 'conceptDiag_order';
+        //        dataSet4Order.filter = {
+        //            _id: id
+        //        };
+        //        dataSet4RlgName.updateData = {
+        //            identifier: newRlgName
+        //        };
+        //        mutex ++;
+        //        updateData(dataSet4RlgName,function(err,doc){
+        //            errs = ErrUpdate(errs,err);
+        //            if(--mutex === 0) return callback(errs);
+        //        });
+        //    });
+        //});
     }
 }
 
@@ -704,6 +747,7 @@ var attribute = {
             })
         });
     },
+
     add : function(projectID,user,className,attributeName,callback){
         var errs = null;
         var mutex = 0;
@@ -746,6 +790,7 @@ var attribute = {
             })
         });
     },
+
     delete: function(projectID,user,className,attributeName,callback){
         //find Attirubte
         this.getId(projectID,user,className,attributeName,function(attributeId){
@@ -779,6 +824,7 @@ var attribute = {
             });
         });
     },
+
     revise:function(projectID,user,className,oldAttributeName,newAttributeName,callback){
 
         // Attribute 的修改就是更改其 property 的 name（数据库中是 role）
@@ -919,17 +965,53 @@ var relationGroup = {
             }
             var relationIds = docs[0].order;
 
+            var mutex = relationIds.length + 1;
+
+            // 删除该 relationGroup 的 order
+            var filter4Delete = {
+                projectID: projectID,
+                user: user,
+                type: 'relation_group',
+                identifier: relationGroupName,
+                order: []  // 必须是为空时才能删除
+            };
+
+            dbOperation.delete('conceptDiag_order', filter4Delete, function (err, doc) {
+                console.log('here!');
+                if (--mutex === 0) return callback(err, doc);
+            });
+
             if (0 === relationIds.length) {
-                return callback(null, null);
+                if (--mutex === 0) return callback(null, null);
             }
 
-            // 删除所有集合中的 relation
+            // 删除所有集合中的 relation  TODO: 此处没参与序列化，不安全。
             relationIds.forEach(function (relationId) {
 
                 relation.delete(projectID, user, ObjectID(relationId), function (err, doc) {
-                    return callback(err, doc);
+                    if (--mutex === 0) return callback(err, doc);
                 });
             });
+        });
+    },
+
+    revise: function (projectID, user, oldRlgName, newRlgName, callback) {
+
+        // 修改 relaltionGroup 的 name
+        var dataSet = {};
+        dataSet.collection = 'conceptDiag_order';
+        dataSet.filter = {
+            projectID: projectID,
+            user: user,
+            type: 'relation_group',
+            identifier: oldRlgName
+        };
+        dataSet.updateData = {
+            identifier: newRlgName
+        };
+
+        updateData(dataSet, function (err, doc) {
+            return callback(err, doc);
         });
     }
 }

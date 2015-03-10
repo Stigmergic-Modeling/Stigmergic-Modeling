@@ -312,7 +312,9 @@ define(function (require, exports, module) {
                 var right = properties.class[1];
                 var middle = properties.type[1];
 
-                middle = '(' + middle + ')';
+                if ('' !== middle) {
+                    middle = '(' + middle + ')';
+                }
 
                 switch (properties.type[0]) {
                     case 'Generalization':
