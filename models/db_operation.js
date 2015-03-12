@@ -128,23 +128,40 @@ var updateTimeTag = function(collectionName, filter, callback) {
     });
 };
 
-//统计信息
-exports.updateEdgeCount = function(collectionName,filter,data,callback){
-    mongodb.getCollection(collectionName,function(collection){
-        collection.find(filter).toArray(function(err, docs) {
-            if(err != null){
-                return callback(err, doc);
-            }
-            if(docs != null){
-                err = "already Exist";
-                return callback(err, docs);
-            }
-            collection.update(filter,data, {safe: true}, function(err, doc) {
-                //logger.generateLogData('INFO','icd','insert',icdData);
-                updateTimeTag(collectionName,filter,function(){
-                });
-                return callback(err, doc);
-            });
+/**
+ * 统计某集合中符合条件的文档数
+ * @param collectionName
+ * @param filter
+ * @param callback
+ */
+exports.count = function (collectionName, filter, callback) {
+    mongodb.getCollection(collectionName, function (collection) {
+        collection.count(filter, function (err, count) {
+            if (err) return callback(err, null);
+
+            return callback(null, count);
         });
     });
 };
+
+
+////统计信息
+//exports.updateEdgeCount = function(collectionName,filter,data,callback){
+//    mongodb.getCollection(collectionName,function(collection){
+//        collection.find(filter).toArray(function(err, docs) {
+//            if(err != null){
+//                return callback(err, doc);
+//            }
+//            if(docs != null){
+//                err = "already Exist";
+//                return callback(err, docs);
+//            }
+//            collection.update(filter,data, {safe: true}, function(err, doc) {
+//                //logger.generateLogData('INFO','icd','insert',icdData);
+//                updateTimeTag(collectionName,filter,function(){
+//                });
+//                return callback(err, doc);
+//            });
+//        });
+//    });
+//};

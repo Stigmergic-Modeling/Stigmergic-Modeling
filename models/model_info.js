@@ -67,7 +67,10 @@ ModelInfo.prototype.updateModelInfo = function updateModelInfo(modelInfo, callba
             name: model.name
         } , {
             $set: {
-                description: modelInfo.description,
+                name: (modelInfo.name !== void 0) ? modelInfo.name : model.name,
+                description: (modelInfo.description !== void 0) ? modelInfo.description : model.description,
+                class_num: (modelInfo.class_num !== void 0) ? modelInfo.class_num : model.class_num,
+                relation_num: (modelInfo.relation_num !== void 0) ? modelInfo.relation_num : model.relation_num,
                 update_date: modelInfo.update_date
             }
         });
@@ -101,6 +104,7 @@ ModelInfo.deleteOneByUserAndName = function deleteOneByUserAndName(user, name, c
  * @param callback
  */
 ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callback) {
+
     mongodb.getCollection('modelinfo',function(collection){
 
 	    // find
@@ -109,6 +113,7 @@ ModelInfo.getOneByUserAndName = function getOneByUserAndName(user, name, callbac
                 var modelInfo = new ModelInfo(doc);
                 //console.log(modelInfo);
                 callback(err, modelInfo);
+
             } else {
                 callback(err, null);
             }

@@ -1496,6 +1496,78 @@ var updateFunc = function (dataSet, callback) {  // dataSet需要3个属性：co
     });
 }
 
+/**
+ * 获取 ICM 或 CCM 的统计信息
+ * @type {{getIcmStat: Function, getCcmStat: Function}}
+ */
+var modelInfo = {
+    getIcmStat: function (ccmId, user, callback) {
+        var icmStat = {
+            update_date: new Date()
+        };
+        var mutex = 2;
+
+        var filter4C = {
+            projectID: ccmId,
+            user: user,
+            source: 'Class'
+        }
+
+        dbOperation.count('conceptDiag_index', filter4C, function (err, class_num) {
+            if (err) return callback(err, null);
+
+            icmStat.class_num = class_num;
+            if (--mutex === 0) return callback(null, icmStat);
+        });
+
+        var filter4R = {
+            projectID: ccmId,
+            user: user,
+            source: {$in: ['Association', 'Generalization']}
+        }
+
+        dbOperation.count('conceptDiag_index', filter4R, function (err, relation_num) {
+            if (err) return callback(err, null);
+
+            icmStat.relation_num = relation_num;
+            if (--mutex === 0) return callback(null, icmStat);
+        });
+    },
+
+    getCcmStat: function (ccmId, callback) {
+        var ccmStat = {
+            update_date: new Date()
+        };
+        var mutex = 2;
+
+        var filter4C = {
+            projectID: ccmId,
+            source: 'Class',
+            user: {$not: {$size: 0}}
+        }
+
+        dbOperation.count('conceptDiag_index', filter4C, function (err, class_num) {
+            if (err) return callback(err, null);
+
+            ccmStat.class_num = class_num;
+            if (--mutex === 0) return callback(null, ccmStat);
+        });
+
+        var filter4R = {
+            projectID: ccmId,
+            source: {$in: ['Association', 'Generalization']},
+            user: {$not: {$size: 0}}
+        }
+
+        dbOperation.count('conceptDiag_index', filter4R, function (err, relation_num) {
+            if (err) return callback(err, null);
+
+            ccmStat.relation_num = relation_num;
+            if (--mutex === 0) return callback(null, ccmStat);
+        });
+    }
+};
+
 
 /**
  * exports
@@ -1508,6 +1580,7 @@ exports.relationGroup = relationGroup;
 exports.relation = relation;
 exports.relationProperty = relationProperty;
 exports.order = order;
+exports.modelInfo = modelInfo;
 
 //just for test
 exports.getData = function(){

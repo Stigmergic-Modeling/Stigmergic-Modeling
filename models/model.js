@@ -2,6 +2,7 @@
  * analyse model request from browser
  */
 var dbOperationControl  = require('./db_operation_control');
+var modelInfo = require('./model_info');
 var ObjectID = require("mongodb").ObjectID;
 var async = require("async");
 
@@ -58,7 +59,7 @@ exports.modelGet = function(projectID,user,callback){
  *
  *  -------------------------------------------------------- */
 
-exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
+exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, callback){
 
     // 使用递归嵌套保证 ops 的执行顺序
     (function next(index) {
@@ -66,18 +67,26 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
         //console.log('index', index);
         //console.log('ops.length', ops.length);
 
-        // 若已执行完所有 ops，则执行 orderChanges
+        // 若已执行完所有 ops，则更新模型信息
         if (index === ops.length) {
 
-            // 更新 attribute 或 relationship 的顺序
-            //console.log('orderChanges', orderChanges);
-            if (orderChanges) {
-                orderOperation(projectID, user, orderChanges, function(err, doc){
-                    //console.log('Order Updated');
-
+            // 更新 icm 和 ccm 的信息
+            updateModelInfo(projectID, icmName, user, function (err) {
+                if (err) {
                     return callback(err);
-                });
-            }
+                }
+
+                // 更新 attribute 或 relationship 的顺序
+                //console.log('orderChanges', orderChanges);
+                if (orderChanges) {
+                    orderOperation(projectID, user, orderChanges, function(err, doc){
+                        //console.log('Order Updated');
+                        if (err) {
+                            return callback(err);
+                        }
+                    });
+                }
+            });
 
             return callback(null);
         }
@@ -264,6 +273,13 @@ var relationPropertyOperation = function (projectID, user, dataItem, callback) {
     }
 }
 
+/**
+ * 与 attribute 和 relation 的顺序有关的操作
+ * @param projectID
+ * @param user
+ * @param orderChanges
+ * @param callback
+ */
 var orderOperation = function (projectID, user, orderChanges, callback) {
     dbOperationControl.order.update(projectID, user, orderChanges, function(err, doc) {
 
@@ -271,3 +287,60 @@ var orderOperation = function (projectID, user, orderChanges, callback) {
     });
 }
 
+
+/**
+ * 更新 ICM 和 CCM 的模型信息(在用户的一次模型操作序列更新到数据库后，后此函数被调用)
+ * @param ccmId
+ * @param icmName
+ * @param user
+ * @param callback
+ */
+function updateModelInfo(ccmId, icmName, user, callback) {
+    var mutex = 2;
+
+    // 更新 ICM 信息
+    modelInfo.getOneByUserAndName(user, icmName, function (err, icmInfo) {
+        if (err) {
+            return callback(err, null);
+        }
+
+        dbOperationControl.modelInfo.getIcmStat(ccmId, user, function (err, icmStat) {
+            if (err) {
+                return callback(err, null);
+            }
+
+            icmInfo.updateModelInfo(icmStat, function (err) {
+                if (err) {
+                    return callback(err, null);
+                }
+
+                if (--mutex === 0) {
+                    return callback(null, null);
+                }
+            });
+        });
+    });
+
+    // 更新 CCM 信息
+    modelInfo.getOneByID(ccmId, function (err, ccmInfo) {
+        if (err) {
+            return callback(err, null);
+        }
+
+        dbOperationControl.modelInfo.getCcmStat(ccmId, function (err, ccmStat) {
+            if (err) {
+                return callback(err, null);
+            }
+
+            ccmInfo.updateModelInfo(ccmStat, function (err) {
+                if (err) {
+                    return callback(err, null);
+                }
+
+                if (--mutex === 0) {
+                    return callback(null, null);
+                }
+            });
+        });
+    });
+}
