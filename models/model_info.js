@@ -21,6 +21,7 @@ function ModelInfo(modelInfo) {
     this.update_date = modelInfo.update_date;
     this.class_num = modelInfo.class_num;
     this.relation_num = modelInfo.relation_num;
+    this.people_num = modelInfo.people_num;
 };
 
 
@@ -39,7 +40,8 @@ ModelInfo.prototype.save = function save(callback) {
         creation_date: this.creation_date,
         update_date: this.update_date,
         class_num: this.class_num,
-        relation_num: this.relation_num
+        relation_num: this.relation_num,
+        people_num: this.people_num
     };
 
     mongodb.getCollection('modelinfo',function(collection){
@@ -61,12 +63,22 @@ ModelInfo.prototype.updateModelInfo = function updateModelInfo(modelInfo, callba
 
     mongodb.getCollection('modelinfo',function(collection){
 
-        // update操作
+        // 若有原地增加的更新需求，则先处理该需求
+        if (modelInfo['$inc']) {
+            collection.update({
+                user: model.user,
+                name: model.name
+            } , {
+                $inc: modelInfo['$inc']
+            });
+        }
+
+        // 处理其他更新需求
         collection.update({
             user: model.user,
             name: model.name
         } , {
-            $set: {
+            $set: {  // TODO：此处更新不够高效，未变的值就完全不更新好了
                 name: (modelInfo.name !== void 0) ? modelInfo.name : model.name,
                 description: (modelInfo.description !== void 0) ? modelInfo.description : model.description,
                 class_num: (modelInfo.class_num !== void 0) ? modelInfo.class_num : model.class_num,

@@ -169,6 +169,7 @@ exports.getInfo = function(req, res){
                     updateDate: util.toHumanDate(ccmInfo.update_date),
                     classNum: ccmInfo.class_num,
                     relationNum: ccmInfo.relation_num,
+                    peopleNum: ccmInfo.people_num
                 };
 
                 res.render('model_info', {
@@ -242,7 +243,8 @@ exports.doCleanCreateModel = function(req, res) {
         creation_date: date,
         update_date: date,
         class_num: 0,
-        relation_num: 0
+        relation_num: 0,
+        people_num: 1
     });
 
     newCCM.save(function(err) {
@@ -269,7 +271,8 @@ exports.doCleanCreateModel = function(req, res) {
             creation_date: date,
             update_date: date,
             class_num: 0,
-            relation_num: 0
+            relation_num: 0,
+            people_num: 1
         });
 
         newICM.save(function(err) {
@@ -319,7 +322,8 @@ exports.doInheritedCreateModel = function(req, res) {
             creation_date: date,
             update_date: date,
             class_num: 0,
-            relation_num: 0
+            relation_num: 0,
+            people_num: 1
         });
 
         newICM.save(function(err) {
@@ -334,8 +338,21 @@ exports.doInheritedCreateModel = function(req, res) {
                 return res.redirect('/newmodel');
             }
 
-            req.flash('success', 'Create model successfully');
-            res.redirect('/' + req.session.user.mail + '/' + req.body.name + '/workspace');
+            // CCM 参与人数加 1
+            ccmInfo.updateModelInfo({
+                $inc: {people_num: 1},
+                update_date: new Date()
+
+            }, function (err) {
+                if (err) {
+                    req.flash('error', err.toString());
+                    return res.redirect('/newmodel');
+                }
+
+                // 向前端反馈结果
+                req.flash('success', 'Create model successfully');
+                res.redirect('/' + req.session.user.mail + '/' + req.body.name + '/workspace');
+            });
         });
     });
 };

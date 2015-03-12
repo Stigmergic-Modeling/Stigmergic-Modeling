@@ -237,14 +237,56 @@ exports.deleteModel = function (req, res) {
     console.log("POST DATA: User settings / model specific (delete)");
     console.log(req.session.user);
 
-    ModelInfo.deleteOneByUserAndName(req.params.user, req.params.model, function(err) {
-
-        if (err) {
-            req.flash('error', err.toString());
-            return res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+    // 获取 ICM
+    ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, icmInfo) {
+        if (!icmInfo) {
+            req.flash('error', 'Model does not exist');
+            return res.redirect('/u/'+ req.params.user + '/settings/model');
         }
 
-        req.flash('success', 'Model info delete successfully');
-        res.redirect('/u/'+ req.params.user + '/settings/model');
+        // 获取 CCM
+        ModelInfo.getOneByID(icmInfo.ccm_id, function (err, ccmInfo) {
+            if (!ccmInfo) {
+                req.flash('error', 'Model does not exist');
+                return res.redirect('/u/'+ req.params.user + '/settings/model');
+            }
+
+            // 删除 ICM
+            ModelInfo.deleteOneByUserAndName(req.params.user, req.params.model, function(err) {
+                if (err) {
+                    req.flash('error', err.toString());
+                    return res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+                }
+
+                // 如果 CCM 参与人数为0（ICM 删除后）则删除该 CCM (TODO:目前不够安全，可能删除同时有人又在其上创建ICM了……)
+                if (ccmInfo.people_num  === 1) {
+                    ModelInfo.deleteOneByUserAndName('@', ccmInfo.name, function (err) {
+                        if (err) {
+                            req.flash('error', err.toString());
+                            return res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+                        }
+
+                        req.flash('success', 'Model info delete successfully');
+                        res.redirect('/u/'+ req.params.user + '/settings/model');
+                    });
+
+                } else {  // 否则 CCM 参与人数减 1
+
+                    ccmInfo.updateModelInfo({
+                        $inc: {people_num: -1},
+                        update_date: new Date()
+
+                    }, function (err) {
+                        if (err) {
+                            req.flash('error', err.toString());
+                            return res.redirect('/newmodel');
+                        }
+
+                        req.flash('success', 'Model info delete successfully');
+                        res.redirect('/u/'+ req.params.user + '/settings/model');
+                    });
+                }
+            });
+        });
     });
 };
