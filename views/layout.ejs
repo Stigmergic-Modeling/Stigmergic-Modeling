@@ -33,8 +33,8 @@
               <li><a href="/reg"><span class="glyphicon glyphicon-flash"></span> Sign up</a></li>
               <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> &nbsp;Sign in</a></li>
             <% } else { %>
-              <li><a href="/u/<%= user.mail %>"><span class="glyphicon glyphicon-user"></span> <%= user.mail %></a></li>
-              <li><a href="/u/<%= user.mail %>/settings/profile"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+              <li><a href="/u"><span class="glyphicon glyphicon-user"></span> <%= user.mail %></a></li>
+              <li><a href="/u/settings/profile"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
               <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
             <% } %>
           </ul>

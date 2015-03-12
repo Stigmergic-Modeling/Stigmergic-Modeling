@@ -63,7 +63,7 @@ define(function (require, exports, module) {
 
             // 初始化值
             id = 'stigmod-modelshow-' + i;
-            link = '/'+ user + '/' + modelInfo[i].name + '/workspace';
+            link = '/' + modelInfo[i].name + '/workspace';
             update = modelInfo[i].update;
             updateInfo = 'Updated on ' + update;
             //updateInfo = 'Updated ' + update + (update > 1 ? ' days ago' : ' day ago');

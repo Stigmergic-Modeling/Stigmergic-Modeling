@@ -18,7 +18,7 @@ exports.enterWorkspace = function(req, res){
         if (!modelInfo) {
             req.flash('error', 'No model exists');
 
-            return res.redirect('/u/'+ req.session.user.mail);
+            return res.redirect('/u');
         }
 
         var templateData = [];
@@ -41,7 +41,7 @@ exports.enterWorkspace = function(req, res){
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
-                return res.redirect('/u/'+ req.session.user.mail);
+                return res.redirect('/u');
             }
 
             Model.modelGet(modelInfo.ccm_id, req.session.user.mail, function(err, model) {  // 注意这里是CCM的ID
@@ -50,7 +50,7 @@ exports.enterWorkspace = function(req, res){
                 if (!model) {
                     req.flash('error', 'Model entity does not exist' + err);
 
-                    return res.redirect('/u/'+ req.session.user.mail);
+                    return res.redirect('/u');
                 }
 
                 var data = {};
@@ -138,7 +138,7 @@ exports.getInfo = function(req, res){
             if (!icmInfo) {
                 req.flash('error', 'Model does not exist');
 
-                return res.redirect('/u/'+ req.session.user.mail);
+                return res.redirect('/u');
             }
 
             var ccmID = icmInfo.ccm_id;
@@ -147,7 +147,7 @@ exports.getInfo = function(req, res){
                 if (!ccmInfo) {
                     req.flash('error', 'Model does not exist');
 
-                    return res.redirect('/u/'+ req.session.user.mail);
+                    return res.redirect('/u');
                 }
 
                 // 构造将传入模板的模型信息
@@ -288,7 +288,7 @@ exports.doCleanCreateModel = function(req, res) {
             }
 
             req.flash('success', 'Create model successfully');
-            res.redirect('/' + req.session.user.mail + '/' + req.body.name + '/workspace');
+            res.redirect('/' + req.body.name + '/workspace');
         });
     });
 };
@@ -350,7 +350,7 @@ exports.doInheritedCreateModel = function(req, res) {
 
                 // 向前端反馈结果
                 req.flash('success', 'Create model successfully');
-                res.redirect('/' + req.session.user.mail + '/' + req.body.name + '/workspace');
+                res.redirect('/' + req.body.name + '/workspace');
             });
         });
     });

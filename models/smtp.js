@@ -21,7 +21,7 @@ Smtp.send = function send(user,type,host, callback){
     console.log('SMTP Configured');
 
 // Message object
-    var activationLink = 'http://' + host + '/' + type + '/' + user.mail + '/' + user.link;
+    var activationLink = 'http://' + host + '/' + type + '/' + user.link;
     var message = {
         //from: 'umlonweb@gmail.com <umlonweb@gmail.com>',
         from: 'Stigmergic-Modeling <umlonweb@163.com>',

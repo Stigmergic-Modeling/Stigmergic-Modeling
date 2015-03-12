@@ -32,7 +32,7 @@ exports.checkNotLogin = function (req, res, next) {
         } else {
 
             req.flash('error', 'Already signed in');
-            return res.redirect('/u/'+req.session.user.mail);
+            return res.redirect('/u');
         }
     }
 
@@ -52,7 +52,7 @@ exports.checkNotActive = function (req, res, next) {
 
         if (req.session.user.state !== 0) {
             req.flash('error', 'Account already activated');
-            return res.redirect('/u/'+req.session.user.mail);
+            return res.redirect('/u');
         }
     }
 

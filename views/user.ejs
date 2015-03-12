@@ -5,7 +5,7 @@
       <% if (undefined !== userInfo.avatar && null !== userInfo.avatar && '' !== userInfo.avatar) { %>
         <img src="<%= userInfo.avatar %>" class="img-responsive img-rounded"/>
       <% } else {%>
-        <a href="/u/<%= userInfo.mail %>/settings/profile">
+        <a href="/u/settings/profile">
           <img src="/src/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
         </a>
       <% } %>
@@ -77,9 +77,9 @@
       </div>
       <div class="col-xs-3 stigmod-modelshow-info">
         <span class="glyphicon glyphicon-th-large"></span>
-        <span class="stigmod-modelshow-class">37</span> &nbsp;&nbsp;
+        <span class="stigmod-modelshow-class"></span> &nbsp;&nbsp;
         <span class="glyphicon glyphicon-random"></span>
-        <span class="stigmod-modelshow-relation">41</span>
+        <span class="stigmod-modelshow-relation"></span>
       </div>
     </div>
     <div class="row">

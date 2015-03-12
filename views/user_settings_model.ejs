@@ -5,8 +5,8 @@
       <div class="panel panel-default">
         <div class="panel-heading">Personal settings</div>
         <div class="list-group">
-          <a href="/u/<%= user.mail %>/settings/profile" class="list-group-item stigmod-cursor-pointer">Profile</a>
-          <a href="/u/<%= user.mail %>/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
+          <a href="/u/settings/profile" class="list-group-item stigmod-cursor-pointer">Profile</a>
+          <a href="/u/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
           <a class="list-group-item stigmod-cursor-pointer active">
             <span>Model settings</span>
             <span class="glyphicon glyphicon-chevron-right pull-right"></span>
@@ -24,7 +24,7 @@
             <span class="glyphicon glyphicon-chevron-right pull-right"></span>
           </a>
           <% modelInfo.forEach(function(info) { %>
-           <a href="/u/<%= user.mail %>/settings/model/<%= info.name %>" class="list-group-item stigmod-cursor-pointer">
+           <a href="/u/settings/model/<%= info.name %>" class="list-group-item stigmod-cursor-pointer">
              <span><%= info.name %></span>
            </a>
           <% }); %>

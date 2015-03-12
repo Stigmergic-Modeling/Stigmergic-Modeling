@@ -15,7 +15,7 @@ exports.index = function (req, res) {
         if (req.session.user.state ===0) {
             return res.redirect('/checkmail');
         } else {
-            return res.redirect('/u/'+req.session.user.mail);
+            return res.redirect('/u');
         }
     }
 
@@ -185,7 +185,7 @@ exports.doLogin = function (req, res) {
         }
 
         req.flash('success', 'Sign in successfully');
-        res.redirect('/u/'+req.body.mail);
+        res.redirect('/u');
     });
 };
 
@@ -311,7 +311,7 @@ exports.checkLink = function (req, res) {
             };
 
             req.flash('success', 'Account activated Successfully');
-            return res.redirect('/u/'+user.mail);
+            return res.redirect('/u');
         });
     });
 };
@@ -453,7 +453,7 @@ exports.doRevisePW = function (req, res) {
         });
 
         req.flash('success', 'Password changed successfully');
-        res.redirect('/u/'+ user.mail);
+        res.redirect('/u');
     });
 };
 

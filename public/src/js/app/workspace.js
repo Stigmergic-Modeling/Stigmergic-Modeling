@@ -1796,7 +1796,7 @@ define(function (require, exports, module) {
         //console.log('postDataStringified', JSON.stringify(postData));
 
         $.ajax({
-            url: '/' + stateOfPage.user + '/' + stateOfPage.modelName + '/workspace',
+            url: '/' + stateOfPage.modelName + '/workspace',
             type: 'POST',
             data: JSON.stringify(postData),  // 把数据字符串化以使空数组能正确传递
             contentType: 'application/json',  // 使服务器端能正确理解数据格式

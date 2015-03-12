@@ -65,12 +65,12 @@ exports.updateProfile = function (req, res) {
         user.updateProfile(profile, function (err) {
             if (err) {
                 req.flash('error', err);
-                return res.redirect('/u/' + user.mail + '/settings/profile');
+                return res.redirect('/u/settings/profile');
             }
         });
 
         req.flash('success', 'Profile updated successfully');
-        res.redirect('/u/'+ user.mail + '/settings/profile');
+        res.redirect('/u/settings/profile');
     });
 };
 
@@ -176,7 +176,7 @@ exports.setModelSpecific = function (req, res) {
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
-                return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+                return res.redirect('/u/settings/model');
             }
 
             res.render('user_settings_model_specific', {
@@ -213,19 +213,19 @@ exports.updateModelSpecific = function (req, res) {
 
         if (!modelInfo) {
             req.flash('error', 'Model does not exist');
-            return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+            return res.redirect('/u/settings/model');
         }
 
         // 更新
         modelInfo.updateModelInfo(info, function (err) {
             if (err) {
                 req.flash('error', err);
-                return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+                return res.redirect('/u/settings/model');
             }
         });
 
         req.flash('success', 'Model info updated successfully');
-        res.redirect('/u/'+ req.session.user.mail + '/settings/model/' + req.params.model);
+        res.redirect('/u/settings/model/' + req.params.model);
     });
 };
 
@@ -241,21 +241,21 @@ exports.deleteModel = function (req, res) {
     ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function(err, icmInfo) {
         if (!icmInfo) {
             req.flash('error', 'Model does not exist');
-            return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+            return res.redirect('/u/settings/model');
         }
 
         // 获取 CCM
         ModelInfo.getOneByID(icmInfo.ccm_id, function (err, ccmInfo) {
             if (!ccmInfo) {
                 req.flash('error', 'Model does not exist');
-                return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+                return res.redirect('/u/settings/model');
             }
 
             // 删除 ICM
             ModelInfo.deleteOneByUserAndName(req.session.user.mail, req.params.model, function(err) {
                 if (err) {
                     req.flash('error', err.toString());
-                    return res.redirect('/u/'+ req.session.user.mail + '/settings/model/' + req.params.model);
+                    return res.redirect('/u/settings/model/' + req.params.model);
                 }
 
                 // 如果 CCM 参与人数为0（ICM 删除后）则删除该 CCM (TODO:目前不够安全，可能删除同时有人又在其上创建ICM了……)
@@ -263,11 +263,11 @@ exports.deleteModel = function (req, res) {
                     ModelInfo.deleteOneByUserAndName('@', ccmInfo.name, function (err) {
                         if (err) {
                             req.flash('error', err.toString());
-                            return res.redirect('/u/'+ req.session.user.mail + '/settings/model/' + req.params.model);
+                            return res.redirect('/u/settings/model/' + req.params.model);
                         }
 
                         req.flash('success', 'Model info delete successfully');
-                        res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+                        res.redirect('/u/settings/model');
                     });
 
                 } else {  // 否则 CCM 参与人数减 1
@@ -283,7 +283,7 @@ exports.deleteModel = function (req, res) {
                         }
 
                         req.flash('success', 'Model info delete successfully');
-                        res.redirect('/u/'+ req.session.user.mail + '/settings/model');
+                        res.redirect('/u/settings/model');
                     });
                 }
             });

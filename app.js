@@ -91,61 +91,62 @@ app.get('/checkmail',routes.home.checkMail);
 app.post('/checkmail',routes.state.checkNotActive);
 app.post('/checkmail',routes.home.doCheckMail);
 
-app.get('/checklink/:user/:link',routes.home.checkLink);
+app.get('/checklink/:link',routes.home.checkLink);
 
 app.get('/forget',routes.home.forget);
 app.post('/forget',routes.home.doForget);
 
-app.get('/revisePW/:user/:link',routes.home.revisePW);
-app.post('/revisePW/:user/:link',routes.home.doRevisePW);
+app.get('/revisePW/:link',routes.home.revisePW);
+app.post('/revisePW/:link',routes.home.doRevisePW);
 
-app.get('/u/:user',routes.state.checkLogin);
-app.get('/u/:user', routes.user.user);
+app.get('/u',routes.state.checkLogin);
+app.get('/u', routes.user.user);
 
-//统计
-app.get('/:user/statistic/:id',routes.statistic.on);
-app.post('/:user/statistic/:id',routes.statistic.show);
+////统计
+//app.get('/:user/statistic/:id',routes.statistic.on);
+//app.post('/:user/statistic/:id',routes.statistic.show);
+//
+//app.get('/:user/statistic-icd/:id',routes.statistic.statisticIcdGet);
+//app.post('/:user/statistic-icd/:id',routes.statistic.statisticIcdPost);
+//
+//app.get('/:user/statistic-operationScore',routes.statistic.operationScoreGet);
+//app.post('/:user/statistic-operationScore',routes.statistic.operationScorePost);
+//
+//app.get('/:user/statistic-cite/:id',routes.statistic.citedOrderGet);
 
-app.get('/:user/statistic-icd/:id',routes.statistic.statisticIcdGet);
-app.post('/:user/statistic-icd/:id',routes.statistic.statisticIcdPost);
-
-app.get('/:user/statistic-operationScore',routes.statistic.operationScoreGet);
-app.post('/:user/statistic-operationScore',routes.statistic.operationScorePost);
-
-app.get('/:user/statistic-cite/:id',routes.statistic.citedOrderGet);
 
 // about 页面 get 方法
 app.get('/about', routes.home.getAbout);  // 不需要登录状态验证
 
 // workspace 页面 get、post 方法
-app.all('/:user/:model/workspace',routes.state.checkLogin);
-app.get('/:user/:model/workspace', routes.model.enterWorkspace);
-app.post('/:user/:model/workspace', routes.model.updateModel);
+app.all('/:model/workspace',routes.state.checkLogin);
+app.get('/:model/workspace', routes.model.enterWorkspace);
+app.post('/:model/workspace', routes.model.updateModel);
 
 // model info 页面 get 方法
-app.all('/:user/:model/info',routes.state.checkLogin);
-app.get('/:user/:model/info', routes.model.getInfo);
+app.all('/:model/info',routes.state.checkLogin);
+app.get('/:model/info', routes.model.getInfo);
 
 // user settings/profile 页面 get、post 方法
-app.all('/u/:user/settings/profile',routes.state.checkLogin);
-app.get('/u/:user/settings/profile', routes.settings.setProfile);
-app.post('/u/:user/settings/profile', routes.settings.updateProfile);
+app.all('/u/settings/profile',routes.state.checkLogin);
+app.get('/u/settings/profile', routes.settings.setProfile);
+app.post('/u/settings/profile', routes.settings.updateProfile);
 
 // user settings/account 页面 get、post 方法
-app.all('/u/:user/settings/account',routes.state.checkLogin);
-app.get('/u/:user/settings/account', routes.settings.setAccount);
-app.post('/u/:user/settings/account', routes.settings.updateAccount);
+app.all('/u/settings/account',routes.state.checkLogin);
+app.get('/u/settings/account', routes.settings.setAccount);
+app.post('/u/settings/account', routes.settings.updateAccount);
 
 // user settings/model （General）页面 get、post 方法
-app.all('/u/:user/settings/model',routes.state.checkLogin);
-app.get('/u/:user/settings/model', routes.settings.setModelGeneral);
-app.post('/u/:user/settings/model', routes.settings.updateModelGeneral);
+app.all('/u/settings/model',routes.state.checkLogin);
+app.get('/u/settings/model', routes.settings.setModelGeneral);
+app.post('/u/settings/model', routes.settings.updateModelGeneral);
 
 // user settings/model （Specific）页面 get、post 方法
-app.all('/u/:user/settings/model/:model',routes.state.checkLogin);
-app.get('/u/:user/settings/model/:model', routes.settings.setModelSpecific);
-app.post('/u/:user/settings/model/:model/update', routes.settings.updateModelSpecific);
-app.post('/u/:user/settings/model/:model/delete', routes.settings.deleteModel);
+app.all('/u/settings/model/:model',routes.state.checkLogin);
+app.get('/u/settings/model/:model', routes.settings.setModelSpecific);
+app.post('/u/settings/model/:model/update', routes.settings.updateModelSpecific);
+app.post('/u/settings/model/:model/delete', routes.settings.deleteModel);
 
 // new model 页面 get 方法
 app.all('/newmodel', routes.state.checkLogin);
