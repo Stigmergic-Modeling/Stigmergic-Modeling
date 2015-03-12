@@ -57,7 +57,7 @@
 <script>
   seajs.config({
     paths: {
-      'js': 'http://<%= host %>:3000/src/js'
+      'js': 'http://<%= host %>:<%= port %>/src/js'
     }
   });
   seajs.use('js/app/index');

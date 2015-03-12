@@ -638,7 +638,6 @@ var class_ = {
             identifier: newClassName
         };
 
-        console.log('mutex', mutex);
         mutex ++;
         updateData(dataSet4Order,function(err,doc){
             errs = ErrUpdate(errs,err);
@@ -977,7 +976,6 @@ var relationGroup = {
             };
 
             dbOperation.delete('conceptDiag_order', filter4Delete, function (err, doc) {
-                console.log('here!');
                 if (--mutex === 0) return callback(err, doc);
             });
 

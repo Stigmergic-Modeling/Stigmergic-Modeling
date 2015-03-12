@@ -70,7 +70,7 @@ exports.modelOperation = function(projectID, user, ops, orderChanges, callback){
         if (index === ops.length) {
 
             // 更新 attribute 或 relationship 的顺序
-            console.log('orderChanges', orderChanges);
+            //console.log('orderChanges', orderChanges);
             if (orderChanges) {
                 orderOperation(projectID, user, orderChanges, function(err, doc){
                     //console.log('Order Updated');

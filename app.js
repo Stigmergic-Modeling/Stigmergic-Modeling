@@ -10,13 +10,15 @@ var partials = require('express-partials');
 var flash = require('connect-flash');
 
 var sessionStore = new MongoStore({
-						db : settings.db.name
+						db : settings.db.name,
+                        username: settings.db.user,
+                        password: settings.db.password
 					}, function() {
 							console.log('connect mongodb success...');
 					});
 
 var log4js = require('log4js');
-var logger = require('./models/logger.js')
+var logger = require('./models/logger.js');
 log4js.configure({
     appenders: [
         { type: 'console' }, //控制台输出
@@ -38,7 +40,7 @@ logger.setLogger(log4js.getLogger('process'));
 var app = express();
 
 app.configure(function(){
-	app.set('port', process.env.PORT || 3000);
+	app.set('port', process.env.PORT || settings.port);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'ejs');
 
@@ -151,7 +153,10 @@ app.get('/newmodel', routes.model.createModel);
 app.post('/newmodel/clean', routes.model.doCleanCreateModel);
 app.post('/newmodel/inherited', routes.model.doInheritedCreateModel);
 
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function (err) {
+    if (err) {
+        console.log('createServer error: ', err);
+    }
 	console.log("Express server listening on port " + app.get('port'));
 });
 

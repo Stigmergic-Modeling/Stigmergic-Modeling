@@ -1,4 +1,4 @@
-var host = require('../settings').host;
+var settings = require('../settings');
 var util = require('../models/util.js');
 var fs = require('fs');
 var ObjectID = require('mongodb').ObjectID;
@@ -64,7 +64,8 @@ exports.enterWorkspace = function(req, res){
                 //console.log('modelInfo._id', modelInfo._id);
 
                 res.render('workspace', {
-                    host: host,
+                    host: settings.host,
+                    port: settings.port,
                     title: 'Workspace - ' + req.params.model,
                     user : req.session.user,
                     model: req.params.model,  // 该用户当前 model 的 name
@@ -169,7 +170,8 @@ exports.getInfo = function(req, res){
                 };
 
                 res.render('model_info', {
-                    host: host,
+                    host: settings.host,
+                    port: settings.port,
                     title: 'Model Info - ' + req.params.model,
                     user : req.session.user,
                     model: req.params.model,  // 该用户当前 model 的 name
@@ -206,7 +208,8 @@ exports.createModel = function(req, res) {
         //console.log('templateData done');
 
         res.render('new_model', {
-            host: host,
+            host: settings.host,
+            port: settings.port,
             title: 'New Model',
             user : req.session.user,
             data: {ccmInfo: ccmInfo},  // 传给前端JS

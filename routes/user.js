@@ -1,4 +1,4 @@
-var host = require('../settings').host;
+var settings = require('../settings');
 var util = require('../models/util.js');
 var User = require('../models/user.js');
 var ModelInfo = require('../models/model_info.js');
@@ -53,7 +53,8 @@ exports.user = function (req, res) {
             //console.log('data.models done');
 
             res.render('user', {
-                host: host,
+                host: settings.host,
+                port: settings.port,
                 title: user.mail,
                 user: req.session.user,
                 userInfo: user,

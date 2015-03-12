@@ -12,23 +12,34 @@ var m_db;
 
 module.exports = function(){
     this.trueBase = function(callback){
-        m_db = new Db(settings.db.name, new Server(settings.host, settings.port, {auto_reconnect : true}));
+        m_db = new Db(settings.db.name, new Server(settings.host, settings.db.port, {auto_reconnect : true}));
         console.log("connection_open:"+m_connection);
         m_connection++;
         if(m_connection === 1){
-            console.log("db_open");
             m_db.open(function(err, db) {
                 if (err) {
+                    console.log('db_open error', err);
                     m_connection--;
                     return callback(err,db);
                 }
                 else{
-                    collection_init();
-                    return callback(err,db);
+                    var adminDb = db.admin();
+                    console.log("db opened");
+                    adminDb.authenticate(settings.db.user,settings.db.password , function(err, result) {
+                        if (err) {
+                            console.log('dbauth error', err);
+                            m_connection--;
+                            return callback(err,db);
+                        } else {
+                            console.log("db authorized");
+                            collection_init();
+                            return callback(err, db);
+                        }
+                    });
                 }
             });
         }
-        return callback(null,m_db);
+        //return callback(null,m_db);
     };
 
     this.getCollection = function(collectionName,callback){
@@ -36,7 +47,7 @@ module.exports = function(){
     }
 
     collection_init = function(callback){
-        console.log("collection.init");
+        console.log("collections initiating...");
 
         m_db.collection('users', function(err, collection) {
             collection.ensureIndex({mail: 1}, {unique: true});

@@ -73,7 +73,6 @@ exports.delete = function(collectionName, filter, callback){
     mongodb.getCollection(collectionName, function (collection) {
 
         collection.remove(filter, function(err, doc) {
-            console.log('done!');
             return callback(err, doc);
         });
     });

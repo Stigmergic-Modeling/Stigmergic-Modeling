@@ -1,4 +1,4 @@
-var host = require('../settings').host;
+var settings = require('../settings');
 var crypto = require('crypto');
 var User = require('../models/user.js');
 var Smtp = require('../models/smtp.js');
@@ -20,7 +20,8 @@ exports.index = function (req, res) {
     }
 
     res.render('index', {
-        host: host,
+        host: settings.host,
+        port: settings.port,
         title: 'HomePage',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -37,7 +38,8 @@ exports.reg = function (req, res) {
     console.log(req.session.user);
 
     res.render('reg', {
-        host: host,
+        host: settings.host,
+        port: settings.port,
         title: 'Sign up',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -139,7 +141,8 @@ exports.login = function (req, res) {
     console.log(req.session.user);
 
     res.render('login', {
-        host: host,
+        host: settings.host,
+        port: settings.port,
         title: 'Sign In',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -208,7 +211,8 @@ exports.checkMail = function (req, res){
     console.log(req.session.user);
 
     res.render('checkmail', {
-        host: host,
+        host: settings.host,
+        port: settings.port,
         title: 'Account activation',
         user: req.session.user,                    //aboute cookie
         success: req.flash('success').toString(),
@@ -321,7 +325,8 @@ exports.forget = function (req, res) {
     console.log(req.session.user);
 
     res.render('forget', {
-        host: host,
+        host: settings.host,
+        port: settings.port,
         title: 'Resend password',
         user: req.session.user,
         success: req.flash('success').toString(),
@@ -406,7 +411,8 @@ exports.revisePW = function (req, res) {
         };
 
         res.render('revisePW', {
-            host: host,
+            host: settings.host,
+            port: settings.port,
             title: "Password Revise",
             user: req.session.user,
             success: req.flash('success').toString(),
@@ -461,7 +467,8 @@ exports.getAbout = function (req, res) {
     console.log(req.session.user);
 
     res.render('about', {
-        host: host,
+        host: settings.host,
+        port: settings.port,
         title: 'About',
         user: req.session.user,
         success: '',
