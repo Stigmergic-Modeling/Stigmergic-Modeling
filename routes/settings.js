@@ -10,7 +10,7 @@ exports.setProfile = function (req, res) {
     console.log("GET PAGE: User settings / profile");
     console.log(req.session.user);
 
-    User.get(req.params.user, function (err, user) {
+    User.get(req.session.user.mail, function (err, user) {
         if (!user) {
             req.flash('error', 'Account does not exist');
 
@@ -49,7 +49,7 @@ exports.updateProfile = function (req, res) {
         url: req.body.url
     };
 
-    User.get(req.params.user, function (err, user) {
+    User.get(req.session.user.mail, function (err, user) {
 
         if (!user) {
             req.flash('error', 'Account does not exist');
@@ -82,7 +82,7 @@ exports.setAccount = function (req, res) {
     console.log("GET PAGE: User settings / account");
     console.log(req.session.user);
 
-    User.get(req.params.user, function (err, user) {
+    User.get(req.session.user.mail, function (err, user) {
         if (!user) {
             req.flash('error', 'Account does not exist');
 
@@ -115,7 +115,7 @@ exports.setModelGeneral = function (req, res) {
     console.log("GET PAGE: User settings / model general");
     console.log(req.session.user);
 
-    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+    ModelInfo.getByUser(req.session.user.mail, function (err, modelInfo) {
         var templateData = [];
 
         //console.log(modelInfo);
@@ -152,7 +152,7 @@ exports.setModelSpecific = function (req, res) {
     console.log("GET PAGE: User settings / model specific");
     console.log(req.session.user);
 
-    ModelInfo.getByUser(req.params.user, function (err, modelInfo) {
+    ModelInfo.getByUser(req.session.user.mail, function (err, modelInfo) {
         var templateData = [];
 
         //console.log(modelInfo);
@@ -169,14 +169,14 @@ exports.setModelSpecific = function (req, res) {
         //console.log(templateData);
         //console.log('templateData done');
 
-        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function (err, modelInfo) {
-            console.log(req.params.user);
+        ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function (err, modelInfo) {
+            console.log(req.session.user);
             console.log(req.params.model);
-            console.log(modelInfo);
+            //console.log(modelInfo);
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
-                return res.redirect('/u/'+ req.params.user + '/settings/model');
+                return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
             }
 
             res.render('user_settings_model_specific', {
@@ -209,23 +209,23 @@ exports.updateModelSpecific = function (req, res) {
         update_date: new Date()
     };
 
-    ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, modelInfo) {
+    ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function(err, modelInfo) {
 
         if (!modelInfo) {
             req.flash('error', 'Model does not exist');
-            return res.redirect('/u/'+ req.params.user + '/settings/model');
+            return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
         }
 
         // 更新
         modelInfo.updateModelInfo(info, function (err) {
             if (err) {
                 req.flash('error', err);
-                return res.redirect('/u/'+ req.params.user + '/settings/model');
+                return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
             }
         });
 
         req.flash('success', 'Model info updated successfully');
-        res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+        res.redirect('/u/'+ req.session.user.mail + '/settings/model/' + req.params.model);
     });
 };
 
@@ -238,24 +238,24 @@ exports.deleteModel = function (req, res) {
     console.log(req.session.user);
 
     // 获取 ICM
-    ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, icmInfo) {
+    ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function(err, icmInfo) {
         if (!icmInfo) {
             req.flash('error', 'Model does not exist');
-            return res.redirect('/u/'+ req.params.user + '/settings/model');
+            return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
         }
 
         // 获取 CCM
         ModelInfo.getOneByID(icmInfo.ccm_id, function (err, ccmInfo) {
             if (!ccmInfo) {
                 req.flash('error', 'Model does not exist');
-                return res.redirect('/u/'+ req.params.user + '/settings/model');
+                return res.redirect('/u/'+ req.session.user.mail + '/settings/model');
             }
 
             // 删除 ICM
-            ModelInfo.deleteOneByUserAndName(req.params.user, req.params.model, function(err) {
+            ModelInfo.deleteOneByUserAndName(req.session.user.mail, req.params.model, function(err) {
                 if (err) {
                     req.flash('error', err.toString());
-                    return res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+                    return res.redirect('/u/'+ req.session.user.mail + '/settings/model/' + req.params.model);
                 }
 
                 // 如果 CCM 参与人数为0（ICM 删除后）则删除该 CCM (TODO:目前不够安全，可能删除同时有人又在其上创建ICM了……)
@@ -263,11 +263,11 @@ exports.deleteModel = function (req, res) {
                     ModelInfo.deleteOneByUserAndName('@', ccmInfo.name, function (err) {
                         if (err) {
                             req.flash('error', err.toString());
-                            return res.redirect('/u/'+ req.params.user + '/settings/model/' + req.params.model);
+                            return res.redirect('/u/'+ req.session.user.mail + '/settings/model/' + req.params.model);
                         }
 
                         req.flash('success', 'Model info delete successfully');
-                        res.redirect('/u/'+ req.params.user + '/settings/model');
+                        res.redirect('/u/'+ req.session.user.mail + '/settings/model');
                     });
 
                 } else {  // 否则 CCM 参与人数减 1
@@ -283,7 +283,7 @@ exports.deleteModel = function (req, res) {
                         }
 
                         req.flash('success', 'Model info delete successfully');
-                        res.redirect('/u/'+ req.params.user + '/settings/model');
+                        res.redirect('/u/'+ req.session.user.mail + '/settings/model');
                     });
                 }
             });

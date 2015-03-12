@@ -272,7 +272,7 @@ exports.checkLink = function (req, res) {
     console.log("GET DATA: Check link");
     console.log(req.session.user);
 
-    User.get(req.params.user, function (err, user) {
+    User.get(req.session.user.mail, function (err, user) {
 
         if (!user) {
             req.flash('error', 'Account does not exist');
@@ -388,7 +388,7 @@ exports.revisePW = function (req, res) {
     console.log("GET PAGE: Change password");
     console.log(req.session.user);
 
-    User.get(req.params.user, function (err, user) {
+    User.get(req.session.user.mail, function (err, user) {
 
         if (!user) {
             req.flash('error', 'Account does not exist');
@@ -432,7 +432,7 @@ exports.doRevisePW = function (req, res) {
     var md5 = crypto.createHash('md5');
     var password = md5.update(req.body.password).digest('base64');
 
-    User.get(req.params.user, function (err, user) {  // TODO: 用 req.session.user.mail 好，还是 req.params.user 好？
+    User.get(req.session.user.mail, function (err, user) {
 
         if (!user) {
             req.flash('error', 'Account does not exist');

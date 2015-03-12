@@ -14,7 +14,7 @@ exports.enterWorkspace = function(req, res){
     console.log(req.session.user);
     console.log(req.params.model);
 
-    ModelInfo.getByUser(req.params.user, function(err, modelInfo) {
+    ModelInfo.getByUser(req.session.user.mail, function(err, modelInfo) {
         if (!modelInfo) {
             req.flash('error', 'No model exists');
 
@@ -37,14 +37,14 @@ exports.enterWorkspace = function(req, res){
         //console.log(templateData);
         //console.log('templateData done');
 
-        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, modelInfo) {
+        ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function(err, modelInfo) {
             if (!modelInfo) {
                 req.flash('error', 'Model does not exist');
 
                 return res.redirect('/u/'+ req.session.user.mail);
             }
 
-            Model.modelGet(modelInfo.ccm_id, req.params.user, function(err, model) {  // 注意这里是CCM的ID
+            Model.modelGet(modelInfo.ccm_id, req.session.user.mail, function(err, model) {  // 注意这里是CCM的ID
                 //console.log('modelInfo._id', modelInfo._id);
 
                 if (!model) {
@@ -55,7 +55,7 @@ exports.enterWorkspace = function(req, res){
 
                 var data = {};
 
-                data.user = req.params.user;
+                data.user = req.session.user.mail;
                 data.modelID = modelInfo.ccm_id;  // 注意这里是CCM的ID
                 data.modelName = modelInfo.name;
                 data.model = model;
@@ -86,7 +86,6 @@ exports.updateModel = function(req, res) {
 
     console.log("POST DATA: Workspace");
     console.log(req.session.user);
-    //console.log(req.params.user);
     console.log(req.params.model);
 
     var modelID = new ObjectID(req.body.modelID);  // 重要，从前端传回的ID都是字符串，需要恢复成ObjectID
@@ -118,7 +117,7 @@ exports.getInfo = function(req, res){
     console.log(req.session.user);
     console.log(req.params.model);
 
-    ModelInfo.getByUser(req.params.user, function(err, modelInfo) {
+    ModelInfo.getByUser(req.session.user.mail, function(err, modelInfo) {
         var modelNames = [];
 
         //console.log(modelInfo);
@@ -135,7 +134,7 @@ exports.getInfo = function(req, res){
         //console.log(templateData);
         //console.log('templateData done');
 
-        ModelInfo.getOneByUserAndName(req.params.user, req.params.model, function(err, icmInfo) {
+        ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function(err, icmInfo) {
             if (!icmInfo) {
                 req.flash('error', 'Model does not exist');
 

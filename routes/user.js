@@ -12,7 +12,7 @@ exports.user = function (req, res) {
     console.log("GET PAGE: User");
     console.log(req.session.user);
 
-    User.get(req.params.user, function (err, user) {
+    User.get(req.session.user.mail, function (err, user) {
         if (!user) {
             req.flash('error', 'Account does not exist');
 
