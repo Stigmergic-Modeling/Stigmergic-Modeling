@@ -428,6 +428,7 @@ var class_ = {
         mutex ++;
         saveData(dataSet,function(err,doc){
             errs = ErrUpdate(errs,err);
+
             if(--mutex === 0) return callback(errs);
         });
 
@@ -971,8 +972,7 @@ var relationGroup = {
                 projectID: projectID,
                 user: user,
                 type: 'relation_group',
-                identifier: relationGroupName,
-                order: []  // 必须是为空时才能删除
+                identifier: relationGroupName
             };
 
             dbOperation.delete('conceptDiag_order', filter4Delete, function (err, doc) {
@@ -980,13 +980,13 @@ var relationGroup = {
             });
 
             if (0 === relationIds.length) {
-                if (--mutex === 0) return callback(null, null);
+                if (mutex === 0) return callback(null, null);  // 当rlg中没有relation时，不必mutex减一，因为这里没有任务被执行了
             }
 
             // 删除所有集合中的 relation  TODO: 此处没参与序列化，不安全。
             relationIds.forEach(function (relationId) {
-
                 relation.delete(projectID, user, ObjectID(relationId), function (err, doc) {
+
                     if (--mutex === 0) return callback(err, doc);
                 });
             });
@@ -1391,7 +1391,7 @@ var flowControl = function(errs,results,callback){
 var callbackList = [];
 
 //for save
-var saveData = function(dataSet,callback){
+var saveData = function(dataSet,callback){  // saveData在什么情况下callback？在操作序列压入list后就callback了！（第一个操作除外）
     //console.log('saveData');
     //console.log('dataSet', dataSet);
     callbackList.push(callback);

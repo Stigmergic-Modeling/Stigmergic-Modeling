@@ -10,6 +10,7 @@
           <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
             <%= model %>
           </span>
+          <% if (modelNames.length > 1) { %>
           <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
             <% modelNames.forEach(function(info) {
             if (model !== info.name) { %>
@@ -17,6 +18,7 @@
             <% } %>
             <% }); %>
           </ul>
+          <% } %>
         </span>
         <span class="stigmod-modelinfo-title">&nbsp;/&nbsp;</span>
         <span class="stigmod-modelinfo-title">Model Information</span>
