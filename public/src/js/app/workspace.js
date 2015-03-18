@@ -252,7 +252,7 @@ define(function (require, exports, module) {
 
         // 重新激活
         var $this = $(document)
-                    .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
+                    .find('#stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
                     .parent();
         $this.closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
         $this.addClass('active');
@@ -1060,7 +1060,7 @@ define(function (require, exports, module) {
                                 if (originalTitle === attrType) {
                                     classes[nameC][0][nameA][0]['type'] = newTitle;
 
-                                    // 如果当前类中就有以当前类为属性类型的属性，则需要即时更新模型
+                                    // 如果当前类中就有以当前类为属性类型的属性，则需要即时更新显示
                                     if (nameC === stateOfPage.class) {
                                         var $thePanel = $('#stigmod-cont-right .panel[stigmod-attrel-name=' + nameA + ']');
 
@@ -1081,13 +1081,14 @@ define(function (require, exports, module) {
                 for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
                     if (relationGroups.hasOwnProperty(nameRG)) {
                         var matchName = null;
+                        var oriTitlePat = new RegExp('\\b' + originalTitle + '\\b', 'g');
 
-                        eval('matchName = nameRG.match(/\\b' + originalTitle + '\\b/)');
+                        matchName = nameRG.match(oriTitlePat);
                         if (null !== matchName) { // 如果该 relation group 与被修改的 class 有关
 
                             // 生成新的 relation group 名称
                             var newNameRG = null;
-                            eval('newNameRG = nameRG.replace(/\\b' + originalTitle + '\\b/g, "' + newTitle + '")');
+                            newNameRG = nameRG.replace(oriTitlePat, newTitle);
 
                             // 获得关系两端的类名
                             var nameOfBothEnds = newNameRG.split('-');
@@ -1658,9 +1659,9 @@ define(function (require, exports, module) {
                     for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
                         if (relationGroups.hasOwnProperty(nameRG)) {
                             var matchName = null;
+                            var classPat = new RegExp('\\b' + stateOfPage.class + '\\b');
 
-                            // TODO：这么写对吗？似乎没有处理substring误操作问题？
-                            eval('matchName = nameRG.match(/\\b' + stateOfPage.class + '\\b/)');
+                            matchName = nameRG.match(classPat);
                             if (null !== matchName) {
                                 icm.removeSubModel([1], nameRG);
                             }
