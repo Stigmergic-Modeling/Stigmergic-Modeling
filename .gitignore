@@ -4,6 +4,7 @@ node_modules/
 mongodb/
 public/node_modules/
 public/build/
+public/build2/
 public/dist/
 *.swp
 *.swo

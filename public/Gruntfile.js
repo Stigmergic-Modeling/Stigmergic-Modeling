@@ -6,12 +6,7 @@ module.exports = function(grunt) {
 
     transport: {
       options: {
-        //paths: ['..'],
-        //alias: {
-        //  'jquery': '../lib/jquery.js',
-        //  'bootstrap': '../lib/bootstrap.js',
-        //  'd3': '../lib/d3.v3.js'
-        //},
+        paths: ['..'],
         debug: false
       },
       build: {
@@ -22,16 +17,22 @@ module.exports = function(grunt) {
     },
 
     concat: {
-      //dist: {
-      //  src: 'build/src/*',
-      //  dest: 'dist/workspace.js'
-      //}
+        options: {
+            paths: ['..'],
+            include: 'relative'
+        },
+        build2: {
+            expand: true,
+            cwd: 'build/',
+            src: 'js/app/*',
+            dest: 'build2/'
+        }
     },
 
     uglify: {
       dist: {
         expand: true,
-        cwd: 'build/',
+        cwd: 'build2/',
         src: 'js/*/*',
         dest: 'dist/'
       }
@@ -45,6 +46,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   // 默认任务
-  grunt.registerTask('default', ['transport', 'uglify']);
+  grunt.registerTask('default', ['transport', 'concat', 'uglify']);
 
 };
