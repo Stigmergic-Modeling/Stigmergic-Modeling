@@ -123,6 +123,9 @@ app.all('/:model/workspace',routes.state.checkLogin);
 app.get('/:model/workspace', routes.model.enterWorkspace);
 app.post('/:model/workspace', routes.model.updateModel);
 
+// workspace demo 页面 get 方法
+app.get('/workspacedemo', routes.model.enterWorkspaceDemo);
+
 // model info 页面 get 方法
 app.all('/:model/info',routes.state.checkLogin);
 app.get('/:model/info', routes.model.getInfo);
