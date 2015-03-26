@@ -1,6 +1,6 @@
 define(function (require, exports, module) {
 
-    var d3 = require('../lib/d3.v3');
+    var d3 = require('../lib/d3');
 
     // 用d3实现model可视化
     +function modelview() {
@@ -110,11 +110,23 @@ define(function (require, exports, module) {
         dataset.edges.push(myrelation);
       }
 
+      var zoom = d3.behavior.zoom()
+            .center([w / 2, h / 2])
+            //.scaleExtent([1, 10])
+            .on("zoom", zoomed);
+
       var svg = d3.select(".col-xs-7").append("svg")
             .attr("width", w)  
-            .attr("height", h);
-            //.attr("stroke", "#ccc")
-            //.attr("stroke-width", 2); 
+            .attr("height", h)
+            .append("g")
+            .call(zoom)
+            .on("mousedown.zoom", null);
+
+      svg.append("rect")
+        .attr("class", "background")
+        .attr("fill", "#fff")
+        .attr("width", w)
+        .attr("height", h);
 
 
       
@@ -126,10 +138,10 @@ define(function (require, exports, module) {
                  //.links(dataset.edges)
                  .size([w, h])
                  .linkDistance(150)
-                 .charge([-350])
+                 .charge([-300])
                  .start();
 
-      var colors = d3.scale.category10();
+      var colors = d3.scale.category20();
 
 
       var defs = svg.append("defs");
@@ -218,6 +230,12 @@ define(function (require, exports, module) {
                           .attr("fill","#444")
                           .attr("stroke","000")
                           .attr("stroke-width",1.5);
+
+
+      function zoomed() {
+        d3.select(this)
+        .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      }
 
 
       var link = svg.selectAll(".link")  
