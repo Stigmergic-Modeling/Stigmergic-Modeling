@@ -4,7 +4,7 @@ define(function(require, exports, module) {
 
   // 用d3实现model可视化
   + function modelview() {
-
+  
     //svg的长宽
     var width = 550;
     var height = 400;
@@ -658,11 +658,10 @@ define(function(require, exports, module) {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5Z")
       .attr("fill", "#fff")
-      .attr("stroke", "#ccc")
-      .attr("stroke-width", 1.2);
+      .attr("stroke", "#ccc");
 
     //连线高亮时的Generalization箭头
-    var genMarker = defs.append("marker")
+    var genMarkerHover = defs.append("marker")
       .attr("id", "GeneralizationHover")
       .attr("viewBox", "0 -5 10 10")
       .attr("markerWidth", 7)
@@ -673,8 +672,7 @@ define(function(require, exports, module) {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5Z")
       .attr("fill", "#fff")
-      .attr("stroke", "#444")
-      .attr("stroke-width", 1.5);
+      .attr("stroke", "#444");
 
     //Aggregation箭头(空心菱形)
     var aggreMarker = defs.append("marker")
@@ -688,11 +686,10 @@ define(function(require, exports, module) {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5L-10,0Z")
       .attr("fill", "#fff")
-      .attr("stroke", "#ccc")
-      .attr("stroke-width", 1.2);
+      .attr("stroke", "#ccc");
 
     //连线高亮时的Aggregation箭头
-    var aggreMarker = defs.append("marker")
+    var aggreMarkerHover = defs.append("marker")
       .attr("id", "AggregationHover")
       .attr("viewBox", "-10 -5 20 10")
       .attr("markerWidth", 12)
@@ -703,8 +700,7 @@ define(function(require, exports, module) {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5L-10,0Z")
       .attr("fill", "#fff")
-      .attr("stroke", "#444")
-      .attr("stroke-width", 1.5);
+      .attr("stroke", "#444");
 
     //Composition箭头(实心菱形)
     var comMarker = defs.append("marker")
@@ -718,11 +714,10 @@ define(function(require, exports, module) {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5L-10,0Z")
       .attr("fill", "#ccc")
-      .attr("stroke", "ccc")
-      .attr("stroke-width", 1.2);
+      .attr("stroke", "ccc");
 
     //连线高亮时的Composition箭头
-    var comMarker = defs.append("marker")
+    var comMarkerHover = defs.append("marker")
       .attr("id", "CompositionHover")
       .attr("viewBox", "-10 -5 20 10")
       .attr("markerWidth", 12)
@@ -733,8 +728,7 @@ define(function(require, exports, module) {
       .append("svg:path")
       .attr("d", "M0,-5L10,0L0,5L-10,0Z")
       .attr("fill", "#444")
-      .attr("stroke", "000")
-      .attr("stroke-width", 1.5);
+      .attr("stroke", "000");
 
 
     /**
@@ -763,7 +757,8 @@ define(function(require, exports, module) {
         return "url(#" + d.type + ")";
       })
       .attr("stroke", "#ccc")
-      .attr("stroke-width", 1.5);
+      .attr("stroke-width", 1.5)
+      .attr("cursor", "pointer");
 
 
     /**
@@ -795,10 +790,10 @@ define(function(require, exports, module) {
     var tmpnode = null;
 
     /**
-     *   点击空白处，消除所有高亮，并隐藏类的详细信息
+     *   将所有节点和边归为非高亮状态
+     *   参数：空
      */
-
-    svg.on("click", function(d) {
+    function noneClickStyle() {
       node.selectAll("circle")
         .attr("fill-opacity", 0.5)
         .attr("stroke-width", 1);
@@ -810,9 +805,149 @@ define(function(require, exports, module) {
         .attr("stroke-width", 1.5)
         .attr("marker-end", function(d) {
           return "url(#" + d.type + ")";
-        });
+        });                            
+    }
+
+    /**
+     *   高亮某节点及其文本
+     *   参数：被高亮节点node
+     */
+    function highlightNode(node){
+
+      //高亮该节点
+      mycircle.attr("fill-opacity", function(mynode) {
+        if (mynode === node)
+          return 0.85;
+        else
+          return 0.5;
+      });
+
+      mycircle.attr("stroke-width", function(mynode) {
+        if (mynode === node)
+          return 3;
+        else
+          return 1;
+      });
+
+      //高亮节点相关的文本
+      myname.attr("stroke", function(mytext) {
+        if (mytext === node)
+          return "#444";
+        else
+          return "#ccc";
+      });
+
+      myname.attr("stroke-width", function(mytext) {
+        if (mytext === node)
+          return 0.8;
+        else
+          return 0.5;
+      });
+    }
+
+    /**
+     *   高亮与某节点相连的线
+     *   参数：节点node
+     */
+    function highlightNodeEdge(node){
+      myline.attr("stroke", function(edge) {
+        if (edge.source === node || edge.target === node) {
+          return "#444";
+        } else
+          return "#ccc";
+      });
+
+      myline.attr("stroke-width", function(edge) {
+        if (edge.source === node || edge.target === node) {
+          return 2;
+        } else
+          return 1.5;
+      });
+
+      myline.attr("marker-end", function(edge) {
+        if (edge.source === node || edge.target === node) {
+          return "url(#" + edge.type + "Hover)";
+        } else
+          return "url(#" + edge.type + ")";
+      });
+    }
+
+    /**
+     *   点击某一节点，
+     *   右侧展示详细信息
+     *   并高亮相关信息
+     *   参数：被点击的节点node
+     */
+    function clickNode(node){
+      
+      tmpnode = node;
+      d3.select("#classDetail").remove();
+      d3.select("#relationDetail").remove();
+
+      //更新类的名字
+
+      var nodeName = node.name;
+      d3.select("#tooltip")
+        .append("div")
+        .attr("id", "classDetail");
+
+      d3.select("#classDetail")
+        .append("p")
+        .attr("style", "text-align:center;font-weight:bold")
+        .text(nodeName);
+
+      d3.select("#classDetail")
+        .append("hr")
+        .attr("style", "border-top:1px solid #444");
+
+      // 显示类的属性及相关信息
+      d3.select("#classDetail")
+        .append("span")
+        .attr("id", "attributes");
+
+      var attribute = "";
+      node.attribute.forEach(function(property) {
+        var propertyDetail = property.name;
+        if (property.type !== undefined)
+          propertyDetail = propertyDetail + " : " + property.type;
+        d3.select("#attributes")
+          .append("p")
+          .attr("style", "padding-left:5%")
+          .text(propertyDetail);
+      });
+
+      d3.select("#attributes")
+        .append("hr")
+        .attr("style", "border-top:1px solid #444");
+
+      //显示类的属性
+      d3.select("#tooltip").classed("hidden", false);
+
+      //高亮与节点相连的线
+      highlightNodeEdge(node);
+
+      //高亮该节点及文本
+      highlightNode(node);      
+    }
+
+    /**
+     *   鼠标移到某节点上
+     *   高亮相关信息
+     *   参数：节点node
+     */
+    function mouseoverNode(node){
+      //高亮与节点相连的线
+      highlightNodeEdge(node);
+
+      //高亮该节点及文本
+      highlightNode(node); 
+    }
+
+
+    svg.on("click", function(d) {
+      noneClickStyle();
       d3.select("#tooltip").classed("hidden", true);
-      tmpnode = null;
+      tmpnode = null;  
     });
 
 
@@ -831,306 +966,30 @@ define(function(require, exports, module) {
       })
       .attr("fill-opacity", 0.5);
 
-    /**
-     *   单击表示节点的圆形时
-     *   高亮当前节点及其连线，并显示类的详细信息
-     */
+
 
     mycircle.on("click", function(d) {
       
       d3.event.stopPropagation(); //截断svg的click事件
-      
-      tmpnode = d;
+      clickNode(d);
 
-      //更新类的名字
-      var text = d.name;
-      d3.select("#tooltip")
-        .select("#classname")
-        .text(text);
-
-      //移除旧属性
-      d3.select("#attributes")
-        .remove();
-
-
-      /**
-       *   显示类的属性及相关信息
-       */
-
-      d3.select("#tooltip")
-        .append("span")
-        .attr("id", "attributes");
-
-      var attribute = "";
-      d.attribute.forEach(function(property) {
-        var tmptext = property.name;
-        if (property.type !== undefined)
-          tmptext = tmptext + " : " + property.type;
-        d3.select("#attributes")
-          .append("p")
-          .attr("style", "padding-left:5%")
-          .text(tmptext);
-      });
-
-      d3.select("#attributes")
-        .append("hr")
-        .attr("style", "border-top:1px solid #444");
-
-      //显示类的属性
-      d3.select("#tooltip").classed("hidden", false);
-
-      /**
-       *   高亮与节点相连的线
-       */
-
-      myline.attr("stroke", function(edge) {
-        if (edge.source === d || edge.target === d) {
-          return "#444";
-        } else
-          return "#ccc";
-      });
-
-      myline.attr("stroke-width", function(edge) {
-        if (edge.source === d || edge.target === d) {
-          return 2;
-        } else
-          return 1.5;
-      });
-
-      myline.attr("marker-end", function(edge) {
-        if (edge.source === d || edge.target === d) {
-          return "url(#" + edge.type + "Hover)";
-        } else
-          return "url(#" + edge.type + ")";
-      });
-
-      /**
-       *   高亮该节点
-       */
-
-      mycircle.attr("fill-opacity", function(mynode) {
-        if (mynode === d)
-          return 0.85;
-        else
-          return 0.5;
-      });
-
-      mycircle.attr("stroke-width", function(mynode) {
-        if (mynode === d)
-          return 3;
-        else
-          return 1;
-      });
-
-      /**
-       *   高亮节点相关的文本
-       */
-
-      myname.attr("stroke", function(mytext) {
-        if (mytext === d)
-          return "#444";
-        else
-          return "#ccc";
-      });
-
-      myname.attr("stroke-width", function(mytext) {
-        if (mytext === d)
-          return 0.8;
-        else
-          return 0.5;
-      });
     })
 
-    /**
-     *   鼠标移上时
-     *   高亮当前节点及其连线，但仍然显示上一次点击的节点信息
-     */
-
+    //高亮当前节点及其连线，但仍然显示上一次点击的节点信息
     .on("mouseover", function(d) {
-
-      /**
-       *   高亮与节点相连的线
-       */
-
-      myline.attr("stroke", function(edge) {
-        if (edge.source === d || edge.target === d) {
-          return "#444";
-        } else
-          return "#ccc";
-      });
-
-      myline.attr("stroke-width", function(edge) {
-        if (edge.source === d || edge.target === d) {
-          return 2;
-        } else
-          return 1.5;
-      });
-
-      myline.attr("marker-end", function(edge) {
-        if (edge.source === d || edge.target === d) {
-          return "url(#" + edge.type + "Hover)";
-        } else
-          return "url(#" + edge.type + ")";
-      });
-
-
-      /**
-       *   高亮该节点
-       */
-
-
-      mycircle.attr("fill-opacity", function(mynode) {
-        if (mynode === d)
-          return 0.85;
-        else
-          return 0.5;
-      });
-
-      mycircle.attr("stroke-width", function(mynode) {
-        if (mynode === d)
-          return 3;
-        else
-          return 1;
-      });
-
-      /**
-       *   高亮与节点相关的文本
-       */
-
-      myname.attr("stroke", function(mytext) {
-        if (mytext === d)
-          return "#444";
-        else
-          return "#ccc";
-      });
-
-      myname.attr("stroke-width", function(mytext) {
-        if (mytext === d)
-          return 0.8;
-        else
-          return 0.5;
-      });
-
+      mouseoverNode(d);
     })
 
-    /**
-     *   鼠标移走时
-     *   高亮上一次点击节点及其连线，显示上一次点击的节点信息
-     */
-
+    // 鼠标移走时高亮上一次点击节点及其连线，显示上一次点击的节点信息
     .on("mouseout", function(d) {
 
-      /**
-       *   先将所有节点归为无高亮状态
-       */
-      myline.attr("stroke", "#ccc")
-        .attr("stroke-width", 1.5)
-        .attr("marker-end", function(d) {
-          return "url(#" + d.type + ")";
-        });
-      node.selectAll("circle")
-        .attr("fill-opacity", 0.5)
-        .attr("stroke-width", 1);
-      myname.attr("stroke", "#ccc")
-        .attr("stroke-width", 0.5);
+      //先将所有节点归为无高亮状态
+      noneClickStyle();
 
-      /**
-       *   高亮上一次点击的节点及与其相关信息
-       */
-
+      //高亮上一次点击的节点及与其相关信息
       if (tmpnode !== null) {
         //更新类的名字
-        var text = tmpnode.name;
-
-        d3.select("#tooltip")
-          .select("#classname")
-          .text(text);
-
-        //移除旧属性
-        d3.select("#attributes")
-          .remove();
-
-        /**
-         *   显示类的属性及相关信息
-         */
-        d3.select("#tooltip")
-          .append("span")
-          .attr("id", "attributes");
-
-        var attribute = "";
-        tmpnode.attribute.forEach(function(property) {
-          var tmptext = property.name;
-          if (property.type !== undefined)
-            tmptext = tmptext + " : " + property.type;
-          d3.select("#attributes")
-            .append("p")
-            .attr("style", "padding-left:5%")
-            .text(tmptext);
-        });
-        d3.select("#attributes")
-          .append("hr")
-          .attr("style", "border-top:1px solid #444");
-
-        //右侧显示类的详细信息
-        d3.select("#tooltip").classed("hidden", false);
-
-        /**
-         *   高亮与节点相连的线
-         */
-        myline.attr("stroke", function(edge) {
-          if (edge.source === tmpnode || edge.target === tmpnode) {
-            return "#444";
-          } else
-            return "#ccc";
-        });
-
-        myline.attr("stroke-width", function(edge) {
-          if (edge.source === tmpnode || edge.target === tmpnode) {
-            return 2;
-          } else
-            return 1.5;
-        });
-
-        myline.attr("marker-end", function(edge) {
-          if (edge.source === tmpnode || edge.target === tmpnode) {
-            return "url(#" + edge.type + "Hover)";
-          } else
-            return "url(#" + edge.type + ")";
-        });
-
-        /**
-         *   高亮该节点
-         */
-        mycircle.attr("fill-opacity", function(mynode) {
-          if (mynode === tmpnode)
-            return 0.85;
-          else
-            return 0.5;
-        });
-
-        mycircle.attr("stroke-width", function(mynode) {
-          if (mynode === tmpnode)
-            return 3;
-          else
-            return 1;
-        });
-
-        /**
-         *   高亮节点旁的文本
-         */
-        myname.attr("stroke", function(mytext) {
-          if (mytext === tmpnode)
-            return "#444";
-          else
-            return "#ccc";
-        });
-
-        myname.attr("stroke-width", function(mytext) {
-          if (mytext === tmpnode)
-            return 0.8;
-          else
-            return 0.5;
-        });
+        clickNode(tmpnode);
 
       } else //如无需高亮的节点，隐藏右侧的详细信息
       {
@@ -1225,6 +1084,7 @@ define(function(require, exports, module) {
           return d.y + radiusover(d) * 2;
         });
     });
+   
 
   }();
 
