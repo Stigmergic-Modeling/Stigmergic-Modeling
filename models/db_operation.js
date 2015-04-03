@@ -16,6 +16,7 @@ var logger = require('../models/logger.js');
 exports.get = function(collectionName,filter,callback){
     mongodb.getCollection(collectionName,function(collection){
         collection.find(filter).toArray(function(err, docs) {
+            //TODO 回调信息docs内容应该为查询到的一组document，可能docs数据有误
             //console.log('collectionName', collectionName);
             //console.log('filter', filter);
             //console.log('docs', docs);
@@ -38,6 +39,7 @@ exports.get = function(collectionName,filter,callback){
 exports.create = function(collectionName,filter,data,callback){
     mongodb.getCollection(collectionName,function(collection){
         collection.find(filter).toArray(function(err, docs) {
+            //TODO 回调信息docs内容应该为查询到的一组document，可能docs数据有误
             if(err != null){
                 return callback(err, docs);
             }
@@ -47,6 +49,7 @@ exports.create = function(collectionName,filter,data,callback){
             }
             collection.insert(data, {safe: true}, function(err, doc) {
                 //logger.generateLogData('INFO','icd','insert',icdData);
+                doc = doc.ops;
                 updateTimeTag(collectionName,filter,function(){
                 });
                 return callback(err, doc);
@@ -59,6 +62,7 @@ exports.create = function(collectionName,filter,data,callback){
 exports.forceToCreate = function(collectionName,data,callback){
     mongodb.getCollection(collectionName,function(collection){
         collection.insert(data, {safe: true}, function(err, doc) {
+            doc = doc.ops;
             //console.log('data', data);
             //logger.generateLogData('INFO','icd','insert',icdData);
             updateTimeTag(collectionName,data,function(){
@@ -73,6 +77,7 @@ exports.delete = function(collectionName, filter, callback){
     mongodb.getCollection(collectionName, function (collection) {
 
         collection.remove(filter, function(err, doc) {
+
             return callback(err, doc);
         });
     });
@@ -82,15 +87,18 @@ exports.delete = function(collectionName, filter, callback){
 exports.update = function(collectionName,filter,data,callback){
     mongodb.getCollection(collectionName,function(collection){
         collection.find(filter).toArray(function(err, docs) {
+            //TODO 回调信息docs内容应该为查询到的一组document，可能docs数据有误
+
             if(err != null){
-                return callback(err, doc);
+                return callback(err, docs);
             }
             if(docs.length === 0){
                 err = "not Exist";
                 return callback(err, docs);
             }
             collection.update(filter, data, {safe: true, multi: true}, function(err, doc) {
-                //logger.generateLogData('INFO','icd','insert',icdData);
+
+                doc = doc.result.n;
                 updateTimeTag(collectionName, filter, function() {
                 });
                 return callback(err, doc);
@@ -106,6 +114,8 @@ exports.forceToUpdate = function(collectionName,filter,data,callback){
         //console.log('filter', filter);
         //console.log('data', data);
         collection.update(filter, data, {upsert: true}, function(err, doc) {
+
+            doc = doc.result.n;
             updateTimeTag(collectionName, filter, function() {
             });
             return callback(err, doc);
@@ -122,7 +132,8 @@ var updateTimeTag = function(collectionName, filter, callback) {
         updateLastRevise["lastRevise"] = time;
 
         collection.update(filter, {"$set" : updateLastRevise}, {safe: true}, function (err, doc) {
-            //logger.generateLogData('INFO','icd','update',[filter[0],{"$set" : filter[1]}]);
+
+            doc = doc.result.n;
             return callback(err, doc);
         });
     });
