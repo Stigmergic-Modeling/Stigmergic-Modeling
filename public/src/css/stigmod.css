@@ -653,11 +653,11 @@ fieldset[disabled] .stigmod-input {
 
 /* 左中右三大框体初始高度 */
 #stigmod-pg-workspace #stigmod-nav-left-scroll {
-  height: 125px;
+  height: 145px;
 }
 #stigmod-pg-workspace #stigmod-cont-right-scroll,
 #stigmod-pg-workspace #stigmod-rcmd-right-scroll {
-  height: 180px;
+  height: 255px;
 }
 
 /* 左中右自动框内滚动 */
@@ -666,6 +666,10 @@ fieldset[disabled] .stigmod-input {
 #stigmod-pg-workspace #stigmod-rcmd-right-scroll {
   overflow: hidden;
 }
+
+/*#stigmod-nav-left-scroll .panel:first-child {*/
+  /*margin-top: 40px;*/
+/*}*/
 
 /* 左侧栏和右侧栏间距缩小 */
 #stigmod-pg-workspace #stigmod-nav-left {

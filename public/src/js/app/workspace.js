@@ -49,7 +49,7 @@ define(function (require, exports, module) {
     };
 
     var panelHeight = {
-        left: 257,
+        left: 312,
         middle: 202,
         right: 202
     };
@@ -1850,7 +1850,7 @@ define(function (require, exports, module) {
         $('body').css({'padding-top': '20px'});
 
         panelHeight = {
-            left: 117,
+            left: 172,
             middle: 62,
             right: 62
         };
@@ -1866,7 +1866,7 @@ define(function (require, exports, module) {
         $('body').css({'padding-top': '70px'});
 
         panelHeight = {
-            left: 257,
+            left: 312,
             middle: 202,
             right: 202
         };

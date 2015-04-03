@@ -11,6 +11,7 @@ var flash = require('connect-flash');
 
 var sessionStore = new MongoStore({
 						db : settings.db.name,
+                        port: settings.db.port,
                         username: settings.db.user,
                         password: settings.db.password
 					}, function() {

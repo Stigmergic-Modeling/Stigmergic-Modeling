@@ -92,10 +92,6 @@
               <h3 class="panel-title">
                 <span class="glyphicon glyphicon-th-large stigmod-classname-icon"></span>
                 <span class="stigmod-classname-title">CLASS</span>
-                <span class="stigmod-hovershow-cont" data-toggle="modal" data-target="#stigmod-modal-addclass">
-                  <span class="fa fa-plus-circle pull-right" data-toggle="tooltip" data-placement="left" data-original-title="Add a new class">
-                  </span>
-                </span>
               </h3>
             </div>
             <div class="list-group">
@@ -107,10 +103,6 @@
               <h3 class="panel-title">
                 <span class="glyphicon glyphicon-random stigmod-classname-icon"></span>
                 <span class="stigmod-classname-title">RELATION GROUP</span>
-                <span class="stigmod-hovershow-cont" data-toggle="modal" data-target="#stigmod-modal-addrelationgroup">
-                  <span class="fa fa-plus-circle pull-right" data-toggle="tooltip" data-placement="left" data-original-title="Add a new relation group">
-                  </span>
-                </span>
               </h3>
             </div>
             <div class="list-group">
@@ -118,6 +110,25 @@
             </div>
           </div>
         </div>
+
+        <!-- 添加 class、relation group 的按钮 -->
+        <div class="list-group-item">
+          <div class="btn-group btn-group-justified">
+            <div class="btn-group" role="group">
+              <button class="btn btn-default" type="button" data-toggle="modal" data-target="#stigmod-modal-addclass">
+                <span class="glyphicon glyphicon-th-large"></span>
+                <span class="fa fa-plus"></span>
+              </button>
+            </div>
+            <div class="btn-group" role="group">
+              <button class="btn btn-default" type="button" data-toggle="modal" data-target="#stigmod-modal-addrelationgroup">
+                <span class="glyphicon glyphicon-random"></span>
+                <span class="fa fa-plus"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <!-- 右侧内容栏 -->
