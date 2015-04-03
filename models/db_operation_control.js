@@ -1332,6 +1332,7 @@ var order = {
 //pool for operations
 var m_flowList = [];
 var flowOffset = 0;
+var callbackList = [];
 var flowControl = function(errs,results,callback){
     async.series([
         function(callback){
@@ -1387,8 +1388,6 @@ var flowControl = function(errs,results,callback){
         };
     });
 }
-
-var callbackList = [];
 
 //for save
 var saveData = function(dataSet,callback){  // saveData在什么情况下callback？在操作序列压入list后就callback了！（第一个操作除外）
