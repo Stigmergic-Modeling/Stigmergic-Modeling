@@ -8,3 +8,5 @@ public/build2/
 public/dist/
 *.swp
 *.swo
+*.cmd
+
