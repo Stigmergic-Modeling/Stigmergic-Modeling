@@ -8,6 +8,7 @@ define(function (require, exports, module) {
     var $ = require('../lib/jquery');
     require('../lib/bootstrap');
     require('../lib/mousewheel')($);  // jQuery 鼠标滚轮事件插件
+    require('../lib/typeahead.jquery.js')($);  // jQuery 输入框下拉提示插件
     var ObjectId = require('../lib/objectid');  // 用于在浏览器端生成 Mongodb 的 ObjectId
 
     // 内部模块
@@ -224,6 +225,54 @@ define(function (require, exports, module) {
         $(document).on('show.bs.modal', '#stigmod-modal-addrelation', handleMdlAddRel);
         $(document).on('show.bs.modal', '#stigmod-modal-remove', handleMdlRemove);
 
+
+        /**
+         * 输入框下拉提示功能中取得子串的辅助函数
+         * @param strs
+         * @returns {Function}
+         */
+        var substringMatcher = function(strs) {
+
+            // 所生成的 matches 集合的最大长度
+            var maxLength = 8;
+
+            return function findMatches(q, cb) {
+                var matches, substringRegex;
+
+                // an array that will be populated with substring matches
+                matches = [];
+
+                // regex used to determine if a string contains the substring `q`
+                substrRegex = new RegExp(q, 'i');
+
+                // iterate through the pool of strings and for any string that
+                // contains the substring `q`, add it to the `matches` array
+                $.each(strs, function(i, str) {
+                    if (matches.length <= maxLength && substrRegex.test(str)) {
+                        // the typeahead jQuery plugin expects suggestions to a
+                        // JavaScript object, refer to typeahead docs for more info
+                        matches.push({ value: str });
+                    }
+                });
+
+                cb(matches);
+            };
+        };
+
+        // 获取所有类名和关系组名
+        var clsRgNames = (Object.keys(icm[0])).concat(Object.keys(icm[1]));
+
+        // 为左侧搜索栏添加下拉提示
+        $('.typeahead').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'clsRgNames',
+                    displayKey: 'value',
+                    source: substringMatcher(clsRgNames)
+                });
 
     }
 
