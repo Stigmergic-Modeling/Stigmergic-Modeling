@@ -228,16 +228,16 @@ define(function (require, exports, module) {
 
         /**
          * 输入框下拉提示功能中取得子串的辅助函数
-         * @param strs
+         * @param flag
+         * @param maxLength
          * @returns {Function}
          */
-        var substringMatcher = function(strs) {
-
-            // 所生成的 matches 集合的最大长度
-            var maxLength = 8;
+        var substringMatcher = function(flag, maxLength) {  // 所生成的 matches 集合的最大长度（对于每一个 dataset 来说）
 
             return function findMatches(q, cb) {
-                var matches, substringRegex;
+                var matches,
+                    substrRegex,
+                    strs = flag === 'class' ? Object.keys(icm[0]) : Object.keys(icm[1]);  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
 
                 // an array that will be populated with substring matches
                 matches = [];
@@ -248,7 +248,8 @@ define(function (require, exports, module) {
                 // iterate through the pool of strings and for any string that
                 // contains the substring `q`, add it to the `matches` array
                 $.each(strs, function(i, str) {
-                    if (matches.length <= maxLength && substrRegex.test(str)) {
+                    if (matches.length <= maxLength && (0 || substrRegex.test(str))) {
+                        console.log(q, str);
                         // the typeahead jQuery plugin expects suggestions to a
                         // JavaScript object, refer to typeahead docs for more info
                         matches.push({ value: str });
@@ -257,21 +258,24 @@ define(function (require, exports, module) {
 
                 cb(matches);
             };
-        };
 
-        // 获取所有类名和关系组名
-        var clsRgNames = (Object.keys(icm[0])).concat(Object.keys(icm[1]));
+        };
 
         // 为左侧搜索栏添加下拉提示
         $('.typeahead').typeahead({
                     hint: true,
                     highlight: true,
-                    minLength: 1
+                    minLength: 0
+                },  // 将 class 和 relation group 区分对待：
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher('class', 4)
                 },
                 {
-                    name: 'clsRgNames',
+                    name: 'rgNames',
                     displayKey: 'value',
-                    source: substringMatcher(clsRgNames)
+                    source: substringMatcher('relGroup', 4)
                 });
 
     }
@@ -970,7 +974,7 @@ define(function (require, exports, module) {
             }
 
             // 尝试寻找旁边的搜索按钮 TODO：这几个“尝试”写得不好，应该在一开始就搞清楚属于那种情况
-            if (0 !== $(this).parent().find('#stigmod-search-left-btn').trigger('click').length) {
+            if (0 !== $(this).parent().parent().find('#stigmod-search-left-btn').trigger('click').length) {  // 第一个 parent() 是考虑了 typeahead wrapper 的影响
                 return false;  // 已猜对，不用继续
             }
 

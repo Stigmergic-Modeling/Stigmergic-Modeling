@@ -7,10 +7,10 @@ define(function (require, exports, module) {
      */
 
     module.exports = function ($) {
-        var _ = function () {
+        var _ = function () {  // @ 功用函数
             "use strict";
             return {
-                isMsie: function () {
+                isMsie: function () {  // @ 通过用户代理信息监测用户代理类型是否是 IE，返回值是 false 或 IE 版本
                     return /(msie|trident)/i.test(navigator.userAgent) ? navigator.userAgent.match(/(msie |rv:)(\d+(.\d+)?)/i)[2] : false;
                 },
                 isBlankString: function (str) {
@@ -19,10 +19,10 @@ define(function (require, exports, module) {
                 escapeRegExChars: function (str) {
                     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
                 },
-                isString: function (obj) {
+                isString: function (obj) {  // @ jQuery 中没有写这个 isString()
                     return typeof obj === "string";
                 },
-                isNumber: function (obj) {
+                isNumber: function (obj) {  // @ 没有使用 jQuery 中的 isNumeric()，因为前者对于数字或数字字符串都返回 true
                     return typeof obj === "number";
                 },
                 isArray: $.isArray,
@@ -34,14 +34,14 @@ define(function (require, exports, module) {
                 toStr: function toStr(s) {
                     return _.isUndefined(s) || s === null ? "" : s + "";
                 },
-                bind: $.proxy,
-                each: function (collection, cb) {
-                    $.each(collection, reverseArgs);
+                bind: $.proxy,  // @ 使用 jQuery 的 $.proxy()，兼容不支持 Function.prototype.bind() 的浏览器
+                each: function (collection, cb) {  // @ _.each() 与 $.each() 的区别是前者 callback 函数接受参数顺序是 value-key（后者是key-value）
+                    $.each(collection, reverseArgs);  // @ 于是 _.each() 的回调函数在只写一个参数时指的是 value
                     function reverseArgs(index, value) {
                         return cb(value, index);
                     }
                 },
-                map: $.map,
+                map: $.map,  // @ jQuery 的 $.map()，在数组（ArrayLike）或对象的每一项上应用一个函数，将结果组合成数组返回。相比原生的 Array.prototype.map()，$.map() 还可应用于对象。
                 filter: $.grep,
                 every: function (obj, test) {
                     var result = true;
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
                     });
                     return !!result;
                 },
-                mixin: $.extend,
+                mixin: $.extend,  // @ 原来如此
                 getUniqueId: function () {
                     var counter = 0;
                     return function () {
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
                     }
                 },
                 defer: function (fn) {
-                    setTimeout(fn, 0);
+                    setTimeout(fn, 0);  // @ 将 js 代码切块，使浏览器有机会在此时插入其他操作
                 },
                 debounce: function (func, wait, immediate) {
                     var timeout, result;
@@ -142,19 +142,19 @@ define(function (require, exports, module) {
             "use strict";
             var css = {
                 wrapper: {
-                    position: "relative",
+                    position: "relative",  // @ 保证 wrapper 的 position 不是 static，这样其子元素的 absolute 定位才能起到预期作用
                     display: "inline-block"
                 },
-                hint: {
-                    position: "absolute",
+                hint: {  // @ 输入框的底层
+                    position: "absolute",  // @ 不占位
                     top: "0",
                     left: "0",
                     borderColor: "transparent",
                     boxShadow: "none",
                     opacity: "1"
                 },
-                input: {
-                    position: "relative",
+                input: {  // @ 输入框的顶层
+                    position: "relative",  // @ 占位
                     verticalAlign: "top",
                     backgroundColor: "transparent"
                 },
@@ -163,11 +163,11 @@ define(function (require, exports, module) {
                     verticalAlign: "top"
                 },
                 dropdown: {
-                    position: "absolute",
-                    top: "100%",
-                    left: "0",
+                    position: "absolute",  // @ 不占位
+                    top: "100%",  // @ 完全向下溢出，其顶部紧贴 wrapper 的底部
+                    left: "0",  // @ 左侧对齐
                     zIndex: "100",
-                    display: "none"
+                    display: "none"  // @ 默认不可见
                 },
                 suggestions: {
                     display: "block"
@@ -205,7 +205,7 @@ define(function (require, exports, module) {
             var namespace = "typeahead:";
 
             function EventBus(o) {
-                if (!o || !o.el) {
+                if (!o || !o.el) {  // @ el is short for element
                     $.error("EventBus initialized without el");
                 }
                 this.$el = $(o.el);
@@ -214,7 +214,7 @@ define(function (require, exports, module) {
             _.mixin(EventBus.prototype, {
                 trigger: function (type) {
                     var args = [].slice.call(arguments, 1);
-                    this.$el.trigger(namespace + type, args);
+                    this.$el.trigger(namespace + type, args);  // @ 这个 trigger 是 jQuery 事件对象的 trigger 方法
                 }
             });
             return EventBus;
@@ -266,7 +266,7 @@ define(function (require, exports, module) {
                 return this;
             }
 
-            function trigger(types) {
+            function trigger(types) {  // @ Input, Dataset, Dropdown 对象中的 trigger 方法就是它了！
                 var type, callbacks, args, syncFlush, asyncFlush;
                 if (!this._callbacks) {
                     return this;
@@ -310,7 +310,7 @@ define(function (require, exports, module) {
                 return nextTickFn;
             }
 
-            function bindContext(fn, context) {
+            function bindContext(fn, context) {  // @ TODO 为何不用 _.bind 而是又在此写了一个？
                 return fn.bind ? fn.bind(context) : function () {
                     fn.apply(context, [].slice.call(arguments, 0));
                 };
@@ -326,7 +326,7 @@ define(function (require, exports, module) {
                 wordsOnly: false,
                 caseSensitive: false
             };
-            return function hightlight(o) {
+            return function hightlight(o) {  // @ !! 这里的 hightlight 是 highlight 的笔误还是另有深意？（以及下面的 hightlightTextNode ...）
                 var regex;
                 o = _.mixin({}, defaults, o);
                 if (!o.node || !o.pattern) {
@@ -334,16 +334,16 @@ define(function (require, exports, module) {
                 }
                 o.pattern = _.isArray(o.pattern) ? o.pattern : [o.pattern];
                 regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
-                traverse(o.node, hightlightTextNode);
+                traverse(o.node, hightlightTextNode);  // @ 高亮 o.node 节点子树中所有文本节点的匹配文字，o.node 是原生 DOM 节点
                 function hightlightTextNode(textNode) {
                     var match, patternNode, wrapperNode;
                     if (match = regex.exec(textNode.data)) {
-                        wrapperNode = doc.createElement(o.tagName);
+                        wrapperNode = doc.createElement(o.tagName);  // @ 高亮方式是用标签包裹匹配文字，默认是用 strong 标签
                         o.className && (wrapperNode.className = o.className);
-                        patternNode = textNode.splitText(match.index);
-                        patternNode.splitText(match[0].length);
-                        wrapperNode.appendChild(patternNode.cloneNode(true));
-                        textNode.parentNode.replaceChild(wrapperNode, patternNode);
+                        patternNode = textNode.splitText(match.index);  // @ 123 -> 1 23
+                        patternNode.splitText(match[0].length);  // @ 1 2 3
+                        wrapperNode.appendChild(patternNode.cloneNode(true)); // @ (2)
+                        textNode.parentNode.replaceChild(wrapperNode, patternNode);  // @ 1 (2) 3，包裹完成
                     }
                     return !!match;
                 }
@@ -368,7 +368,7 @@ define(function (require, exports, module) {
                 regexStr = wordsOnly ? "\\b(" + escapedPatterns.join("|") + ")\\b" : "(" + escapedPatterns.join("|") + ")";
                 return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, "i");
             }
-        }(window.document);
+        }(window.document);  // @ 便于使用 window.document.createElement 方法
         var Input = function () {
             "use strict";
             var specialKeyCodeMap;
@@ -406,8 +406,8 @@ define(function (require, exports, module) {
                         _.defer(_.bind(that._onInput, that, $e));
                     });
                 }
-                this.query = this.$input.val();
-                this.$overflowHelper = buildOverflowHelper(this.$input);
+                this.query = this.$input.val();  // @ 初始化时输入框的内容就是 query 的值
+                this.$overflowHelper = buildOverflowHelper(this.$input);  // @ TODO 用于？
             }
 
             Input.normalizeQuery = function (str) {
@@ -448,7 +448,7 @@ define(function (require, exports, module) {
                         default:
                             preventDefault = false;
                     }
-                    preventDefault && $e.preventDefault();
+                    preventDefault && $e.preventDefault();  // @ 注意学习这种用 || 或 && 短路的写法
                 },
                 _shouldTrigger: function shouldTrigger(keyName, $e) {
                     var trigger;
@@ -512,6 +512,7 @@ define(function (require, exports, module) {
                     valIsPrefixOfHint = val !== hint && hint.indexOf(val) === 0;
                     isValid = val !== "" && valIsPrefixOfHint && !this.hasOverflow();
                     !isValid && this.clearHint();
+                    this.clearHint();
                 },
                 getLanguageDirection: function getLanguageDirection() {
                     return (this.$input.css("direction") || "ltr").toLowerCase();
@@ -544,7 +545,7 @@ define(function (require, exports, module) {
             function buildOverflowHelper($input) {
                 return $('<pre aria-hidden="true"></pre>').css({
                     position: "absolute",
-                    visibility: "hidden",
+                    visibility: "hidden",  // @ 瞬间松了一口气
                     whiteSpace: "pre",
                     fontFamily: $input.css("font-family"),
                     fontSize: $input.css("font-size"),
@@ -586,7 +587,7 @@ define(function (require, exports, module) {
                 this.source = o.source;
                 this.displayFn = getDisplayFn(o.display || o.displayKey);
                 this.templates = getTemplates(o.templates, this.displayFn);
-                this.$el = $(html.dataset.replace("%CLASS%", this.name));
+                this.$el = $(html.dataset.replace("%CLASS%", this.name));  // @ 作为 dataset 容器的 DOM 元素
             }
 
             Dataset.extractDatasetName = function extractDatasetName(el) {
@@ -619,18 +620,18 @@ define(function (require, exports, module) {
                         });
                     }
 
-                    function getSuggestionsHtml() {
+                    function getSuggestionsHtml() {  // @ $suggestions 是 $dataset 的子元素
                         var $suggestions, nodes;
                         $suggestions = $(html.suggestions).css(css.suggestions);
                         nodes = _.map(suggestions, getSuggestionNode);
                         $suggestions.append.apply($suggestions, nodes);
-                        that.highlight && highlight({
+                        that.highlight && highlight({  // @ 唯一使用到 highlight() 的地方
                             className: "tt-highlight",
-                            node: $suggestions[0],
+                            node: $suggestions[0],  // @ 取出 $suggestions 这个 jQuery 对象中的原生 DOM 节点
                             pattern: query
                         });
                         return $suggestions;
-                        function getSuggestionNode(suggestion) {
+                        function getSuggestionNode(suggestion) {  // @ $suggestion 是 $suggestions 的子元素
                             var $el;
                             $el = $(html.suggestion).append(that.templates.suggestion(suggestion)).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
                             $el.children().each(function () {
@@ -718,14 +719,14 @@ define(function (require, exports, module) {
                 }
                 this.isOpen = false;
                 this.isEmpty = true;
-                this.datasets = _.map(o.datasets, initializeDataset);
+                this.datasets = _.map(o.datasets, initializeDataset);  // @ 将 datasets 中的每个 dataset 都转化成 Dataset 对象
                 onSuggestionClick = _.bind(this._onSuggestionClick, this);
                 onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
                 onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
                 this.$menu = $(o.menu).on("click.tt", ".tt-suggestion", onSuggestionClick).on("mouseenter.tt", ".tt-suggestion", onSuggestionMouseEnter).on("mouseleave.tt", ".tt-suggestion", onSuggestionMouseLeave);
                 _.each(this.datasets, function (dataset) {
-                    that.$menu.append(dataset.getRoot());
-                    dataset.onSync("rendered", that._onRendered, that);
+                    that.$menu.append(dataset.getRoot());  // @ 将每个 dataset 的容器元素逐个加入到下拉菜单
+                    dataset.onSync("rendered", that._onRendered, that);  // @ 在 dataset 上注册 rendered 监听器（含义是 dataset 已渲染完毕），在 Dataset 对象执行 _render 或 clear 方法时会触发此事件
                 });
             }
 
@@ -740,9 +741,9 @@ define(function (require, exports, module) {
                 _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
                     this._removeCursor();
                 },
-                _onRendered: function onRendered() {
+                _onRendered: function onRendered() {  // @ 当 dataset 渲染好时，开始渲染 dropdown
                     this.isEmpty = _.every(this.datasets, isDatasetEmpty);
-                    this.isEmpty ? this._hide() : this.isOpen && this._show();
+                    this.isEmpty ? this._hide() : this.isOpen && this._show();  // @ 若所有 dataset 都为空则隐藏下拉菜单，若有 dataset 非空且下拉菜单没有打开则显示下拉菜单
                     this.trigger("datasetRendered");
                     function isDatasetEmpty(dataset) {
                         return dataset.isEmpty();
@@ -882,7 +883,7 @@ define(function (require, exports, module) {
                 this.isActivated = false;
                 this.autoselect = !!o.autoselect;
                 this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-                this.$node = buildDom(o.input, o.withHint);
+                this.$node = buildDom(o.input, o.withHint);  // @ $node 是包裹了输入框的 wrapper
                 $menu = this.$node.find(".tt-dropdown-menu");
                 $input = this.$node.find(".tt-input");
                 $hint = this.$node.find(".tt-hint");
@@ -895,7 +896,7 @@ define(function (require, exports, module) {
                         $e.preventDefault();
                         $e.stopImmediatePropagation();
                         _.defer(function () {
-                            $input.focus();
+                            $input.focus();  // @ TODO 针对 IE 写的这个 focus() 是何用意？
                         });
                     }
                 });
@@ -908,11 +909,26 @@ define(function (require, exports, module) {
                 this.dropdown = new Dropdown({
                     menu: $menu,
                     datasets: o.datasets
-                }).onSync("suggestionClicked", this._onSuggestionClicked, this).onSync("cursorMoved", this._onCursorMoved, this).onSync("cursorRemoved", this._onCursorRemoved, this).onSync("opened", this._onOpened, this).onSync("closed", this._onClosed, this).onAsync("datasetRendered", this._onDatasetRendered, this);
+                }).onSync("suggestionClicked", this._onSuggestionClicked, this)
+                        .onSync("cursorMoved", this._onCursorMoved, this)
+                        .onSync("cursorRemoved", this._onCursorRemoved, this)
+                        .onSync("opened", this._onOpened, this)
+                        .onSync("closed", this._onClosed, this)
+                        .onAsync("datasetRendered", this._onDatasetRendered, this);
                 this.input = new Input({
                     input: $input,
                     hint: $hint
-                }).onSync("focused", this._onFocused, this).onSync("blurred", this._onBlurred, this).onSync("enterKeyed", this._onEnterKeyed, this).onSync("tabKeyed", this._onTabKeyed, this).onSync("escKeyed", this._onEscKeyed, this).onSync("upKeyed", this._onUpKeyed, this).onSync("downKeyed", this._onDownKeyed, this).onSync("leftKeyed", this._onLeftKeyed, this).onSync("rightKeyed", this._onRightKeyed, this).onSync("queryChanged", this._onQueryChanged, this).onSync("whitespaceChanged", this._onWhitespaceChanged, this);
+                }).onSync("focused", this._onFocused, this)
+                        .onSync("blurred", this._onBlurred, this)
+                        .onSync("enterKeyed", this._onEnterKeyed, this)
+                        .onSync("tabKeyed", this._onTabKeyed, this)
+                        .onSync("escKeyed", this._onEscKeyed, this)
+                        .onSync("upKeyed", this._onUpKeyed, this)
+                        .onSync("downKeyed", this._onDownKeyed, this)
+                        .onSync("leftKeyed", this._onLeftKeyed, this)
+                        .onSync("rightKeyed", this._onRightKeyed, this)
+                        .onSync("queryChanged", this._onQueryChanged, this)
+                        .onSync("whitespaceChanged", this._onWhitespaceChanged, this);
                 this._setLanguageDirection();
             }
 
@@ -933,10 +949,22 @@ define(function (require, exports, module) {
                     this._updateHint();
                 },
                 _onDatasetRendered: function onDatasetRendered() {
-                    this._updateHint();
+
+                    // 为了在避免在 $input 没有文字时 $hint 遮盖 placeholder
+                    if (this.input.$input.val().length !== 0) {
+                        this._updateHint();
+                    }
+
+                    //this._updateHint();
                 },
                 _onOpened: function onOpened() {
-                    this._updateHint();
+
+                    // 为了在避免在 $input 没有文字时 $hint 遮盖 placeholder
+                    if (this.input.$input.val().length !== 0) {
+                        this._updateHint();
+                    }
+
+                    //this._updateHint();
                     this.eventBus.trigger("opened");
                 },
                 _onClosed: function onClosed() {
@@ -945,6 +973,12 @@ define(function (require, exports, module) {
                 },
                 _onFocused: function onFocused() {
                     this.isActivated = true;
+
+                    // 为使点击空的输入框也能获得下拉菜单推荐，做的改动
+                    if (this.input.$input.val().length === 0) {
+                        this.dropdown.update('');  // 以前之所以点击空输入框没有下拉菜单，是因为 focus 事件处理函数没有 update dropdown（也就是没有 update dataset）
+                    }
+
                     this.dropdown.open();
                 },
                 _onBlurred: function onBlurred() {
@@ -1071,13 +1105,13 @@ define(function (require, exports, module) {
                 }
             });
             return Typeahead;
-            function buildDom(input, withHint) {
+            function buildDom(input, withHint) {  // @ 从 Dom 结构上，将一个输入框改造为 typeahead 输入框
                 var $input, $wrapper, $dropdown, $hint;
-                $input = $(input);
-                $wrapper = $(html.wrapper).css(css.wrapper);
-                $dropdown = $(html.dropdown).css(css.dropdown);
-                $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-                $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder required").prop("readonly", true).attr({
+                $input = $(input);  // @ 注意，若 input 本身就是 jQuery 对象(A)（根据代码，有很大可能是），则 jQuery 选择器会生成一个新的 jQuery 对象(B)。A 和 B 是不同对象，但 AB 中携带的原生 DOM 对象引用是相同的
+                $wrapper = $(html.wrapper).css(css.wrapper);  // @ 外壳
+                $dropdown = $(html.dropdown).css(css.dropdown);  // @ 下拉菜单
+                $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));  // @ 输入框层之下的提示层
+                $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder required").prop("readonly", true).attr({  // @ 加入 readonly 属性，这样就不会干扰上层 $input 的操作了
                     autocomplete: "off",
                     spellcheck: "false",
                     tabindex: -1
@@ -1096,7 +1130,7 @@ define(function (require, exports, module) {
                     !$input.attr("dir") && $input.attr("dir", "auto");
                 } catch (e) {
                 }
-                return $input.wrap($wrapper).parent().prepend(withHint ? $hint : null).append($dropdown);
+                return $input.wrap($wrapper).parent().prepend(withHint ? $hint : null).append($dropdown);  // @ 将 $input 外面包裹上 $wrapper，再将 $hint 和 $dropdown 分别置于 $input 前后
             }
 
             function getBackgroundStyles($el) {
@@ -1127,26 +1161,26 @@ define(function (require, exports, module) {
             old = $.fn.typeahead;
             typeaheadKey = "ttTypeahead";
             methods = {
-                initialize: function initialize(o, datasets) {
-                    datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
+                initialize: function initialize(o, datasets) {  // @ 初始化方法，一切开始的地方
+                    datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);  // @ 如果 datasets 不是数组，则把 initialize() 第一个参数之后的所有参数组合成一个数组
                     o = o || {};
-                    return this.each(attach);
+                    return this.each(attach);  // @ this 指向一个 jQuery 对象。对于该对象内的每个元素，都执行 attach() 函数
                     function attach() {
                         var $input = $(this), eventBus, typeahead;
                         _.each(datasets, function (d) {
-                            d.highlight = !!o.highlight;
+                            d.highlight = !!o.highlight;  // @ 将 option 中的 highlight 选项赋给每个 dataset
                         });
                         typeahead = new Typeahead({
                             input: $input,
                             eventBus: eventBus = new EventBus({
                                 el: $input
                             }),
-                            withHint: _.isUndefined(o.hint) ? true : !!o.hint,
+                            withHint: _.isUndefined(o.hint) ? true : !!o.hint,  // @ o.hint 缺省值为 true
                             minLength: o.minLength,
                             autoselect: o.autoselect,
                             datasets: datasets
                         });
-                        $input.data(typeaheadKey, typeahead);
+                        $input.data(typeaheadKey, typeahead);  // @ 将 Typeahead 对象存入输入框元素中
                     }
                 },
                 open: function open() {
@@ -1198,12 +1232,12 @@ define(function (require, exports, module) {
             $.fn.typeahead = function (method) {
                 var tts;
                 if (methods[method] && method !== "initialize") {
-                    tts = this.filter(function () {
+                    tts = this.filter(function () {  // @ 选出当前 jQuery 对象中带有 Typeahead 对象的元素组成的集合
                         return !!$(this).data(typeaheadKey);
                     });
-                    return methods[method].apply(tts, [].slice.call(arguments, 1));
+                    return methods[method].apply(tts, [].slice.call(arguments, 1)); // @ 将 method 以后的参数（可能为空）作为 methods[method] 方法的参数（其实只有 val() 方法）期待参数
                 } else {
-                    return methods.initialize.apply(this, arguments);
+                    return methods.initialize.apply(this, arguments);  // @ 若没有传入方法名称，或传入的是 "initialize" ，则进行初始化
                 }
             };
             $.fn.typeahead.noConflict = function noConflict() {
