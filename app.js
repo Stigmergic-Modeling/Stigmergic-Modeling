@@ -8,6 +8,7 @@ var MongoStore = require('connect-mongo')(express);
 
 var partials = require('express-partials');
 var flash = require('connect-flash');
+var compress = require('compression');
 
 var sessionStore = new MongoStore({
 						db : settings.db.name,
@@ -50,7 +51,8 @@ app.configure(function(){
 
 	app.use(express.favicon(__dirname + '/public/src/img/favicon.ico'));
 	app.use(express.logger('dev'));
-	app.use(express.bodyParser());
+    app.use(compress());
+    app.use(express.bodyParser());
 	app.use(express.methodOverride());
 
 	app.use(express.cookieParser());
