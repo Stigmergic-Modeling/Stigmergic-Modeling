@@ -946,7 +946,13 @@ define(function (require, exports, module) {
                 },
                 _onCursorRemoved: function onCursorRemoved() {
                     this.input.resetInputValue();
-                    this._updateHint();
+
+                    // 为了在避免在 $input 没有文字时 $hint 遮盖 placeholder
+                    if (this.input.$input.val().length !== 0) {
+                        this._updateHint();
+                    }
+
+                    //this._updateHint();
                 },
                 _onDatasetRendered: function onDatasetRendered() {
 
