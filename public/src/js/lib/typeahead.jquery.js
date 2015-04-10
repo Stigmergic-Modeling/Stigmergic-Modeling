@@ -312,7 +312,7 @@ define(function (require, exports, module) {
 
             function bindContext(fn, context) {  // @ TODO 为何不用 _.bind 而是又在此写了一个？
                 return fn.bind ? fn.bind(context) : function () {
-                    fn.apply(context, [].slice.call(arguments, 0));
+                    fn.apply(context, [].slice.call(arguments, 0));  // @ 此句没加 return，那么这样绑定的函数在执行时总是会返回 undefined ！
                 };
             }
         }();

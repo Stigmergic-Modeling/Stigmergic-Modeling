@@ -517,11 +517,6 @@ fieldset[disabled] .stigmod-input {
   vertical-align: middle;
 }*/
 
-/* 为d3显示用的宽幅modal */
-.stigmod-modal-d3 {
-  width: 1000px;
-}
-
 /* 自动滚动 */
 .stigmod-modal-scroll {
   height: 500px;
@@ -642,6 +637,36 @@ fieldset[disabled] .stigmod-input {
 #stigmod-modal-remove .modal-body .stigmod-modal-remove-name {
   font-weight: 500;
   color: #428bca;
+}
+
+/* modelview 的虚外框 */
+#stigmod-modal-d3view {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+/* modelview 的实外框 */
+.stigmod-modal-d3 {
+  position: relative;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 100%;
+  margin: 0;
+}
+
+/* modelview 的内框 */
+.stigmod-modal-d3 .modal-content {
+  position: relative;
+  height: 100%;
+  border-radius: 0;
 }
 
 /* --------------------------------------------- *
@@ -1221,7 +1246,7 @@ span.twitter-typeahead .tt-hint {
  *
  * --------------------------------------------- */
 
-#tooltip{
+#tooltip {
   position:absolute;
   left:650px;
   top:20px;
@@ -1229,13 +1254,19 @@ span.twitter-typeahead .tt-hint {
   height:auto;
   background-color: white;
   pointer-events:none;
-
 }
-#tooltip.hidden{
+#tooltip.hidden {
   display: none;
 }
-#tooltip p{
+#tooltip p {
   margin:0;
   font-size: 16px;
   line-height: 20px;
+}
+#view {
+  overflow: hidden;
+  position:relative;
+  margin:0 auto;
+  width:100%;
+  height:100%;
 }

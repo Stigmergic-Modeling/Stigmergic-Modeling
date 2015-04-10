@@ -13,7 +13,7 @@ define(function (require, exports, module) {
 
     // 内部模块
     var Model = require('../module/model');
-    require('../module/modelview');
+    var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
 
     // 调试模块
     //var debug = require('../module/debug');
@@ -26,8 +26,8 @@ define(function (require, exports, module) {
     // ICM 前端模型
     var icm = new Model(dataPassedIn.model);  // dataPassedIn 通过后端的 .ejs 模板传入
     //var icm = new Model(debug.model);  // 调试时使用，从 debug 模块获取 model 数据
-    console.log('dataPassedIn.model', dataPassedIn.model);
-    console.log('icm', icm);
+    //console.log('dataPassedIn.model', dataPassedIn.model);
+    //console.log('icm', icm);
 
     // 记录 workspace 页面的状态
     var stateOfPage = {
@@ -91,6 +91,9 @@ define(function (require, exports, module) {
         /*  -----  *
          *  初始化
          *  -----  */
+
+        // 模型可视化
+        //modelView(icm);
 
         // 填入左侧栏的数据
         fillLeft(icm);
@@ -174,6 +177,9 @@ define(function (require, exports, module) {
 
         // 点击 remove 确认按钮
         $(document).on('click', '#stigmod-btn-remove', handleRemoveOk);
+
+        // 点击 show modelView 按钮
+        $(document).on('click', '#stigmod-model-view', handleShowModelView);
 
         // 未保存就离开页面
         $(window).on('beforeunload', handleLeavePage);
@@ -263,20 +269,20 @@ define(function (require, exports, module) {
 
         // 为左侧搜索栏添加下拉提示
         $('.typeahead').typeahead({
-                    hint: true,
-                    highlight: true,
-                    minLength: 0
-                },  // 将 class 和 relation group 区分对待：
-                {
-                    name: 'clsNames',
-                    displayKey: 'value',
-                    source: substringMatcher('class', 4)
-                },
-                {
-                    name: 'rgNames',
-                    displayKey: 'value',
-                    source: substringMatcher('relGroup', 4)
-                });
+            hint: true,
+            highlight: true,
+            minLength: 0
+        },  // 将 class 和 relation group 区分对待：
+        {
+            name: 'clsNames',
+            displayKey: 'value',
+            source: substringMatcher('class', 4)
+        },
+        {
+            name: 'rgNames',
+            displayKey: 'value',
+            source: substringMatcher('relGroup', 4)
+        });
 
     }
 
@@ -1817,6 +1823,20 @@ define(function (require, exports, module) {
 
         $(this).find('.stigmod-modal-remove-type').text(type[stateOfPage.flagCRG][stateOfPage.flagDepth]);
         $(this).find('.stigmod-modal-remove-name').text(name[stateOfPage.flagDepth]);
+    }
+
+    function handleShowModelView() {
+
+        // 显示模型图像
+        $('#stigmod-modal-d3view').modal('show');
+
+        // 刷新模型图像
+        setTimeout(function() {
+            modelView(icm);
+        }, 500);
+
+
+
     }
 
     // 处理：未保存就离开页面
