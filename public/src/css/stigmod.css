@@ -1222,20 +1222,20 @@ span.twitter-typeahead .tt-hint {
  * --------------------------------------------- */
 
 #tooltip{
+  position:absolute;
+  left:650px;
+  top:20px;
+  width:300px;
+  height:auto;
+  background-color: white;
+  pointer-events:none;
 
-    margin:0 auto;
-    /*position:absolute;*/
-    width:300px;
-    height:auto;
-    pointer-events:none;
-    border:1px solid #000;
 }
 #tooltip.hidden{
-    display: none;
+  display: none;
 }
 #tooltip p{
-    margin:0;
-    /*font-family: sans-serif;*/
-    font-size: 16px;
-    line-height: 20px;
+  margin:0;
+  font-size: 16px;
+  line-height: 20px;
 }
