@@ -980,10 +980,10 @@ define(function (require, exports, module) {
                 _onFocused: function onFocused() {
                     this.isActivated = true;
 
-                    // 为使点击空的输入框也能获得下拉菜单推荐，做的改动
-                    if (this.input.$input.val().length === 0) {
-                        this.dropdown.update('');  // 以前之所以点击空输入框没有下拉菜单，是因为 focus 事件处理函数没有 update dropdown（也就是没有 update dataset）
-                    }
+                    ////为使点击空的输入框也能获得下拉菜单推荐，做的改动
+                    //if (this.input.$input.val().length === 0) {
+                    //    this.dropdown.update('');  // 以前之所以点击空输入框没有下拉菜单，是因为 focus 事件处理函数没有 update dropdown（也就是没有 update dataset）
+                    //}
 
                     this.dropdown.open();
                 },

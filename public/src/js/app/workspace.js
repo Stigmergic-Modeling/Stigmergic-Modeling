@@ -46,7 +46,9 @@ define(function (require, exports, module) {
         addAttrRel: {
             position: '',  // 增加 attribute 或 relation 时 插入的位置  (attrel name 或 '@') ('@' 代表最下方的add按钮)
             direction: 0   // 增加 attribute 或 relation 时 插入的方向 （0: up, 1: down
-        }
+        },
+
+        windowResizeMutex: 0  // 为防止窗口大小变化时频繁执行某些操作，设置一个锁
     };
 
     var panelHeight = {
@@ -255,7 +257,8 @@ define(function (require, exports, module) {
                 // contains the substring `q`, add it to the `matches` array
                 $.each(strs, function(i, str) {
                     if (matches.length <= maxLength && (0 || substrRegex.test(str))) {
-                        console.log(q, str);
+                        //console.log(q, str);
+
                         // the typeahead jQuery plugin expects suggestions to a
                         // JavaScript object, refer to typeahead docs for more info
                         matches.push({ value: str });
@@ -268,21 +271,33 @@ define(function (require, exports, module) {
         };
 
         // 为左侧搜索栏添加下拉提示
-        $('.typeahead').typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 0
-        },  // 将 class 和 relation group 区分对待：
-        {
-            name: 'clsNames',
-            displayKey: 'value',
-            source: substringMatcher('class', 4)
-        },
-        {
-            name: 'rgNames',
-            displayKey: 'value',
-            source: substringMatcher('relGroup', 4)
-        });
+        $('#stigmod-search-left-input').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },  // 将 class 和 relation group 区分对待：
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher('class', 4)
+                },
+                {
+                    name: 'rgNames',
+                    displayKey: 'value',
+                    source: substringMatcher('relGroup', 4)
+                });
+
+        // 为 modelview 搜索栏添加下拉提示
+        $('#searchText').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },  // 将 class 和 relation group 区分对待：
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher('class', 6)
+                });
 
     }
 
@@ -616,9 +631,31 @@ define(function (require, exports, module) {
     function resizePanel() {
         var windowHeight = $(window).height();
 
+        // 调整三栏的高度
         $('#stigmod-nav-left-scroll').height(windowHeight - panelHeight.left);
         $('#stigmod-cont-right-scroll').height(windowHeight - panelHeight.middle);
         $('#stigmod-rcmd-right-scroll').height(windowHeight - panelHeight.right);
+
+
+        // 当 modelview 可见时，调整 modelview 中图形的位置（重新初始化）
+        if ($('#stigmod-modal-d3view').is(':visible') && stateOfPage.windowResizeMutex === 0) {
+
+            // 加锁
+            stateOfPage.windowResizeMutex = 1;
+
+            // 清除旧的 svg 和 Detail
+            $('#view').find('svg').remove();
+            $('#classDetail').remove();
+            $('#relationDetail').remove();
+
+            // 刷新模型图像
+            setTimeout(function() {
+                modelView(icm);
+
+                // 解锁
+                stateOfPage.windowResizeMutex = 0;
+            }, 500);
+        }
     }
 
     // 显示遮罩
@@ -980,7 +1017,7 @@ define(function (require, exports, module) {
             }
 
             // 尝试寻找旁边的搜索按钮 TODO：这几个“尝试”写得不好，应该在一开始就搞清楚属于那种情况
-            if (0 !== $(this).parent().parent().find('#stigmod-search-left-btn').trigger('click').length) {  // 第一个 parent() 是考虑了 typeahead wrapper 的影响
+            if (0 !== $(this).parent().parent().find('#stigmod-search-left-btn, #searchButton').trigger('click').length) {  // 第一个 parent() 是考虑了 typeahead wrapper 的影响
                 return false;  // 已猜对，不用继续
             }
 
@@ -1827,6 +1864,11 @@ define(function (require, exports, module) {
 
     function handleShowModelView() {
 
+        // 清除旧的 svg 和 Detail
+        $('#view').find('svg').remove();
+        $('#classDetail').remove();
+        $('#relationDetail').remove();
+
         // 显示模型图像
         $('#stigmod-modal-d3view').modal('show');
 
@@ -1834,8 +1876,6 @@ define(function (require, exports, module) {
         setTimeout(function() {
             modelView(icm);
         }, 500);
-
-
 
     }
 
@@ -1866,7 +1906,7 @@ define(function (require, exports, module) {
         icm.clearAttRelOrderChanges();
 
         // 向后端传送 model 操作日志
-        console.log('postData', postData);
+        //console.log('postData', postData);
         //console.log('postDataStringified', JSON.stringify(postData));
 
         $.ajax({
@@ -1895,7 +1935,7 @@ define(function (require, exports, module) {
     function handleClkSearchLeft() {
 
         // 调试用：输出icm
-        console.log(icm);
+        //console.log(icm);
         //var id = new ObjectId().toString();
         //console.log('id', id);
 

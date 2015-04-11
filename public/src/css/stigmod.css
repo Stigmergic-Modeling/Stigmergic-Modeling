@@ -669,6 +669,10 @@ fieldset[disabled] .stigmod-input {
   border-radius: 0;
 }
 
+.stigmod-modal-d3 .close {
+  margin-top: -10px;
+}
+
 /* --------------------------------------------- *
  *
  * workspace 页面 
@@ -1247,26 +1251,27 @@ span.twitter-typeahead .tt-hint {
  * --------------------------------------------- */
 
 #tooltip {
-  position:absolute;
-  left:650px;
-  top:20px;
-  width:300px;
-  height:auto;
+  position: absolute;
+  left: auto;
+  right: 20px;
+  top: 50px;
+  width: 300px;
+  height: auto;
   background-color: white;
-  pointer-events:none;
+  pointer-events: none;
 }
 #tooltip.hidden {
   display: none;
 }
 #tooltip p {
-  margin:0;
-  font-size: 16px;
+  margin: 0;
+  font-size: 14px;
   line-height: 20px;
 }
 #view {
   overflow: hidden;
-  position:relative;
-  margin:0 auto;
-  width:100%;
-  height:100%;
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
 }

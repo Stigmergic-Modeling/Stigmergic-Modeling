@@ -11,11 +11,11 @@ define(function(require, exports, module) {
     //var mywidth = document.getElementById("view").clientWidth;
 
     var $container = $('.stigmod-modal-d3');
-    var $header = $container.find('.modal-header');
+    //var $header = $container.find('.modal-header');
 
     //svg的长宽
-    var width = $container[0].clientWidth;
-    var height = $container[0].clientHeight - $header[0].clientHeight - 80;  // 80px 包含了各种 margin padding
+    var width = $container[0].clientWidth - 30;
+    var height = $container[0].clientHeight - 80;  // 80px 包含了各种 margin padding
     //console.log($container[0].clientWidth, $container[0].clientHeight, $header[0].clientHeight);
 
     var selectedColor = "#005499";  //选择之后圈和连线的颜色
@@ -86,9 +86,6 @@ define(function(require, exports, module) {
     drag.on("dragstart", function() {
       d3.event.sourceEvent.stopPropagation(); // silence other listeners
     });
-
-    // 清空 svg 的容器
-    var view = $('#view').find('svg').remove();
 
     //设置svg的大小
     var svg = d3.select("#view")
@@ -515,7 +512,7 @@ define(function(require, exports, module) {
       d3.select("#tooltip")
         .append("div")
         .attr("id", "classDetail")
-        .attr("style", "border: 1px solid");
+        .attr("style", "border: 1px solid #999");
 
       d3.select("#classDetail")
         .append("br");
@@ -527,7 +524,7 @@ define(function(require, exports, module) {
 
       d3.select("#classDetail")
         .append("hr")
-        .attr("style", "border-top:1px solid #444");
+        .attr("style", "border-top:1px solid #999");
 
       // 显示类的属性及相关信息
       d3.select("#classDetail")
@@ -547,7 +544,7 @@ define(function(require, exports, module) {
 
       d3.select("#attributes")
         .append("hr")
-        .attr("style", "border-top:1px solid #444");
+        .attr("style", "border-top:1px solid #999");
 
       //显示类的属性
       d3.select("#tooltip").classed("hidden", false);
@@ -664,7 +661,7 @@ define(function(require, exports, module) {
 
       d3.select("#sourceClass")
         .append("p")
-        .attr("style", "text-align:center;border: 1px solid; padding: 10px")
+        .attr("style", "text-align:center;border: 1px solid #999; padding: 10px; font-weight: bold")
         .text(sourceName);
 
       d3.select("#relation")
@@ -674,7 +671,7 @@ define(function(require, exports, module) {
 
       d3.select("#targetClass")
         .append("p")
-        .attr("style", "text-align:center;border: 1px solid; padding: 10px")
+        .attr("style", "text-align:center;border: 1px solid #999; padding: 10px; font-weight: bold")
         .text(targetName);
 
       
@@ -704,7 +701,7 @@ define(function(require, exports, module) {
       highlightEdgeNode(edge);
 
       //高亮与该边相连的节点
-      highlightEdge(edge);      
+      highlightEdge(edge);
     }
 
     function mouseoverEdge(edge){
