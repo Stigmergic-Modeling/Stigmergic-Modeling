@@ -181,7 +181,7 @@ define(function (require, exports, module) {
         $(document).on('click', '#stigmod-btn-remove', handleRemoveOk);
 
         // 点击 show modelView 按钮
-        $(document).on('click', '#stigmod-model-view', handleShowModelView);
+        $(document).on('click', '#stigmod-model-view, #stigmod-model-view-fs', handleShowModelView);
 
         // 未保存就离开页面
         $(window).on('beforeunload', handleLeavePage);

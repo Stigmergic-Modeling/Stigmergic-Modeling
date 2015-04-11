@@ -2,21 +2,18 @@ define(function(require, exports, module) {
 
   var d3 = require('../lib/d3');
   var $ = require('../lib/jquery');
+  var startDrag = require('../module/mousedrag');
 
   module.exports = modelview;
 
   // 用d3实现model可视化
   function modelview(model) {
 
-    //var mywidth = document.getElementById("view").clientWidth;
-
     var $container = $('.stigmod-modal-d3');
-    //var $header = $container.find('.modal-header');
 
     //svg的长宽
     var width = $container[0].clientWidth - 30;
     var height = $container[0].clientHeight - 80;  // 80px 包含了各种 margin padding
-    //console.log($container[0].clientWidth, $container[0].clientHeight, $header[0].clientHeight);
 
     var selectedColor = "#005499";  //选择之后圈和连线的颜色
     var lineColor = "#b4c1f3";      //连线的颜色
@@ -75,17 +72,22 @@ define(function(require, exports, module) {
       .on("zoom", zoomed);
 
 
-    var drag = d3.behavior.drag().on("drag", dragmove);
+    // Detail 框的拖拽
+    var tooltip = document.getElementById('tooltip');
+    startDrag(tooltip, tooltip);
 
-    //定义拖拽事件触发时的函数
-    function dragmove(d) {
-    d3.select(this)
-      .style("left", d3.event.x + "px")
-      .style("top", d3.event.y + "px");
-    }
-    drag.on("dragstart", function() {
-      d3.event.sourceEvent.stopPropagation(); // silence other listeners
-    });
+
+    //var drag = d3.behavior.drag().on("drag", dragmove);
+    //
+    ////定义拖拽事件触发时的函数
+    //function dragmove(d) {
+    //d3.select(this)
+    //  .style("left", d3.event.x + "px")
+    //  .style("top", d3.event.y + "px");
+    //}
+    //drag.on("dragstart", function() {
+    //  d3.event.sourceEvent.stopPropagation(); // silence other listeners
+    //});
 
     //设置svg的大小
     var svg = d3.select("#view")
@@ -548,7 +550,8 @@ define(function(require, exports, module) {
 
       //显示类的属性
       d3.select("#tooltip").classed("hidden", false);
-      d3.select("#tooltip").call(drag);
+      //d3.select("#tooltip").call(drag);
+
       // var tipWidth = document.getElementById("tooltip").clientWidth;
       // var tipHeight = document.getElementById("tooltip").clientHeight;
       // var tmpsvg = d3.select("#classDetail")

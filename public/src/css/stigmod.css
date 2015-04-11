@@ -667,10 +667,18 @@ fieldset[disabled] .stigmod-input {
   position: relative;
   height: 100%;
   border-radius: 0;
+  border-color: #fff;
 }
 
+/* 关闭按钮 */
 .stigmod-modal-d3 .close {
   margin-top: -10px;
+}
+
+/* 搜索框外框 */
+.stigmod-modal-d3 .search-row {
+  position: absolute;
+  z-index: 10000;
 }
 
 /* --------------------------------------------- *
@@ -1252,13 +1260,15 @@ span.twitter-typeahead .tt-hint {
 
 #tooltip {
   position: absolute;
-  left: auto;
-  right: 20px;
-  top: 50px;
+  right: auto;
+  left: 20px;
+  top: 80px;
   width: 300px;
   height: auto;
   background-color: white;
-  pointer-events: none;
+  cursor: move;
+  z-index:10001;
+  /*pointer-events: none;*/
 }
 #tooltip.hidden {
   display: none;
