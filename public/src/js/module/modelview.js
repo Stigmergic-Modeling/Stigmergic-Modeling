@@ -67,7 +67,7 @@ define(function(require, exports, module) {
 
     //缩放定义
     var zoom = d3.behavior.zoom()
-      .center([width / 2, height / 2])
+      // .center([width / 2, height / 2])
       //.scaleExtent([1, 10])
       .on("zoom", zoomed);
 
@@ -77,17 +77,7 @@ define(function(require, exports, module) {
     startDrag(tooltip, tooltip);
 
 
-    //var drag = d3.behavior.drag().on("drag", dragmove);
-    //
-    ////定义拖拽事件触发时的函数
-    //function dragmove(d) {
-    //d3.select(this)
-    //  .style("left", d3.event.x + "px")
-    //  .style("top", d3.event.y + "px");
-    //}
-    //drag.on("dragstart", function() {
-    //  d3.event.sourceEvent.stopPropagation(); // silence other listeners
-    //});
+    
 
     //设置svg的大小
     var svg = d3.select("#view")
@@ -96,14 +86,16 @@ define(function(require, exports, module) {
       .attr("height", height)
       .append("g")
       .call(zoom) //调用缩放功能
-      .on("mousedown.zoom", null); //防止拖拽
+      .append("svg:g");
+      // .on("mousedown.zoom", null); //防止拖拽
 
     //颜色为白的背景 -> 缩放时无需鼠标移到node上
     svg.append("rect")
-      .attr("class", "background")
+      // .attr("class", "background")
       .attr("fill", "#fff")
       .attr("width", width)
-      .attr("height", height);
+      .attr("height", height)
+      .style("pointer-events", "all");;
 
 
     //使用dataset中的nodes和edges初始化force布局
@@ -114,6 +106,11 @@ define(function(require, exports, module) {
       .linkDistance(150)
       .charge([-350])
       .start();
+
+    var drag = force.drag()
+      .on("dragstart", function(d) {
+        d3.event.sourceEvent.stopPropagation();
+    });
 
 
     //连线与edges数据绑定
@@ -129,9 +126,14 @@ define(function(require, exports, module) {
       .enter().append("g")
       .attr("class", "node")
       .call(force.drag);
+      // .call(force.drag().on("drag", function(d) { drag() }));
 
     //节点添加文本，文本内容为节点名称
     var myname = node.append("text")
+      .attr("x", function(d){
+        return radiusover(d) + 2;
+      })
+      .attr("y", ".35em")
       .text(function(d) {
         return d.name;
       })
@@ -249,9 +251,26 @@ define(function(require, exports, module) {
      */
 
     function zoomed() {
-      d3.select(this)
-        .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
+
+    // function dragstarted(d) {
+    //   d3.event.sourceEvent.stopPropagation();
+      
+    //   d3.select(this).classed("dragging", true);
+    //   // force.start();
+    // }
+
+    // function dragged(d) {
+      
+    //   d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+      
+    // }
+
+    // function dragended(d) {
+      
+    //   d3.select(this).classed("dragging", false);
+    // }
 
 
 
@@ -698,7 +717,7 @@ define(function(require, exports, module) {
 
       //显示类的属性
       d3.select("#tooltip").classed("hidden", false);
-      d3.select("#tooltip").call(drag);
+      // d3.select("#tooltip").call(drag);
 
       //高亮该条边
       highlightEdgeNode(edge);
@@ -820,6 +839,8 @@ define(function(require, exports, module) {
         d.y = d.y + r * 2 > height ? height - r * 2 : d.y;
       });
 
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
       /**
        *   计算两点之间连线的起止位置，以绘出合适的箭头
        */
@@ -863,31 +884,31 @@ define(function(require, exports, module) {
       });
 
       //更新节点的坐标
-      node.selectAll("circle")
-        .attr("cx", function(d) {
-          return d.x;
-        })
-        .attr("cy", function(d) {
-          return d.y;
-        });
+      // node.selectAll("circle")
+      //   .attr("cx", function(d) {
+      //     return d.x;
+      //   })
+      //   .attr("cy", function(d) {
+      //     return d.y;
+      //   });
 
-      //更新连线上文本的坐标
-      link.selectAll("text")
-        .attr("x", function(d) {
-          return (d.source.x + d.target.x) / 2;
-        })
-        .attr("y", function(d) {
-          return (d.source.y + d.target.y) / 2;
-        });
+      // //更新连线上文本的坐标
+      // link.selectAll("text")
+      //   .attr("x", function(d) {
+      //     return (d.source.x + d.target.x) / 2;
+      //   })
+      //   .attr("y", function(d) {
+      //     return (d.source.y + d.target.y) / 2;
+      //   });
 
-      //更新节点旁文字的坐标
-      node.selectAll("text")
-        .attr("x", function(d) {
-          return d.x - radiusover(d) * 2;
-        })
-        .attr("y", function(d) {
-          return d.y + radiusover(d) * 2;
-        });
+      // //更新节点旁文字的坐标
+      // node.selectAll("text")
+      //   .attr("x", function(d) {
+      //     return d.x - radiusover(d) * 2;
+      //   })
+      //   .attr("y", function(d) {
+      //     return d.y + radiusover(d) * 2;
+      //   });
     });
    
 
