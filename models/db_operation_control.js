@@ -39,14 +39,14 @@ var ErrUpdate = function(state,newError){
 /**
  *  get individual model
  */
+
 var getIndividualModel = function (projectID, user, callback) {
     var model = [{}, {}];
     var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
 
     // 获取所有 class
-    individualModel.getClass(projectID, user, function (classSet) {
+    individualModel.getClassSet(projectID, user, function (classSet) {
 
-        //console.log('classSet', classSet, Object.keys(classSet).length);
         var classSetLen = Object.keys(classSet).length;
 
         // 若 class 个数为 0，则直接退出 getClass 任务
@@ -57,51 +57,41 @@ var getIndividualModel = function (projectID, user, callback) {
             return;
         }
 
-        // 若 class 个数不为 0，则退出 getClass 任务，同时加入所有 class 之下的任务（原子性得到保证）
+        // 若 class 个数不为 0，则退出 getClassSet 任务，同时加入所有 class 之下的任务（原子性得到保证）
         mutex += classSetLen - 1;
 
         // 对每个 class
         for (var key in classSet) {
-            model[0][key] = [];
+            var item = model[0][key] = [{},{"order":classSet[key]["order"]}];
 
+            //当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-            individualModel.getAttribute(projectID, user, key, function (className, attributeSet) {
+            individualModel.getAttribute(projectID, user, item, classSet[key].classId, function (item, attributeSet) {
+                //TODO 此处有bug   mutex++
+                var attributeSetLen = attributeSet.length;
+                mutex += attributeSetLen - 1;
 
-                //console.log('attributeSet', attributeSet, Object.keys(attributeSet).length);
-                var attributeSetLen = Object.keys(attributeSet).length;
+                for (var i=0;i<attributeSetLen;i++) {
+                    //获得对应attribute的Property
+                    var attributeId = attributeSet[i];
+                    individualModel.getAttributeProperty(projectID, user, attributeId, function(attributeId,propertySet){
+                        //转换并存储
+                        var name =  propertySet.role;
+                        item[0][name] = [{}];
+                        var property = item[0][name][0];
 
-                if (!attributeSetLen) {
-                    model[0][className][0] = {};
-                    model[0][className][1] = {'order': []};  // TODO: 这一行使 add class 时对 order 数组的初始化变得有点多余了
-
-                    if (--mutex === 0) {
-                        return callback(null, model);
-                    }
-                    return;
-                }
-
-                // +attributeSetLen 对应 getAttributeProperty 任务，+1 对应 getAttributeOrder 任务
-                mutex += attributeSetLen;  // attributeSetLen + 1 - 1
-
-                attributeSet = individualModel.transAttribute(attributeSet);
-                model[0][className][0] = attributeSet;
-
-                // 对某个 class，获取 attribute order 数组
-                individualModel.getAttributeOrder(projectID, user, className, function (className, order) {
-                    model[0][className][1] = {'order': order};
-
-                    if (--mutex === 0) {
-                        return callback(null, model);
-                    }
-                });
-
-                // 对某个 class 的所有 attribute
-                for (key in attributeSet) {
-                    model[0][className][0][key] = [];
-
-                    individualModel.getAttributeProperty(projectID, user, className, key, function(className, attributeName, propertySet) {
-                        model[0][className][0][attributeName][0] = propertySet;
-
+                        for(var key in propertySet){
+                            if(key == "role"){
+                                property["name"] = propertySet[key];
+                            }else if(key == "class"){
+                                property["type"] = propertySet[key];
+                            }else if(key == "isAttribute"){
+                                continue;
+                            }
+                            else{
+                                property[key] = propertySet[key];
+                            }
+                        }
                         if (--mutex === 0) {
                             return callback(null, model);
                         }
@@ -166,39 +156,56 @@ var getIndividualModel = function (projectID, user, callback) {
 }
 
 var individualModel = {
-    getClass: function(projectID, user, callback) {
+    getClassSet: function(projectID, user, callback) {
+        //获取classId,className和class的attributeOrder
         var filter = {
             projectID : projectID,
             user : user,
-            source : 'Class'
+            type : 'class'
         };
-        dbOperation.get("conceptDiag_index",filter,function(err,docs){
+        //获取className和attributeOrder
+        dbOperation.get("conceptDiag_order",filter,function(err,docs){
             var classSet = {};
-            //console.log(docs);
+            var classNameArray = [];
             docs.forEach(function(element){
-                classSet[element.target] = [];
+                classNameArray.push(element.identifier);
+                classSet[element.identifier] = {order:element.order};
             });
-            return callback(classSet);
+
+            var filter2 = {
+                projectID : projectID,
+                user : user,
+                "relation":{
+                    "direction": '',
+                    "attribute": 'className'
+                },
+                "target": {"$in":classNameArray}
+            }
+            dbOperation.get("conceptDiag_edge",filter2,function(err,docs){
+                docs.forEach(function(element){
+                    classSet[element.target]["classId"] = element.source;
+                });
+                return callback(classSet);
+            });
         });
     },
 
-    getAttribute: function (projectID, user, className, callback) {
+    getAttribute: function (projectID, user, item, classId, callback) {
         var filter = {
             projectID: projectID,
             user: user
         }
-        var classFilter = new Merge(filter, {
-            target: className
+        //找到所有与class相关的可能作为attribute的relation节点
+        var relationFilter = new Merge(filter, {
+            relation : {
+                direction: '0',
+                attribute: 'class'
+            },
+            target: classId
         });
-        classFilter['relation.direction'] = '0';  // 带“点”的查询条件不能用Merge来合并，不然会丢失“点结构”，无法进行内嵌文档查询
-        classFilter['relation.attribute'] = 'class';
+        dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
 
-        dbOperation.get("conceptDiag_edge", classFilter ,function (err, docs) {
             var relationArray = [];
-
-            //console.log('classFilter', classFilter);
-            //console.log('docs',docs);
-
             docs.forEach(function(element){
                 // attribute or relation
                 relationArray.push(element.source);
@@ -207,91 +214,43 @@ var individualModel = {
             // find attribute ones
             var relationFilter = new Merge(filter,{
                 "source":{"$in":relationArray},
-                "target":'1'
+                relation:{
+                    direction: '1',
+                    attribute: 'isAttribute'
+                },
+                "target": '1'
             });
-            relationFilter['relation.attribute'] = 'isAttribute';
 
             dbOperation.get("conceptDiag_edge", relationFilter, function (err, docs) {
 
-                // find attributes
                 var attributeArray = [];
-                //console.log('docs',docs);
-
                 docs.forEach(function(element){
                     attributeArray.push(element.source);  // direction 默认为1
                 });
-                var attributeFilter = new Merge(filter,{
-                    "source":{"$in":attributeArray}
-                });
-                classFilter['relation.direction'] = '1';
-
-                dbOperation.get("conceptDiag_edge",attributeFilter,function(err,docs){
-
-                    // 这里Attribute是以Relation为连接的一组节点
-                    // 按照relation的不同进行处理
-                    var attributeSet = {};
-                    //console.log('docs',docs);
-
-                    docs.forEach(function(element){
-                        if(attributeSet[element.source]==null)    attributeSet[element.source] = [{}];
-                        attributeSet[element.source][0][element.relation.attribute] = element.target;
-                    });
-
-                    // 此时还是以Attribute Relation的ID进行命名的
-                    return callback(className,attributeSet);
-                });
+                return callback(item,attributeArray);
             })
         });
     },
 
-    getAttributeOrder: function(projectID, user, className, callback) {
+    getAttributeProperty: function (projectID, user, attributeId, callback) {
         var filter = {
             projectID: projectID,
             user: user,
-            type: 'class',
-            identifier: className  // name or ID
-        };
-        //console.log('filter', filter);
-        dbOperation.get("conceptDiag_order", filter, function(err, docs) {
-            //console.log('docs', docs);
-            return callback(className, docs[0].order);
-        });
-    },
+            "source":attributeId,
+            "relation.direction": '1'
+        }
 
-    getAttributeProperty: function (projectID, user, className, attributeName, callback) {
+        //find attributeProperty
+        dbOperation.get("conceptDiag_edge",filter,function(err,docs){
+            var property = {};
 
-        attribute.getId(projectID, user, className, attributeName, function(attributeId) {
-            var filter = {
-                projectID: projectID,
-                user: user,
-                source: attributeId,
-                'relation.direction': '1'
-            }
-
-            dbOperation.get("conceptDiag_edge", filter, function (err, docs) {
-                var propertySet = {};
-
-                docs.forEach(function (element) {
-                    var proertyName = element.relation.attribute;
-
-                    if ('role' === proertyName) {
-                        propertySet.name = element.target;
-
-                    } else if ('class' === proertyName) {
-                        propertySet.type = element.target;
-
-                    } else if ('isAttribute' === proertyName) {
-                        // do nothing
-
-                    } else {
-                        propertySet[proertyName] = element.target;
-                    }
-                });
-
-                return callback(className, attributeName, propertySet);
+            docs.forEach(function(element){
+                property[element.relation.attribute] = element.target;
             });
+            return callback(attributeId,property);
         });
     },
+
 
     getRelationGroupAndRelation: function (projectID, user, callback) {
         var filter = {
@@ -401,383 +360,407 @@ var individualModel = {
  */
 
 var class_ = {
-    add : function(projectID,user,className,type,callback){
-        //console.log('projectID', projectID);
-
-        var dateSetBase = {
+    getId: function(projectID, user, className, callback){
+        var filter = {
             projectID: projectID,
-            user: user
-        };
-        //console.log('typeof projectID', typeof projectID);
-        //console.log('dateSetBase', dateSetBase);
-        var errs = null;
-        var mutex = 0;
-
-        //save index
-        var dataSet = new Merge(dateSetBase,{
-            'collection':"conceptDiag_index",
-            'source':'Class',
-            'target':className,
-            'relation':{
-                direction:'',  // 不是连在relationship两端的edge，因此direction是空串(所有index的direction都是空串)
-                attribute:'instance'
+            user:user
+        }
+        //找到包含className的边，其边的source为classId
+        var classFilter = new Merge(filter,{
+            "relation":{
+                "direction": '',
+                "attribute": 'className'
+            },
+            "target": className
+        });
+        dbOperation.get("conceptDiag_edge",classFilter,function(err,docs){
+            var classId = null;
+            if(docs){
+                if(docs[0]) classId=docs[0].source;
             }
+            return callback(classId);
         });
-
-        //console.log('dataSet', dataSet);
-        mutex ++;
-        saveData(dataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-
-            if(--mutex === 0) return callback(errs);
+    },
+    createId: function(projectID, user, className, callback){
+        //创建class的节点
+        //尝试找到包含className的所有节点
+        var filter = {
+            projectID: projectID
+        }
+        //找到包含className的边，其边的source为classId
+        var classNameFilter = new Merge(filter,{
+            "relation":{
+                "direction": '',
+                "attribute": 'className'
+            },
+            "target": className
         });
-
-        //save class edge (type of class)
-        if (type) {
-            dataSet = new Merge(dateSetBase,{
-                'collection': "conceptDiag_edge",
-                'source': className,
-                'target': type,
-                'relation':{
-                    'direction': '',  // 不是连在relationship两端的edge，因此direction是空串
-                    'attribute':'type'
+        dbOperation.get("conceptDiag_edge",classNameFilter,function(err,docs){
+            //筛选出其中未被当前user使用的节点
+            var classIdArray = [];
+            var refSet = {};
+            docs.forEach(function(element){
+                classIdArray.push(element.source);
+                refSet[element.source] = element.user.length;
+            });
+            var classIdFilter = new Merge(filter,{
+                "_id":{"$in":classIdArray},
+                "user":{"$nin":[user]},
+                "type":"class"
+            });
+            //TODO 此处好像写错了
+            dbOperation.get("conceptDiag_vertex", classIdFilter, function (err, docs){
+                //对于所有可能的classId，找到使用className做多的一个点。
+                // TODO 此处存在疑问，具体应该暂存className数量最多，还是所占比例最多。此处采用数量最多。基于前提是任意一个className已经找到了最合适的classId点
+                var maxRef = -1;
+                var classId;
+                docs.forEach(function(element){
+                    if(refSet[element._id] > maxRef){
+                        classId = element._id;
+                        maxRef =  refSet[element._id];
+                    }
+                });
+                if(classId != undefined){
+                    var dataSet = {
+                        'collection': "conceptDiag_edge",
+                        'projectID': projectID,
+                        '_id': classId,
+                        'user':user,
+                        "type":"class"
+                    };
+                    saveData(dataSet,function(err,docs){
+                        return callback(docs[0]._id);
+                    });
+                }
+                else{
+                    //如果不存在合适的节点，则返回新增节点
+                    var dataSet = {
+                        projectID: projectID,
+                        user: [user],
+                        "type":"class"
+                    };
+                    dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
+                        return callback(docs[0]._id);
+                    })
                 }
             });
+        });
+    },
+    add : function(projectID,user,className,type,callback){
+        //首先创建class vertex
+        this.createId(projectID, user, className, function(classId){
+            //创建子信息
+            var dateSetBase = {
+                projectID: projectID,
+                user: user
+            };
+
+            var errs = null;
+            var mutex = 0;
+
+            //save className
             mutex ++;
+            var dataSet = new Merge(dateSetBase,{
+                'collection': "conceptDiag_edge",
+                'source': classId,
+                'target': className,
+                'relation':{
+                    'direction': '',  // 不是连在relationship两端的edge，因此direction是空串
+                    'attribute':'className'
+                }
+            });;
             saveData(dataSet,function(err,doc){
                 errs = ErrUpdate(errs,err);
                 if(--mutex === 0) return callback(errs);
-            })
-        }
+            });
 
-        // 为 class 中 attribute 的顺序数组开辟 document
-        var dataSet4Order = {};
+            //save class edge (type of class)
+            mutex ++;
+            if (type) {
+                var dataSet = new Merge(dateSetBase,{
+                    'collection': "conceptDiag_edge",
+                    'source': classId,
+                    'target': type,
+                    'relation':{
+                        'direction': '',  // 不是连在relationship两端的edge，因此direction是空串
+                        'attribute':'classType'
+                    }
+                });
+                saveData(dataSet,function(err,doc){
+                    errs = ErrUpdate(errs,err);
+                    if(--mutex === 0) return callback(errs);
+                })
+            }
 
-        dataSet4Order.collection = 'conceptDiag_order';
-        dataSet4Order.filter = {
-            projectID: projectID,
-            user: user,
-            type: 'class',
-            identifier: className
-        };
-        dataSet4Order.updateData = {
-            order: []
-        };
-
-        //console.log('dataSet4Order', dataSet4Order);
-        mutex ++;
-        updateData(dataSet4Order,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            //console.log('attribute order [] updated');
-            if(--mutex === 0) return callback(errs);
+            // 为 class 中 attribute 的顺序数组开辟 document
+            mutex ++;
+            var dataSet4Order = {};
+            dataSet4Order.collection = 'conceptDiag_order';
+            dataSet4Order.filter = {
+                projectID: projectID,
+                user: user,
+                type: 'class',
+                identifier: className
+            };
+            dataSet4Order.updateData = {
+                order: []
+            };
+            updateData(dataSet4Order,function(err,doc){
+                errs = ErrUpdate(errs,err);
+                //console.log('attribute order [] updated');
+                if(--mutex === 0) return callback(errs);
+            });
         });
     },
 
     delete: function(projectID,user,className,callback){
-        var dateSetBase = {
-            projectID: projectID,
-            user: user
-        };
-        var errs = null;
-        var mutex = 0;
-        //delete index
-        var dataSet = new Merge(dateSetBase,{
-            'collection': "conceptDiag_index",
-            'source': 'Class',
-            'target': className,
-            'relation': {direction:'',attribute:'instance'}
-        });
-        mutex ++;
-        deleteData(dataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
-        });
+        //首先获取classId
+        this.getId(projectID,user,className,function(classId){
+            if(classId == null) return; //TODO return what?
+            var dateSetBase = {
+                projectID: projectID,
+                user: user
+            };
+            var errs = null;
+            var mutex = 0;
 
-        //delete edges start from class
-        dataSet = new Merge(dateSetBase,{
-            'collection': "conceptDiag_edge",
-            'source': className
-        });
-        mutex ++;
-        deleteData(dataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
-        });
+            //删除vertex
+            mutex++;
+            var dataSet = new Merge(dateSetBase,{
+                'collection': "conceptDiag_vertex",
+                '_id': classId
+            });
+            deleteData(dataSet,function(err,doc){   //TODO 这是属于哪个集合啊？
+                errs = ErrUpdate(errs,err);
+                if(--mutex === 0) return callback(errs);
+            });
 
-        // 删除该 class 的 order TODO: 此处没参与序列化，不安全。
-        var filter4Delete = {
-            projectID: projectID,
-            user: user,
-            type: 'class',
-            identifier: className,
-            order: []  // 必须是为空时才能删除
-        };
-        mutex ++;
-        dbOperation.delete('conceptDiag_order', filter4Delete, function (err, doc) {
-            if (--mutex === 0) return callback(err, doc);
-        });
+
+            //TODO 由于前台提示了删除哪些属性，所以不需要进行属性删除？？？
+            //删除value
+            mutex ++;
+            dataSet = new Merge(dateSetBase,{
+                'collection': "conceptDiag_edge",
+                'source': classId
+            });
+            deleteData(dataSet,function(err,doc){
+                errs = ErrUpdate(errs,err);
+                if(--mutex === 0) return callback(errs);
+            });
+
+            // 删除该 class 的 order TODO: 此处没参与序列化，不安全。
+            mutex ++;
+            var filter4Delete = {
+                projectID: projectID,
+                user: user,
+                type: 'class',
+                identifier: className
+            };
+            dbOperation.delete('conceptDiag_order', filter4Delete, function (err, doc) {
+                errs = ErrUpdate(errs,err);
+                if (--mutex === 0) return callback(errs);
+            });
+        })
     },
 
     revise:function(projectID,user,oldClassName,newClassName,callback){
-
         //class的revise的含义：修改 class name
-        var dateSetBase = {
-            projectID: projectID,
-            user: user
-        };
-        var errs = null;
-        var mutex = 0;
+        this.getId(projectID,user,oldClassName,function(classId){
+            var dateSetBase = {
+                projectID: projectID,
+                user: user
+            };
+            var errs = null;
+            var mutex = 0;
 
-        //revise index
-        var oldDataSet = new Merge(dateSetBase,{
-            'collection': "conceptDiag_index",
-            'source': 'Class',
-            'target': oldClassName,
-            'relation': {direction:'',attribute:'instance'}
-        });
-        mutex ++;
-        deleteData(oldDataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
-        });
-        var newDataSet = new Merge(oldDataSet,{
-            'target':newClassName
-        });
-        mutex ++;
-        saveData(newDataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
-        });
-
-        // TODO: 这里（更新应该 class 为源或目标的边）代码冗余太多，需要整合
-        // revise edges start from class
-        var oldDataSet4Edge = new Merge(dateSetBase,{
-            'collection': "conceptDiag_edge",
-            'source': oldClassName
-        });
-        var filter = new Merge(dateSetBase, {
-            'source': oldClassName
-        });
-
-        mutex ++;
-        dbOperation.get("conceptDiag_edge",filter,function(err,docs){
-
-            //删除
+            //删除旧name
+            var oldDataSet4Edge = new Merge(dateSetBase,{
+                'collection': "conceptDiag_edge",
+                'source': classId,
+                'target': oldClassName,
+                'relation':{
+                    'direction': '',  // 不是连在relationship两端的edge，因此direction是空串
+                    'attribute':'className'
+                }
+            });
             deleteData(oldDataSet4Edge,function(err,doc){
                 errs = ErrUpdate(errs,err);
                 if(--mutex === 0) return callback(errs);
             });
 
-            //新增
-            docs.forEach(function(element){
-                //console.log('elementOld', element);
-
-                // 修改 element 以使其符合 saveDate 函数的参数格式
-                element.source = newClassName;
-                element.collection = 'conceptDiag_edge';
-                element.user = user;  // 注意这里不能使用原数组，而应该使用user名的字符串
-                delete element._id;
-                delete element.lastRevise;
-                //console.log('elementNew', element);
-
-                mutex ++;
-                saveData(element,function(err,doc){
-                    errs = ErrUpdate(errs,err);
-                    if(--mutex === 0) return callback(errs);
-                });
+            //添加新name
+            var newDataSet4Edge = new Merge(dateSetBase,{
+                'collection': "conceptDiag_edge",
+                'source': classId,
+                'target': newClassName,
+                'relation':{
+                    'direction': '',  // 不是连在relationship两端的edge，因此direction是空串
+                    'attribute':'className'
+                }
             });
-        });
-
-        // revise edges end with class
-        var oldDataSet4EdgeEnd = new Merge(dateSetBase,{
-            'collection': "conceptDiag_edge",
-            'target': oldClassName
-        });
-        var filterEnd = new Merge(dateSetBase, {
-            'target': oldClassName
-        });
-
-        mutex ++;
-        dbOperation.get("conceptDiag_edge",filterEnd,function(err,docs){
-
-            //删除
-            deleteData(oldDataSet4EdgeEnd,function(err,doc){
+            saveData(newDataSet4Edge,function(err,doc){
                 errs = ErrUpdate(errs,err);
                 if(--mutex === 0) return callback(errs);
-            });
+            })
 
-            //新增
-            docs.forEach(function(element){
-                //console.log('elementOld', element);
 
-                // 修改 element 以使其符合 saveDate 函数的参数格式
-                element.target = newClassName;
-                element.collection = 'conceptDiag_edge';
-                element.user = user;  // 注意这里不能使用原数组，而应该使用user名的字符串
-                delete element._id;
-                delete element.lastRevise;
-                //console.log('elementNew', element);
-
-                mutex ++;
-                saveData(element,function(err,doc){
-                    errs = ErrUpdate(errs,err);
-                    if(--mutex === 0) return callback(errs);
-                });
+            // revise order of attribute
+            mutex ++;
+            var dataSet4Order = {};
+            dataSet4Order.collection = 'conceptDiag_order';
+            dataSet4Order.filter = {
+                projectID: projectID,
+                user: user,
+                type: 'class',
+                identifier: oldClassName
+            };
+            dataSet4Order.updateData = {
+                identifier: newClassName
+            };
+            updateData(dataSet4Order,function(err,doc){
+                errs = ErrUpdate(errs,err);
+                //console.log('attribute order [] updated');
+                if(--mutex === 0) return callback(errs);
             });
         });
-
-        // revise order of attribute
-        var dataSet4Order = {};
-        dataSet4Order.collection = 'conceptDiag_order';
-        dataSet4Order.filter = {
-            projectID: projectID,
-            user: user,
-            type: 'class',
-            identifier: oldClassName
-        };
-        dataSet4Order.updateData = {
-            identifier: newClassName
-        };
-
-        mutex ++;
-        updateData(dataSet4Order,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            //console.log('attribute order [] updated');
-            if(--mutex === 0) return callback(errs);
-        });
-
-        //// 修改一端包含该类的 relationGroup 的名字（relationGroup在order中体现）！！！！废弃！！！！（现在通过MOD_RLG实现）
-        //var regRlgName = new RegExp('(^' + oldClassName + '-)|(-' + oldClassName + '$)');
-        //var filter4RlgName = {
-        //    projectID: projectID,
-        //    user: user,
-        //    type: 'relation_group',
-        //    identifier: regRlgName
-        //}
-        //dbOperation.get('conceptDiag_order', filter4RlgName, function (err, docs) {
-        //
-        //    docs.forEach(function (doc) {
-        //        var id = doc._id;
-        //        var rlgName = doc.identifier;
-        //        var newRlgName;
-        //        var regRlgName = new RegExp('^' + oldClassName + '(-.*)$|^(.*-)' + oldClassName + '$');
-        //        var match = rlgName.match(regRlgName);
-        //
-        //        // 计算 relationGroup 的新 name
-        //        if (match[1] !== void 0) {  // oldClassName-XXX 模式
-        //            newRlgName = newClassName + match[1];
-        //        } else if (match[2] !== void 0) {  // XXX-oldClassName 模式
-        //            newRlgName = match[2] + newClassName;
-        //        }
-        //        console.log('rlgName', rlgName);
-        //        console.log('newRlgName', newRlgName);
-        //
-        //        // 更新 name
-        //        var dataSet4RlgName = {};
-        //        dataSet4Order.collection = 'conceptDiag_order';
-        //        dataSet4Order.filter = {
-        //            _id: id
-        //        };
-        //        dataSet4RlgName.updateData = {
-        //            identifier: newRlgName
-        //        };
-        //        mutex ++;
-        //        updateData(dataSet4RlgName,function(err,doc){
-        //            errs = ErrUpdate(errs,err);
-        //            if(--mutex === 0) return callback(errs);
-        //        });
-        //    });
-        //});
     }
 }
 
 var attribute = {
     getId: function(projectID, user, className, attributeName, callback){
-        var filter = {
-            projectID: projectID,
-            user: user
-        }
-        // 找到className存在的关系Relation (有可能是非属性关系、可能是role不是attributeName的属性关系、
-        // 也有可能是该class作为类型的属性关系（可能吗？这样的class可能在E0端吗？）。这都不是我们想要的)
-        var classFilter = new Merge(filter,{
-            "relation":{
-                "direction": '0',
-                "attribute": 'class'
-            },
-            "target": className  // 关键
-        });
-        //console.log('attribute getId', 'classFilter', classFilter);
-        dbOperation.get("conceptDiag_edge",classFilter,function(err,docs){
-            //console.log('docs', docs);
-            var relationArray = [];
-            docs.forEach(function(element){
-                //attribute or relation
-                relationArray.push(element.source);
-            });
-            // 找到className，attributeName同时存在的关系Relation (有可能是非属性关系)
-            var relationFilter = new Merge(filter,{
-                'source':  {"$in":relationArray},
-                "relation":{
-                    "direction":'1',
-                    "attribute": 'role'
-                },
-                "target": attributeName  // 关键
-            })
-            //console.log('attribute getId', 'relationFilter', relationFilter);
-            dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
-                // 找到此关系中属于属性的关系 (唯一)
-                //console.log('docs', docs);
-                var attributeArray = [];
-                docs.forEach(function(element){
-                    attributeArray.push(element.source);  // direction 默认为1
-                });
-                var attributeFilter = new Merge(filter,{
-                    'source':  {"$in":attributeArray},
+        class_.getId(projectID, user, className, function(classId){
+            individualModel.getAttribute(projectID, user, null, classId, function(item,attributeIdArray){
+                // 找到className，attributeName同时存在的关系Relation (有可能是非属性关系)
+                var relationFilter = {
+                    projectID : projectID,
+                    user: user,
+                    'source':  {"$in":attributeIdArray},
                     "relation":{
                         "direction":'1',
-                        "attribute": 'isAttribute'  // 关键
+                        "attribute": 'role'
                     },
-                    "target": '1'
-                });
-                dbOperation.get("conceptDiag_edge",attributeFilter,function(err,docs){
+                    "target": attributeName  // 关键
+                };
+
+                //找到其中名字对应的
+                dbOperation.get("conceptDiag_edge",relationFilter,function(err,docs){
+                    // 找到此关系中属于属性的关系 (唯一)
                     var attributeId;  // attribute应该只有一个否则存在问题
                     if(docs.length === 1) attributeId = docs[0].source;
                     return callback(attributeId);  // TODO: 需要在第一个参数处加入err
-                });
+                })
             })
         });
     },
+    createId: function(projectID, user, className, attributeName, callback){
+        var filter = {
+            projectID: projectID,
+            user: user
+        };
+        //为空如何处理??
+        class_.getId(projectID, "", className, function(classId){
+            //找到所有与class相关的可能作为attribute的relation节点
+            var relationFilter = new Merge(filter, {
+                source: classId,
+                relation : {
+                    direction: '0',
+                    attribute: 'class'
+                }
+            });
+            dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
 
+                //寻找所有当前user未使用的节点
+                var relationIdArray = [];
+                docs.forEach(function(element){
+                    relationIdArray.push(element.source);
+                });
+                var relationIdFilter = new Merge(filter,{
+                    "_id":{"$in":relationIdArray},
+                    "user":{"$nin":[user]},
+                    "type":"association"
+                });
+                dbOperation.get("conceptDiag_vertex", relationIdFilter, function (err, docs){
+
+                    //找到对该name的引用次数
+                    var relationIdArray = [];
+                    docs.forEach(function(element){
+                        relationIdArray.push(element.source);
+                    });
+                    var attributeNameFilter = new Merge(filter,{
+                        "source":{"$in":relationIdArray},
+                        "relation":{
+                            "direction": '1',
+                            "attribute": 'role'
+                        },
+                        "target": attributeName
+                    });
+                    dbOperation.get("conceptDiag_edge",attributeNameFilter,function(err,docs){
+                        //对于所有可能的relationId，找到使用attributeName做多的一个点。
+                        // TODO 此处存在疑问，具体应该暂存attributeName数量最多，还是所占比例最多。此处采用数量最多。基于前提是任意一个attributeName已经找到了最合适的relationId点
+                        var maxRef = -1;
+                        var attributeId;
+                        docs.forEach(function(element){
+                            if(element.user.length > maxRef){
+                                attributeId = element.source;
+                                maxRef =  element.user.length;
+                            }
+                        });
+                        if(attributeId != undefined){
+                            var dataSet = {
+                                'collection': "conceptDiag_vertex",
+                                'projectID': projectID,
+                                '_id': attributeId,
+                                'user':user,
+                                "type":"association"
+                            };
+                            saveData(dataSet,function(err,docs){
+                                return callback(docs[0]._id);
+                            });
+                        }
+                        else{
+                            //如果不存在合适的节点，则返回新增节点
+                            var dataSet = {
+                                projectID: projectID,
+                                user: [user],
+                                "type":"association"
+                            };
+                            dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
+                                return callback(docs[0]._id);
+                            })
+                        }
+                    });
+                });
+            });
+        });
+    },
     add : function(projectID,user,className,attributeName,callback){
         var errs = null;
         var mutex = 0;
         this.getId(projectID,user,className,attributeName,function(attributeId){
             if(attributeId != undefined)  return callback("Aleady Exists",null);
             //not exist
-            var dateSetBase = {
-                projectID: projectID,
-                user: user
-            };
-            //save attribute vertex
-            var dataSet = new Merge(dateSetBase,{
-                'name': "",
-                'user': [user]
-            });
-            dbOperation.forceToCreate("conceptDiag_vertex",dataSet,function(err,docs){
-                attributeId = docs[0]._id;
-                //save edge for class
-                var newDataSet = new Merge(dateSetBase,{
-                    'collection': "conceptDiag_edge",
-                    'source': attributeId,
-                    'relation.direction': '0',
-                    'relation.attribute': 'class',
-                    'target':className
-                });
+            attribute.createId(projectID, user, className, attributeName,function(attributeId){
+
+                //建立类到属性的连线
                 mutex ++;
-                saveData(newDataSet,function(err,doc){
-                    errs = ErrUpdate(errs,err);
-                    if(--mutex === 0) return callback(errs);
+                class_.getId(projectID, user, className, function(classId){
+                    var newDataSet = {
+                        'projectID': projectID,
+                        'user': user,
+                        'collection': "conceptDiag_edge",
+                        'source': attributeId,
+                        'relation':{
+                            direction: '0',
+                            attribute: 'class'
+                        },
+                        'target':classId
+                    };
+                    saveData(newDataSet,function(err,doc){
+                        errs = ErrUpdate(errs,err);
+                        if(--mutex === 0) return callback(errs);
+                    });
                 });
+
                 //save attribute edges
                 mutex ++;
                 attributeProperty.add(projectID,user,attributeId,'isAttribute','1',function(){
@@ -787,7 +770,7 @@ var attribute = {
                 attributeProperty.add(projectID,user,attributeId,'role',attributeName,function(){
                     if(--mutex === 0) return callback(errs);
                 });
-            })
+            });
         });
     },
 
@@ -800,7 +783,7 @@ var attribute = {
                 user: user
             };
             //delete attribute vertex
-            dataSet = new Merge(dateSetBase,{
+            var dataSet = new Merge(dateSetBase,{
                 'collection': 'conceptDiag_vertex',
                 '_id': attributeId
             });
@@ -811,13 +794,14 @@ var attribute = {
                 errs = ErrUpdate(errs,err);
                 if(--mutex === 0) return callback(errs);
             });
-            //delete attribute edges
 
+            //delete attribute edges
+            mutex++;
             dataSet = new Merge(dateSetBase,{
                 'collection': "conceptDiag_edge",
                 'source': attributeId
             });
-            mutex++;
+
             deleteData(dataSet,function(err,doc){
                 errs = ErrUpdate(errs,err);
                 if(--mutex === 0) return callback(errs);
@@ -855,12 +839,9 @@ var attributeProperty = {
             },
             target:propertyValue
         };
-        var errs = null;
-        var mutex = 0;
-        mutex++;
+
         saveData(dataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
+            return callback(err);
         });
     },
 
@@ -881,51 +862,21 @@ var attributeProperty = {
                 attribute:propertyName
             }
         };
-        var errs = null;
-        var mutex = 0;
-        mutex++;
         deleteData(dataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
+            return callback(err);
         });
     },
 
-    // TODO：精简掉revise，用delete+add代替
     revise: function (projectID, user, attributeId, propertyName, newPropertyValue, callback) {
-
-        // name 的 type 在底层数据库中是以 role 的形式存在的
-        if ('name' === propertyName) {
-            propertyName = 'role';
-        }
-
-        // attribute 的类型在底层数据库中是以 class 的形式存在的
-        if ('type' === propertyName) {
-            propertyName = 'class';
-        }
-
-        var dataSet = {
-            projectID: projectID,
-            user: user,
-            collection: "conceptDiag_edge",
-            source: attributeId,
-            relation:{
-                direction:'1',
-                attribute:propertyName
-            }
-        };
         var errs = null;
-        var mutex = 0;
-        mutex++;
-        deleteData(dataSet,function(err,doc){
-            errs = ErrUpdate(errs,err);
-            if(--mutex === 0) return callback(errs);
-        });
 
-        var newDataSet = new Merge(dataSet, {"target": newPropertyValue});
-        mutex++;
-        saveData(newDataSet, function(err, doc){
+        this. delete(projectID, user, attributeId, propertyName, function(err){
             errs = ErrUpdate(errs, err);
-            if(--mutex === 0) return callback(errs);
+
+            this.add(projectID, user, attributeId, propertyName, newPropertyValue, function(err){
+                errs = ErrUpdate(errs, err);
+                return callback(errs);
+            })
         });
     }
 }
@@ -1025,7 +976,6 @@ var relation = {
             user: [user]
         };
 
-        // TODO：这里没有序列化，Vertex和Index可能很久都没建出来：影响？
         dbOperation.forceToCreate("conceptDiag_vertex", dataSet, function (err, docs) {
 
             // 直接回调，Index在ADDPOR的时候再建立，此时尚缺少type数据
@@ -1041,37 +991,27 @@ var relation = {
             user: user
         };
 
-        //delete index
-        var dataSet = new Merge(dateSetBase, {
-            'collection':"conceptDiag_index",
-            'target': relationId,
-            'relation':{direction:'',attribute:'instance'}
-        });
         var errs = null;
         var mutex = 0;
-        mutex++;
-        deleteData(dataSet, function (err, doc) {
-            errs = ErrUpdate(errs, err);
-            if(--mutex === 0) return callback(errs);
-        });
 
         //delete vertex
-        dataSet = new Merge(dateSetBase, {
+        mutex++;
+        var dataSet = new Merge(dateSetBase, {
             'collection': "conceptDiag_vertex",
             '_id': relationId
         });
-        mutex++;
         deleteData(dataSet, function (err, doc) {
             errs = ErrUpdate(errs, err);
             if(--mutex === 0) return callback(errs);
         });
 
+        //TODO 要根据回传的信息考虑具体要删除了什么
         //delete edge
+        mutex++;
         dataSet = new Merge(dateSetBase, {
             'collection': "conceptDiag_edge",
             'source': relationId
         });
-        mutex++;
         deleteData(dataSet, function (err, doc) {
             errs = ErrUpdate(errs, err);
             if(--mutex === 0) return callback(errs);
@@ -1080,6 +1020,7 @@ var relation = {
 }
 
 var relationProperty = {
+
     add: function (projectID, user, relationId, propertyName, propertyValue, callback) {
 
         var errs = null;
@@ -1090,27 +1031,9 @@ var relationProperty = {
             var type = propertyValue[0];
             var name = propertyValue[1];
 
-            // 增加 relation 的 index (Association or Generalization)
-            var dataSet4Index = {
-                projectID: projectID,
-                user: user,
-                collection: 'conceptDiag_index',
-                source: 'Generalization' === type ? type : 'Association',
-                target: relationId,
-                relation: {
-                    direction: '',  // 不是连在relationship两端的edge，因此direction是空串(所有index的direction都是空串)
-                    attribute: 'instance'
-                }
-            };
-            mutex ++;
-
-            saveData(dataSet4Index, function (err, doc) {
-                errs = ErrUpdate(errs, err);
-                if(--mutex === 0) return callback(errs);
-            });
-
             // 若是Association，需要增加一条edge标识其具体类型（Association、Composition or Aggregation）
             if ('Generalization' !== type) {
+                mutex ++;
                 var dataSet4AssoTypeEdge = {
                     projectID: projectID,
                     user: user,
@@ -1122,7 +1045,6 @@ var relationProperty = {
                         attribute: 'is' + type  // 'isAssociation', 'isComposition' or 'isAggregation'
                     }
                 }
-                mutex ++;
 
                 saveData(dataSet4AssoTypeEdge, function (err, doc) {
                     errs = ErrUpdate(errs, err);
@@ -1131,6 +1053,7 @@ var relationProperty = {
             }
 
             // 更新该 relation 的 vertex 中的 name
+            mutex ++;
             var dataSet4Vertex = {};
             dataSet4Vertex.collection = 'conceptDiag_vertex';
             dataSet4Vertex.filter = {
@@ -1142,7 +1065,6 @@ var relationProperty = {
                 name : name
             }
 
-            mutex ++;
             updateData(dataSet4Vertex, function (err, doc) {
                 errs = ErrUpdate(errs, err);
                 if(--mutex === 0) return callback(errs);
@@ -1195,24 +1117,6 @@ var relationProperty = {
 
         // 当 propertyName 是 type 时，特殊对待
         if ('type' === propertyName) {
-
-            // 删除 relation 的 index (Association or Generalization)
-            var dataSet4Index = {
-                projectID: projectID,
-                user: user,
-                collection: 'conceptDiag_index',
-                target: relationId,
-                relation: {
-                    direction: '',  // 不是连在relationship两端的edge，因此direction是空串(所有index的direction都是空串)
-                    attribute: 'instance'
-                }
-            };
-            mutex ++;
-
-            deleteData(dataSet4Index, function (err, doc) {
-                errs = ErrUpdate(errs, err);
-                if(--mutex === 0) return callback(errs);
-            });
 
             // 若是Association，需要删除标识其具体类型（Association、Composition or Aggregation）的 edge
             var dataSet4AssoTypeEdge = {
