@@ -701,19 +701,27 @@ define(function(require, exports, module) {
       
       d3.select("#multi")
         .append("p")
+        .append("span")
+        .attr("style", "border-radius: 1em")
         .text(multi1);
       
       d3.select("#multi")
         .append("p")
-        .text(role1)
-        .attr("style", "padding-bottom: 100px");
+        .attr("style", "padding-bottom: 100px")
+        .append("span")
+        .attr("style", "border-radius: 1em")
+        .text(role1);
 
       d3.select("#multi")
         .append("p")
+        .append("span")
+        .attr("style", "border-radius: 1em")
         .text(role2);
 
       d3.select("#multi")
         .append("p")
+        .append("span")
+        .attr("style", "border-radius: 1em")
         .text(multi2);
        
 

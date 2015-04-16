@@ -1265,7 +1265,7 @@ span.twitter-typeahead .tt-hint {
   top: 80px;
   width: 300px;
   height: auto;
-  background-color: white;
+  background-color: none;
   cursor: move;
   z-index:10001;
   /*pointer-events: none;*/
@@ -1273,10 +1273,22 @@ span.twitter-typeahead .tt-hint {
 #tooltip.hidden {
   display: none;
 }
+#classDetail{
+  background-color: white;
+}
+#sourceClass{
+  background-color: white;
+}
+#targetClass{
+  background-color: white;
+}
 #tooltip p {
   margin: 0;
   font-size: 14px;
   line-height: 20px;
+}
+#multi span{
+  background-color: white;
 }
 #view {
   overflow: hidden;
