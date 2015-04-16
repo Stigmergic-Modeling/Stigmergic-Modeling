@@ -84,18 +84,20 @@ define(function(require, exports, module) {
       .append("svg")
       .attr("width", width)
       .attr("height", height)
+      .attr("cursor", "default")
       .append("g")
-      .call(zoom) //调用缩放功能
-      .append("svg:g");
+      .call(zoom); //调用缩放功能
+      // .append("svg:g");
       // .on("mousedown.zoom", null); //防止拖拽
 
     //颜色为白的背景 -> 缩放时无需鼠标移到node上
     svg.append("rect")
-      // .attr("class", "background")
+      .attr("class", "background")
       .attr("fill", "#fff")
       .attr("width", width)
-      .attr("height", height)
-      .style("pointer-events", "all");;
+      .attr("height", height);
+
+    var container = svg.append("svg:g");
 
 
     //使用dataset中的nodes和edges初始化force布局
@@ -114,18 +116,18 @@ define(function(require, exports, module) {
 
 
     //连线与edges数据绑定
-    var link = svg.selectAll(".link")
+    var link = container.selectAll(".link")
       .data(dataset.edges)
       //.data(model[1]) 
       .enter().append("g")
       .attr("class", "link");
 
     //节点与nodes数据绑定
-    var node = svg.selectAll(".node")
+    var node = container.selectAll(".node")
       .data(dataset.nodes)
       .enter().append("g")
       .attr("class", "node")
-      .call(force.drag);
+      .call(drag);
       // .call(force.drag().on("drag", function(d) { drag() }));
 
     //节点添加文本，文本内容为节点名称
@@ -146,7 +148,7 @@ define(function(require, exports, module) {
     var colors = d3.scale.category20();
 
     //箭头定义
-    var defs = svg.append("defs");
+    var defs = container.append("defs");
 
     //Generalization箭头(空心三角)
     var genMarker = defs.append("marker")
@@ -251,7 +253,7 @@ define(function(require, exports, module) {
      */
 
     function zoomed() {
-      svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
 
     // function dragstarted(d) {
