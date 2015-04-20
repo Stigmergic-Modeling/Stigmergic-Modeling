@@ -48,7 +48,6 @@ var getIndividualModel = function (projectID, user, callback) {
     individualModel.getClassSet(projectID, user, function (classSet) {
 
         var classSetLen = Object.keys(classSet).length;
-
         // 若 class 个数为 0，则直接退出 getClass 任务
         if (!classSetLen) {
             if (--mutex === 0) {
@@ -62,15 +61,22 @@ var getIndividualModel = function (projectID, user, callback) {
 
         // 对每个 class
         for (var key in classSet) {
+
             var item = model[0][key] = [{},{"order":classSet[key]["order"]}];
 
             //当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
             individualModel.getAttribute(projectID, user, item, classSet[key].classId, function (item, attributeSet) {
-                //TODO 此处有bug   mutex++
-                var attributeSetLen = attributeSet.length;
-                mutex += attributeSetLen - 1;
 
+                var attributeSetLen = attributeSet.length;
+                if (!attributeSetLen) {
+                    if (--mutex === 0) {
+                        return callback(null, model);
+                    }
+                    return;
+                }
+
+                mutex += attributeSetLen - 1;
                 for (var i=0;i<attributeSetLen;i++) {
                     //获得对应attribute的Property
                     var attributeId = attributeSet[i];
@@ -92,6 +98,7 @@ var getIndividualModel = function (projectID, user, callback) {
                                 property[key] = propertySet[key];
                             }
                         }
+                        console.log("return 2");
                         if (--mutex === 0) {
                             return callback(null, model);
                         }
@@ -108,6 +115,7 @@ var getIndividualModel = function (projectID, user, callback) {
         // 若 relationGroup 个数为 0，则直接退出 getRelationGroupAndRelation 任务
         if (!rlgSetLen) {
             if (--mutex === 0) {
+                console.log("return 3");
                 return callback(null, model);
             }
             return;
@@ -147,6 +155,7 @@ var getIndividualModel = function (projectID, user, callback) {
                     model[1][relationGroupName][0][relationId.toString()] = [propertySet];
 
                     if (--mutex === 0) {
+                        console.log("return 4");
                         return callback(err, model);
                     }
                 });
@@ -403,12 +412,12 @@ var class_ = {
                 classIdArray.push(element.source);
                 refSet[element.source] = element.user.length;
             });
+
             var classIdFilter = new Merge(filter,{
                 "_id":{"$in":classIdArray},
                 "user":{"$nin":[user]},
                 "type":"class"
             });
-            //TODO 此处好像写错了
             dbOperation.get("conceptDiag_vertex", classIdFilter, function (err, docs){
                 //对于所有可能的classId，找到使用className做多的一个点。
                 // TODO 此处存在疑问，具体应该暂存className数量最多，还是所占比例最多。此处采用数量最多。基于前提是任意一个className已经找到了最合适的classId点
@@ -422,14 +431,15 @@ var class_ = {
                 });
                 if(classId != undefined){
                     var dataSet = {
-                        'collection': "conceptDiag_edge",
+                        'collection': "conceptDiag_vertex",
                         'projectID': projectID,
                         '_id': classId,
                         'user':user,
                         "type":"class"
                     };
-                    saveData(dataSet,function(err,docs){
-                        return callback(docs[0]._id);
+                    //TODO 此save函数存在问题
+                    saveData(dataSet,function(err,result){
+                        return callback(classId);
                     });
                 }
                 else{
@@ -655,13 +665,15 @@ var attribute = {
     createId: function(projectID, user, className, attributeName, callback){
         var filter = {
             projectID: projectID,
-            user: user
+            "user":{"$nin":[user]}
         };
         //为空如何处理??
-        class_.getId(projectID, "", className, function(classId){
+        class_.getId(projectID, {"$nin":[]}, className, function(classId){
+            console.log("classId: "+classId);
+
             //找到所有与class相关的可能作为attribute的relation节点
             var relationFilter = new Merge(filter, {
-                source: classId,
+                target: classId,
                 relation : {
                     direction: '0',
                     attribute: 'class'
@@ -676,7 +688,6 @@ var attribute = {
                 });
                 var relationIdFilter = new Merge(filter,{
                     "_id":{"$in":relationIdArray},
-                    "user":{"$nin":[user]},
                     "type":"association"
                 });
                 dbOperation.get("conceptDiag_vertex", relationIdFilter, function (err, docs){
@@ -684,7 +695,7 @@ var attribute = {
                     //找到对该name的引用次数
                     var relationIdArray = [];
                     docs.forEach(function(element){
-                        relationIdArray.push(element.source);
+                        relationIdArray.push(element._id);
                     });
                     var attributeNameFilter = new Merge(filter,{
                         "source":{"$in":relationIdArray},
@@ -694,6 +705,7 @@ var attribute = {
                         },
                         "target": attributeName
                     });
+
                     dbOperation.get("conceptDiag_edge",attributeNameFilter,function(err,docs){
                         //对于所有可能的relationId，找到使用attributeName做多的一个点。
                         // TODO 此处存在疑问，具体应该暂存attributeName数量最多，还是所占比例最多。此处采用数量最多。基于前提是任意一个attributeName已经找到了最合适的relationId点
@@ -713,8 +725,13 @@ var attribute = {
                                 'user':user,
                                 "type":"association"
                             };
-                            saveData(dataSet,function(err,docs){
-                                return callback(docs[0]._id);
+                            saveData(dataSet,function(err,result){
+                                if(result){
+                                    return callback(attributeId);
+                                }else{
+                                    return callback(null);
+                                }
+
                             });
                         }
                         else{
