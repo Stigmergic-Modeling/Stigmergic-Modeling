@@ -98,7 +98,7 @@ exports.update = function(collectionName,filter,data,callback){
             }
             collection.update(filter, data, {safe: true, multi: true}, function(err, doc) {
 
-                doc = doc.result.n;
+                doc = doc.result.ok;  //result中只有ok和n，n表示multi的格式
                 updateTimeTag(collectionName, filter, function() {
                 });
                 return callback(err, doc);
