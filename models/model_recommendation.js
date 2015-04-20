@@ -22,17 +22,6 @@ var fs = require('fs');
 exports.getRecommendation = function(projectID, user, recommendSet, callback){
     // 使用递归嵌套保证 ops 的执行顺序
     (function next(index) {
-        var theCallbackFunc = function (err, doc) {
-            if (err) {
-                return callback(err);
-            }
-            next(index + 1);
-        };        var theCallbackFunc = function (err, doc) {
-            if (err) {
-                return callback(err);
-            }
-            next(index + 1);
-        };
 
         if(index < recommendSet.length){
             console.log("getRecommendation")
@@ -59,6 +48,17 @@ exports.getRecommendation = function(projectID, user, recommendSet, callback){
                     break;
             }
         }
+
+        var theCallbackFunc = function (err, doc) {
+            console.log(err);
+            console.log(doc);
+
+            if (err) {
+                return callback(err,doc);
+            }
+            next(index + 1);
+        };
+
     })(0);
 }
 
@@ -92,13 +92,17 @@ var recommendCLS = function(projectID, user, recommend, callback){
         }
         dbOperation.get("conceptDiag_edge",filter2,function(err,docs){
 
-            //排序输出
             var recommendArray = [];
-            docs.forEach(function(element){
-                recommendArray.push([element.target,element.user.length])
-            });
-            recommendArray = uniqueAndSort(recommendArray);
-            return callback(recommendArray);
+
+            if(!err){
+                //排序输出
+                docs.forEach(function(element){
+                    recommendArray.push([element.target,element.user.length])
+                });
+                recommendArray = uniqueAndSort(recommendArray);
+            }
+            //console.log(recommendArray);
+            //return callback(err,recommendArray);     //TODO TypeError: undefined is not a function???
         });
     });
 };
@@ -143,7 +147,8 @@ var recommendATT = function(projectID, user, recommend, callback){
                     recommendArray.push([element.target,element.user.length])
                 });
                 recommendArray = uniqueAndSort(recommendArray);
-                return callback(recommendArray);
+                //console.log(recommendArray)
+                //return callback(err,recommendArray);  //TODO TypeError: undefined is not a function???
             });
         });
     });
@@ -151,69 +156,87 @@ var recommendATT = function(projectID, user, recommend, callback){
 
 var recommendPOA = function(projectID, user, recommend, callback){
     dbOperationControl.attribute.getId(projectID, user, recommend[1], recommend[2], function(attributeId){
+
         var filter = {
-            collection: 'conceptDiag_edge',
             projectID: projectID,
             user: user,
             source: attributeId
         };
-
+        //TODO 为什么这里没有值？
         dbOperation.get("conceptDiag_edge",filter,function(err,docs){
+
             //排序输出
             var recommendSet = {};
             docs.forEach(function(element){
                 var array = recommendSet[element.relation.attribute]
                 if(array === undefined) array = [];
-                array.push([element.target,element.user.length])
+                array.push([element.target,element.user.length]);
+
+                recommendSet[element.relation.attribute] = array;
             });
             for(var key in recommendSet){
                 recommendSet[key] = uniqueAndSort(recommendSet[key])
             }
-            return callback(recommendSet);
+            //console.log(recommendSet)
+            //return callback(err,[recommendSet]);        //TODO TypeError: undefined is not a function???
         });
 
     });
 };
 
 var recommendRLT = function(projectID, user, recommend, callback){
+
+    //获得ClassName对应的id
     var classSet = recommend[1].split("-");
+    var classIdSet = [];
+    dbOperationControl.class.getId(projectID, user, classSet[0], function(classId0){
+        classIdSet[0] =  classId0;
+        dbOperationControl.class.getId(projectID, user, classSet[1], function(classId1){
+            classIdSet[1] =  classId1;
 
-    var filter = {
-        projectID: projectID,
-        user: {"$nin":[user]}
-    }
+            //找到可能推荐的关系
+            var filter = {
+                projectID: projectID,
+                user: {"$nin":[user]}
+            }
 
-    //获得该节点所关联的attribute节点（不包含当前user已经使用的）
-    var relationFilter = new Merge(filter, {
-        relation : {
-            attribute: 'class'
-        },
-        target: classSet[0]
-    });
-    dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
-        //找到第一组
-        var relationSet = {};
-        docs.forEach(function(element){
-            relationSet[element.source] = 1;
-        });
-
-        var relationFilter = new Merge(filter, {
-            relation : {
-                attribute: 'class'
-            },
-            target: classSet[1]
-        });
-        dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
-            //找到第二组
-            var relationArray = [];
-            docs.forEach(function(element){
-                if(relationSet[element.source])
-                    relationArray.push([element.source,element.user.length])
+            //获得该节点所关联的attribute节点（不包含当前user已经使用的）
+            var relationFilter = new Merge(filter, {
+                relation : {
+                    attribute: 'class'
+                },
+                target: classIdSet[0]
             });
-            relationArray = uniqueAndSort(relationArray);
-            return callback(relationArray);
+            dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
+                //找到第一组
+                var relationSet = {};
+                docs.forEach(function(element){
+                    relationSet[element.source] = 1;
+                });
+                console.log(relationSet);
+
+                //从另一侧找
+               var relationFilter = new Merge(filter, {
+                    relation : {
+                        attribute: 'class'
+                    },
+                    target: classIdSet[1]
+                });
+                dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
+                    //找到匹配
+                    var recommendArray = [];
+                    docs.forEach(function(element){
+                        if(relationSet[element.source])
+                            recommendArray.push([element.source,element.user.length])
+                    });
+                    recommendArray = uniqueAndSort(recommendArray);
+                    //return callback(err,recommendArray);                  //TODO TypeError: undefined is not a function???
+                });
+            });
         });
     });
+
+
 };
 
 
@@ -221,7 +244,7 @@ var recommendPOR = function(projectID, user, recommend, callback){
     var filter = {
         collection: 'conceptDiag_edge',
         projectID: projectID,
-        user: user,
+        user: {"$nin":[user]},
         source: recommend[2]
     };
 
@@ -236,7 +259,7 @@ var recommendPOR = function(projectID, user, recommend, callback){
         for(var key in recommendSet){
             recommendSet[key] = uniqueAndSort(recommendSet[key])
         }
-        return callback(recommendSet);
+        return callback(err,recommendSet);
     });
 };
 
