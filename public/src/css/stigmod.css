@@ -681,6 +681,45 @@ fieldset[disabled] .stigmod-input {
   z-index: 10000;
 }
 
+#stigmod-modal-addclass > .modal-dialog,
+#stigmod-modal-addattribute > .modal-dialog {
+  width: 900px;
+}
+#stigmod-modal-addclass .modal-content,
+#stigmod-modal-addattribute .modal-content {
+  width: 600px;
+  /*float: left;*/
+}
+#stigmod-modal-addclass .modal-recommendation,
+#stigmod-modal-addattribute .modal-recommendation {
+  width: 300px;
+  position: absolute;
+  box-shadow: none;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  /*overflow: scroll;*/
+}
+/*.modal-recommendation .modal-head {*/
+  /*position: absolute;*/
+/*}*/
+.modal-recommendation .modal-body {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  bottom: 65px;
+  left: 0;
+  overflow: hidden;
+  /*height: 500px;*/
+}
+.modal-recommendation .modal-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 65px;
+}
+
 /* --------------------------------------------- *
  *
  * workspace 页面 

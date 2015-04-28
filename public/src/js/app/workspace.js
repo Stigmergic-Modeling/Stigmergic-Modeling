@@ -109,7 +109,7 @@ define(function (require, exports, module) {
         $(window).on('resize', resizePanel);
 
         // 在锁定滚动条（使之隐藏）的情况下，使用鼠标滚轮控制页面滚动
-        $('#stigmod-nav-left-scroll, #stigmod-cont-right-scroll, #stigmod-rcmd-right-scroll').on('mousewheel', function(event) {
+        $('#stigmod-nav-left-scroll, #stigmod-cont-right-scroll, #stigmod-rcmd-right-scroll, .stigmod-hidden-scroll').on('mousewheel', function(event) {
             var scrollTop = this.scrollTop;
 
             this.scrollTop = (scrollTop + ((event.deltaY * event.deltaFactor) * -1));
@@ -292,13 +292,36 @@ define(function (require, exports, module) {
                     hint: true,
                     highlight: true,
                     minLength: 1
-                },  // 将 class 和 relation group 区分对待：
+                },
                 {
                     name: 'clsNames',
                     displayKey: 'value',
                     source: substringMatcher('class', 6)
                 });
 
+        // 为 addclass modal 添加下拉提示
+        $('#stigmod-addclass-input').typeahead({
+              hint: true,
+              highlight: true,
+              minLength: 1
+            },
+            {
+              name: 'clsNames',
+              displayKey: 'value',
+              source: substringMatcher('class', 6)
+            });
+
+        // 为 addrelationgroup modal 添加下拉提示
+        $('#stigmod-addrelgrp-input-first, #stigmod-addrelgrp-input-second').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher('class', 6)
+                });
     }
 
 
