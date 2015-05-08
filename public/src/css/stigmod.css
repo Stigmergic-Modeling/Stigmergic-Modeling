@@ -1321,12 +1321,21 @@ span.twitter-typeahead .tt-hint {
 #targetClass{
   background-color: white;
 }
+#sourceClassDetail{
+  background-color: white;
+}
+#targetClassDetail{
+  background-color: white;
+}
 #tooltip p {
   margin: 0;
   font-size: 14px;
   line-height: 20px;
 }
 #multi span{
+  background-color: white;
+}
+#rolename span{
   background-color: white;
 }
 #view {

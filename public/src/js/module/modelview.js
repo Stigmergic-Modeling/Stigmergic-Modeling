@@ -17,8 +17,8 @@ define(function(require, exports, module) {
 
     var selectedColor = "#005499";  //选择之后圈和连线的颜色
     var lineColor = "#b4c1f3";      //连线的颜色
-    var strokeColor = "#8491c3";    //不选择时圈的颜色
-    var fillColor = "#73bbe2";      //点的颜色
+    var strokeColor = ["#8491c3", "#FFD700"];    //不选择时圈的颜色
+    var fillColor = ["#73bbe2", "#F0E68C"];      //点的颜色
     var nameNotSelectedFill = "#999"; //名字的颜色
 
     var lineWidth = 1;              //连线的宽度
@@ -45,6 +45,12 @@ define(function(require, exports, module) {
       for (AttributeVar in model[0][ClassVar][0])
         myAttribute.push(model[0][ClassVar][0][AttributeVar][0]);
       myclass.attribute = myAttribute;
+      if(myclass.name === "Week" || myclass.name === "Date" || myclass.name === "DayOfWeek"
+        || myclass.name === "Title" || myclass.name === "Semester" || myclass.name === "CourseCharacter"
+        || myclass.name === "Time")
+        myclass.classtype = 1;
+      else
+        myclass.classtype = 0;
       dataset.nodes.push(myclass);
       nodeRecord[ClassVar] = nodeNumber;
       nodeNumber = nodeNumber + 1;
@@ -298,8 +304,13 @@ define(function(require, exports, module) {
     function noneClickStyle() {
       node.selectAll("circle")
         .attr("fill-opacity", 0.9)
+        .attr("fill", function(d){
+          return fillColor[d.classtype];
+          })
         .attr("stroke-width", 1)
-        .attr("stroke", strokeColor);
+        .attr("stroke", function(d){
+          return strokeColor[d.classtype];
+        });
       node.selectAll("text")
         .attr("font-size", "12")
         .attr("fill", "#666")
@@ -659,60 +670,81 @@ define(function(require, exports, module) {
         .attr("id", "relationDetail")
         .attr("class", "row");
 
+      // 上端类名
       d3.select("#relationDetail")
         .append("div")
         .attr("id", "targetClass")
-        .attr("class","col-xs-12");
+        .attr("class","col-xs-12") 
+        .attr("style", "border: 1px solid; padding: 0px; padding-top: 10px; padding-bottom: 10px;");
+      d3.select("#targetClass")
+        .append("p")
+        .attr("style", "text-align:center;font-weight:bold")
+        .text(targetName);
 
+      d3.select("#relationDetail")
+        .append("div")
+        .attr("id", "targetClassDetail")
+        .attr("class","col-xs-12")
+        .attr("style", "border: 1px solid; border-top: 0px; padding: 0px; padding-top: 10px; padding-bottom: 10px; max-height: 95px; overflow: auto");
+
+      d3.select("#targetClassDetail")
+        .append("span")
+        .attr("id", "attributes");
+
+      var attribute = "";
+      edge.target.attribute.forEach(function(property) {
+        var propertyDetail = property.name;
+        if (property.type !== undefined)
+          propertyDetail = propertyDetail + " : " + property.type;
+        d3.select("#attributes")
+          .append("p")
+          .attr("style", "padding-left:5%")
+          .text(propertyDetail);
+      });
+
+      d3.select("#attributes");
+
+
+      //关系的展示
+      d3.select("#relationDetail")
+        .append("div")
+        .attr("id", "multi")
+        .attr("class","col-xs-5")
+        .attr("style", "text-align:right; height: 180px;padding: 0px; padding-top: 3px");
 
       d3.select("#relationDetail")
         .append("div")
         .attr("id", "relation")
-        .attr("class","col-xs-6")
-        .attr("style", "text-align:right;padding: 0px");
+        .attr("class","col-xs-2")
+        .attr("style", "text-align:center; padding: 0px");
 
 
       d3.select("#relationDetail")
         .append("div")
-        .attr("id", "multi")
-        .attr("class","col-xs-6")
-        .attr("style", "height: 180px;padding: 0px;");
-
-      d3.select("#relationDetail")
-        .append("div")
-        .attr("id", "sourceClass")
-        .attr("class","col-xs-12");
-
-      d3.select("#sourceClass")
-        .append("p")
-        .attr("style", "text-align:center;border: 1px solid #999; padding: 10px; font-weight: bold")
-        .text(sourceName);
+        .attr("id", "rolename")
+        .attr("class","col-xs-5")
+        .attr("style", "height: 180px; padding: 0px; padding-top: 3px");
 
       d3.select("#relation")
         .append("img")
         .attr("src", "/src/img/" + type + ".png")
         .attr("height", 180);
 
-      d3.select("#targetClass")
-        .append("p")
-        .attr("style", "text-align:center;border: 1px solid #999; padding: 10px; font-weight: bold")
-        .text(targetName);
-
-      
       d3.select("#multi")
         .append("p")
+        .attr("style", "padding-bottom: 130px")
         .append("span")
         .attr("style", "border-radius: 1em")
         .text(multi1);
       
-      d3.select("#multi")
+      d3.select("#rolename")
         .append("p")
-        .attr("style", "padding-bottom: 100px")
+        .attr("style", "padding-bottom: 130px")
         .append("span")
         .attr("style", "border-radius: 1em")
         .text(role1);
 
-      d3.select("#multi")
+      d3.select("#rolename")
         .append("p")
         .append("span")
         .attr("style", "border-radius: 1em")
@@ -723,6 +755,41 @@ define(function(require, exports, module) {
         .append("span")
         .attr("style", "border-radius: 1em")
         .text(multi2);
+
+      //下端类名
+      d3.select("#relationDetail")
+        .append("div")
+        .attr("id", "sourceClass")
+        .attr("class","col-xs-12")
+        .attr("style", "border: 1px solid; padding: 0px; padding-top: 10px; padding-bottom: 10px");
+
+      d3.select("#sourceClass")
+        .append("p")
+        .attr("style", "text-align:center;font-weight:bold")
+        .text(sourceName);
+
+      d3.select("#relationDetail")
+        .append("div")
+        .attr("id", "sourceClassDetail")
+        .attr("class","col-xs-12")
+        .attr("style", "border: 1px solid; border-top: 0px; padding: 0px; padding-top: 10px; padding-bottom: 10px; max-height:95px; overflow:auto");
+
+
+      d3.select("#sourceClassDetail")
+        .append("span")
+        .attr("id", "attributes");
+
+      var attribute = "";
+      edge.source.attribute.forEach(function(property) {
+        var propertyDetail = property.name;
+        if (property.type !== undefined)
+          propertyDetail = propertyDetail + " : " + property.type;
+        d3.select("#attributes")
+          .append("p")
+          .attr("style", "padding-left:5%")
+          .text(propertyDetail);
+      });
+       
        
 
       //显示类的属性
@@ -762,10 +829,12 @@ define(function(require, exports, module) {
       // .attr("stroke", function(d, i) {
       //   return colors(i);
       // })
-      .attr("stroke", strokeColor)
+      .attr("stroke", function(d){
+        return strokeColor[d.classtype];
+      })
       .attr("stroke-width", 1)
-      .attr("fill", function(d, i) {
-        return fillColor;
+      .attr("fill", function(d) {
+        return fillColor[d.classtype];
       })
       .attr("fill-opacity", 0.9)
       .attr("cursor", "pointer");
@@ -796,6 +865,25 @@ define(function(require, exports, module) {
           }
         }
       });
+
+    d3.select("#colorSelect")
+      .on("change", function(){
+        var colorValue = document.getElementById("colorSelect").value;
+        if(colorValue === "blue"){
+          fillColor[0] = "#73bbe2";
+          strokeColor[0] = "#8491c3";
+        }
+        else if(colorValue === "red"){
+          fillColor[0] = "rgb(238, 211, 210)";
+          strokeColor[0] = "#FF7744";
+        }
+        else if(colorValue === "green"){
+          fillColor[0] = "rgb(230, 238, 214)";
+          strokeColor[0] = "#00AA00";
+        }
+        mouseout();
+      });
+
 
 
     //根据relation类型的不同绑定箭头
