@@ -1023,6 +1023,7 @@ define(function (require, exports, module) {
     // 处理：输入框中每输入一个字符，进行一次内容合法性检查
     function handleCheckInputs() {
         checkInput(icm, $(this));
+        //$(this).closest('.modal').find('.modal-recommendation').addClass('modal-recommendation-animation');
     }
 
     // 处理：输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)

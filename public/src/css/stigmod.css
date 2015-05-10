@@ -700,9 +700,88 @@ fieldset[disabled] .stigmod-input {
   bottom: 0;
   /*overflow: scroll;*/
 }
-/*.modal-recommendation .modal-head {*/
-  /*position: absolute;*/
+
+/* modal旁边的推荐框 */
+@-webkit-keyframes show-rec {
+  from {
+    transform-origin: left;
+    transform: rotate3d(0, 1, 0, 90deg) skewY(10deg);
+    margin-right: -150px;
+  }
+  to {
+    transform-origin: left;
+    transform: rotate3d(0, 0, 0, 0deg) skewY(0deg);
+    margin-right: 0;
+  }
+}
+/*@-moz-keyframes show-rec {*/
+  /*from {*/
+    /*-moz-transform-origin: left;*/
+    /*-moz-transform: rotate3d(0, 1, 0, 90deg);*/
+    /*margin-right: -150px;*/
+  /*}*/
+  /*to {*/
+    /*-moz-transform-origin: left;*/
+    /*-moz-transform: rotate3d(0, 0, 0, 0deg);*/
+    /*margin-right: 0;*/
+  /*}*/
 /*}*/
+@-o-keyframes show-rec {
+  from {
+    transform-origin: left;
+    transform: rotate3d(0, 1, 0, 90deg) skewY(10deg);
+    margin-right: -150px;
+  }
+  to {
+    transform-origin: left;
+    transform: rotate3d(0, 0, 0, 0deg) skewY(0deg);
+    margin-right: 0;
+  }
+}
+@keyframes show-rec {
+  from {
+    transform-origin: left;
+    transform: rotate3d(0, 1, 0, 90deg) skewY(10deg);
+    margin-right: -150px;
+  }
+  to {
+    transform-origin: left;
+    transform: rotate3d(0, 0, 0, 0deg) skewY(0deg);
+    margin-right: 0;
+  }
+}
+@-webkit-keyframes show-cont {
+  from {
+    margin-left: 150px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+/*@-moz-keyframes show-cont {*/
+  /*from {*/
+    /*margin-left: 150px;*/
+  /*}*/
+  /*to {*/
+    /*margin-left: 0;*/
+  /*}*/
+/*}*/
+@-o-keyframes show-cont {
+  from {
+    margin-left: 150px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+@keyframes show-cont {
+  from {
+    margin-left: 150px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
 .modal-recommendation .modal-body {
   position: absolute;
   top: 56px;
@@ -710,7 +789,6 @@ fieldset[disabled] .stigmod-input {
   bottom: 65px;
   left: 0;
   overflow: hidden;
-  /*height: 500px;*/
 }
 .modal-recommendation .modal-footer {
   position: absolute;
@@ -718,6 +796,18 @@ fieldset[disabled] .stigmod-input {
   bottom: 0;
   left: 0;
   height: 65px;
+}
+.modal-normal-animation {
+  -webkit-animation: show-cont 0.5s 0.3s both;
+  /*-moz-animation: show-cont 0.5s 0.3s both;*/
+  -o-animation: show-cont 0.5s 0.3s both;
+  animation: show-cont 0.5s 0.3s both;
+}
+.modal-recommendation-animation {
+  -webkit-animation: show-rec 0.5s 0.3s both;
+  /*-moz-animation: show-rec 0.5s 0.3s both;*/
+  -o-animation: show-rec 0.5s 0.3s both;
+  animation: show-rec 0.5s 0.3s both;
 }
 
 /* --------------------------------------------- *
