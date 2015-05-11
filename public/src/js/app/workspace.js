@@ -12,7 +12,8 @@ define(function (require, exports, module) {
     var ObjectId = require('../lib/objectid');  // 用于在浏览器端生成 Mongodb 的 ObjectId
 
     // 内部模块
-    var Model = require('../module/model');
+    var ICM = require('../module/model');
+    var CCM = require('../module/ccm');
     var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
 
     // 调试模块
@@ -23,9 +24,102 @@ define(function (require, exports, module) {
      *  初始化变量
      *  ---------  */
 
+    //var fakeICM = [
+    //    {
+    //        "A": [
+    //            {
+    //                "time": [
+    //                    {
+    //                        "name": "time",
+    //                        "type": "int"
+    //                    }
+    //                ]
+    //            },
+    //            {
+    //                "order": [
+    //                    "time"
+    //                ]
+    //            }
+    //        ],
+    //        "B": [
+    //            {
+    //                "rewrqw": [
+    //                    {
+    //                        "name": "rewrqw",
+    //                        "type": "int",
+    //                        "multiplicity": "1"
+    //                    }
+    //                ]
+    //            },
+    //            {
+    //                "order": [
+    //                    "rewrqw"
+    //                ]
+    //            }
+    //        ],
+    //        "C": [
+    //            {},
+    //            {
+    //                "order": []
+    //            }
+    //        ],
+    //        "D": [
+    //            {},
+    //            {
+    //                "order": []
+    //            }
+    //        ],
+    //        "E": [
+    //            {},
+    //            {
+    //                "order": []
+    //            }
+    //        ],
+    //        "F": [
+    //            {},
+    //            {
+    //                "order": []
+    //            }
+    //        ]
+    //    },
+    //    {
+    //        "A-B": [
+    //            {
+    //                "554b1a06004b14e8db8afd01": [
+    //                    {
+    //                        "role": [
+    //                            "father",
+    //                            "child"
+    //                        ],
+    //                        "class": [
+    //                            "A",
+    //                            "B"
+    //                        ],
+    //                        "multiplicity": [
+    //                            "1",
+    //                            "1"
+    //                        ],
+    //                        "type": [
+    //                            "Generalization",
+    //                            ""
+    //                        ]
+    //                    }
+    //                ]
+    //            },
+    //            {
+    //                "order": [
+    //                    "554b1a06004b14e8db8afd01"
+    //                ]
+    //            }
+    //        ]
+    //    }
+    //];
+
     // ICM 前端模型
-    var icm = new Model(dataPassedIn.model);  // dataPassedIn 通过后端的 .ejs 模板传入
-    //var icm = new Model(debug.model);  // 调试时使用，从 debug 模块获取 model 数据
+    var icm = new ICM(dataPassedIn.model);  // dataPassedIn 通过后端的 .ejs 模板传入
+    //var icm = new ICM(fakeICM);  // 使用假数据
+    var ccm = new CCM();
+    //var icm = new ICM(debug.model);  // 调试时使用，从 debug 模块获取 model 数据
     //console.log('dataPassedIn.model', dataPassedIn.model);
     //console.log('icm', icm);
 
@@ -76,6 +170,8 @@ define(function (require, exports, module) {
     // 中间栏的 relation 组件
     var componentMiddleRelation = document.getElementById('template-mid-rel').innerHTML;
 
+    // modal 推荐栏 list-item 组件
+    var componentModalRec = document.getElementById('template-modal-rec').innerHTML;
 
     /*  ---------  *
      *  初始化页面
@@ -245,7 +341,14 @@ define(function (require, exports, module) {
             return function findMatches(q, cb) {
                 var matches,
                     substrRegex,
-                    strs = flag === 'class' ? Object.keys(icm[0]) : Object.keys(icm[1]);  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
+                    strs;  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
+
+                switch (flag) {
+                    case 'classInICM': strs = Object.keys(icm[0]); break;
+                    case 'relGroupInICM': strs = Object.keys(icm[1]); break;
+                    case 'classInCCM': strs = arrayMinus(ccm.getClassNames(), Object.keys(icm[0])); break;
+                    default: strs = [];
+                }
 
                 // an array that will be populated with substring matches
                 matches = [];
@@ -266,6 +369,24 @@ define(function (require, exports, module) {
                 });
 
                 cb(matches);
+
+                /**
+                 * 数组相减操作
+                 * @param a
+                 * @param b
+                 * @returns {Array}
+                 */
+                function arrayMinus(a, b) {
+                    var len = a.length, i = 0, res = [];
+
+                    for (; i < len; i++) {
+                        if (b.indexOf(a[i]) === -1) {
+                            res.push(a[i]);
+                        }
+                    }
+
+                    return res;
+                }
             };
 
         };
@@ -279,12 +400,12 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher('class', 4)
+                    source: substringMatcher('classInICM', 4)
                 },
                 {
                     name: 'rgNames',
                     displayKey: 'value',
-                    source: substringMatcher('relGroup', 4)
+                    source: substringMatcher('relGroupInICM', 4)
                 });
 
         // 为 modelview 搜索栏添加下拉提示
@@ -296,19 +417,19 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher('class', 6)
+                    source: substringMatcher('classInICM', 6)
                 });
 
         // 为 addclass modal 添加下拉提示
         $('#stigmod-addclass-input').typeahead({
-              hint: true,
-              highlight: true,
-              minLength: 1
+                hint: true,
+                highlight: true,
+                minLength: 1
             },
             {
-              name: 'clsNames',
-              displayKey: 'value',
-              source: substringMatcher('class', 6)
+                name: 'clsNames',
+                displayKey: 'value',
+                source: substringMatcher('classInCCM', 6)
             });
 
         // 为 addrelationgroup modal 添加下拉提示
@@ -320,7 +441,7 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher('class', 6)
+                    source: substringMatcher('classInICM', 6)
                 });
     }
 
@@ -1584,6 +1705,9 @@ define(function (require, exports, module) {
                     .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
 
             enableSave();
+
+            // 进一步添加具体 relation
+            $('#stigmod-cont-right-scroll').find('.stigmod-addattrel-last').trigger('click');
         }
     }
 
@@ -1841,6 +1965,9 @@ define(function (require, exports, module) {
     }
     function handleMdlAddClass() {
         $(this).find('input').val('');
+
+        // 刷新 modal 推荐栏
+        refreshModalRec('#stigmod-modal-rec-class');
     }
     function handleMdlAddRelGrp() {
         $(this).find('input').val('');
@@ -1853,6 +1980,9 @@ define(function (require, exports, module) {
         $(this).find('tr').hide();
         $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示name项
         $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
+
+        // 刷新 modal 推荐栏
+        refreshModalRec('#stigmod-modal-rec-attribute');
     }
     function handleMdlAddRel() {
         $(this).find('input[type=text]').val('');
@@ -2051,6 +2181,11 @@ define(function (require, exports, module) {
 
         enableSave();
         event.preventDefault();
+    }
+
+    // 刷新 modal 推荐栏
+    function refreshModalRec(selector, data) {
+        $(selector).empty().append(componentModalRec);
     }
 
 });
