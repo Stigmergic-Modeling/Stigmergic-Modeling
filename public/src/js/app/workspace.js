@@ -346,7 +346,7 @@ define(function (require, exports, module) {
                 switch (flag) {
                     case 'classInICM': strs = Object.keys(icm[0]); break;
                     case 'relGroupInICM': strs = Object.keys(icm[1]); break;
-                    case 'classInCCM': strs = arrayMinus(ccm.getClassNames(), Object.keys(icm[0])); break;
+                    case 'classInCCM': strs = ccm.getClassNames(icm); break;
                     default: strs = [];
                 }
 
@@ -370,23 +370,23 @@ define(function (require, exports, module) {
 
                 cb(matches);
 
-                /**
-                 * 数组相减操作
-                 * @param a
-                 * @param b
-                 * @returns {Array}
-                 */
-                function arrayMinus(a, b) {
-                    var len = a.length, i = 0, res = [];
-
-                    for (; i < len; i++) {
-                        if (b.indexOf(a[i]) === -1) {
-                            res.push(a[i]);
-                        }
-                    }
-
-                    return res;
-                }
+                ///**
+                // * 数组相减操作
+                // * @param a
+                // * @param b
+                // * @returns {Array}
+                // */
+                //function arrayMinus(a, b) {
+                //    var len = a.length, i = 0, res = [];
+                //
+                //    for (; i < len; i++) {
+                //        if (b.indexOf(a[i]) === -1) {
+                //            res.push(a[i]);
+                //        }
+                //    }
+                //
+                //    return res;
+                //}
             };
 
         };
@@ -2185,7 +2185,48 @@ define(function (require, exports, module) {
 
     // 刷新 modal 推荐栏
     function refreshModalRec(selector, data) {
-        $(selector).empty().append(componentModalRec);
+        var data = ccm.getClasses(icm),
+                $container = $(selector).empty(),
+                i, len, $item, popover;
+
+        //console.log(data);
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = $(componentModalRec).appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+
+            popover = getPopover(data[i].attribute);
+            $item.attr('data-content', popover);
+            //$(document).on('click', $item, fillInBlanks);
+            $item.on('click', fillInBlanks);  // 绑定填表动作
+        }
+
+        // 重新激活所有的 popover
+        $('[data-toggle="popover"]').popover();
+
+        function getPopover(item) {
+            var elem, popover = '', i, len;
+
+            // item 不为空时才进行转换
+            if (item) {
+                for (i = 0, len = item.length; i < len; i++) {
+                    elem = '<p>' + item[i].name;
+                    if (item[i].type) {
+                        elem += (' : ' + item[i].type);
+                    }
+                    elem += '</p>';
+                    popover += elem;
+                }
+            }
+
+            //console.log(popover);
+            return popover;
+        }
+
+        function fillInBlanks(event) {
+            var name = $(this).find('span.tag').text();
+            console.log(name);
+            $(this).closest('div.modal-dialog').find('div.modal-normal input[type=text]:not([readonly])').val(name);
+        }
     }
 
 });

@@ -127,7 +127,9 @@ define(function (require, exports, module) {
             },
             "ID65252439": {
                 "name": {
-                    "Student": 1
+                    "Student": {
+                        "ref": 1
+                    }
                 },
                 "ref": 3
             }
@@ -174,24 +176,109 @@ define(function (require, exports, module) {
      * @returns {Array}
      */
     CCM.prototype.getClassNames = function(icm) {
-        var clazz = this.clazz, classNames = [], classCluster;
+        var clazz = this.clazz,
+                classNames = [],
+                classNamesHash = {},
+                classCluster,
+                i, len,
+                names, name;
 
-        // TODO: 利用传入的icm，把去重功能写在这里，而不是外部
+        // 获得互不重复的 names 及其 ref 数
         for (classCluster in clazz) {
             if (clazz.hasOwnProperty(classCluster)) {
+                names = Object.keys(clazz[classCluster].name);
 
-                // 收集
-                classNames.push(Object.keys(clazz[classCluster].name));
+                for (i = 0, len = names.length; i < len; i++) {
+                    if (!(names[i] in icm[0])) {  // 去重
+
+                        // 收集
+                        if (!classNamesHash[names[i]] || classNamesHash[names[i]] < clazz[classCluster].name[names[i]].ref) {  // 自身去重
+                            classNamesHash[names[i]] = clazz[classCluster].name[names[i]].ref;
+                        }
+                    }
+                }
             }
         }
 
-        // 扁平化
-        return Array.prototype.concat.apply([], classNames);
+        // 将 names 及其 ref 数，用于接下来的排序、输出
+        for (name in classNamesHash) {
+            if (classNamesHash.hasOwnProperty(name)) {
+                classNames.push({name: name, ref: classNamesHash[name]});
+            }
+        }
+
+        return getRecommendNames(classNames);
     };
+
 
     CCM.prototype.getClasses = function(icm) {
+        var classCluster, maxRef, names, className, attributes, attribute, tmpObj,
+                clazz, classes = [];
 
+        // TODO：去重
+
+        for (classCluster in this.clazz) {
+            if (this.clazz.hasOwnProperty(classCluster)) {
+
+                // 获取引用数最多的名字
+                clazz = {};
+                maxRef = 0;
+                names = this.clazz[classCluster].name;
+                for (className in names) {
+                    if (names.hasOwnProperty(className)) {
+                        if (names[className].ref > maxRef) {
+                            maxRef = names[className].ref;
+                            clazz.name = className;
+                        }
+                    }
+                }
+
+                // 获取所有的属性
+                attributes = this.clazz[classCluster].attribute;
+                clazz.attribute = [];
+                for (attribute in attributes) {
+                    if (attributes.hasOwnProperty(attribute)) {
+
+                        // TODO: 按引用数取最高
+                        tmpObj = {
+                            name: Object.keys(attributes[attribute].name)[0],
+                            ref: attributes[attribute].ref
+                        };
+                        if (attributes[attribute].type) {
+                            tmpObj.type = Object.keys(attributes[attribute].type)[0];
+                        }
+
+                        clazz.attribute.push(tmpObj);
+                    }
+                }
+
+                classes.push(clazz);
+            }
+        }
+
+        return classes;
     };
 
+    /**
+     * 对象数组比较函数
+     * @param key
+     * @returns {Function}
+     */
+    function compareBy(key) {
+        return function(a, b) {
+            if (a[key] < b[key]) return 1;  // 小的排在前面
+            if (a[key] > b[key]) return -1;
+            return 0;
+        }
+    }
+
+    /**
+     * 获取用于 typeahead 显示的数组
+     * @param namesObjArray
+     * @returns {*}
+     */
+    function getRecommendNames(namesObjArray) {
+        return namesObjArray.sort(compareBy('ref')).map(function(o) {return o.name});
+    }
 
 });
