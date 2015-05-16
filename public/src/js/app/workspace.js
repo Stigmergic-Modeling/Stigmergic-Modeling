@@ -1075,7 +1075,7 @@ define(function (require, exports, module) {
 
     // 输入框出现后聚焦到第一个输入框上
     function focusOnInputIn($framework) {
-        $framework.find('input[type=text]').eq(0).select();
+        $framework.find('input[type=text]:not([readonly])').eq(0).select();  // not可处理typeahead带来的影响
     }
 
     // 失能保存按钮

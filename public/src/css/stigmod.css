@@ -693,6 +693,7 @@ fieldset[disabled] .stigmod-input {
 #stigmod-modal-addclass .modal-recommendation,
 #stigmod-modal-addattribute .modal-recommendation {
   width: 300px;
+  min-height: 450px;
   position: absolute;
   box-shadow: none;
   top: 0;
