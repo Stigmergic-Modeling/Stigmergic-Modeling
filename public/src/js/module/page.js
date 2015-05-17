@@ -14,31 +14,23 @@ define(function (require, exports, module) {
     // 内部模块
     var ICM = require('../module/model');
     var CCM = require('../module/ccm');
-    var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
-
-    /**
-     * 继承
-     * @param subType
-     * @param superType
-     */
-    function extend(subType, superType) {
-        var F = function () {};
-        F.prototype = superType.prototype;
-        subType.prototype = new F();
-        subType.prototype.constructor = subType;
-    }
-
+    //var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
+    var _ = require('../module/util');
 
     /**
      * 页面
      * @constructor
      */
-    function Page(icmRawData) {
-        this.stateOfPage = new StateOfPage();
+    function Page(stateRawData, icmRawData) {
+        this.stateOfPage = new StateOfPage(stateRawData);
         this.icm = new ICM(icmRawData);
         this.leftColWgt = new LeftColWgt('#stigmod-nav-left', null);
         this.middleColWgt = new MiddleColWgt();
         //this.rightColWgt = new rightColWgt();
+        //console.log(this.stateOfPage);
+        _.makePublisher(this);
+
+        this.leftColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 左侧栏点击时更新页面状态
     }
 
     Page.prototype.refreshLeftCol = function() {
@@ -52,46 +44,12 @@ define(function (require, exports, module) {
      * @constructor
      */
     function Widget(elementSelector, templateSelector) {
-        //var tName;
 
         this.element = elementSelector && $(elementSelector);
         this.template = templateSelector && $(templateSelector).html();
-
-        //for (tName in tPairs) {
-        //    if (tPairs.hasOwnProperty(tName)) {
-        //        this.template[tName] = $(tPairs[tName]).html();
-        //    }
-        //}
+        _.makePublisher(this);
     }
 
-    ///**
-    // *
-    // * @param element
-    // * @param templateId
-    // * @constructor
-    // */
-    //function WgtView(element, templateId) {
-    //
-    //    this.element = element;
-    //    this.templateId = templateId;
-    //
-    //}
-    //
-    ///**
-    // *
-    // * @constructor
-    // */
-    //function WgtModel() {
-    //
-    //}
-    //
-    ///**
-    // *
-    // * @constructor
-    // */
-    //function WgtController() {
-    //
-    //}
 
     /**
      * 左侧栏组件
@@ -100,11 +58,35 @@ define(function (require, exports, module) {
     function LeftColWgt() {
         Widget.apply(this, arguments);
 
+        var widget = this;
+
         this.classListGroup = new LeftColListGroupWgt('#stigmod-nav-left-scroll .panel:first-child .list-group', '#template-left-class');
         this.relgrpListGroup = new LeftColListGroupWgt('#stigmod-nav-left-scroll .panel:last-child .list-group', '#template-left-relation-group');
+
+        // 左侧导航栏点击激活 并跳转
+        $(document).on('click', '#stigmod-nav-left-scroll .list-group-item', handleClkLeft);
+
+        // 处理：左侧导航栏点击激活 并跳转
+        function handleClkLeft() {
+
+            // 激活
+            $(this).closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
+            $(this).addClass('active');
+
+            // 跳转
+            var $it = $(this).find('span:nth-child(1)');
+
+            widget.fire('pageStateChanged', {
+                clazz: $it.text(),
+                flagCRG: ("stigmod-nav-left-class" === $it.attr('class')) ? 0 : 1, // 0: class, 1: relationgroup
+                flagDepth: 0
+            });
+
+            //fillMiddle(icm);
+        }
     }
 
-    extend(LeftColWgt, Widget);
+    _.extend(LeftColWgt, Widget);
 
     LeftColWgt.prototype.refresh = function(icm) {
 
@@ -120,7 +102,7 @@ define(function (require, exports, module) {
         Widget.apply(this, arguments);
     }
 
-    extend(LeftColListGroupWgt, Widget);
+    _.extend(LeftColListGroupWgt, Widget);
 
     LeftColListGroupWgt.prototype.refresh = function(nameArray) {
         var $el = this.element,
@@ -144,20 +126,18 @@ define(function (require, exports, module) {
         Widget.apply(this, arguments);
     }
 
-    extend(MiddleColWgt, Widget);
+    _.extend(MiddleColWgt, Widget);
 
     /**
      *
-     * @param userName
-     * @param icmID
-     * @param icmName
+     * @param stateRawData
      * @constructor
      */
-    function StateOfPage(userName, icmID, icmName) {
+    function StateOfPage(stateRawData) {
 
-        this.user = userName;          // dataPassedIn 通过后端的 .ejs 模板传入
-        this.modelID = icmID;      // dataPassedIn 通过后端的 .ejs 模板传入
-        this.modelName = icmName;  // dataPassedIn 通过后端的 .ejs 模板传入
+        this.user = stateRawData.userName;      // dataPassedIn 通过后端的 .ejs 模板传入
+        this.modelID = stateRawData.icmID;      // dataPassedIn 通过后端的 .ejs 模板传入
+        this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的 .ejs 模板传入
 
         this.flagCRG = 0;        // 0: class, 1: relationGroup
         this.flagDepth = 0;      // for class: (0: class, 1: attribute, 2: propertyOfA) for relationGroup: (0: relationGroup, 1: relation, 2: propertyOfR)
@@ -172,15 +152,25 @@ define(function (require, exports, module) {
 
         this.windowResizeMutex = 0;      // 为防止窗口大小变化时频繁执行某些操作，设置一个锁
 
+        _.makePublisher(this);
     }
 
-    StateOfPage.prototype.setUser = function () {
-
+    StateOfPage.prototype.updateState = function (obj) {
+        if (typeof obj !== 'object') {
+            return;
+        }
+        var keys;
+        for (keys in obj) {
+            if (obj.hasOwnProperty(keys)) {
+                if (typeof this[keys] !== 'undefined') {  // 防止StateOfPage对象被随意添加属性
+                    this[keys] = obj[keys];
+                }
+            }
+        }
     };
 
 
     module.exports = Page;
-    //var page = new Page();
 
 
 });

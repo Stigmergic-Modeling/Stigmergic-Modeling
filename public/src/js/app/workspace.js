@@ -19,7 +19,7 @@ define(function (require, exports, module) {
 
     // 试验 page 模块
     var Page = require('../module/page');
-    var page = new Page(dataPassedIn.model);
+
 
 
     // 调试模块
@@ -195,6 +195,8 @@ define(function (require, exports, module) {
         /*  -----  *
          *  初始化
          *  -----  */
+
+        var page = new Page([dataPassedIn.user, dataPassedIn.modelID, dataPassedIn.modelName], dataPassedIn.model);
 
         // 模型可视化
         //modelView(icm);
