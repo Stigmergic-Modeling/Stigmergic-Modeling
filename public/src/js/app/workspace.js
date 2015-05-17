@@ -226,7 +226,7 @@ define(function (require, exports, module) {
          *  --------------  */
 
         // 左侧导航栏点击激活 并跳转
-        $(document).on('click', '#stigmod-nav-left-scroll .list-group-item', handleClkLeft);
+        //$(document).on('click', '#stigmod-nav-left-scroll .list-group-item', handleClkLeft);
 
         // 中间内容栏点击激活
         $(document).on('click', '#stigmod-cont-right .panel', handleClkMid);
