@@ -813,6 +813,44 @@ define(function (require, exports, module) {
                 }
             };
 
+            /**
+             * 获取类名（字典序）
+             * @returns {Array}
+             */
+            Model.prototype.getClassNames = function() {
+                var classNames = [];
+                var modelClasses = this[0];
+
+                for (var modelClass in modelClasses) { // 类名读入数组
+                    if (modelClasses.hasOwnProperty(modelClass)) {
+                        classNames.push(modelClass);
+                    }
+                }
+
+                classNames.sort(); // 排序
+
+                return classNames;
+            };
+
+            /**
+             * 获取关系组名（字典序）
+             * @returns {Array}
+             */
+            Model.prototype.getRelgrpNames = function() {
+                var relgrpNames = [];
+                var modelRelgrps = this[1];
+
+                for (var modelRelgrp in modelRelgrps) { // 类名读入数组
+                    if (modelRelgrps.hasOwnProperty(modelRelgrp)) {
+                        relgrpNames.push(modelRelgrp);
+                    }
+                }
+
+                relgrpNames.sort(); // 排序
+
+                return relgrpNames;
+            };
+
 
         }
     }

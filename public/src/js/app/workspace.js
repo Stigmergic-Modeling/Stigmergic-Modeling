@@ -16,6 +16,12 @@ define(function (require, exports, module) {
     var CCM = require('../module/ccm');
     var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
 
+
+    // 试验 page 模块
+    var Page = require('../module/page');
+    var page = new Page(dataPassedIn.model);
+
+
     // 调试模块
     //var debug = require('../module/debug');
 
@@ -194,7 +200,8 @@ define(function (require, exports, module) {
         //modelView(icm);
 
         // 填入左侧栏的数据
-        fillLeft(icm);
+        //fillLeft(icm);
+        page.refreshLeftCol();
 
         // 打开bootstrap的tooltip部分功能
         $('[data-toggle="tooltip"]').tooltip();
