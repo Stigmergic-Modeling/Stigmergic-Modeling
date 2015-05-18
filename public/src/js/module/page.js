@@ -22,7 +22,7 @@ define(function (require, exports, module) {
     // 内部模块
     var ICM = require('../module/model');
     var CCM = require('../module/ccm');
-    //var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
+    var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
     var _ = require('../module/util');
 
 
@@ -39,8 +39,16 @@ define(function (require, exports, module) {
         this.stateOfPage = new StateOfPage(stateRawData);
         this.icm = new ICM(icmRawData);
 
+        // 参数
+        this.panelHeight = {
+            left: 312,
+            middle: 202,
+            right: 202
+        };
+
         // 左侧栏
         this.leftColWgt = new LeftColWgt('#stigmod-nav-left');
+        this.leftColWgt.init(this.icm);
         this.leftColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 左侧栏点击时更新页面状态
         this.leftColWgt.on('refreshMiddleCol', 'refreshMiddleCol', this);  // 左侧栏点击时中间栏内容变换
 
@@ -55,6 +63,11 @@ define(function (require, exports, module) {
 
         // 右侧栏
         //this.rightColWgt = new rightColWgt();
+
+        // 顶部栏(网站导航条之下)
+        this.headerWgt = new HeaderWgt('#stigmod-header');
+        this.headerWgt.init(this.icm, this.stateOfPage);
+        this.headerWgt.on('resizePanel', 'resizePanel', this);  // 进入、退出全屏时，以不同的垂直边距重设panel大小
 
         // addClass对话框
         this.addClassDlgWgt = new ClassDialogWgt('#stigmod-modal-addclass');
@@ -81,15 +94,18 @@ define(function (require, exports, module) {
         // addRelation对话框
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
         this.addRelationDlgWgt.init(this.icm, this.stateOfPage);
-        this.addRelationDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建属性时更新页面状态
-        this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建属性时更新icm模型
-        this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建属性时更新icm模型
-        this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
-
+        this.addRelationDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系时更新页面状态
+        this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建关系时更新icm模型
+        this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建关系时更新icm模型
+        this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系时局部更新中间栏
     }
 
     // 初始化
     Page.prototype.init = function () {
+
+        // 左中右栏目高度自适应
+        this.resizePanel();
+        $(window).on('resize', this.resizePanel.bind(this));  // 需要给resizePanel绑定Page作为context，否则无法获取Page对象中的属性
 
         // 显示左侧栏
         this.refreshLeftCol();
@@ -97,12 +113,14 @@ define(function (require, exports, module) {
         var icm = this.icm;
         var stateOfPage = this.stateOfPage;
 
-        // 输入框中每输入一个字符，进行一次内容合法性检查
-        // keyup 事件保证 input 的 value 改变后才调用 checkInput
+        // 输入框中每输入一个字符，进行一次内容合法性检查。keyup 事件保证 input 的 value 改变后才调用 checkInput
         $(document).on('keyup', 'input[type=text]', handleCheckInputs);
 
         // 输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
         $(document).on('keyup', 'input[type=text]', handleKbdCtrlInput);
+
+        // 未保存就离开页面
+        $(window).on('beforeunload', handleLeavePage);
 
         // 处理：输入框中每输入一个字符，进行一次内容合法性检查
         function handleCheckInputs() {
@@ -141,6 +159,12 @@ define(function (require, exports, module) {
             }
         }
 
+        // 处理：未保存就离开页面
+        function handleLeavePage() {
+            if (!icm.isLogEmpty()) {
+                return 'Your model changes have not been saved.';
+            }
+        }
     };
 
     // 刷新左侧栏
@@ -178,6 +202,50 @@ define(function (require, exports, module) {
     // 更新中间栏
     Page.prototype.insertNewMiddleItem = function (name) {
         this.middleColWgt.insertNewItem(this.icm, this.stateOfPage, name)
+    };
+
+    // 左中侧三栏（panel）高度调整
+    Page.prototype.resizePanel = function (heightObj) {
+        var key;
+
+        // 若有参数传入，则重设高度基准
+        if (heightObj) {
+            for (key in heightObj) {
+                if (heightObj.hasOwnProperty(key) && this.panelHeight.hasOwnProperty(key)) {
+                    this.panelHeight[key] = heightObj[key];
+                }
+            }
+        }
+
+        var windowHeight = $(window).height();
+        var icm = this.icm;
+        var stateOfPage = this.stateOfPage;
+        var panelHeight = this.panelHeight;
+
+        // 调整三栏的高度
+        $('#stigmod-nav-left-scroll').height(windowHeight - panelHeight.left);
+        $('#stigmod-cont-right-scroll').height(windowHeight - panelHeight.middle);
+        $('#stigmod-rcmd-right-scroll').height(windowHeight - panelHeight.right);
+
+        // 当 modelview 可见时，调整 modelview 中图形的位置（重新初始化）
+        if ($('#stigmod-modal-d3view').is(':visible') && stateOfPage.windowResizeMutex === 0) {
+
+            // 加锁
+            stateOfPage.windowResizeMutex = 1;
+
+            // 清除旧的 svg 和 Detail
+            $('#view').find('svg').remove();
+            $('#classDetail').remove();
+            $('#relationDetail').remove();
+
+            // 刷新模型图像
+            setTimeout(function() {
+                modelView(icm);
+
+                // 解锁
+                stateOfPage.windowResizeMutex = 0;
+            }, 500);
+        }
     };
 
 
@@ -241,14 +309,21 @@ define(function (require, exports, module) {
     function LeftColWgt() {
         Widget.apply(this, arguments);
 
-        var widget = this;
         this.classListGroup = new LeftColListGroupWgt('#stigmod-nav-left-scroll .panel:first-child .list-group');
         this.relgrpListGroup = new LeftColListGroupWgt('#stigmod-nav-left-scroll .panel:last-child .list-group');
         this.classListGroup.addTemplateWidget({t: '#template-left-class'});
         this.relgrpListGroup.addTemplateWidget({t: '#template-left-relation-group'});
+    }
+    _.extend(LeftColWgt, Widget);
+
+    LeftColWgt.prototype.init = function (icm) {
+        var widget = this;
 
         // 左侧导航栏点击激活 并跳转
         $(document).on('click', '#stigmod-nav-left-scroll .list-group-item', handleClkLeft);
+
+        // 点击左侧搜索按钮
+        $(document).on('click', '#stigmod-search-left-btn', handleClkSearchLeft);
 
         // 处理：左侧导航栏点击激活 并跳转
         function handleClkLeft() {
@@ -268,8 +343,30 @@ define(function (require, exports, module) {
             // 跳转
             widget.fire('refreshMiddleCol', null);
         }
-    }
-    _.extend(LeftColWgt, Widget);
+
+        // 处理：点击左侧搜索按钮
+        function handleClkSearchLeft() {
+
+            // 调试用：输出icm
+            //console.log(icm);
+            //var id = new ObjectId().toString();
+            //console.log('id', id);
+
+            var name = $('#stigmod-search-left-input').val();
+
+            if (icm.doesNodeExist(0, name) || icm.doesNodeExist(1, name)) {  // 如果模型中存在名为 name 的类或关系组
+
+                $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + name + ']')
+                        .trigger('click')  // 点击激活该元素
+                        .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+            } else {
+
+                //confirm('Does not exist. Do you want to add one?');
+            }
+
+            $(this).blur(); // 按钮单击事件处理完成后去除按钮焦点
+        }
+    };
 
     // 刷新左侧栏
     LeftColWgt.prototype.refresh = function(icm) {
@@ -1020,6 +1117,114 @@ define(function (require, exports, module) {
 
 
     /**
+     * 顶部栏组件(也包括全屏时的悬浮窗)
+     * @constructor
+     */
+    function HeaderWgt() {
+        Widget.apply(this, arguments);
+    }
+    _.extend(HeaderWgt, Widget);
+
+    HeaderWgt.prototype.init = function (icm, stateOfPage) {
+
+        var widget = this;
+
+        // 点击保存按钮
+        $(document).on('click', '.stigmod-model-save, .stigmod-model-save-btn', handleClkSave);
+
+        // 点击进入全屏
+        $(document).on('click', '.stigmod-enter-full-screen-btn', handleClkEnterFS);
+
+        // 点击退出全屏
+        $(document).on('click', '.stigmod-exit-full-screen-btn', handleClkExitFS);
+
+        // 处理：点击保存按钮
+        function handleClkSave() {
+
+            // 构建保存内容
+            var postData = {};
+
+            postData.date = Date.now();
+            postData.user = stateOfPage.user;
+            postData.modelID = stateOfPage.modelID;
+            postData.modelName = stateOfPage.modelName;
+
+            postData.log = icm.getLog();  // 获取日志
+            postData.orderChanges = icm.getAttRelOrderChanges();  // 获取有变动的顺序数组
+
+            // 清空 model 操作日志 & 顺序变动记录
+            icm.clearLog();
+            icm.clearAttRelOrderChanges();
+
+            // 向后端传送 model 操作日志
+            //console.log('postData', postData);
+            //console.log('postDataStringified', JSON.stringify(postData));
+
+            $.ajax({
+                url: '/' + stateOfPage.modelName + '/workspace',
+                type: 'POST',
+                data: JSON.stringify(postData),  // 把数据字符串化以使空数组能正确传递
+                contentType: 'application/json',  // 使服务器端能正确理解数据格式
+                success: function (msg) {
+                    hideMask();
+                },
+                error: function () {
+                    // TODO：回滚 icm 的 log？
+                    hideMask();
+                }
+            });
+
+            showMask();
+            disableSave();
+        }
+
+        // 处理：点击进入全屏
+        function handleClkEnterFS() {
+
+            $('.stigmod-hide-when-full-screen').hide();
+            $('.stigmod-show-when-full-screen').show();
+
+            $('body').css({'padding-top': '20px'});
+
+            widget.fire('resizePanel', {
+                left: 172,
+                middle: 62,
+                right: 62
+            });
+        }
+
+        // 处理：点击退出全屏
+        function handleClkExitFS() {
+
+            $('.stigmod-show-when-full-screen').hide();
+            $('.stigmod-hide-when-full-screen').show();
+
+            $('body').css({'padding-top': '70px'});
+
+            widget.fire('resizePanel', {
+                left: 312,
+                middle: 202,
+                right: 202
+            });
+        }
+
+        // 显示遮罩
+        function showMask() {
+            $('.stigmod-mask-white').show();
+            $('.stigmod-loader').show();
+            $('.stigmod-loader-text').show();
+        }
+
+        // 隐藏遮罩
+        function hideMask() {
+            $('.stigmod-mask-white').hide();
+            $('.stigmod-loader').hide();
+            $('.stigmod-loader-text').hide();
+        }
+    };
+
+
+    /**
      * 对话框组件
      * @constructor
      */
@@ -1028,6 +1233,7 @@ define(function (require, exports, module) {
     }
     _.extend(DialogWgt, Widget);
 
+    // 初始化对话框
     DialogWgt.prototype.initSuperClass = function () {
 
         // modal 显示时复位
@@ -1044,7 +1250,6 @@ define(function (require, exports, module) {
             focusOnInputIn($(this));
         }
     };
-
 
     // 关闭对话框
     DialogWgt.prototype.close = function () {
