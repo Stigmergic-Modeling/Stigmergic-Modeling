@@ -207,12 +207,13 @@ define(function (require, exports, module) {
             icmName: dataPassedIn.modelName
         };
         var page = new Page(pageInfo, dataPassedIn.model);
+        page.init();
 
         // 模型可视化
         //modelView(icm);
 
         // 填入左侧栏的数据
-        page.refreshLeftCol();
+        //page.refreshLeftCol();
 
         // 打开bootstrap的tooltip部分功能
         $('[data-toggle="tooltip"]').tooltip();
@@ -278,8 +279,8 @@ define(function (require, exports, module) {
         //// 点击 addattribute 确认按钮
         //$(document).on('click', '#stigmod-btn-addattribute', handleAddAttrOk);
 
-        // 点击 addrelation 确认按钮
-        $(document).on('click', '#stigmod-btn-addrelation', handleAddRelOk);
+        //// 点击 addrelation 确认按钮
+        //$(document).on('click', '#stigmod-btn-addrelation', handleAddRelOk);
 
         // att 或 rel 的 .panel 的上下移动
         $(document).on('click', '.fa-arrow-up', handleMoveAttRelPanelUp);
@@ -325,23 +326,23 @@ define(function (require, exports, module) {
         // 使 panel 的标题栏中 add property 下拉菜单不随按钮一起隐藏并仅显示尚未添加的 property
         $(document).on('show.bs.dropdown', '.stigmod-hovershow-trig', handleAddPropDrpdn);
 
-        // 输入框中每输入一个字符，进行一次内容合法性检查
-        // keyup 事件保证 input 的 value 改变后才调用 checkInput
-        $(document).on('keyup', 'input[type=text]', handleCheckInputs);
-
-        // 输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
-        $(document).on('keyup', 'input[type=text]', handleKbdCtrlInput);
+        //// 输入框中每输入一个字符，进行一次内容合法性检查
+        //// keyup 事件保证 input 的 value 改变后才调用 checkInput
+        //$(document).on('keyup', 'input[type=text]', handleCheckInputs);
+        //
+        //// 输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
+        //$(document).on('keyup', 'input[type=text]', handleKbdCtrlInput);
 
         // modal 显示时复位
         var anyModal = '#stigmod-modal-addclass, #stigmod-modal-addrelationgroup, ' +
                 '#stigmod-modal-addattribute, #stigmod-modal-addrelation';
 
-        $(document).on('show.bs.modal', anyModal, handleMdlRmTooltip);
-        $(document).on('shown.bs.modal', anyModal, handleMdlFocus);
-        $(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
-        $(document).on('show.bs.modal', '#stigmod-modal-addrelationgroup', handleMdlAddRelGrp);
-        $(document).on('show.bs.modal', '#stigmod-modal-addattribute', handleMdlAddAttr);
-        $(document).on('show.bs.modal', '#stigmod-modal-addrelation', handleMdlAddRel);
+        //$(document).on('show.bs.modal', anyModal, handleMdlRmTooltip);
+        //$(document).on('shown.bs.modal', anyModal, handleMdlFocus);
+        //$(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
+        //$(document).on('show.bs.modal', '#stigmod-modal-addrelationgroup', handleMdlAddRelGrp);
+        //$(document).on('show.bs.modal', '#stigmod-modal-addattribute', handleMdlAddAttr);
+        //$(document).on('show.bs.modal', '#stigmod-modal-addrelation', handleMdlAddRel);
         $(document).on('show.bs.modal', '#stigmod-modal-remove', handleMdlRemove);
 
 
@@ -553,99 +554,6 @@ define(function (require, exports, module) {
         });
     }
 
-    // 局部添加中间栏组件
-    function insertMiddle(model, name, noUnfold) {
-
-        // 若第三个参数 noUnfold 被传入且为真，则仅点击一次（变为蓝色）；否则点击两次（变蓝且展开）
-        var $compo = null;
-        var collapseIndex = null;
-
-        // 计算新 .panel 的编号
-        var strPanel = '#stigmod-cont-right .panel ' +
-                ((0 === stateOfPage.flagCRG) ? '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title');
-        var $panelTitle = $(strPanel); // 取出所有 .panel
-
-        if (0 === $panelTitle.length) { // 还没有 .panel
-            collapseIndex = 0;
-
-        } else { // 已经有至少一个 .panel
-            var indexMax = -1;
-
-            $panelTitle.each(function () {
-                var indexTmp = $(this).attr('data-target');
-                indexTmp = parseInt(indexTmp.substr('#collapse'.length));
-
-                if (indexTmp > indexMax) {
-                    indexMax = indexTmp;
-                }
-            });
-
-            collapseIndex = indexMax + 1; // 由于上下移动 attrel 功能的加入，这里需要取所有现存编号中的最大值加一作为新的编号
-        }
-
-        // 找到正确的位置并插入新 .panel
-        if ('@' === stateOfPage.addAttrRel.position) {
-            $compo = $('#stigmod-cont-right .list-group')
-                    .before(0 === stateOfPage.flagCRG ? componentMiddleAttribute : componentMiddleRelation).prev();
-        } else {
-            if (0 === stateOfPage.addAttrRel.direction) { // 上插
-                $compo = $('#stigmod-cont-right .panel[stigmod-attrel-name=' + stateOfPage.addAttrRel.position + ']')
-                        .before(0 === stateOfPage.flagCRG ? componentMiddleAttribute : componentMiddleRelation).prev();
-            } else { // 下插
-                $compo = $('#stigmod-cont-right .panel[stigmod-attrel-name=' + stateOfPage.addAttrRel.position + ']')
-                        .after(0 === stateOfPage.flagCRG ? componentMiddleAttribute : componentMiddleRelation).next();
-            }
-        }
-
-        // 在 .panel 中记录 attribute 或 relation 的名字，便于点击时更新 stateOfPage
-        $compo.attr({'stigmod-attrel-name': name});
-
-        // 设置collapse属性
-        var strTitle = 0 === stateOfPage.flagCRG ? '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
-        var $collapseTrigger = $compo.find(strTitle).attr({'data-target': '#collapse' + collapseIndex});
-        var $collapseContent = $compo.find('.panel-collapse').attr({'id': 'collapse' + collapseIndex});
-        var modelProperties = model[stateOfPage.flagCRG][stateOfPage.class][0][name][0];
-
-        for (var modelProperty in modelProperties) {
-            if (modelProperties.hasOwnProperty(modelProperty)) {
-                var $propertyRow = null;
-
-                if (0 === stateOfPage.flagCRG) {
-                    $propertyRow = $collapseContent.find('.stigmod-attr-prop-' + modelProperty).show();
-
-                    $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
-                            .text(model[stateOfPage.flagCRG][stateOfPage.class][0][name][0][modelProperty]);
-
-                } else {
-                    $propertyRow = $collapseContent.find('.stigmod-rel-prop-' + modelProperty).show();
-
-                    $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
-                            .text(model[stateOfPage.flagCRG][stateOfPage.class][0][name][0][modelProperty][0]);
-                    $propertyRow.find('td:nth-child(3) > .stigmod-clickedit-disp')
-                            .text(model[stateOfPage.flagCRG][stateOfPage.class][0][name][0][modelProperty][1]);
-                }
-            }
-        }
-
-        // 刷新所有panel的标题
-        refreshMiddelPanelTitle(model);
-
-        // 激活本panel
-        if (noUnfold) {
-            $compo.trigger('click'); // 变蓝，不展开
-
-        } else {
-            $compo.trigger('click'); // 变蓝
-
-            setTimeout(function () {  // 展开
-                var strTitle = 0 === stateOfPage.flagCRG ?
-                        '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
-
-                $compo.find(strTitle).trigger('click');
-            }, 10);
-        }
-    }
-
     // 局部删除中间栏组件
     function removeMiddle(model, name) {
 
@@ -751,218 +659,6 @@ define(function (require, exports, module) {
      *  辅助功能函数
      *  ----------  */
 
-    // 获取输入内容合法性检查结果
-    function getInputCheckResult(model, inputCase, input) {
-
-        var pattern = null;
-        switch (inputCase) {
-
-            // 类名
-            case 'class-add':
-                pattern = /^[A-Z][A-Za-z]*$/;
-                if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
-                } else if (model.doesNodeExist(0, input)) {  // 类名重复
-                    return 'Class already exists.';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-            case 'class-modify':
-                pattern = /^[A-Z][A-Za-z]*$/;
-                if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
-                } else if ((stateOfPage.class !== input) && model.doesNodeExist(0, input)) {  // 新类名与【其他】类名重复 (与该类修改前类名重复是允许的)
-                    return 'Class already exists.';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // 关系组
-            case 'relationgroup-add':
-                if (!model.doesNodeExist(0, input)) {  // 类名不存在
-                    return 'Class does not exist.';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // attribute 名
-            case 'attribute-add':
-                pattern = /^[a-z][A-Za-z]*$/;
-                if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
-                } else if (model.doesNodeExist(2, input, stateOfPage.class)) {  // attribute 名重复
-                    return 'Attribute name already exists.';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-            case 'attribute-modify':
-                pattern = /^[a-z][A-Za-z]*$/;
-                if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
-                } else if ((stateOfPage.attribute !== input) && model.doesNodeExist(2, input, stateOfPage.class)) {  // attribute 名与其他 attribute 重复
-                    return 'Attribute name already exists.';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // 类型名
-            case 'type-add':
-            case 'type-modify':
-                pattern = /^(int|float|string|boolean)$/;  // build-in types
-                if (!pattern.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是类
-                    return 'Valid Type: A class or built-in type (int|float|string|boolean).';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // 多重性
-            case 'multiplicity-add':
-            case 'multiplicity-modify':
-                pattern = /^(\*|\d+(\.\.(\d+|\*))?)$/;
-            function isValidMultiplicity(mul) {  // 检验是否第一个数小于第二个数
-                var hasTwoNum = /\.\./;
-                if (hasTwoNum.test(mul)) {
-                    var num = input.split('..');  // 获得“..”两端的数字
-                    if ('*' !== num[1]) {
-                        return parseInt(num[0]) < parseInt(num[1]);  // 当第一个数大于等于第二个数时，返回 false
-                    }
-                }
-                return true;  // 其他情况都返回 true
-            }
-
-                if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
-                } else if (!isValidMultiplicity(input)) {  // 第一个数大于第二个数
-                    return 'The second number should be bigger.';
-                } else {  // 合法
-                    return 'valid';
-                }
-
-            // 可见性
-            case 'visibility-add':
-            case 'visibility-modify':
-                pattern = /^(public|private|protected|package)$/;
-                if (!pattern.test(input)) {
-                    return 'Valid Format: ' + pattern.toString();
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // relation 名
-            case 'relation-add':
-            case 'relation-modify':
-                pattern = /^(|[a-z][A-Za-z]*)$/;  // 可为空
-                if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Type: ' + pattern.toString();
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // relation 两端的角色
-            case 'role-add':
-            case 'role-modify':
-                pattern = /^[a-z][A-Za-z]*$/;
-                if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Type: ' + pattern.toString();
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // 其他非空
-            case 'default-add':
-            case 'default-modify':
-            case 'constraint-add':
-            case 'constraint-modify':
-            case 'subsets-add':
-            case 'subsets-modify':
-            case 'redefines-add':
-            case 'redefines-modify':
-            case 'end-add':  // relation 两端的 class
-            case 'end-modify':
-                pattern = /^.+$/;  // 非空
-                if (!pattern.test(input)) {
-                    return 'Input can not be void.';
-                } else {  // 合法
-                    return 'valid';
-                }
-                break;
-
-            // 所有的输入框要经过合法性检查，但尚未考虑到的inputCase会走这个分支，即无论输入什么(包括空值)都合法
-            default:
-                return 'valid';
-        }
-    }
-
-    // 检查单个输入框输入内容合法性
-    function checkInput(model, $input) {  // $input 是单个输入框组件
-
-        var inputCase = $input.attr('stigmod-inputcheck');  // 输入框类型
-
-        // 仅在设定了输入框的 stigmod-inputcheck 属性时进行下面的检查操作
-        if (undefined !== inputCase) {
-            var input = $input.val();  // 输入框内容
-            var checkResult = getInputCheckResult(model, inputCase, input);  // 合法性检查结果
-            var tooltipPlacement = null;  // 结果反馈的显示位置
-            switch (inputCase) {
-                case 'class-modify':
-                    tooltipPlacement = 'bottom';  // 对于修改类名来说，为防止提示被区域上沿吃掉，将提示显示在输入框之下
-                    break;
-                default:
-                    tooltipPlacement = 'top';
-            }
-
-            // 定义不同场景下 inputCase 的 pattern
-            var modalPattern = /add$/;
-
-            if ('valid' !== checkResult) {  // 不合法
-
-                // 显示提示
-                $input.tooltip('destroy');  // 首先要清除旧的提示
-                $input.tooltip({
-                    animation: false,
-                    title: checkResult,
-                    placement: tooltipPlacement,
-                    trigger: 'manual'
-                });
-                $input.tooltip('show');
-                // 返回值
-                return false;
-
-            } else {  // 合法
-
-                // 清除提示
-                $input.tooltip('destroy');
-                // 返回值
-                return true;
-
-            }
-        }
-    }
-
-    // 检查多个输入框输入内容合法性
-    function checkInputs(model, $inputs) {  // $inputs 是一组输入框组件
-
-        var num = $inputs.size();
-        var allInputsAreValid = true;
-
-        for (var i = 0; i < num; ++i) {
-
-            // checkInput 放在左侧，防止函数里面的动作被 && 懒惰掉了。这样能让所有非法提示全部显示出来。
-            allInputsAreValid = checkInput(model, $inputs.eq(i)) && allInputsAreValid;
-        }
-
-        return allInputsAreValid;
-    }
-
     // addrelation 和 modifyrelation 下拉菜单中的核心处理函数
     function ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify) {
         switch (reltype) {
@@ -1027,43 +723,6 @@ define(function (require, exports, module) {
      *  事件处理函数
      *  ----------  */
 
-
-    // 处理：输入框中每输入一个字符，进行一次内容合法性检查
-    function handleCheckInputs() {
-        checkInput(icm, $(this));
-        //$(this).closest('.modal').find('.modal-recommendation').addClass('modal-recommendation-animation');
-    }
-
-    // 处理：输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
-    function handleKbdCtrlInput(event) {
-        if (13 === event.which) {  // Enter
-
-            // 尝试寻找上层的 .stigmod-clickedit-root ，并点击提交
-            if (0 !== $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-ok').trigger('click').length) {
-                return false;  // 已猜对，不用继续
-            }
-
-            // 尝试寻找上层的 .modal ，并点击提交
-            if (0 !== $(this).closest('.modal').find('.btn-primary').trigger('click').length) {
-                return false;  // 已猜对，不用继续
-            }
-
-            // 尝试寻找旁边的搜索按钮 TODO：这几个“尝试”写得不好，应该在一开始就搞清楚属于那种情况
-            if (0 !== $(this).parent().parent().find('#stigmod-search-left-btn, #searchButton').trigger('click').length) {  // 第一个 parent() 是考虑了 typeahead wrapper 的影响
-                return false;  // 已猜对，不用继续
-            }
-
-        } else if (27 === event.which) {  // ESC
-
-            // 编辑组件取消编辑 （modal的ESC功能是自带的，不用写在这里）
-            if (0 !== $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-cancel').trigger('click').length) {
-                return false;
-            }
-
-            // 左侧搜索栏，清除输入的文字并清除文本框的焦点
-            $(this).val('').blur();
-        }
-    }
 
     // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
     function handleAddAttrChkBox() {
@@ -1184,72 +843,6 @@ define(function (require, exports, module) {
         event.preventDefault();
     }
 
-    // 确认：点击 addrelation 确认按钮
-    function handleAddRelOk() {
-        var $visibleInputs = $(this).closest('#stigmod-modal-addrelation')
-                .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
-        var $reltypeBtn = $(this).closest('#stigmod-modal-addrelation')
-                .find('#stigmod-dropdown-reltype-modal > button');
-
-        function isValidRelation($compo) {
-            if ('' === $compo.text()) {  // Relation type 不能为空
-                $compo.tooltip('destroy');  // 首先要清除旧的提示
-                $compo.tooltip({
-                    animation: false,
-                    title: 'Relation type can not be void.',
-                    placement: 'top',
-                    trigger: 'manual'
-                    //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
-                });
-                $compo.tooltip('show');
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        if (checkInputs(icm, $visibleInputs) && isValidRelation($reltypeBtn)) {
-
-            // 生成 relation id
-            var idRelFront = new ObjectId().toString();
-
-            // 添加 relation id 作为该relation在前端的Key
-            icm.addRelation(stateOfPage.class, idRelFront, stateOfPage.addAttrRel);
-
-            // 添加 properties
-            var $propertyNew = $(this).closest('#stigmod-modal-addrelation').find('tr:visible');
-
-            $propertyNew.each(function () {
-                var caseName = $(this).attr('stigmod-addrel-case');
-                var propertyName = $(this).find('td:first-child').text();
-                var propertyValue1 = null;
-                var propertyValue2 = null;
-
-                if ('type' === propertyName) {
-                    propertyValue1 = $(this).find('button').text();
-                    propertyValue2 = $(this).find('input').val();
-                } else {
-                    switch (caseName) {
-                        case 'text':
-                            propertyValue1 = $(this).find('input').first().val();
-                            propertyValue2 = $(this).find('input').last().val();
-                            break;
-                        case 'radio':
-                            propertyValue1 = $(this).find('input:checked').first().parent().text();
-                            propertyValue2 = $(this).find('input:checked').last().parent().text();
-                            break;
-                    }
-                }
-
-                icm.addPropOfR(stateOfPage.class, idRelFront, [propertyName, [propertyValue1, propertyValue2]]);
-            });
-
-            insertMiddle(icm, idRelFront);
-            $(this).next().trigger('click'); // 关闭当前 modal
-
-            enableSave();
-        }
-    }
 
     // 处理：att 或 rel 的 .panel 的上下移动
     function handleMoveAttRelPanelUp() {
@@ -1364,54 +957,6 @@ define(function (require, exports, module) {
         enableSave();
     }
 
-    // 处理：modal 显示时复位
-    function handleMdlRmTooltip() {  // 对任何 modal 都有效
-        $(this).find('.tooltip').remove();  // 移除所有的 tooltip 组件
-    }
-    function handleMdlFocus() {  // 对任何 modal 都有效
-        focusOnInputIn($(this));
-    }
-    function handleMdlAddClass() {
-        $(this).find('input').val('');
-
-        // 刷新 modal 推荐栏
-        refreshModalRec('#stigmod-modal-rec-class');
-    }
-    function handleMdlAddRelGrp() {
-        $(this).find('input').val('');
-    }
-    function handleMdlAddAttr() {
-        $(this).find('input[type=text]').val('');
-        $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
-        $(this).find('input[type=checkbox]').removeAttr('checked');
-        $(this).find('input[value=type]').prop('checked', true); // 保留type项的选中状态
-        $(this).find('tr').hide();
-        $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示name项
-        $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
-
-        // 刷新 modal 推荐栏
-        refreshModalRec('#stigmod-modal-rec-attribute');
-    }
-    function handleMdlAddRel() {
-        $(this).find('input[type=text]').val('');
-        $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
-        $(this).find('input[type=checkbox]').removeAttr('checked');
-        $(this).find('input[value=role]').prop('checked', true); // 保留role项的选中状态
-        $(this).find('input[value=multiplicity]').prop('checked', true); // 保留multiplicity项的选中状态
-        $(this).find('tr').hide();
-        $(this).find('tr:nth-child(1) button').text('');
-        $(this).find('tr:nth-child(2) input').removeAttr('disabled');
-        $(this).find('tr:nth-child(4) input').removeAttr('disabled');
-
-        var nameOfBothEnds = stateOfPage.class.split('-'); // 获得关系两端的类名
-
-        $(this).find('tr:nth-child(3) > td:nth-child(2) > input').val(nameOfBothEnds[0]); // 将类名填入
-        $(this).find('tr:nth-child(3) > td:nth-child(3) > input').val(nameOfBothEnds[1]); // 将类名填入
-        $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示type项
-        $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示role项
-        $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
-        $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
-    }
     function handleMdlRemove() {
         var type = new Array();
 

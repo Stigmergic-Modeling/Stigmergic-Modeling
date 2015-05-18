@@ -1,8 +1,16 @@
 define(function (require, exports, module) {
 
-    /*  -------  *
-     *  载入模块
-     *  -------  */
+    /**
+     * 模块的输出
+     * @type {Page}
+     */
+    module.exports = Page;
+
+
+    /**
+     * 模块的输入
+     * @type {exports}
+     */
 
     // 通用库模块
     var $ = require('../lib/jquery');
@@ -65,15 +73,75 @@ define(function (require, exports, module) {
         // addAttribute对话框
         this.addAttributeDlgWgt = new AttributeDialogWgt('#stigmod-modal-addattribute');
         this.addAttributeDlgWgt.init(this.icm, this.stateOfPage);
-        this.addAttributeDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系组时更新页面状态
-        this.addAttributeDlgWgt.on('addAttribute', 'addAttr', this.icm);  // 新建关系组时更新icm模型
-        this.addAttributeDlgWgt.on('addPropOfA', 'addPropOfA', this.icm);  // 新建关系组时更新icm模型
-        this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系组时更新icm模型
+        this.addAttributeDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建属性时更新页面状态
+        this.addAttributeDlgWgt.on('addAttribute', 'addAttr', this.icm);  // 新建属性时更新icm模型
+        this.addAttributeDlgWgt.on('addPropOfA', 'addPropOfA', this.icm);  // 新建属性时更新icm模型
+        this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
 
-
-        this.addRelationDlgWgt = new DialogWgt('#stigmod-modal-addrelation');
+        // addRelation对话框
+        this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
+        this.addRelationDlgWgt.init(this.icm, this.stateOfPage);
+        this.addRelationDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建属性时更新页面状态
+        this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建属性时更新icm模型
+        this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建属性时更新icm模型
+        this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
 
     }
+
+    // 初始化
+    Page.prototype.init = function () {
+
+        // 显示左侧栏
+        this.refreshLeftCol();
+
+        var icm = this.icm;
+        var stateOfPage = this.stateOfPage;
+
+        // 输入框中每输入一个字符，进行一次内容合法性检查
+        // keyup 事件保证 input 的 value 改变后才调用 checkInput
+        $(document).on('keyup', 'input[type=text]', handleCheckInputs);
+
+        // 输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
+        $(document).on('keyup', 'input[type=text]', handleKbdCtrlInput);
+
+        // 处理：输入框中每输入一个字符，进行一次内容合法性检查
+        function handleCheckInputs() {
+            checkInput(icm, $(this), stateOfPage);
+            //$(this).closest('.modal').find('.modal-recommendation').addClass('modal-recommendation-animation');
+        }
+
+        // 处理：输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
+        function handleKbdCtrlInput(event) {
+            if (13 === event.which) {  // Enter
+
+                // 尝试寻找上层的 .stigmod-clickedit-root ，并点击提交
+                if (0 !== $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-ok').trigger('click').length) {
+                    return false;  // 已猜对，不用继续
+                }
+
+                // 尝试寻找上层的 .modal ，并点击提交
+                if (0 !== $(this).closest('.modal').find('.btn-primary').trigger('click').length) {
+                    return false;  // 已猜对，不用继续
+                }
+
+                // 尝试寻找旁边的搜索按钮 TODO：这几个“尝试”写得不好，应该在一开始就搞清楚属于那种情况
+                if (0 !== $(this).parent().parent().find('#stigmod-search-left-btn, #searchButton').trigger('click').length) {  // 第一个 parent() 是考虑了 typeahead wrapper 的影响
+                    return false;  // 已猜对，不用继续
+                }
+
+            } else if (27 === event.which) {  // ESC
+
+                // 编辑组件取消编辑 （modal的ESC功能是自带的，不用写在这里）
+                if (0 !== $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-cancel').trigger('click').length) {
+                    return false;
+                }
+
+                // 左侧搜索栏，清除输入的文字并清除文本框的焦点
+                $(this).val('').blur();
+            }
+        }
+
+    };
 
     // 刷新左侧栏
     Page.prototype.refreshLeftCol = function () {
@@ -960,6 +1028,24 @@ define(function (require, exports, module) {
     }
     _.extend(DialogWgt, Widget);
 
+    DialogWgt.prototype.initSuperClass = function () {
+
+        // modal 显示时复位
+        var modalId = '#' + this.element.attr('id');
+
+        $(document).on('show.bs.modal', modalId, handleMdlRmTooltip);
+        $(document).on('shown.bs.modal', modalId, handleMdlFocus);
+
+        // 处理：modal 显示时复位
+        function handleMdlRmTooltip() {  // 对任何 modal 都有效
+            $(this).find('.tooltip').remove();  // 移除所有的 tooltip 组件
+        }
+        function handleMdlFocus() {  // 对任何 modal 都有效
+            focusOnInputIn($(this));
+        }
+    };
+
+
     // 关闭对话框
     DialogWgt.prototype.close = function () {
         this.element.modal('hide');
@@ -979,10 +1065,15 @@ define(function (require, exports, module) {
     // 事件监听初始化
     ClassDialogWgt.prototype.init = function (icm) {
 
+        this.initSuperClass();
+
         var widget = this;
 
         // 点击 addclass 确认按钮
         $(document).on('click', '#stigmod-btn-addclass', handleAddClassOk);
+
+        // modal 显示前复位
+        $(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
 
         // 处理：点击 addclass 确认按钮
         function handleAddClassOk() {
@@ -1007,6 +1098,14 @@ define(function (require, exports, module) {
                 enableSave();
             }
         }
+
+        // 处理：modal 显示前复位
+        function handleMdlAddClass() {
+            $(this).find('input').val('');
+
+            // 刷新 modal 推荐栏
+            //refreshModalRec('#stigmod-modal-rec-class');
+        }
     };
 
 
@@ -1023,10 +1122,15 @@ define(function (require, exports, module) {
     // 事件监听初始化
     RelGrpDialogWgt.prototype.init = function (icm) {
 
+        this.initSuperClass();
+
         var widget = this;
 
         // 点击 addrelationgroup 确认按钮
         $(document).on('click', '#stigmod-btn-addrelationgroup', handleAddRelGrpOk);
+
+        // modal 显示前复位
+        $(document).on('show.bs.modal', '#stigmod-modal-addrelationgroup', handleMdlAddRelGrp);
 
         // 处理：点击 addrelationgroup 确认按钮
         function handleAddRelGrpOk() {
@@ -1077,6 +1181,11 @@ define(function (require, exports, module) {
                 $('#stigmod-cont-right-scroll').find('.stigmod-addattrel-last').trigger('click');
             }
         }
+
+        // 处理：modal 显示前复位
+        function handleMdlAddRelGrp() {
+            $(this).find('input').val('');
+        }
     };
 
 
@@ -1093,10 +1202,15 @@ define(function (require, exports, module) {
     // 事件监听初始化
     AttributeDialogWgt.prototype.init = function (icm, stateOfPage) {
 
+        this.initSuperClass();
+
         var widget = this;
 
         // 点击 addattribute 确认按钮
         $(document).on('click', '#stigmod-btn-addattribute', handleAddAttrOk);
+
+        // modal 显示前复位
+        $(document).on('show.bs.modal', '#stigmod-modal-addattribute', handleMdlAddAttr);
 
         // 处理：点击 addattribute 确认按钮
         function handleAddAttrOk() {
@@ -1128,12 +1242,138 @@ define(function (require, exports, module) {
                     widget.fire('addPropOfA', [stateOfPage.clazz, attributeName, [propertyName, propertyValue]]);
                 });
 
-                //insertMiddle(icm, attributeName);
                 widget.fire('insertNewItem', attributeName);
                 widget.close(); // 关闭当前 modal
 
                 enableSave();
             }
+        }
+
+        // 处理：modal 显示前复位
+        function handleMdlAddAttr() {
+            $(this).find('input[type=text]').val('');
+            $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
+            $(this).find('input[type=checkbox]').removeAttr('checked');
+            $(this).find('input[value=type]').prop('checked', true); // 保留type项的选中状态
+            $(this).find('tr').hide();
+            $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示name项
+            $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
+
+            // 刷新 modal 推荐栏
+            //refreshModalRec('#stigmod-modal-rec-attribute');
+        }
+    };
+
+
+    /**
+     * addRelation 对话框组件
+     * @constructor
+     */
+    function RelationDialogWgt() {
+        DialogWgt.apply(this, arguments);
+    }
+    _.extend(RelationDialogWgt, DialogWgt);
+
+    // 事件监听初始化
+    RelationDialogWgt.prototype.init = function (icm, stateOfPage) {
+
+        this.initSuperClass();
+
+        var widget = this;
+
+        // 点击 addrelation 确认按钮
+        $(document).on('click', '#stigmod-btn-addrelation', handleAddRelOk);
+
+        // modal 显示前复位
+        $(document).on('show.bs.modal', '#stigmod-modal-addrelation', handleMdlAddRel);
+
+        // 确认：点击 addrelation 确认按钮
+        function handleAddRelOk() {
+            var $visibleInputs = $(this).closest('#stigmod-modal-addrelation')
+                    .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
+            var $reltypeBtn = $(this).closest('#stigmod-modal-addrelation')
+                    .find('#stigmod-dropdown-reltype-modal > button');
+
+            function isValidRelation($compo) {
+                if ('' === $compo.text()) {  // Relation type 不能为空
+                    $compo.tooltip('destroy');  // 首先要清除旧的提示
+                    $compo.tooltip({
+                        animation: false,
+                        title: 'Relation type can not be void.',
+                        placement: 'top',
+                        trigger: 'manual'
+                        //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
+                    });
+                    $compo.tooltip('show');
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {
+
+                // 生成 relation id
+                var idRelFront = new ObjectId().toString();
+
+                // 添加 relation id 作为该relation在前端的Key
+                icm.addRelation(stateOfPage.clazz, idRelFront, stateOfPage.addAttrRel);
+
+                // 添加 properties
+                var $propertyNew = $(this).closest('#stigmod-modal-addrelation').find('tr:visible');
+
+                $propertyNew.each(function () {
+                    var caseName = $(this).attr('stigmod-addrel-case');
+                    var propertyName = $(this).find('td:first-child').text();
+                    var propertyValue1 = null;
+                    var propertyValue2 = null;
+
+                    if ('type' === propertyName) {
+                        propertyValue1 = $(this).find('button').text();
+                        propertyValue2 = $(this).find('input').val();
+                    } else {
+                        switch (caseName) {
+                            case 'text':
+                                propertyValue1 = $(this).find('input').first().val();
+                                propertyValue2 = $(this).find('input').last().val();
+                                break;
+                            case 'radio':
+                                propertyValue1 = $(this).find('input:checked').first().parent().text();
+                                propertyValue2 = $(this).find('input:checked').last().parent().text();
+                                break;
+                        }
+                    }
+
+                    icm.addPropOfR(stateOfPage.clazz, idRelFront, [propertyName, [propertyValue1, propertyValue2]]);
+                });
+
+                widget.fire('insertNewItem', idRelFront);
+                widget.close(); // 关闭当前 modal
+
+                enableSave();
+            }
+        }
+
+        // 处理：modal 显示前复位
+        function handleMdlAddRel() {
+            $(this).find('input[type=text]').val('');
+            $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
+            $(this).find('input[type=checkbox]').removeAttr('checked');
+            $(this).find('input[value=role]').prop('checked', true); // 保留role项的选中状态
+            $(this).find('input[value=multiplicity]').prop('checked', true); // 保留multiplicity项的选中状态
+            $(this).find('tr').hide();
+            $(this).find('tr:nth-child(1) button').text('');
+            $(this).find('tr:nth-child(2) input').removeAttr('disabled');
+            $(this).find('tr:nth-child(4) input').removeAttr('disabled');
+
+            var nameOfBothEnds = stateOfPage.clazz.split('-'); // 获得关系两端的类名
+
+            $(this).find('tr:nth-child(3) > td:nth-child(2) > input').val(nameOfBothEnds[0]); // 将类名填入
+            $(this).find('tr:nth-child(3) > td:nth-child(3) > input').val(nameOfBothEnds[1]); // 将类名填入
+            $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示type项
+            $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示role项
+            $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
+            $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
         }
     };
 
@@ -1183,17 +1423,12 @@ define(function (require, exports, module) {
 
 
 
-    /**
-     * 模块的输出
-     * @type {Page}
-     */
-    module.exports = Page;
 
-
-
-    /**
-     * 辅助函数
-     */
+    /** ---------------------- *
+     *
+     *         辅助函数
+     *
+     ** ---------------------- */
 
     // 获取输入内容合法性检查结果
     function getInputCheckResult(model, inputCase, input, stateOfPage) {
@@ -1405,6 +1640,11 @@ define(function (require, exports, module) {
         }
 
         return allInputsAreValid;
+    }
+
+    // 输入框出现后聚焦到第一个输入框上
+    function focusOnInputIn($framework) {
+        $framework.find('input[type=text]:not([readonly])').eq(0).select();  // not可处理typeahead带来的影响
     }
 
     // 失能保存按钮
