@@ -30,22 +30,31 @@ define(function (require, exports, module) {
             attributeBasic: '#template-mid-att-basic',
             relationBasic: '#template-mid-rel-basic'
         });
+        this.middleColWgt.init(this.icm, this.stateOfPage);
         //this.rightColWgt = new rightColWgt();
-
-        //this.middleColWgt.addTemplateWidget({
-        //    attributeBasic: '#template-mid-att-basic',
-        //    relationBasic: '#template-mid-rel-basic'
-        //});
 
         _.makePublisher(this);
 
         this.leftColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 左侧栏点击时更新页面状态
         this.leftColWgt.on('refreshMiddleCol', 'refreshMiddleCol', this);  // 左侧栏点击时中间栏内容变换
+        this.middleColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 中间栏点击时更新页面状态
+        this.middleColWgt.on('classNameChanged', 'refreshLeftColAndActivate', this);  // 中间栏点击时更新页面状态
     }
 
     // 刷新左侧栏
     Page.prototype.refreshLeftCol = function () {
         this.leftColWgt.refresh(this.icm);
+    };
+
+    Page.prototype.refreshLeftColAndActivate = function (name) {
+        this.leftColWgt.refresh(this.icm);
+
+        // 重新激活
+        var $this = $(document)
+                .find('#stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
+                .parent();
+        $this.closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
+        $this.addClass('active');
     };
 
     // 刷新中间栏
@@ -183,8 +192,393 @@ define(function (require, exports, module) {
 
         this.attributeContentBasicWgt.addTemplateWidget({t: '#template-mid-att'});
         this.relationContentBasicWgt.addTemplateWidget({t: '#template-mid-rel'});
+
     }
     _.extend(MiddleColWgt, Widget);
+
+    // 初始化中间栏事件
+    MiddleColWgt.prototype.init = function (icm, stateOfPage) {
+
+        var widget = this;
+
+        // 中间栏class状态捕获
+        $(document).on('click', '#stigmod-cont-right-scroll > .row:first-child', handleCapClass);
+
+        // 中间栏attribute状态捕获
+        $(document).on('click', '#stigmod-cont-right .panel .panel-heading', handleCapAttr);
+
+        // 中间栏 property 状态捕获
+        $(document).on('click', '#stigmod-cont-right .panel tr', handleCapProp);
+
+        // 一切“编辑”按钮的点击编辑功能
+        $(document).on('click', '.stigmod-clickedit-btn-edit', handleEnterEdit); // “编辑”按钮的点击编辑功能
+        $(document).on('click', '.stigmod-clickedit-btn-ok', handleSubmitEdit); // 编辑组件内的“提交”按钮功能
+        $(document).on('click', '.stigmod-clickedit-btn-cancel', handleCancelEdit); // 编辑组件内的“取消”按钮功能
+
+        // 处理：中间栏 class 状态捕获
+        function handleCapClass() {
+            widget.fire('pageStateChanged', {
+                clazz: $(this).find('.stigmod-clickedit-disp').text(),
+                flagDepth: 0
+            });
+        }
+
+        // 处理：中间栏 attribute 状态捕获
+        function handleCapAttr() {
+            widget.fire('pageStateChanged', {
+                attribute: $(this).parent().attr('stigmod-attrel-name'),
+                flagDepth: 1
+            });
+        }
+
+        // 处理：中间栏 property 状态捕获
+        function handleCapProp() {
+            widget.fire('pageStateChanged', {
+                property: $(this).find('td:first-child').text(),
+                flagDepth: 2
+            });
+        }
+
+        // 处理：进入编辑
+        function handleEnterEdit(event) {
+            var $root = $(this).closest('.stigmod-clickedit-root');
+            var caseEdit = $root.attr('stigmod-clickedit-case');
+            var $originalTextElem = $root.find('.stigmod-clickedit-disp');
+            var $editComponent = $root.find('.stigmod-clickedit-edit');
+
+            $root.find('.tooltip').remove();  // 每次进入编辑状态时都清掉旧的 tooltip
+
+            if ('title' === caseEdit) { // 中间栏标题的特别处理
+                var originalTitle = $originalTextElem.text();
+                $editComponent.find('input').val(originalTitle);
+                $originalTextElem.css({'display': 'none'});
+                $editComponent.css({'display': 'table-row'});
+
+                $(this).addClass('disabled');
+
+            } else {
+                var num = $originalTextElem.length;
+                var flagGeneralization = 0;
+
+                for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
+                    var originalText = $originalTextElem.eq(i).text();  // 获取原始文字
+
+                    switch (caseEdit) {
+                        case 'text' : // 输入框
+                            $editComponent.eq(i).find('input').val(originalText);
+                            break;
+
+                        case 'radio' : // 单选框
+                            var radio = $editComponent.eq(i).find('input');
+                            if ('True' === originalText) {
+                                radio.eq(0).attr({'checked': ''});
+                                radio.eq(1).removeAttr('checked');
+                            } else if ('False' === originalText) {
+                                radio.eq(1).attr({'checked': ''});
+                                radio.eq(0).removeAttr('checked');
+                            } else {
+                                radio.eq(1).removeAttr('checked');
+                                radio.eq(0).removeAttr('checked');
+                            }
+                            break;
+
+                        case 'reltype': // relation 页面的 relation type
+                            if (0 === i) {
+                                $editComponent.eq(i).find('button').text(originalText);
+                                if ('Generalization' === originalText) { // 当关系类型为Generalization时，不显示名字
+                                    flagGeneralization = 1; // 置位
+                                }
+                            } else if (1 === i) {
+                                if (1 === flagGeneralization) { // 当关系类型为Generalization时，不显示名字
+                                    $editComponent.eq(i).find('input').css({'display': 'none'});
+                                    flagGeneralization = 0; // 复位
+                                } else {
+                                    $editComponent.eq(i).find('input').val(originalText);
+                                }
+                            }
+
+                            // 联动编辑 role、class、multipliciy
+                            var $relrole = $(this).closest('.stigmod-clickedit-root').next();
+                            var $relclass = $relrole.next();
+                            var $relmultiplicity = $relclass.next();
+
+                            $relclass.find('.stigmod-clickedit-btn-edit').trigger('click');
+                            if ($relrole.is(':visible')) {
+                                $relrole.find('.stigmod-clickedit-btn-edit').trigger('click');  // role 和 multiplicity
+                                                                                                // 只有在显示时才联动
+                            }
+                            if ($relmultiplicity.is(':visible')) {
+                                $relmultiplicity.find('.stigmod-clickedit-btn-edit').trigger('click');  // role 和
+                                                                                                        // multiplicity
+                                                                                                        // 只有在显示时才联动
+                            }
+                            break;
+                    }
+                }
+
+                $originalTextElem.css({'display': 'none'});
+                $editComponent.css({'display': 'table'});
+            }
+
+            //focusOnInputIn($editComponent);
+            event.preventDefault();
+        }
+
+        // 处理：确认编辑
+        function handleSubmitEdit(event) {
+
+            var $root = $(this).closest('.stigmod-clickedit-root');
+            var caseEdit = $root.attr('stigmod-clickedit-case');
+            var $originalTextElem = $root.find('.stigmod-clickedit-disp');
+            var $editComponent = $root.find('.stigmod-clickedit-edit');
+            var $visibleInputs = $root.find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽
+                                                                                          // typeahead 插件的影响
+
+            // 与该编辑单元相关的输入框内容都合法，才能确认编辑
+            if (checkInputs(icm, $visibleInputs, stateOfPage)) {
+
+                // 所编辑的内容为 class name 时
+                if ('title' === caseEdit) {
+                    var newTitle = $editComponent.find('input').val();
+                    var originalTitle = $originalTextElem.text();
+
+                    // 更新 class 相关的模型和显示
+                    icm.modifyClassName(stateOfPage.clazz, newTitle);
+                    stateOfPage.clazz = newTitle;
+                    $originalTextElem.text(newTitle);
+
+                    // 更新 attribute type 相关的模型和显示
+                    // TODO: 遍历所有class的所有attribute的type，效率比较低。应该寻找更有效率的方式，用一定的空间换取时间
+                    var classes = icm.getSubModel([0]); // 获取所有 class
+
+                    for (var nameC in classes) {
+                        if (classes.hasOwnProperty(nameC)) {
+                            var attributes = classes[nameC][0];
+
+                            for (var nameA in attributes) {
+                                if (attributes.hasOwnProperty(nameA)) {
+                                    var attrType = attributes[nameA][0]['type'];
+
+                                    if (originalTitle === attrType) {
+                                        classes[nameC][0][nameA][0]['type'] = newTitle;
+
+                                        // 如果当前类中就有以当前类为属性类型的属性，则需要即时更新显示
+                                        if (nameC === stateOfPage.clazz) {
+                                            var $thePanel = $('#stigmod-cont-right .panel[stigmod-attrel-name=' + nameA + ']');
+
+                                            $thePanel.find('tr.stigmod-attr-prop-type > td:nth-child(2) > span:nth-child(1)')
+                                                    .text(newTitle);  // 更新相关的 attribute 的 type 的值
+
+                                            refreshMiddelPanelTitle(icm);  // 更新 panel 的标题
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // 更新 relation group 相关的模型和显示
+                    var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
+
+                    for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
+                        if (relationGroups.hasOwnProperty(nameRG)) {
+                            var matchName = null;
+                            var oriTitlePat = new RegExp('\\b' + originalTitle + '\\b', 'g');
+
+                            matchName = nameRG.match(oriTitlePat);
+                            if (null !== matchName) { // 如果该 relation group 与被修改的 class 有关
+
+                                // 生成新的 relation group 名称
+                                var newNameRG = null;
+                                newNameRG = nameRG.replace(oriTitlePat, newTitle);
+
+                                // 获得关系两端的类名
+                                var nameOfBothEnds = newNameRG.split('-');
+                                var relations = relationGroups[nameRG][0];
+
+                                if (nameOfBothEnds[0] > nameOfBothEnds[1]) {
+
+                                    // 若更改 class 名后 relation group 名不在是字典序，则更正
+                                    newNameRG = nameOfBothEnds[1] + '-' + nameOfBothEnds[0];
+                                }
+
+                                for (var nameR in relations) { // 遍历该 relation group 中的所有 relation
+                                    if (relations.hasOwnProperty(nameR)) {
+
+                                        // 修改 relation 中的 class name
+                                        var nameClass = relations[nameR][0]['class']; // 获取该 relation 两端的 class 的名字的引用
+
+                                        if (originalTitle === nameClass[0]) { // 需要修改End0
+                                            nameClass[0] = newTitle;
+                                        } else {  // 需要修改End1
+                                            nameClass[1] = newTitle;
+                                        }
+                                    }
+                                }
+
+                                // 修改 relation group 的名字
+                                icm.modifyRelGrpName(nameRG, newNameRG)
+                            }
+                        }
+                    }
+
+                    // 更新左侧栏显示
+                    widget.fire('classNameChanged', newTitle);
+
+                    // 更新修改组件的显示
+                    $originalTextElem.css({'display': 'table-row'});
+                    $editComponent.css({'display': 'none'});
+                    $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-edit').removeClass('disabled');
+
+                } else {  // 所编辑的内容不是 class name 时
+                    var num = $originalTextElem.length;
+                    var propertyNameOfR = '';
+                    var propertyValueOfR = ['', ''];
+                    var flagGeneralization = 0;
+
+                    for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
+                        var originalText = $originalTextElem.eq(i).text();  // 获取原始文字
+                        var newText = '';
+
+                        switch (caseEdit) {
+                            case 'text' :
+                                newText = $editComponent.eq(i).find('input').val();
+                                break;
+
+                            case 'radio' :
+                                newText = $editComponent.eq(i).find('input:checked').parent().text();
+                                break;
+
+                            case 'reltype': // relation 页面的 relation type
+                                if (0 === i) {
+                                    newText = $editComponent.eq(i).find('button').text();
+                                    if ('Generalization' === newText) { // 当关系类型为Generalization时，将name置空
+                                        flagGeneralization = 1; // 置位
+                                    }
+                                } else if (1 === i) {
+                                    if (1 === flagGeneralization) { // 当关系类型为Generalization时，将name置空
+                                        newText = '';
+                                        flagGeneralization = 0; // 复位
+                                    } else {
+                                        newText = $editComponent.eq(i).find('input').val();
+                                    }
+                                }
+
+                                // 联动编辑 role、class、multiplicity
+                                var $relrole = $(this).closest('.stigmod-clickedit-root').next();
+                                var $relclass = $relrole.next();
+                                var $relmultiplicity = $relclass.next();
+
+                                $relclass.find('.stigmod-clickedit-btn-ok').trigger('click');
+                                if ($relrole.is(':visible')) {
+                                    $relrole.find('.stigmod-clickedit-btn-ok').trigger('click');
+                                }
+                                if ($relmultiplicity.is(':visible')) {
+                                    $relmultiplicity.find('.stigmod-clickedit-btn-ok').trigger('click');
+                                }
+                                break;
+                        }
+
+                        // 更新显示
+                        $originalTextElem.eq(i).text(newText);
+
+                        // 更新模型
+                        if (0 === stateOfPage.flagCRG) {
+                            var propertyName = $(this).closest('.stigmod-clickedit-root').find('td:first-child').text();
+
+                            // 根据模型中是否有该 property，决定使用 ADD 还是 MOD 方法
+                            try {
+                                icm.getSubModel([0, stateOfPage.clazz, 0, stateOfPage.attribute, 0, propertyName]);
+                                icm.modifyPropOfA(stateOfPage.clazz, stateOfPage.attribute, propertyName, newText);  // 有，修改
+
+                            } catch(error) {
+                                if (error instanceof ReferenceError) {  // 没有，增加
+                                    icm.addPropOfA(stateOfPage.clazz, stateOfPage.attribute, [propertyName, newText]);
+                                } else {
+                                    throw error;
+                                }
+                            }
+
+                            if ('name' === propertyName) {  // 当property是name时，还要修改attribute的key
+                                icm.modifyAttrName(stateOfPage.clazz, stateOfPage.attribute, newText);
+                                stateOfPage.attribute = newText; // 页面状态的更新
+                                $(this).closest('.panel').attr({'stigmod-attrel-name': newText}); // panel 标记的更新
+                            }
+
+                        } else { // 当处理relation的property时，记录两端的key和value，最后在循环外一次性更新到model中
+                            propertyNameOfR = $(this).closest('.stigmod-clickedit-root').find('td:first-child').text();
+                            propertyValueOfR[i] = newText;
+                        }
+                    }
+
+                    if (1 === stateOfPage.flagCRG) { // 当处理relation的property时，记录两端的key和value，最后在循环外一次性更新到model中
+
+                        // 根据模型中是否有该 property，决定使用 ADD 还是 MOD 方法
+                        try {
+                            icm.getSubModel([1, stateOfPage.clazz, 0, stateOfPage.attribute, 0, propertyNameOfR]);
+                            icm.modifyPropOfR(stateOfPage.clazz, stateOfPage.attribute, propertyNameOfR, propertyValueOfR);  // 有，修改
+
+                        } catch(error) {
+                            if (error instanceof ReferenceError) {  // 没有，增加
+                                icm.addPropOfR(stateOfPage.clazz, stateOfPage.attribute, [propertyNameOfR, propertyValueOfR]);
+                            } else {
+                                throw error;
+                            }
+                        }
+                    }
+
+                    $originalTextElem.css({'display': 'table'});
+                    $editComponent.css({'display': 'none'});
+
+                    // 刷新所有panel的标题
+                    widget.refreshMiddlePanelTitle(icm, stateOfPage);
+
+                }
+            }
+
+            //enableSave();
+            event.preventDefault();
+        }
+
+        // 处理：取消编辑
+        function handleCancelEdit(event) {
+
+            var $root = $(this).closest('.stigmod-clickedit-root');
+            var caseEdit = $root.attr('stigmod-clickedit-case');
+            var $originalTextElem = $root.find('.stigmod-clickedit-disp');
+            var $editComponent = $root.find('.stigmod-clickedit-edit');
+
+            if ('title' === caseEdit) {
+                $originalTextElem.css({'display': 'table-row'});
+                $editComponent.css({'display': 'none'});
+                $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-edit').removeClass('disabled');
+
+            } else {
+                switch (caseEdit) {
+                    case 'reltype': // relation 页面的 relation type
+
+                        // 联动编辑 role、class、multipliciy
+                        var $relrole = $(this).closest('.stigmod-clickedit-root').next();
+                        var $relclass = $relrole.next();
+                        var $relmultiplicity = $relclass.next();
+
+                        $relclass.find('.stigmod-clickedit-btn-cancel').trigger('click');
+                        if ($relrole.is(':visible')) {
+                            $relrole.find('.stigmod-clickedit-btn-cancel').trigger('click');
+                        }
+                        if ($relmultiplicity.is(':visible')) {
+                            $relmultiplicity.find('.stigmod-clickedit-btn-cancel').trigger('click');
+                        }
+                        break;
+                }
+
+                $originalTextElem.css({'display': 'table'});
+                $editComponent.css({'display': 'none'});
+            }
+
+            event.preventDefault();
+        }
+    };
 
     // 刷新中间栏
     MiddleColWgt.prototype.refresh = function (icm, stateOfPage) {
@@ -200,12 +594,36 @@ define(function (require, exports, module) {
         }
     };
 
+    // 刷新中间栏panel的标题
+    MiddleColWgt.prototype.refreshMiddlePanelTitle = function (icm, stateOfPage) {
+        if (stateOfPage.flagCRG === 0) {  // attribute
+            this.attributeContentBasicWgt.refreshMiddlePanelTitle(icm, stateOfPage, this.element);
+
+        } else {  // relation
+            this.relationContentBasicWgt.refreshMiddlePanelTitle(icm, stateOfPage, this.element);
+        }
+    };
+
     /**
      * 中间内容栏基本组件
      * @constructor
      */
     function ContentBasicWgt() {
         Widget.apply(this, arguments);
+
+        // 中间内容栏点击激活
+        $(document).on('click', '#stigmod-cont-right .panel', handleClkMid);
+
+        // 处理：中间内容栏点击激活
+        function handleClkMid() {
+            var $collapseToggle = $(this).siblings('.panel').find('.stigmod-attr-cont-middle-title, .stigmod-rel-cont-middle-title');
+            var $collapseToggleThis = $(this).find('.stigmod-attr-cont-middle-title, .stigmod-rel-cont-middle-title');
+
+            $collapseToggle.attr('data-toggle', 'none');  // 禁用其他panel的collapse触发器
+            $collapseToggleThis.attr('data-toggle', 'collapse'); // 打开本panel的collapse触发器(下次点击即可触发)
+            $(this).siblings('.panel').removeClass('panel-primary').addClass('panel-default');
+            $(this).removeClass('panel-default').addClass('panel-primary');  // 激活本panel
+        }
     }
     _.extend(ContentBasicWgt, Widget);
 
@@ -258,93 +676,93 @@ define(function (require, exports, module) {
         }
 
         // 刷新所有panel的标题
-        refreshMiddelPanelTitle();
+        this.refreshMiddlePanelTitle(icm, stateOfPage, $parentElement);
+    };
 
-        function refreshMiddelPanelTitle() {
-            var $panels = $parentElement.find('.panel');
+    ContentBasicWgt.prototype.refreshMiddlePanelTitle = function (icm, stateOfPage, $parentElement) {
+        var $panels = $parentElement.find('.panel');
 
-            $panels.each(function () {
+        $panels.each(function () {
 
-                // 对于每一个 attribute 或 relation
-                var $title = $(this).find('.panel-title > div.row > div:nth-child(2)');
-                var properties = icm.getProp(stateOfPage.flagCRG, stateOfPage.clazz, $(this).attr('stigmod-attrel-name'));
-                var title = '';
+            // 对于每一个 attribute 或 relation
+            var $title = $(this).find('.panel-title > div.row > div:nth-child(2)');
+            var properties = icm.getProp(stateOfPage.flagCRG, stateOfPage.clazz, $(this).attr('stigmod-attrel-name'));
+            var title = '';
 
-                if (0 === stateOfPage.flagCRG) {
+            if (0 === stateOfPage.flagCRG) {
 
-                    // 逐个拼接 properties
-                    if (undefined !== properties.visibility) {
-                        var visSign = '';
-                        switch (properties.visibility) {
-                            case 'public':
-                                visSign = '+';
-                                break;
-                            case 'private':
-                                visSign = '-';
-                                break;
-                            case 'protected':
-                                visSign = '#';
-                                break;
-                            case 'package':
-                                visSign = '~';
-                                break;
-                        }
-                        title = title + visSign + ' ';
-                    }
-                    if (undefined !== properties.name) {
-                        title = title + properties.name + ' ';
-                    }
-                    if (undefined !== properties.type) {
-                        title = title + ': ' + properties.type + ' ';
-                    }
-                    if (undefined !== properties.multiplicity) {
-                        title = title + '[' + properties.multiplicity + '] ';
-                    }
-                    if (undefined !== properties.default) {
-                        title = title + '= ' + properties.default + ' ';
-                    }
-
-                    // 更新 title
-                    $title.text(title);
-
-                } else {
-
-                    var left = properties.class[0];
-                    var right = properties.class[1];
-                    var middle = properties.type[1];
-
-                    if ('' !== middle) {
-                        middle = '(' + middle + ')';
-                    }
-
-                    switch (properties.type[0]) {
-                        case 'Generalization':
-                            middle = ' ◁—' + middle + '—— ';
+                // 逐个拼接 properties
+                if (undefined !== properties.visibility) {
+                    var visSign = '';
+                    switch (properties.visibility) {
+                        case 'public':
+                            visSign = '+';
                             break;
-                        case 'Composition':
-                            middle = ' ◆—' + middle + '—— ';
+                        case 'private':
+                            visSign = '-';
                             break;
-                        case 'Aggregation':
-                            middle = ' ◇—' + middle + '—— ';
+                        case 'protected':
+                            visSign = '#';
                             break;
-                        case 'Association':
-                            middle = ' ——' + middle + '—— ';
+                        case 'package':
+                            visSign = '~';
                             break;
                     }
-
-                    if (undefined !== properties.multiplicity) {
-                        left = left + ' [' + properties.multiplicity[0] + '] ';
-                        right = ' [' + properties.multiplicity[1] + '] ' + right;
-                    }
-
-                    // 更新 title
-                    $title.empty();
-                    $title.append('<span>' + left + '</span>');
-                    $title.append('<span>' + middle + '</span>').find('span:last-child').css({'font-family': 'Lucida Console'});
-                    $title.append('<span>' + right + '</span>');
+                    title = title + visSign + ' ';
                 }
-            });
-        }
+                if (undefined !== properties.name) {
+                    title = title + properties.name + ' ';
+                }
+                if (undefined !== properties.type) {
+                    title = title + ': ' + properties.type + ' ';
+                }
+                if (undefined !== properties.multiplicity) {
+                    title = title + '[' + properties.multiplicity + '] ';
+                }
+                if (undefined !== properties.default) {
+                    title = title + '= ' + properties.default + ' ';
+                }
+
+                // 更新 title
+                $title.text(title);
+
+            } else {
+
+                var left = properties.class[0];
+                var right = properties.class[1];
+                var middle = properties.type[1];
+
+                if ('' !== middle) {
+                    middle = '(' + middle + ')';
+                }
+
+                switch (properties.type[0]) {
+                    case 'Generalization':
+                        middle = ' ◁—' + middle + '—— ';
+                        break;
+                    case 'Composition':
+                        middle = ' ◆—' + middle + '—— ';
+                        break;
+                    case 'Aggregation':
+                        middle = ' ◇—' + middle + '—— ';
+                        break;
+                    case 'Association':
+                        middle = ' ——' + middle + '—— ';
+                        break;
+                }
+
+                if (undefined !== properties.multiplicity) {
+                    left = left + ' [' + properties.multiplicity[0] + '] ';
+                    right = ' [' + properties.multiplicity[1] + '] ' + right;
+                }
+
+                // 更新 title
+                $title.empty();
+                $title.append('<span>' + left + '</span>');
+                $title.append('<span>' + middle + '</span>').find('span:last-child').css({'font-family': 'Lucida Console'});
+                $title.append('<span>' + right + '</span>');
+            }
+        });
     };
 
     /**
@@ -355,7 +773,7 @@ define(function (require, exports, module) {
     function StateOfPage(stateRawData) {
 
         this.user = stateRawData.userName;      // dataPassedIn 通过后端的 .ejs 模板传入
-        this.modelID = stateRawData.icmID;      // dataPassedIn 通过后端的 .ejs 模板传入
+        this.modelID = stateRawData.icmId;      // dataPassedIn 通过后端的 .ejs 模板传入
         this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的 .ejs 模板传入
 
         this.flagCRG = 0;        // 0: class, 1: relationGroup
@@ -390,7 +808,227 @@ define(function (require, exports, module) {
     };
 
 
+    /**
+     * 模块的输出
+     * @type {Page}
+     */
     module.exports = Page;
 
+
+    /**
+     * 辅助函数
+     */
+
+    // 获取输入内容合法性检查结果
+    function getInputCheckResult(model, inputCase, input, stateOfPage) {
+
+        var pattern = null;
+        switch (inputCase) {
+
+            // 类名
+            case 'class-add':
+                pattern = /^[A-Z][A-Za-z]*$/;
+                if (!pattern.test(input)) {  // 格式不合法
+                    return 'Valid Format: ' + pattern.toString();
+                } else if (model.doesNodeExist(0, input)) {  // 类名重复
+                    return 'Class already exists.';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+            case 'class-modify':
+                pattern = /^[A-Z][A-Za-z]*$/;
+                if (!pattern.test(input)) {  // 格式不合法
+                    return 'Valid Format: ' + pattern.toString();
+                } else if ((stateOfPage.clazz !== input) && model.doesNodeExist(0, input)) {  // 新类名与【其他】类名重复 (与该类修改前类名重复是允许的)
+                    return 'Class already exists.';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // 关系组
+            case 'relationgroup-add':
+                if (!model.doesNodeExist(0, input)) {  // 类名不存在
+                    return 'Class does not exist.';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // attribute 名
+            case 'attribute-add':
+                pattern = /^[a-z][A-Za-z]*$/;
+                if (!pattern.test(input)) {  // 格式不合法
+                    return 'Valid Format: ' + pattern.toString();
+                } else if (model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名重复
+                    return 'Attribute name already exists.';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+            case 'attribute-modify':
+                pattern = /^[a-z][A-Za-z]*$/;
+                if (!pattern.test(input)) {  // 格式不合法
+                    return 'Valid Format: ' + pattern.toString();
+                } else if ((stateOfPage.attribute !== input) && model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名与其他 attribute 重复
+                    return 'Attribute name already exists.';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // 类型名
+            case 'type-add':
+            case 'type-modify':
+                pattern = /^(int|float|string|boolean)$/;  // build-in types
+                if (!pattern.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是类
+                    return 'Valid Type: A class or built-in type (int|float|string|boolean).';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // 多重性
+            case 'multiplicity-add':
+            case 'multiplicity-modify':
+                pattern = /^(\*|\d+(\.\.(\d+|\*))?)$/;
+            function isValidMultiplicity(mul) {  // 检验是否第一个数小于第二个数
+                var hasTwoNum = /\.\./;
+                if (hasTwoNum.test(mul)) {
+                    var num = input.split('..');  // 获得“..”两端的数字
+                    if ('*' !== num[1]) {
+                        return parseInt(num[0]) < parseInt(num[1]);  // 当第一个数大于等于第二个数时，返回 false
+                    }
+                }
+                return true;  // 其他情况都返回 true
+            }
+
+                if (!pattern.test(input)) {  // 格式不合法
+                    return 'Valid Format: ' + pattern.toString();
+                } else if (!isValidMultiplicity(input)) {  // 第一个数大于第二个数
+                    return 'The second number should be bigger.';
+                } else {  // 合法
+                    return 'valid';
+                }
+
+            // 可见性
+            case 'visibility-add':
+            case 'visibility-modify':
+                pattern = /^(public|private|protected|package)$/;
+                if (!pattern.test(input)) {
+                    return 'Valid Format: ' + pattern.toString();
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // relation 名
+            case 'relation-add':
+            case 'relation-modify':
+                pattern = /^(|[a-z][A-Za-z]*)$/;  // 可为空
+                if (!pattern.test(input)) {  // 不是内置类型，也不是类
+                    return 'Valid Type: ' + pattern.toString();
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // relation 两端的角色
+            case 'role-add':
+            case 'role-modify':
+                pattern = /^[a-z][A-Za-z]*$/;
+                if (!pattern.test(input)) {  // 不是内置类型，也不是类
+                    return 'Valid Type: ' + pattern.toString();
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // 其他非空
+            case 'default-add':
+            case 'default-modify':
+            case 'constraint-add':
+            case 'constraint-modify':
+            case 'subsets-add':
+            case 'subsets-modify':
+            case 'redefines-add':
+            case 'redefines-modify':
+            case 'end-add':  // relation 两端的 class
+            case 'end-modify':
+                pattern = /^.+$/;  // 非空
+                if (!pattern.test(input)) {
+                    return 'Input can not be void.';
+                } else {  // 合法
+                    return 'valid';
+                }
+                break;
+
+            // 所有的输入框要经过合法性检查，但尚未考虑到的inputCase会走这个分支，即无论输入什么(包括空值)都合法
+            default:
+                return 'valid';
+        }
+    }
+
+    // 检查单个输入框输入内容合法性
+    function checkInput(model, $input, stateOfPage) {  // $input 是单个输入框组件
+
+        var inputCase = $input.attr('stigmod-inputcheck');  // 输入框类型
+
+        // 仅在设定了输入框的 stigmod-inputcheck 属性时进行下面的检查操作
+        if (undefined !== inputCase) {
+            var input = $input.val();  // 输入框内容
+            var checkResult = getInputCheckResult(model, inputCase, input, stateOfPage);  // 合法性检查结果
+            var tooltipPlacement = null;  // 结果反馈的显示位置
+            switch (inputCase) {
+                case 'class-modify':
+                    tooltipPlacement = 'bottom';  // 对于修改类名来说，为防止提示被区域上沿吃掉，将提示显示在输入框之下
+                    break;
+                default:
+                    tooltipPlacement = 'top';
+            }
+
+            // 定义不同场景下 inputCase 的 pattern
+            var modalPattern = /add$/;
+
+            if ('valid' !== checkResult) {  // 不合法
+
+                // 显示提示
+                $input.tooltip('destroy');  // 首先要清除旧的提示
+                $input.tooltip({
+                    animation: false,
+                    title: checkResult,
+                    placement: tooltipPlacement,
+                    trigger: 'manual'
+                });
+                $input.tooltip('show');
+                // 返回值
+                return false;
+
+            } else {  // 合法
+
+                // 清除提示
+                $input.tooltip('destroy');
+                // 返回值
+                return true;
+
+            }
+        }
+    }
+
+    // 检查多个输入框输入内容合法性
+    function checkInputs(model, $inputs, stateOfPage) {  // $inputs 是一组输入框组件
+
+        var num = $inputs.size();
+        var allInputsAreValid = true;
+
+        for (var i = 0; i < num; ++i) {
+
+            // checkInput 放在左侧，防止函数里面的动作被 && 懒惰掉了。这样能让所有非法提示全部显示出来。
+            allInputsAreValid = checkInput(model, $inputs.eq(i), stateOfPage) && allInputsAreValid;
+        }
+
+        return allInputsAreValid;
+    }
 
 });

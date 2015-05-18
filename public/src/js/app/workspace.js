@@ -196,7 +196,13 @@ define(function (require, exports, module) {
          *  初始化
          *  -----  */
 
-        var page = new Page([dataPassedIn.user, dataPassedIn.modelID, dataPassedIn.modelName], dataPassedIn.model);
+        var pageInfo = {
+            userName: dataPassedIn.user,
+            icmId: dataPassedIn.modelID,
+            icmName: dataPassedIn.modelName
+        };
+        var page = new Page(pageInfo, dataPassedIn.model);
+        //console.log(dataPassedIn);
 
         // 模型可视化
         //modelView(icm);
@@ -229,21 +235,21 @@ define(function (require, exports, module) {
         //$(document).on('click', '#stigmod-nav-left-scroll .list-group-item', handleClkLeft);
 
         // 中间内容栏点击激活
-        $(document).on('click', '#stigmod-cont-right .panel', handleClkMid);
+        //$(document).on('click', '#stigmod-cont-right .panel', handleClkMid);
 
-        // 中间栏class状态捕获
-        $(document).on('click', '#stigmod-cont-right-scroll > .row:first-child', handleCapClass);
+        //// 中间栏class状态捕获
+        //$(document).on('click', '#stigmod-cont-right-scroll > .row:first-child', handleCapClass);
+        //
+        //// 中间栏attribute状态捕获
+        //$(document).on('click', '#stigmod-cont-right .panel .panel-heading', handleCapAttr);
+        //
+        //// 中间栏 property 状态捕获
+        //$(document).on('click', '#stigmod-cont-right .panel tr', handleCapProp);
 
-        // 中间栏attribute状态捕获
-        $(document).on('click', '#stigmod-cont-right .panel .panel-heading', handleCapAttr);
-
-        // 中间栏 property 状态捕获
-        $(document).on('click', '#stigmod-cont-right .panel tr', handleCapProp);
-
-        // 一切“编辑”按钮的点击编辑功能
-        $(document).on('click', '.stigmod-clickedit-btn-edit', handleEnterEdit); // “编辑”按钮的点击编辑功能
-        $(document).on('click', '.stigmod-clickedit-btn-ok', handleSubmitEdit); // 编辑组件内的“提交”按钮功能
-        $(document).on('click', '.stigmod-clickedit-btn-cancel', handleCancelEdit); // 编辑组件内的“取消”按钮功能
+        //// 一切“编辑”按钮的点击编辑功能
+        //$(document).on('click', '.stigmod-clickedit-btn-edit', handleEnterEdit); // “编辑”按钮的点击编辑功能
+        //$(document).on('click', '.stigmod-clickedit-btn-ok', handleSubmitEdit); // 编辑组件内的“提交”按钮功能
+        //$(document).on('click', '.stigmod-clickedit-btn-cancel', handleCancelEdit); // 编辑组件内的“取消”按钮功能
 
         // 点击 add property 下拉菜单选项
         $(document).on('click', '.stigmod-dropdown-addprop .dropdown-menu a', handleClkAddPropDrpdn);
@@ -471,19 +477,19 @@ define(function (require, exports, module) {
                 .trigger('click');
     }
 
-    // 修改左侧栏并激活，不跳转
-    function modifyLeft(model, name) {
-
-        // 刷新
-        fillLeft(model);
-
-        // 重新激活
-        var $this = $(document)
-                    .find('#stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
-                    .parent();
-        $this.closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
-        $this.addClass('active');
-    }
+    //// 修改左侧栏并激活，不跳转
+    //function modifyLeft(model, name) {
+    //
+    //    // 刷新
+    //    fillLeft(model);
+    //
+    //    // 重新激活
+    //    var $this = $(document)
+    //                .find('#stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
+    //                .parent();
+    //    $this.closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
+    //    $this.addClass('active');
+    //}
 
     // 刷新中间栏 .panel 组件的 title
     function refreshMiddelPanelTitle(model) {
@@ -727,58 +733,58 @@ define(function (require, exports, module) {
         $frame.append(0 === stateOfPage.flagCRG ? componentMiddleAttributeBasic : componentMiddleRelationBasic);
     }
 
-    // 填充中间栏
-    function fillMiddle(model) { // flagCRG 标明是 Class(0) 还是 RelationGroup(1), nameCRG 是 Class 或 RelationGroup 的名字
-
-        // 填入中间栏基本页面
-        fillMiddleBasic();
-
-        // 向中间栏填入组件和数据
-        $('#stigmod-classname > span:nth-child(2)').text(stateOfPage.class);
-        $('#stigmod-cont-right .panel').remove(); // 清空
-        var modelAttribute = model[stateOfPage.flagCRG][stateOfPage.class][1]['order']; // 获取 attribute 或 relation 的顺序信息
-
-        for (var i = 0; i < modelAttribute.length; ++i) { // i 既是 attrel 的编号， 也是 collapse 的序号
-            var $compo = $('#stigmod-cont-right .list-group')
-                    .before(0 === stateOfPage.flagCRG ? componentMiddleAttribute : componentMiddleRelation)
-                    .prev();
-
-            // 在 .panel 中记录 attribute 或 relation 的名字，便于点击时更新 stateOfPage
-            $compo.attr({'stigmod-attrel-name': modelAttribute[i]});
-
-            // 设置collapse属性
-            var strTitle = 0 === stateOfPage.flagCRG ?
-                    '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
-            var $collapseTrigger = $compo.find(strTitle).attr({'data-target': '#collapse' + i});
-            var $collapseContent = $compo.find('.panel-collapse').attr({'id': 'collapse' + i});
-            var modelProperties = model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0];
-
-            // 设置 properties
-            for (var modelProperty in modelProperties) {
-                if (modelProperties.hasOwnProperty(modelProperty)) {
-                    var $propertyRow = null;
-
-                    if (0 === stateOfPage.flagCRG) { // class
-                        $propertyRow = $collapseContent.find('.stigmod-attr-prop-' + modelProperty).show();
-
-                        $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
-                                .text(model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0][modelProperty]);
-
-                    } else { // relationGroup
-                        $propertyRow = $collapseContent.find('.stigmod-rel-prop-' + modelProperty).show();
-
-                        $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
-                                .text(model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0][modelProperty][0]);
-                        $propertyRow.find('td:nth-child(3) > .stigmod-clickedit-disp')
-                                .text(model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0][modelProperty][1]);
-                    }
-                }
-            }
-        }
-
-        // 刷新所有panel的标题
-        refreshMiddelPanelTitle(model);
-    }
+    //// 填充中间栏
+    //function fillMiddle(model) { // flagCRG 标明是 Class(0) 还是 RelationGroup(1), nameCRG 是 Class 或 RelationGroup 的名字
+    //
+    //    // 填入中间栏基本页面
+    //    fillMiddleBasic();
+    //
+    //    // 向中间栏填入组件和数据
+    //    $('#stigmod-classname > span:nth-child(2)').text(stateOfPage.class);
+    //    $('#stigmod-cont-right .panel').remove(); // 清空
+    //    var modelAttribute = model[stateOfPage.flagCRG][stateOfPage.class][1]['order']; // 获取 attribute 或 relation 的顺序信息
+    //
+    //    for (var i = 0; i < modelAttribute.length; ++i) { // i 既是 attrel 的编号， 也是 collapse 的序号
+    //        var $compo = $('#stigmod-cont-right .list-group')
+    //                .before(0 === stateOfPage.flagCRG ? componentMiddleAttribute : componentMiddleRelation)
+    //                .prev();
+    //
+    //        // 在 .panel 中记录 attribute 或 relation 的名字，便于点击时更新 stateOfPage
+    //        $compo.attr({'stigmod-attrel-name': modelAttribute[i]});
+    //
+    //        // 设置collapse属性
+    //        var strTitle = 0 === stateOfPage.flagCRG ?
+    //                '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
+    //        var $collapseTrigger = $compo.find(strTitle).attr({'data-target': '#collapse' + i});
+    //        var $collapseContent = $compo.find('.panel-collapse').attr({'id': 'collapse' + i});
+    //        var modelProperties = model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0];
+    //
+    //        // 设置 properties
+    //        for (var modelProperty in modelProperties) {
+    //            if (modelProperties.hasOwnProperty(modelProperty)) {
+    //                var $propertyRow = null;
+    //
+    //                if (0 === stateOfPage.flagCRG) { // class
+    //                    $propertyRow = $collapseContent.find('.stigmod-attr-prop-' + modelProperty).show();
+    //
+    //                    $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
+    //                            .text(model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0][modelProperty]);
+    //
+    //                } else { // relationGroup
+    //                    $propertyRow = $collapseContent.find('.stigmod-rel-prop-' + modelProperty).show();
+    //
+    //                    $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
+    //                            .text(model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0][modelProperty][0]);
+    //                    $propertyRow.find('td:nth-child(3) > .stigmod-clickedit-disp')
+    //                            .text(model[stateOfPage.flagCRG][stateOfPage.class][0][modelAttribute[i]][0][modelProperty][1]);
+    //                }
+    //            }
+    //        }
+    //    }
+    //
+    //    // 刷新所有panel的标题
+    //    refreshMiddelPanelTitle(model);
+    //}
 
     // 左中侧三栏（panel）高度调整
     function resizePanel() {
@@ -1105,50 +1111,50 @@ define(function (require, exports, module) {
      *  事件处理函数
      *  ----------  */
 
-    // 处理：左侧导航栏点击激活 并跳转
-    function handleClkLeft() {
-
-        // 激活
-        $(this).closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
-        $(this).addClass('active');
-
-        // 跳转
-        var $it = $(this).find('span:nth-child(1)');
-        stateOfPage.class = $it.text();
-        stateOfPage.flagCRG = ("stigmod-nav-left-class" === $it.attr('class')) ? 0 : 1; // 0: class, 1: relationgroup
-        stateOfPage.flagDepth = 0;
-        fillMiddle(icm);
-    }
-
-    // 处理：中间内容栏点击激活
-    function handleClkMid() {
-
-        var $collapseToggle = $(this).siblings('.panel').find('.stigmod-attr-cont-middle-title, .stigmod-rel-cont-middle-title');
-        var $collapseToggleThis = $(this).find('.stigmod-attr-cont-middle-title, .stigmod-rel-cont-middle-title');
-
-        $collapseToggle.attr('data-toggle', 'none');  // 禁用其他panel的collapse触发器
-        $collapseToggleThis.attr('data-toggle', 'collapse'); // 打开本panel的collapse触发器(下次点击即可触发)
-        $(this).siblings('.panel').removeClass('panel-primary').addClass('panel-default');
-        $(this).removeClass('panel-default').addClass('panel-primary');  // 激活本panel
-    }
-
-    // 处理：中间栏 class 状态捕获
-    function handleCapClass() {
-        stateOfPage.class = $(this).find('.stigmod-clickedit-disp').text();
-        stateOfPage.flagDepth = 0;
-    }
-
-    // 处理：中间栏 attribute 状态捕获
-    function handleCapAttr() {
-        stateOfPage.attribute = $(this).parent().attr('stigmod-attrel-name');
-        stateOfPage.flagDepth = 1;
-    }
-
-    // 处理：中间栏 property 状态捕获
-    function handleCapProp() {
-        stateOfPage.property = $(this).find('td:first-child').text();
-        stateOfPage.flagDepth = 2;
-    }
+    //// 处理：左侧导航栏点击激活 并跳转
+    //function handleClkLeft() {
+    //
+    //    // 激活
+    //    $(this).closest('#stigmod-nav-left-scroll').find('.list-group-item').removeClass('active');
+    //    $(this).addClass('active');
+    //
+    //    // 跳转
+    //    var $it = $(this).find('span:nth-child(1)');
+    //    stateOfPage.class = $it.text();
+    //    stateOfPage.flagCRG = ("stigmod-nav-left-class" === $it.attr('class')) ? 0 : 1; // 0: class, 1: relationgroup
+    //    stateOfPage.flagDepth = 0;
+    //    fillMiddle(icm);
+    //}
+    //
+    //// 处理：中间内容栏点击激活
+    //function handleClkMid() {
+    //
+    //    var $collapseToggle = $(this).siblings('.panel').find('.stigmod-attr-cont-middle-title, .stigmod-rel-cont-middle-title');
+    //    var $collapseToggleThis = $(this).find('.stigmod-attr-cont-middle-title, .stigmod-rel-cont-middle-title');
+    //
+    //    $collapseToggle.attr('data-toggle', 'none');  // 禁用其他panel的collapse触发器
+    //    $collapseToggleThis.attr('data-toggle', 'collapse'); // 打开本panel的collapse触发器(下次点击即可触发)
+    //    $(this).siblings('.panel').removeClass('panel-primary').addClass('panel-default');
+    //    $(this).removeClass('panel-default').addClass('panel-primary');  // 激活本panel
+    //}
+    //
+    //// 处理：中间栏 class 状态捕获
+    //function handleCapClass() {
+    //    stateOfPage.class = $(this).find('.stigmod-clickedit-disp').text();
+    //    stateOfPage.flagDepth = 0;
+    //}
+    //
+    //// 处理：中间栏 attribute 状态捕获
+    //function handleCapAttr() {
+    //    stateOfPage.attribute = $(this).parent().attr('stigmod-attrel-name');
+    //    stateOfPage.flagDepth = 1;
+    //}
+    //
+    //// 处理：中间栏 property 状态捕获
+    //function handleCapProp() {
+    //    stateOfPage.property = $(this).find('td:first-child').text();
+    //    stateOfPage.flagDepth = 2;
+    //}
 
     // 处理：输入框中每输入一个字符，进行一次内容合法性检查
     function handleCheckInputs() {
@@ -1187,344 +1193,344 @@ define(function (require, exports, module) {
         }
     }
 
-    // 处理：进入编辑
-    function handleEnterEdit(event) {
-        var $root = $(this).closest('.stigmod-clickedit-root');
-        var caseEdit = $root.attr('stigmod-clickedit-case');
-        var $originalTextElem = $root.find('.stigmod-clickedit-disp');
-        var $editComponent = $root.find('.stigmod-clickedit-edit');
-
-        $root.find('.tooltip').remove();  // 每次进入编辑状态时都清掉旧的 tooltip
-
-        if ('title' === caseEdit) { // 中间栏标题的特别处理
-            var originalTitle = $originalTextElem.text();
-            $editComponent.find('input').val(originalTitle);
-            $originalTextElem.css({'display': 'none'});
-            $editComponent.css({'display': 'table-row'});
-
-            $(this).addClass('disabled');
-
-        } else {
-            var num = $originalTextElem.length;
-            var flagGeneralization = 0;
-
-            for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
-                var originalText = $originalTextElem.eq(i).text();  // 获取原始文字
-
-                switch (caseEdit) {
-                    case 'text' : // 输入框
-                        $editComponent.eq(i).find('input').val(originalText);
-                        break;
-
-                    case 'radio' : // 单选框
-                        var radio = $editComponent.eq(i).find('input');
-                        if ('True' === originalText) {
-                            radio.eq(0).attr({'checked': ''});
-                            radio.eq(1).removeAttr('checked');
-                        } else if ('False' === originalText) {
-                            radio.eq(1).attr({'checked': ''});
-                            radio.eq(0).removeAttr('checked');
-                        } else {
-                            radio.eq(1).removeAttr('checked');
-                            radio.eq(0).removeAttr('checked');
-                        }
-                        break;
-
-                    case 'reltype': // relation 页面的 relation type
-                        if (0 === i) {
-                            $editComponent.eq(i).find('button').text(originalText);
-                            if ('Generalization' === originalText) { // 当关系类型为Generalization时，不显示名字
-                                flagGeneralization = 1; // 置位
-                            }
-                        } else if (1 === i) {
-                            if (1 === flagGeneralization) { // 当关系类型为Generalization时，不显示名字
-                                $editComponent.eq(i).find('input').css({'display': 'none'});
-                                flagGeneralization = 0; // 复位
-                            } else {
-                                $editComponent.eq(i).find('input').val(originalText);
-                            }
-                        }
-
-                        // 联动编辑 role、class、multipliciy
-                        var $relrole = $(this).closest('.stigmod-clickedit-root').next();
-                        var $relclass = $relrole.next();
-                        var $relmultiplicity = $relclass.next();
-
-                        $relclass.find('.stigmod-clickedit-btn-edit').trigger('click');
-                        if ($relrole.is(':visible')) {
-                            $relrole.find('.stigmod-clickedit-btn-edit').trigger('click');  // role 和 multiplicity
-                                                                                            // 只有在显示时才联动
-                        }
-                        if ($relmultiplicity.is(':visible')) {
-                            $relmultiplicity.find('.stigmod-clickedit-btn-edit').trigger('click');  // role 和
-                                                                                                    // multiplicity
-                                                                                                    // 只有在显示时才联动
-                        }
-                        break;
-                }
-            }
-
-            $originalTextElem.css({'display': 'none'});
-            $editComponent.css({'display': 'table'});
-        }
-
-        focusOnInputIn($editComponent);
-        event.preventDefault();
-    }
-
-    // 处理：确认编辑
-    function handleSubmitEdit(event) {
-
-        var $root = $(this).closest('.stigmod-clickedit-root');
-        var caseEdit = $root.attr('stigmod-clickedit-case');
-        var $originalTextElem = $root.find('.stigmod-clickedit-disp');
-        var $editComponent = $root.find('.stigmod-clickedit-edit');
-        var $visibleInputs = $root.find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽
-                                                                                      // typeahead 插件的影响
-
-        // 与该编辑单元相关的输入框内容都合法，才能确认编辑
-        if (checkInputs(icm, $visibleInputs)) {
-
-            // 所编辑的内容为 class name 时
-            if ('title' === caseEdit) {
-                var newTitle = $editComponent.find('input').val();
-                var originalTitle = $originalTextElem.text();
-
-                // 更新 class 相关的模型和显示
-                icm.modifyClassName(stateOfPage.class, newTitle);
-                stateOfPage.class = newTitle;
-                $originalTextElem.text(newTitle);
-
-                // 更新 attribute type 相关的模型和显示
-                // TODO: 遍历所有class的所有attribute的type，效率比较低。应该寻找更有效率的方式，用一定的空间换取时间
-                var classes = icm.getSubModel([0]); // 获取所有 class
-
-                for (var nameC in classes) {
-                    if (classes.hasOwnProperty(nameC)) {
-                        var attributes = classes[nameC][0];
-
-                        for (var nameA in attributes) {
-                            if (attributes.hasOwnProperty(nameA)) {
-                                var attrType = attributes[nameA][0]['type'];
-
-                                if (originalTitle === attrType) {
-                                    classes[nameC][0][nameA][0]['type'] = newTitle;
-
-                                    // 如果当前类中就有以当前类为属性类型的属性，则需要即时更新显示
-                                    if (nameC === stateOfPage.class) {
-                                        var $thePanel = $('#stigmod-cont-right .panel[stigmod-attrel-name=' + nameA + ']');
-
-                                        $thePanel.find('tr.stigmod-attr-prop-type > td:nth-child(2) > span:nth-child(1)')
-                                                .text(newTitle);  // 更新相关的 attribute 的 type 的值
-
-                                        refreshMiddelPanelTitle(icm);  // 更新 panel 的标题
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 更新 relation group 相关的模型和显示
-                var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
-
-                for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
-                    if (relationGroups.hasOwnProperty(nameRG)) {
-                        var matchName = null;
-                        var oriTitlePat = new RegExp('\\b' + originalTitle + '\\b', 'g');
-
-                        matchName = nameRG.match(oriTitlePat);
-                        if (null !== matchName) { // 如果该 relation group 与被修改的 class 有关
-
-                            // 生成新的 relation group 名称
-                            var newNameRG = null;
-                            newNameRG = nameRG.replace(oriTitlePat, newTitle);
-
-                            // 获得关系两端的类名
-                            var nameOfBothEnds = newNameRG.split('-');
-                            var relations = relationGroups[nameRG][0];
-
-                            if (nameOfBothEnds[0] > nameOfBothEnds[1]) {
-
-                                // 若更改 class 名后 relation group 名不在是字典序，则更正
-                                newNameRG = nameOfBothEnds[1] + '-' + nameOfBothEnds[0];
-                            }
-
-                            for (var nameR in relations) { // 遍历该 relation group 中的所有 relation
-                                if (relations.hasOwnProperty(nameR)) {
-
-                                    // 修改 relation 中的 class name
-                                    var nameClass = relations[nameR][0]['class']; // 获取该 relation 两端的 class 的名字的引用
-
-                                    if (originalTitle === nameClass[0]) { // 需要修改End0
-                                        nameClass[0] = newTitle;
-                                    } else {  // 需要修改End1
-                                        nameClass[1] = newTitle;
-                                    }
-                                }
-                            }
-
-                            // 修改 relation group 的名字
-                            icm.modifyRelGrpName(nameRG, newNameRG)
-                        }
-                    }
-                }
-
-                // 更新左侧栏显示
-                modifyLeft(icm, newTitle);
-
-                // 更新修改组件的显示
-                $originalTextElem.css({'display': 'table-row'});
-                $editComponent.css({'display': 'none'});
-                $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-edit').removeClass('disabled');
-
-            } else {  // 所编辑的内容不是 class name 时
-                var num = $originalTextElem.length;
-                var propertyNameOfR = '';
-                var propertyValueOfR = ['', ''];
-                var flagGeneralization = 0;
-
-                for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
-                    var originalText = $originalTextElem.eq(i).text();  // 获取原始文字
-                    var newText = '';
-
-                    switch (caseEdit) {
-                        case 'text' :
-                            newText = $editComponent.eq(i).find('input').val();
-                            break;
-
-                        case 'radio' :
-                            newText = $editComponent.eq(i).find('input:checked').parent().text();
-                            break;
-
-                        case 'reltype': // relation 页面的 relation type
-                            if (0 === i) {
-                                newText = $editComponent.eq(i).find('button').text();
-                                if ('Generalization' === newText) { // 当关系类型为Generalization时，将name置空
-                                    flagGeneralization = 1; // 置位
-                                }
-                            } else if (1 === i) {
-                                if (1 === flagGeneralization) { // 当关系类型为Generalization时，将name置空
-                                    newText = '';
-                                    flagGeneralization = 0; // 复位
-                                } else {
-                                    newText = $editComponent.eq(i).find('input').val();
-                                }
-                            }
-
-                            // 联动编辑 role、class、multiplicity
-                            var $relrole = $(this).closest('.stigmod-clickedit-root').next();
-                            var $relclass = $relrole.next();
-                            var $relmultiplicity = $relclass.next();
-
-                            $relclass.find('.stigmod-clickedit-btn-ok').trigger('click');
-                            if ($relrole.is(':visible')) {
-                                $relrole.find('.stigmod-clickedit-btn-ok').trigger('click');
-                            }
-                            if ($relmultiplicity.is(':visible')) {
-                                $relmultiplicity.find('.stigmod-clickedit-btn-ok').trigger('click');
-                            }
-                            break;
-                    }
-
-                    // 更新显示
-                    $originalTextElem.eq(i).text(newText);
-
-                    // 更新模型
-                    if (0 === stateOfPage.flagCRG) {
-                        var propertyName = $(this).closest('.stigmod-clickedit-root').find('td:first-child').text();
-
-                        // 根据模型中是否有该 property，决定使用 ADD 还是 MOD 方法
-                        try {
-                            icm.getSubModel([0, stateOfPage.class, 0, stateOfPage.attribute, 0, propertyName]);
-                            icm.modifyPropOfA(stateOfPage.class, stateOfPage.attribute, propertyName, newText);  // 有，修改
-
-                        } catch(error) {
-                            if (error instanceof ReferenceError) {  // 没有，增加
-                                icm.addPropOfA(stateOfPage.class, stateOfPage.attribute, [propertyName, newText]);
-                            } else {
-                                throw error;
-                            }
-                        }
-
-                        if ('name' === propertyName) {  // 当property是name时，还要修改attribute的key
-                            icm.modifyAttrName(stateOfPage.class, stateOfPage.attribute, newText);
-                            stateOfPage.attribute = newText; // 页面状态的更新
-                            $(this).closest('.panel').attr({'stigmod-attrel-name': newText}); // panel 标记的更新
-                        }
-
-                    } else { // 当处理relation的property时，记录两端的key和value，最后在循环外一次性更新到model中
-                        propertyNameOfR = $(this).closest('.stigmod-clickedit-root').find('td:first-child').text();
-                        propertyValueOfR[i] = newText;
-                    }
-                }
-
-                if (1 === stateOfPage.flagCRG) { // 当处理relation的property时，记录两端的key和value，最后在循环外一次性更新到model中
-
-                    // 根据模型中是否有该 property，决定使用 ADD 还是 MOD 方法
-                    try {
-                        icm.getSubModel([1, stateOfPage.class, 0, stateOfPage.attribute, 0, propertyNameOfR]);
-                        icm.modifyPropOfR(stateOfPage.class, stateOfPage.attribute, propertyNameOfR, propertyValueOfR);  // 有，修改
-
-                    } catch(error) {
-                        if (error instanceof ReferenceError) {  // 没有，增加
-                            icm.addPropOfR(stateOfPage.class, stateOfPage.attribute, [propertyNameOfR, propertyValueOfR]);
-                        } else {
-                            throw error;
-                        }
-                    }
-                }
-
-                $originalTextElem.css({'display': 'table'});
-                $editComponent.css({'display': 'none'});
-
-                // 刷新所有panel的标题
-                refreshMiddelPanelTitle(icm);
-            }
-        }
-
-        enableSave();
-        event.preventDefault();
-    }
-
-    // 处理：取消编辑
-    function handleCancelEdit(event) {
-
-        var $root = $(this).closest('.stigmod-clickedit-root');
-        var caseEdit = $root.attr('stigmod-clickedit-case');
-        var $originalTextElem = $root.find('.stigmod-clickedit-disp');
-        var $editComponent = $root.find('.stigmod-clickedit-edit');
-
-        if ('title' === caseEdit) {
-            $originalTextElem.css({'display': 'table-row'});
-            $editComponent.css({'display': 'none'});
-            $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-edit').removeClass('disabled');
-
-        } else {
-            switch (caseEdit) {
-                case 'reltype': // relation 页面的 relation type
-
-                    // 联动编辑 role、class、multipliciy
-                    var $relrole = $(this).closest('.stigmod-clickedit-root').next();
-                    var $relclass = $relrole.next();
-                    var $relmultiplicity = $relclass.next();
-
-                    $relclass.find('.stigmod-clickedit-btn-cancel').trigger('click');
-                    if ($relrole.is(':visible')) {
-                        $relrole.find('.stigmod-clickedit-btn-cancel').trigger('click');
-                    }
-                    if ($relmultiplicity.is(':visible')) {
-                        $relmultiplicity.find('.stigmod-clickedit-btn-cancel').trigger('click');
-                    }
-                    break;
-            }
-
-            $originalTextElem.css({'display': 'table'});
-            $editComponent.css({'display': 'none'});
-        }
-
-        event.preventDefault();
-    }
+    //// 处理：进入编辑
+    //function handleEnterEdit(event) {
+    //    var $root = $(this).closest('.stigmod-clickedit-root');
+    //    var caseEdit = $root.attr('stigmod-clickedit-case');
+    //    var $originalTextElem = $root.find('.stigmod-clickedit-disp');
+    //    var $editComponent = $root.find('.stigmod-clickedit-edit');
+    //
+    //    $root.find('.tooltip').remove();  // 每次进入编辑状态时都清掉旧的 tooltip
+    //
+    //    if ('title' === caseEdit) { // 中间栏标题的特别处理
+    //        var originalTitle = $originalTextElem.text();
+    //        $editComponent.find('input').val(originalTitle);
+    //        $originalTextElem.css({'display': 'none'});
+    //        $editComponent.css({'display': 'table-row'});
+    //
+    //        $(this).addClass('disabled');
+    //
+    //    } else {
+    //        var num = $originalTextElem.length;
+    //        var flagGeneralization = 0;
+    //
+    //        for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
+    //            var originalText = $originalTextElem.eq(i).text();  // 获取原始文字
+    //
+    //            switch (caseEdit) {
+    //                case 'text' : // 输入框
+    //                    $editComponent.eq(i).find('input').val(originalText);
+    //                    break;
+    //
+    //                case 'radio' : // 单选框
+    //                    var radio = $editComponent.eq(i).find('input');
+    //                    if ('True' === originalText) {
+    //                        radio.eq(0).attr({'checked': ''});
+    //                        radio.eq(1).removeAttr('checked');
+    //                    } else if ('False' === originalText) {
+    //                        radio.eq(1).attr({'checked': ''});
+    //                        radio.eq(0).removeAttr('checked');
+    //                    } else {
+    //                        radio.eq(1).removeAttr('checked');
+    //                        radio.eq(0).removeAttr('checked');
+    //                    }
+    //                    break;
+    //
+    //                case 'reltype': // relation 页面的 relation type
+    //                    if (0 === i) {
+    //                        $editComponent.eq(i).find('button').text(originalText);
+    //                        if ('Generalization' === originalText) { // 当关系类型为Generalization时，不显示名字
+    //                            flagGeneralization = 1; // 置位
+    //                        }
+    //                    } else if (1 === i) {
+    //                        if (1 === flagGeneralization) { // 当关系类型为Generalization时，不显示名字
+    //                            $editComponent.eq(i).find('input').css({'display': 'none'});
+    //                            flagGeneralization = 0; // 复位
+    //                        } else {
+    //                            $editComponent.eq(i).find('input').val(originalText);
+    //                        }
+    //                    }
+    //
+    //                    // 联动编辑 role、class、multipliciy
+    //                    var $relrole = $(this).closest('.stigmod-clickedit-root').next();
+    //                    var $relclass = $relrole.next();
+    //                    var $relmultiplicity = $relclass.next();
+    //
+    //                    $relclass.find('.stigmod-clickedit-btn-edit').trigger('click');
+    //                    if ($relrole.is(':visible')) {
+    //                        $relrole.find('.stigmod-clickedit-btn-edit').trigger('click');  // role 和 multiplicity
+    //                                                                                        // 只有在显示时才联动
+    //                    }
+    //                    if ($relmultiplicity.is(':visible')) {
+    //                        $relmultiplicity.find('.stigmod-clickedit-btn-edit').trigger('click');  // role 和
+    //                                                                                                // multiplicity
+    //                                                                                                // 只有在显示时才联动
+    //                    }
+    //                    break;
+    //            }
+    //        }
+    //
+    //        $originalTextElem.css({'display': 'none'});
+    //        $editComponent.css({'display': 'table'});
+    //    }
+    //
+    //    focusOnInputIn($editComponent);
+    //    event.preventDefault();
+    //}
+    //
+    //// 处理：确认编辑
+    //function handleSubmitEdit(event) {
+    //
+    //    var $root = $(this).closest('.stigmod-clickedit-root');
+    //    var caseEdit = $root.attr('stigmod-clickedit-case');
+    //    var $originalTextElem = $root.find('.stigmod-clickedit-disp');
+    //    var $editComponent = $root.find('.stigmod-clickedit-edit');
+    //    var $visibleInputs = $root.find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽
+    //                                                                                  // typeahead 插件的影响
+    //
+    //    // 与该编辑单元相关的输入框内容都合法，才能确认编辑
+    //    if (checkInputs(icm, $visibleInputs)) {
+    //
+    //        // 所编辑的内容为 class name 时
+    //        if ('title' === caseEdit) {
+    //            var newTitle = $editComponent.find('input').val();
+    //            var originalTitle = $originalTextElem.text();
+    //
+    //            // 更新 class 相关的模型和显示
+    //            icm.modifyClassName(stateOfPage.class, newTitle);
+    //            stateOfPage.class = newTitle;
+    //            $originalTextElem.text(newTitle);
+    //
+    //            // 更新 attribute type 相关的模型和显示
+    //            // TODO: 遍历所有class的所有attribute的type，效率比较低。应该寻找更有效率的方式，用一定的空间换取时间
+    //            var classes = icm.getSubModel([0]); // 获取所有 class
+    //
+    //            for (var nameC in classes) {
+    //                if (classes.hasOwnProperty(nameC)) {
+    //                    var attributes = classes[nameC][0];
+    //
+    //                    for (var nameA in attributes) {
+    //                        if (attributes.hasOwnProperty(nameA)) {
+    //                            var attrType = attributes[nameA][0]['type'];
+    //
+    //                            if (originalTitle === attrType) {
+    //                                classes[nameC][0][nameA][0]['type'] = newTitle;
+    //
+    //                                // 如果当前类中就有以当前类为属性类型的属性，则需要即时更新显示
+    //                                if (nameC === stateOfPage.class) {
+    //                                    var $thePanel = $('#stigmod-cont-right .panel[stigmod-attrel-name=' + nameA + ']');
+    //
+    //                                    $thePanel.find('tr.stigmod-attr-prop-type > td:nth-child(2) > span:nth-child(1)')
+    //                                            .text(newTitle);  // 更新相关的 attribute 的 type 的值
+    //
+    //                                    refreshMiddelPanelTitle(icm);  // 更新 panel 的标题
+    //                                }
+    //                            }
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //
+    //            // 更新 relation group 相关的模型和显示
+    //            var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
+    //
+    //            for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
+    //                if (relationGroups.hasOwnProperty(nameRG)) {
+    //                    var matchName = null;
+    //                    var oriTitlePat = new RegExp('\\b' + originalTitle + '\\b', 'g');
+    //
+    //                    matchName = nameRG.match(oriTitlePat);
+    //                    if (null !== matchName) { // 如果该 relation group 与被修改的 class 有关
+    //
+    //                        // 生成新的 relation group 名称
+    //                        var newNameRG = null;
+    //                        newNameRG = nameRG.replace(oriTitlePat, newTitle);
+    //
+    //                        // 获得关系两端的类名
+    //                        var nameOfBothEnds = newNameRG.split('-');
+    //                        var relations = relationGroups[nameRG][0];
+    //
+    //                        if (nameOfBothEnds[0] > nameOfBothEnds[1]) {
+    //
+    //                            // 若更改 class 名后 relation group 名不在是字典序，则更正
+    //                            newNameRG = nameOfBothEnds[1] + '-' + nameOfBothEnds[0];
+    //                        }
+    //
+    //                        for (var nameR in relations) { // 遍历该 relation group 中的所有 relation
+    //                            if (relations.hasOwnProperty(nameR)) {
+    //
+    //                                // 修改 relation 中的 class name
+    //                                var nameClass = relations[nameR][0]['class']; // 获取该 relation 两端的 class 的名字的引用
+    //
+    //                                if (originalTitle === nameClass[0]) { // 需要修改End0
+    //                                    nameClass[0] = newTitle;
+    //                                } else {  // 需要修改End1
+    //                                    nameClass[1] = newTitle;
+    //                                }
+    //                            }
+    //                        }
+    //
+    //                        // 修改 relation group 的名字
+    //                        icm.modifyRelGrpName(nameRG, newNameRG)
+    //                    }
+    //                }
+    //            }
+    //
+    //            // 更新左侧栏显示
+    //            modifyLeft(icm, newTitle);
+    //
+    //            // 更新修改组件的显示
+    //            $originalTextElem.css({'display': 'table-row'});
+    //            $editComponent.css({'display': 'none'});
+    //            $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-edit').removeClass('disabled');
+    //
+    //        } else {  // 所编辑的内容不是 class name 时
+    //            var num = $originalTextElem.length;
+    //            var propertyNameOfR = '';
+    //            var propertyValueOfR = ['', ''];
+    //            var flagGeneralization = 0;
+    //
+    //            for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
+    //                var originalText = $originalTextElem.eq(i).text();  // 获取原始文字
+    //                var newText = '';
+    //
+    //                switch (caseEdit) {
+    //                    case 'text' :
+    //                        newText = $editComponent.eq(i).find('input').val();
+    //                        break;
+    //
+    //                    case 'radio' :
+    //                        newText = $editComponent.eq(i).find('input:checked').parent().text();
+    //                        break;
+    //
+    //                    case 'reltype': // relation 页面的 relation type
+    //                        if (0 === i) {
+    //                            newText = $editComponent.eq(i).find('button').text();
+    //                            if ('Generalization' === newText) { // 当关系类型为Generalization时，将name置空
+    //                                flagGeneralization = 1; // 置位
+    //                            }
+    //                        } else if (1 === i) {
+    //                            if (1 === flagGeneralization) { // 当关系类型为Generalization时，将name置空
+    //                                newText = '';
+    //                                flagGeneralization = 0; // 复位
+    //                            } else {
+    //                                newText = $editComponent.eq(i).find('input').val();
+    //                            }
+    //                        }
+    //
+    //                        // 联动编辑 role、class、multiplicity
+    //                        var $relrole = $(this).closest('.stigmod-clickedit-root').next();
+    //                        var $relclass = $relrole.next();
+    //                        var $relmultiplicity = $relclass.next();
+    //
+    //                        $relclass.find('.stigmod-clickedit-btn-ok').trigger('click');
+    //                        if ($relrole.is(':visible')) {
+    //                            $relrole.find('.stigmod-clickedit-btn-ok').trigger('click');
+    //                        }
+    //                        if ($relmultiplicity.is(':visible')) {
+    //                            $relmultiplicity.find('.stigmod-clickedit-btn-ok').trigger('click');
+    //                        }
+    //                        break;
+    //                }
+    //
+    //                // 更新显示
+    //                $originalTextElem.eq(i).text(newText);
+    //
+    //                // 更新模型
+    //                if (0 === stateOfPage.flagCRG) {
+    //                    var propertyName = $(this).closest('.stigmod-clickedit-root').find('td:first-child').text();
+    //
+    //                    // 根据模型中是否有该 property，决定使用 ADD 还是 MOD 方法
+    //                    try {
+    //                        icm.getSubModel([0, stateOfPage.class, 0, stateOfPage.attribute, 0, propertyName]);
+    //                        icm.modifyPropOfA(stateOfPage.class, stateOfPage.attribute, propertyName, newText);  // 有，修改
+    //
+    //                    } catch(error) {
+    //                        if (error instanceof ReferenceError) {  // 没有，增加
+    //                            icm.addPropOfA(stateOfPage.class, stateOfPage.attribute, [propertyName, newText]);
+    //                        } else {
+    //                            throw error;
+    //                        }
+    //                    }
+    //
+    //                    if ('name' === propertyName) {  // 当property是name时，还要修改attribute的key
+    //                        icm.modifyAttrName(stateOfPage.class, stateOfPage.attribute, newText);
+    //                        stateOfPage.attribute = newText; // 页面状态的更新
+    //                        $(this).closest('.panel').attr({'stigmod-attrel-name': newText}); // panel 标记的更新
+    //                    }
+    //
+    //                } else { // 当处理relation的property时，记录两端的key和value，最后在循环外一次性更新到model中
+    //                    propertyNameOfR = $(this).closest('.stigmod-clickedit-root').find('td:first-child').text();
+    //                    propertyValueOfR[i] = newText;
+    //                }
+    //            }
+    //
+    //            if (1 === stateOfPage.flagCRG) { // 当处理relation的property时，记录两端的key和value，最后在循环外一次性更新到model中
+    //
+    //                // 根据模型中是否有该 property，决定使用 ADD 还是 MOD 方法
+    //                try {
+    //                    icm.getSubModel([1, stateOfPage.class, 0, stateOfPage.attribute, 0, propertyNameOfR]);
+    //                    icm.modifyPropOfR(stateOfPage.class, stateOfPage.attribute, propertyNameOfR, propertyValueOfR);  // 有，修改
+    //
+    //                } catch(error) {
+    //                    if (error instanceof ReferenceError) {  // 没有，增加
+    //                        icm.addPropOfR(stateOfPage.class, stateOfPage.attribute, [propertyNameOfR, propertyValueOfR]);
+    //                    } else {
+    //                        throw error;
+    //                    }
+    //                }
+    //            }
+    //
+    //            $originalTextElem.css({'display': 'table'});
+    //            $editComponent.css({'display': 'none'});
+    //
+    //            // 刷新所有panel的标题
+    //            refreshMiddelPanelTitle(icm);
+    //        }
+    //    }
+    //
+    //    enableSave();
+    //    event.preventDefault();
+    //}
+    //
+    //// 处理：取消编辑
+    //function handleCancelEdit(event) {
+    //
+    //    var $root = $(this).closest('.stigmod-clickedit-root');
+    //    var caseEdit = $root.attr('stigmod-clickedit-case');
+    //    var $originalTextElem = $root.find('.stigmod-clickedit-disp');
+    //    var $editComponent = $root.find('.stigmod-clickedit-edit');
+    //
+    //    if ('title' === caseEdit) {
+    //        $originalTextElem.css({'display': 'table-row'});
+    //        $editComponent.css({'display': 'none'});
+    //        $(this).closest('.stigmod-clickedit-root').find('.stigmod-clickedit-btn-edit').removeClass('disabled');
+    //
+    //    } else {
+    //        switch (caseEdit) {
+    //            case 'reltype': // relation 页面的 relation type
+    //
+    //                // 联动编辑 role、class、multipliciy
+    //                var $relrole = $(this).closest('.stigmod-clickedit-root').next();
+    //                var $relclass = $relrole.next();
+    //                var $relmultiplicity = $relclass.next();
+    //
+    //                $relclass.find('.stigmod-clickedit-btn-cancel').trigger('click');
+    //                if ($relrole.is(':visible')) {
+    //                    $relrole.find('.stigmod-clickedit-btn-cancel').trigger('click');
+    //                }
+    //                if ($relmultiplicity.is(':visible')) {
+    //                    $relmultiplicity.find('.stigmod-clickedit-btn-cancel').trigger('click');
+    //                }
+    //                break;
+    //        }
+    //
+    //        $originalTextElem.css({'display': 'table'});
+    //        $editComponent.css({'display': 'none'});
+    //    }
+    //
+    //    event.preventDefault();
+    //}
 
     // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
     function handleAddAttrChkBox() {
