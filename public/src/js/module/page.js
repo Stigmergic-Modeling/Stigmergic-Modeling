@@ -129,6 +129,71 @@ define(function (require, exports, module) {
         // 未保存就离开页面
         $(window).on('beforeunload', handleLeavePage);
 
+        // 在锁定滚动条（使之隐藏）的情况下，使用鼠标滚轮控制页面滚动
+        $('#stigmod-nav-left-scroll, #stigmod-cont-right-scroll, #stigmod-rcmd-right-scroll, .stigmod-hidden-scroll').on('mousewheel', function(event) {
+            var scrollTop = this.scrollTop;
+
+            this.scrollTop = (scrollTop + ((event.deltaY * event.deltaFactor) * -1));
+            event.preventDefault();
+        });
+
+        // 激活bootstrap的tooltip部分功能
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+
+        // 为左侧搜索栏添加下拉提示
+        $('#stigmod-search-left-input').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },  // 将 class 和 relation group 区分对待：
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher(icm, 'classInICM', 4)
+                },
+                {
+                    name: 'rgNames',
+                    displayKey: 'value',
+                    source: substringMatcher(icm, 'relGroupInICM', 4)
+                });
+
+        // 为 modelview 搜索栏添加下拉提示
+        $('#searchText').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher(icm, 'classInICM', 6)
+                });
+
+        // 为 addclass modal 添加下拉提示
+        $('#stigmod-addclass-input').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher(icm, 'classInCCM', 6)
+                });
+
+        // 为 addrelationgroup modal 添加下拉提示
+        $('#stigmod-addrelgrp-input-first, #stigmod-addrelgrp-input-second').typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher('classInICM', 6)
+                });
+
         // 处理：输入框中每输入一个字符，进行一次内容合法性检查
         function handleCheckInputs() {
             checkInput(icm, $(this), stateOfPage);
@@ -467,6 +532,27 @@ define(function (require, exports, module) {
 
         // 所有 remove 按钮的入口
         $(document).on('click', '.fa-remove, .glyphicon-trash, .stigmod-remove-trig', handleRemoveEntrance);
+
+        // att 或 rel 的 .panel 的上下移动
+        $(document).on('click', '.fa-arrow-up', handleMoveAttRelPanelUp);
+        $(document).on('click', '.fa-arrow-down', handleMoveAttRelPanelDown);
+
+        // panel 拖放排序
+        $(document).on('dragstart', '#stigmod-cont-right > .panel', handleDragStart);
+        $(document).on('dragover', '#stigmod-cont-right > .panel', handleDragOver);
+        $(document).on('drop', '#stigmod-cont-right > .panel', handleDrop);
+
+        // 点击 add property 下拉菜单选项
+        $(document).on('click', '.stigmod-dropdown-addprop .dropdown-menu a', handleClkAddPropDrpdn);
+
+        // 点击 modifyrelation 中的下拉菜单选项
+        $(document).on('click', '#stigmod-dropdown-reltype a', handleClkMdfRelDrpdn);
+
+        // 使 panel 的标题栏中 add property 下拉菜单不随按钮一起隐藏并仅显示尚未添加的 property
+        $(document).on('show.bs.dropdown', '.stigmod-hovershow-trig', handleAddPropDrpdn);
+
+        // modifyrelation 中点击交换 classname
+        $(document).on('click', '.stigmod-rel-prop-class .glyphicon-transfer', handleClkMdfRelDrpdnChg);
 
         // 处理：中间栏 class 状态捕获
         function handleCapClass() {
@@ -863,6 +949,163 @@ define(function (require, exports, module) {
             setTimeout(function () { // 延时是为了解决 stateOfPage 还没有更新 modal 就弹出的问题
                 $('#stigmod-modal-remove').modal('show');
             }, 10);
+        }
+
+        // 处理：att 或 rel 的 .panel 的上下移动
+        function handleMoveAttRelPanelUp() {
+            var $thisPanel = $(this).closest('.panel');
+            var $prevPanel = $thisPanel.prev();
+
+            if ($prevPanel.hasClass('panel')) { // 上面还有 .panel
+                var name = $thisPanel.attr('stigmod-attrel-name');
+
+                // 更新模型
+                icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.clazz, name, -1);
+
+                // 更新显示
+                $prevPanel.before($thisPanel);  // 上移当前 panel 节点
+
+                enableSave();
+
+            } else {
+                // 已经在最上，不必操作
+            }
+        }
+        function handleMoveAttRelPanelDown() {
+            var $thisPanel = $(this).closest('.panel');
+            var $nextPanel = $thisPanel.next();
+
+            if ($nextPanel.hasClass('panel')) { // 下面还有 .panel
+                var name = $thisPanel.attr('stigmod-attrel-name');
+
+                // 更新模型
+                icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.clazz, name, 1);
+
+                // 更新显示
+                $nextPanel.after($thisPanel);  // 下移当前 panel 节点
+
+                enableSave();
+
+            } else {
+                // 已经在最下，不必操作
+            }
+        }
+
+        // 处理：panel 拖放排序
+        function handleDragStart(event) {
+
+            // 记录被拖动 panel 的 id （实为其子节点 panel-collapse 的 id）
+            var id = $(this).find('.panel-collapse').attr('id');
+            event.originalEvent.dataTransfer.setData('id', id);
+        }
+        function handleDragOver(event) {
+
+            event.preventDefault();
+        }
+        function handleDrop(event) {
+
+            var id = event.originalEvent.dataTransfer.getData('id');
+            var $panel = $(document).find('#' + id).parent();
+            var name = $panel.attr('stigmod-attrel-name');
+
+            var step = $(this).index() - $panel.index();
+
+            // 当被拖放到原位置时，位置不变
+            if (0 === step) {
+                return false;
+            }
+
+            // 被向下拖放时，向上挤压；
+            if (step > 0) {
+
+                // 更新显示
+                $(this).after($panel);  // 被向下拖放时，向上挤压该处原有的 panel
+
+            } else if (step < 0) {
+
+                // 更新显示
+                $(this).before($panel);  // 被向上拖放时，向下挤压该处原有的 panel
+            }
+
+            // 更新模型
+            icm.moveOrderElem(stateOfPage.flagCRG, stateOfPage.clazz, name, step);
+
+            enableSave();
+            event.preventDefault();
+        }
+
+        // 处理：点击 add property 下拉菜单选项
+        function handleClkAddPropDrpdn(event) {
+            var nameProp = $(this).text();
+
+            //// 更新模型 (在编辑确认前，模型也应该加入空值，以保证下拉菜单的显示正确)  TODO：影响了日志的记录，暂时去掉这个功能
+            //setTimeout(function () { // 延时是为了解决 stateOfPage 还没有更新就使用未更新的 stateOfPage.attribute 值的问题
+            //    if (0 === stateOfPage.flagCRG) {
+            //        icm.addPropOfA(stateOfPage.clazz, stateOfPage.attribute, [nameProp, '']);
+            //    } else {
+            //        icm.addPropOfR(stateOfPage.clazz, stateOfPage.attribute, [nameProp, ['', '']]);
+            //    }
+            //}, 10);
+
+            // 更新显示
+            var $propertyRow = $(this).closest('.panel')
+                    .find('.stigmod-attr-prop-' + nameProp + ', .stigmod-rel-prop-' + nameProp);
+
+            $propertyRow.show(); // 展示该property行
+            $propertyRow.find('.stigmod-clickedit-btn-edit').trigger('click'); // 进入编辑状态
+            $propertyRow.find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
+
+            // 展开panel，应对没有展开panel就添加property的情况
+            $(this).closest('.panel').find('.panel-collapse').collapse('show');
+
+            event.preventDefault();
+        }
+
+        // 处理：点击 modifyrelation 中的下拉菜单选项
+        function handleClkMdfRelDrpdn(event) {
+            var reltype = $(this).text();
+            var $root = $(this).closest('.stigmod-table-relation');
+            var $btn = $(this).closest('#stigmod-dropdown-reltype').find('button');
+            var $nameModify = $root.find('.stigmod-rel-prop-type').find('.stigmod-input');
+            var $roleModify = $root.find('.stigmod-rel-prop-role').find('.stigmod-input');
+            var $multiplicityModify = $root.find('.stigmod-rel-prop-multiplicity').find('.stigmod-input');
+
+            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify);
+
+            event.preventDefault();
+        }
+
+        // 处理：使 panel 的标题栏中 addproperty 下拉菜单不随按钮一起隐藏（下拉菜单显示时，去掉该菜单父元素中的悬停显示的触发器）
+        function handleAddPropDrpdn() {
+            $(this).removeClass('stigmod-hovershow-trig');
+
+            // 顺带解决：下拉菜单展开时显示哪些内容的问题
+            $(this).find('.panel-title .dropdown-menu li').show();
+
+            // 下面一行中，不从 stateOfPage 获取 attribute 的原因是 bootstrap 的 dropdown 不好设置 timeout，
+            // 而没有 timeout 就不能保证 stateOfPage 的状态是最新的。
+            var attributeName = $(this).closest('.panel').attr('stigmod-attrel-name');
+            var properties = icm[stateOfPage.flagCRG][stateOfPage.clazz][0][attributeName][0];
+
+            for (var nameProp in properties) {
+                if (properties.hasOwnProperty(nameProp)) {
+                    $(this).closest('.panel').find('.stigmod-dropdown-' + nameProp).hide();
+                }
+            }
+            $(this).on('hide.bs.dropdown', function () { // 菜单消失时还原触发器
+                $(this).addClass('stigmod-hovershow-trig');
+            });
+        }
+
+        // 处理：modifyrelation 中点击交换 classname
+        function handleClkMdfRelDrpdnChg(event) {
+            var $classnames = $(this).closest('.stigmod-rel-prop-class').find('.stigmod-input');
+            var tmp = $classnames.first().val();
+
+            $classnames.first().val($classnames.last().val());
+            $classnames.last().val(tmp);
+
+            event.preventDefault();
         }
     };
 
@@ -1476,6 +1719,9 @@ define(function (require, exports, module) {
         // modal 显示前复位
         $(document).on('show.bs.modal', '#stigmod-modal-addattribute', handleMdlAddAttr);
 
+        // add attribute 和 add relation 的 modal 中 checkbox 的动作
+        $(document).on('change', '#stigmod-modal-addattribute input[type="checkbox"]', handleAddAttrChkBox);
+
         // 处理：点击 addattribute 确认按钮
         function handleAddAttrOk() {
             var $visibleInputs = $(this).closest('#stigmod-modal-addattribute')
@@ -1526,6 +1772,17 @@ define(function (require, exports, module) {
             // 刷新 modal 推荐栏
             //refreshModalRec('#stigmod-modal-rec-attribute');
         }
+
+        // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
+        function handleAddAttrChkBox() {
+            var id = '#stigmod-addatt-' + $(this).val();
+
+            if ($(this).is(':checked')) {
+                $(id).css({'display': 'table-row'});
+            } else {
+                $(id).css({'display': 'none'});
+            }
+        }
     };
 
 
@@ -1550,6 +1807,15 @@ define(function (require, exports, module) {
 
         // modal 显示前复位
         $(document).on('show.bs.modal', '#stigmod-modal-addrelation', handleMdlAddRel);
+
+        // add attribute 和 add relation 的 modal 中 checkbox 的动作
+        $(document).on('change', '#stigmod-modal-addrelation input[type="checkbox"]', handleAddRelChkBox);
+
+        // 点击 addrelation 中的下拉菜单选项
+        $(document).on('click', '#stigmod-dropdown-reltype-modal a', handleClkAddRelDrpdn);
+
+        // addrelation 中点击交换 classname
+        $(document).on('click', '#stigmod-addrel-class .glyphicon-transfer', handleClkAddRelDrpdnChg);
 
         // 确认：点击 addrelation 确认按钮
         function handleAddRelOk() {
@@ -1639,6 +1905,42 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
             $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
         }
+
+        // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
+        function handleAddRelChkBox() {
+            var id = '#stigmod-addrel-' + $(this).val();
+
+            if ($(this).is(':checked')) {
+                $(id).css({'display': 'table-row'});
+            } else {
+                $(id).css({'display': 'none'});
+            }
+        }
+
+        // 处理：点击 addrelation 中的下拉菜单选项
+        function handleClkAddRelDrpdn(event) {
+            var reltype = $(this).text();
+            var $root = $(this).closest('.stigmod-table-addrelation');
+            var $btn = $(this).closest('#stigmod-dropdown-reltype-modal').find('button');
+            var $nameModify = $root.find('#stigmod-addrel-type').find('.stigmod-input');
+            var $roleModify = $root.find('#stigmod-addrel-role').find('.stigmod-input');
+            var $multiplicityModify = $root.find('#stigmod-addrel-multiplicity').find('.stigmod-input');
+
+            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify);
+
+            event.preventDefault();
+        }
+
+        // 处理：addrelation 中点击交换 classname
+        function handleClkAddRelDrpdnChg(event) {
+            var $classnames = $(this).closest('#stigmod-addrel-class').find('.stigmod-input');
+            var tmp = $classnames.first().val();
+
+            $classnames.first().val($classnames.last().val());
+            $classnames.last().val(tmp);
+
+            event.preventDefault();
+        }
     };
 
 
@@ -1659,6 +1961,9 @@ define(function (require, exports, module) {
 
         // 点击 remove 确认按钮
         $(document).on('click', '#stigmod-btn-remove', handleRemoveOk);
+
+        // modal 显示前信息预处理
+        $(document).on('show.bs.modal', '#stigmod-modal-remove', handleMdlRemove);
 
         // 处理：点击 remove 确认按钮
         function handleRemoveOk() {  // TODO: 删除后，stateOfPage的更新。(貌似没有这个需求)
@@ -1722,6 +2027,19 @@ define(function (require, exports, module) {
 
             widget.close(); // 关闭当前 modal
             enableSave();
+        }
+
+        // 处理：modal 显示前信息预处理
+        function handleMdlRemove() {
+            var type = new Array();
+
+            type[0] = new Array('CLASS', 'ATTRIBUTE', 'PROPERTY');
+            type[1] = new Array('RELATION GROUP', 'RELATION', 'PROPERTY');
+
+            var name = [stateOfPage.clazz, stateOfPage.attribute, stateOfPage.property];
+
+            $(this).find('.stigmod-modal-remove-type').text(type[stateOfPage.flagCRG][stateOfPage.flagDepth]);
+            $(this).find('.stigmod-modal-remove-name').text(name[stateOfPage.flagDepth]);
         }
     };
 
@@ -2007,6 +2325,102 @@ define(function (require, exports, module) {
         $('.stigmod-model-save').show();
         $('.stigmod-model-saved').hide();
         $('.stigmod-model-save-btn').removeAttr('disabled');
+    }
+
+    // addrelation 和 modifyrelation 下拉菜单中的核心处理函数
+    function ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify) {
+        switch (reltype) {
+            case 'Generalization':
+                $btn.text('Generalization');
+                $nameModify.css({'display': 'none'}).tooltip('destroy');
+                $roleModify.eq(0).val('father').tooltip('destroy');
+                $roleModify.eq(1).val('child').tooltip('destroy');
+                $multiplicityModify.eq(0).attr({'disabled': ''}).val('1').tooltip('destroy');
+                $multiplicityModify.eq(1).attr({'disabled': ''}).val('1').tooltip('destroy');
+                break;
+
+            case 'Composition':
+                $btn.text('Composition');
+                $nameModify.css({'display': 'block'}).tooltip('destroy');
+                $roleModify.eq(0).val('whole').tooltip('destroy');
+                $roleModify.eq(1).val('part').tooltip('destroy');
+                $multiplicityModify.eq(0).attr({'disabled': ''}).val('1').tooltip('destroy');
+                $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
+                break;
+
+            case 'Aggregation':
+                $btn.text('Aggregation');
+                $nameModify.css({'display': 'block'}).tooltip('destroy');
+                $roleModify.eq(0).val('owner').tooltip('destroy');
+                $roleModify.eq(1).val('ownee').tooltip('destroy');
+                $multiplicityModify.eq(0).removeAttr('disabled').val('').tooltip('destroy');
+                $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
+                break;
+
+            case 'Association':
+                $btn.text('Association');
+                $nameModify.css({'display': 'block'}).tooltip('destroy');
+                $roleModify.eq(0).val('').tooltip('destroy');
+                $roleModify.eq(1).val('').tooltip('destroy');
+                $multiplicityModify.eq(0).removeAttr('disabled').val('').tooltip('destroy');
+                $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
+                break;
+        }
+    }
+
+    // 输入框下拉提示功能中取得子串的辅助函数
+    function substringMatcher(icm, flag, maxLength) {  // 所生成的 matches 集合的最大长度（对于每一个 dataset 来说）
+
+        return function findMatches(q, cb) {
+            var matches,
+                    substrRegex,
+                    strs;  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
+
+            switch (flag) {
+                case 'classInICM': strs = Object.keys(icm[0]); break;
+                case 'relGroupInICM': strs = Object.keys(icm[1]); break;
+                case 'classInCCM': strs = ccm.getClassNames(icm); break;
+                default: strs = [];
+            }
+
+            // an array that will be populated with substring matches
+            matches = [];
+
+            // regex used to determine if a string contains the substring `q`
+            substrRegex = new RegExp(q, 'i');
+
+            // iterate through the pool of strings and for any string that
+            // contains the substring `q`, add it to the `matches` array
+            $.each(strs, function(i, str) {
+                if (matches.length <= maxLength && (0 || substrRegex.test(str))) {
+                    //console.log(q, str);
+
+                    // the typeahead jQuery plugin expects suggestions to a
+                    // JavaScript object, refer to typeahead docs for more info
+                    matches.push({ value: str });
+                }
+            });
+
+            cb(matches);
+
+            ///**
+            // * 数组相减操作
+            // * @param a
+            // * @param b
+            // * @returns {Array}
+            // */
+            //function arrayMinus(a, b) {
+            //    var len = a.length, i = 0, res = [];
+            //
+            //    for (; i < len; i++) {
+            //        if (b.indexOf(a[i]) === -1) {
+            //            res.push(a[i]);
+            //        }
+            //    }
+            //
+            //    return res;
+            //}
+        };
     }
 
 });
