@@ -17,28 +17,55 @@ define(function (require, exports, module) {
     //var modelView = require('../module/modelview');  // modelView 是一个函数，接受 icm 作为参数
     var _ = require('../module/util');
 
+
+
     /**
      * 页面
      * @constructor
      */
     function Page(stateRawData, icmRawData) {
+
+        _.makePublisher(this);
+
+        // 模型
         this.stateOfPage = new StateOfPage(stateRawData);
         this.icm = new ICM(icmRawData);
 
+        // 左侧栏
         this.leftColWgt = new LeftColWgt('#stigmod-nav-left');
+        this.leftColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 左侧栏点击时更新页面状态
+        this.leftColWgt.on('refreshMiddleCol', 'refreshMiddleCol', this);  // 左侧栏点击时中间栏内容变换
+
+        // 中间栏
         this.middleColWgt = new MiddleColWgt('#stigmod-cont-right-scroll', {
             attributeBasic: '#template-mid-att-basic',
             relationBasic: '#template-mid-rel-basic'
         });
         this.middleColWgt.init(this.icm, this.stateOfPage);
-        //this.rightColWgt = new rightColWgt();
-
-        _.makePublisher(this);
-
-        this.leftColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 左侧栏点击时更新页面状态
-        this.leftColWgt.on('refreshMiddleCol', 'refreshMiddleCol', this);  // 左侧栏点击时中间栏内容变换
         this.middleColWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 中间栏点击时更新页面状态
         this.middleColWgt.on('classNameChanged', 'refreshLeftColAndActivate', this);  // 中间栏点击时更新页面状态
+
+        // 右侧栏
+        //this.rightColWgt = new rightColWgt();
+
+        // addClass对话框
+        this.addClassDlgWgt = new ClassDialogWgt('#stigmod-modal-addclass');
+        this.addClassDlgWgt.init(this.icm);
+        this.addClassDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建类时更新页面状态
+        this.addClassDlgWgt.on('addClass', 'addClass', this.icm);  // 新建类时更新icm模型
+        this.addClassDlgWgt.on('addClass', 'refreshLeftColAndActivateAndJump', this);  // 新建类时更新页面显示
+
+        // addRelGrp对话框
+        this.addRelGrpDlgWgt = new RelGrpDialogWgt('#stigmod-modal-addrelationgroup');
+        this.addRelGrpDlgWgt.init(this.icm);
+        this.addRelGrpDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系组时更新页面状态
+        this.addRelGrpDlgWgt.on('addRelGrp', 'addRelGrp', this.icm);  // 新建关系组时更新icm模型
+        this.addRelGrpDlgWgt.on('addRelGrp', 'refreshLeftColAndActivateAndJump', this);  // 新建关系组时更新页面显示
+
+
+        this.addAttributeDlgWgt = new DialogWgt('#stigmod-modal-addattribute');
+        this.addRelationDlgWgt = new DialogWgt('#stigmod-modal-addrelation');
+
     }
 
     // 刷新左侧栏
@@ -46,6 +73,7 @@ define(function (require, exports, module) {
         this.leftColWgt.refresh(this.icm);
     };
 
+    // 刷新左侧栏并重新激活item
     Page.prototype.refreshLeftColAndActivate = function (name) {
         this.leftColWgt.refresh(this.icm);
 
@@ -57,10 +85,22 @@ define(function (require, exports, module) {
         $this.addClass('active');
     };
 
+    // 刷新左侧栏、激活item、并跳转到新的middleCol
+    Page.prototype.refreshLeftColAndActivateAndJump = function (name) {
+        this.leftColWgt.refresh(this.icm);
+
+        // 重新激活并跳转
+        $(document)
+                .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
+                .trigger('click');
+    };
+
     // 刷新中间栏
     Page.prototype.refreshMiddleCol = function () {
         this.middleColWgt.refresh(this.icm, this.stateOfPage);
     };
+
+
 
     /**
      * 组件基类
@@ -89,6 +129,8 @@ define(function (require, exports, module) {
             }
         }
     };
+
+
 
     /**
     * 组件模板类
@@ -153,8 +195,10 @@ define(function (require, exports, module) {
     LeftColWgt.prototype.refresh = function(icm) {
 
         this.classListGroup.refresh(icm.getClassNames());
-        this.relgrpListGroup.refresh(icm.getRelgrpNames());
+        this.relgrpListGroup.refresh(icm.getRelGrpNames());
     };
+
+
 
     /**
      * 左侧ListGroup组件
@@ -179,6 +223,8 @@ define(function (require, exports, module) {
                     .attr('stigmod-nav-left-tag', nameArray[i]); // 以名称作为标签写在组件上，便于查找
         }
     };
+
+
 
     /**
      * 中间内容栏
@@ -532,11 +578,10 @@ define(function (require, exports, module) {
 
                     // 刷新所有panel的标题
                     widget.refreshMiddlePanelTitle(icm, stateOfPage);
-
                 }
             }
 
-            //enableSave();
+            enableSave();
             event.preventDefault();
         }
 
@@ -603,6 +648,8 @@ define(function (require, exports, module) {
             this.relationContentBasicWgt.refreshMiddlePanelTitle(icm, stateOfPage, this.element);
         }
     };
+
+
 
     /**
      * 中间内容栏基本组件
@@ -679,6 +726,7 @@ define(function (require, exports, module) {
         this.refreshMiddlePanelTitle(icm, stateOfPage, $parentElement);
     };
 
+    // 刷新所有panel的标题
     ContentBasicWgt.prototype.refreshMiddlePanelTitle = function (icm, stateOfPage, $parentElement) {
         var $panels = $parentElement.find('.panel');
 
@@ -765,6 +813,138 @@ define(function (require, exports, module) {
         });
     };
 
+
+
+    /**
+     * 对话框组件
+     * @constructor
+     */
+    function DialogWgt() {
+        Widget.apply(this, arguments);
+    }
+    _.extend(DialogWgt, Widget);
+
+    // 关闭对话框
+    DialogWgt.prototype.close = function () {
+        this.element.modal('hide');
+    };
+
+
+
+    /**
+     * addClass 对话框组件
+     * @constructor
+     */
+    function ClassDialogWgt() {
+        DialogWgt.apply(this, arguments);
+    }
+    _.extend(ClassDialogWgt, DialogWgt);
+
+    // 事件监听初始化
+    ClassDialogWgt.prototype.init = function (icm) {
+
+        var widget = this;
+
+        // 点击 addclass 确认按钮
+        $(document).on('click', '#stigmod-btn-addclass', handleAddClassOk);
+
+        // 处理：点击 addclass 确认按钮
+        function handleAddClassOk() {
+            var $input = $(this).closest('#stigmod-modal-addclass').find('input[type=text]:not([readonly])');
+
+            if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
+                var className = $input.val();
+
+                // 更新页面状态
+                widget.fire('pageStateChanged', {
+                    flagCRG: 0,
+                    flagDepth: 0,
+                    clazz: className
+                });
+
+                // 更新模型和显示
+                widget.fire('addClass', className);
+                widget.close();  // 关闭当前 modal
+                $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + className + ']')
+                        .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+
+                enableSave();
+            }
+        }
+    };
+
+
+
+    /**
+     * addRelGrp 对话框组件
+     * @constructor
+     */
+    function RelGrpDialogWgt() {
+        DialogWgt.apply(this, arguments);
+    }
+    _.extend(RelGrpDialogWgt, DialogWgt);
+
+    // 事件监听初始化
+    RelGrpDialogWgt.prototype.init = function (icm) {
+
+        var widget = this;
+
+        // 点击 addrelationgroup 确认按钮
+        $(document).on('click', '#stigmod-btn-addrelationgroup', handleAddRelGrpOk);
+
+        // 处理：点击 addrelationgroup 确认按钮
+        function handleAddRelGrpOk() {
+            var $inputs = $(this).closest('#stigmod-modal-addrelationgroup')
+                    .find('input[type=text]:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
+            var class1 = $inputs.eq(0).val();
+            var class2 = $inputs.eq(1).val();
+            var relationGroupName = (class1 < class2) ? class1 + '-' + class2 : class2 + '-' + class1; // 关系组的name是两端的类的拼合
+
+            function isValidRelationGroup(model, $compo, relationGroupName) {
+                if (model.doesNodeExist(1, relationGroupName)) {
+
+                    $compo.tooltip('destroy');  // 首先要清除旧的提示
+                    $compo.tooltip({
+                        animation: false,
+                        title: 'Relation group already exists.',
+                        placement: 'top',
+                        trigger: 'manual'
+                        //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
+                    });
+                    $compo.tooltip('show');
+
+                    return false;
+
+                } else {
+                    return true;
+                }
+            }
+
+            if (checkInputs(icm, $inputs) && isValidRelationGroup(icm, $(this).closest('.modal-footer'), relationGroupName)) {
+
+                // 更新页面状态
+                widget.fire('pageStateChanged', {
+                    flagCRG: 1,
+                    flagDepth: 0,
+                    clazz: relationGroupName
+                });
+
+                // 更新模型和显示
+                widget.fire('addRelGrp', relationGroupName);
+                widget.close(); // 关闭当前 modal
+                $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + relationGroupName + ']')
+                        .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+
+                enableSave();
+
+                // 进一步添加具体 relation
+                $('#stigmod-cont-right-scroll').find('.stigmod-addattrel-last').trigger('click');
+            }
+        }
+    };
+
+
+
     /**
      * 页面状态
      * @param stateRawData
@@ -808,11 +988,13 @@ define(function (require, exports, module) {
     };
 
 
+
     /**
      * 模块的输出
      * @type {Page}
      */
     module.exports = Page;
+
 
 
     /**
@@ -1029,6 +1211,20 @@ define(function (require, exports, module) {
         }
 
         return allInputsAreValid;
+    }
+
+    // 失能保存按钮
+    function disableSave() {
+        $('.stigmod-model-save').hide();
+        $('.stigmod-model-saved').show();
+        $('.stigmod-model-save-btn').attr({'disabled': ''});
+    }
+
+    // 使能保存按钮
+    function enableSave() {
+        $('.stigmod-model-save').show();
+        $('.stigmod-model-saved').hide();
+        $('.stigmod-model-save-btn').removeAttr('disabled');
     }
 
 });

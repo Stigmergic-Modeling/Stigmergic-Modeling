@@ -196,28 +196,28 @@ define(function (require, exports, module) {
          *  初始化
          *  -----  */
 
+        // 左中右栏目高度自适应
+        resizePanel();
+        $(window).on('resize', resizePanel);
+
+        // 初始化组件
         var pageInfo = {
             userName: dataPassedIn.user,
             icmId: dataPassedIn.modelID,
             icmName: dataPassedIn.modelName
         };
         var page = new Page(pageInfo, dataPassedIn.model);
-        //console.log(dataPassedIn);
 
         // 模型可视化
         //modelView(icm);
 
         // 填入左侧栏的数据
-        //fillLeft(icm);
         page.refreshLeftCol();
 
         // 打开bootstrap的tooltip部分功能
         $('[data-toggle="tooltip"]').tooltip();
         $('[data-toggle="popover"]').popover();
 
-        // 左中右栏目高度自适应
-        resizePanel();
-        $(window).on('resize', resizePanel);
 
         // 在锁定滚动条（使之隐藏）的情况下，使用鼠标滚轮控制页面滚动
         $('#stigmod-nav-left-scroll, #stigmod-cont-right-scroll, #stigmod-rcmd-right-scroll, .stigmod-hidden-scroll').on('mousewheel', function(event) {
@@ -267,10 +267,10 @@ define(function (require, exports, module) {
         $(document).on('click', '.stigmod-rel-prop-class .glyphicon-transfer', handleClkMdfRelDrpdnChg);
 
         // 点击 addclass 确认按钮
-        $(document).on('click', '#stigmod-btn-addclass', handleAddClassOk);
+        //$(document).on('click', '#stigmod-btn-addclass', handleAddClassOk);
 
         // 点击 addrelationgroup 确认按钮
-        $(document).on('click', '#stigmod-btn-addrelationgroup', handleAddRelGrpOk);
+        //$(document).on('click', '#stigmod-btn-addrelationgroup', handleAddRelGrpOk);
 
         // addattribute 和 addrelation 的入口
         $(document).on('click', '.stigmod-addattrel-trig', handleAddAttrRelEntrance);
@@ -465,17 +465,17 @@ define(function (require, exports, module) {
      *  页面修改函数
      *  ----------  */
 
-    // 修改左侧栏并激活，然后跳转
-    function modifyLeftAndJump(model, name) {
-
-        // 刷新
-        fillLeft(model);  // 填充左侧不会使滚动条移动
-
-        // jump (激活并跳转)
-        $(document)
-                .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
-                .trigger('click');
-    }
+    //// 修改左侧栏并激活，然后跳转
+    //function modifyLeftAndJump(model, name) {
+    //
+    //    // 刷新
+    //    fillLeft(model);  // 填充左侧不会使滚动条移动
+    //
+    //    // jump (激活并跳转)
+    //    $(document)
+    //            .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
+    //            .trigger('click');
+    //}
 
     //// 修改左侧栏并激活，不跳转
     //function modifyLeft(model, name) {
@@ -726,12 +726,12 @@ define(function (require, exports, module) {
         $('#stigmod-cont-right-scroll').empty();
     }
 
-    // 填充中间栏的基本框架
-    function fillMiddleBasic() {
-        var $frame = $('#stigmod-cont-right-scroll');
-        $frame.empty();
-        $frame.append(0 === stateOfPage.flagCRG ? componentMiddleAttributeBasic : componentMiddleRelationBasic);
-    }
+    //// 填充中间栏的基本框架
+    //function fillMiddleBasic() {
+    //    var $frame = $('#stigmod-cont-right-scroll');
+    //    $frame.empty();
+    //    $frame.append(0 === stateOfPage.flagCRG ? componentMiddleAttributeBasic : componentMiddleRelationBasic);
+    //}
 
     //// 填充中间栏
     //function fillMiddle(model) { // flagCRG 标明是 Class(0) 还是 RelationGroup(1), nameCRG 是 Class 或 RelationGroup 的名字
@@ -1651,80 +1651,80 @@ define(function (require, exports, module) {
         event.preventDefault();
     }
 
-    // 处理：点击 addclass 确认按钮
-    function handleAddClassOk() {
-        var $input = $(this).closest('#stigmod-modal-addclass').find('input[type=text]:not([readonly])');
+    //// 处理：点击 addclass 确认按钮
+    //function handleAddClassOk() {
+    //    var $input = $(this).closest('#stigmod-modal-addclass').find('input[type=text]:not([readonly])');
+    //
+    //    if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
+    //        var className = $input.val();
+    //
+    //        // 更新模型
+    //        icm.addClass(className);
+    //
+    //        // 更新显示
+    //        stateOfPage.flagCRG = 0;
+    //        stateOfPage.flagDepth = 0;
+    //        stateOfPage.class = className;
+    //
+    //        modifyLeftAndJump(icm, className);
+    //        $(this).next().trigger('click'); // 关闭当前 modal
+    //
+    //        $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + className + ']')
+    //                .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+    //
+    //        enableSave();
+    //    }
+    //}
 
-        if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
-            var className = $input.val();
-
-            // 更新模型
-            icm.addClass(className);
-
-            // 更新显示
-            stateOfPage.flagCRG = 0;
-            stateOfPage.flagDepth = 0;
-            stateOfPage.class = className;
-
-            modifyLeftAndJump(icm, className);
-            $(this).next().trigger('click'); // 关闭当前 modal
-
-            $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + className + ']')
-                    .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
-
-            enableSave();
-        }
-    }
-
-    // 处理：点击 addrelationgroup 确认按钮
-    function handleAddRelGrpOk() {
-        var $inputs = $(this).closest('#stigmod-modal-addrelationgroup')
-                .find('input[type=text]:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
-        var class1 = $inputs.eq(0).val();
-        var class2 = $inputs.eq(1).val();
-        var relationGroupName = (class1 < class2) ? class1 + '-' + class2 : class2 + '-' + class1; // 关系组的name是两端的类的拼合
-
-        function isValidRelationGroup(model, $compo, relationGroupName) {
-            if (model.doesNodeExist(1, relationGroupName)) {
-
-                $compo.tooltip('destroy');  // 首先要清除旧的提示
-                $compo.tooltip({
-                    animation: false,
-                    title: 'Relation group already exists.',
-                    placement: 'top',
-                    trigger: 'manual'
-                    //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
-                });
-                $compo.tooltip('show');
-
-                return false;
-
-            } else {
-                return true;
-            }
-        }
-
-        if (checkInputs(icm, $inputs) && isValidRelationGroup(icm, $(this).closest('.modal-footer'), relationGroupName)) {
-
-            // 更新模型
-            icm.addRelGrp(relationGroupName);
-
-            // 更新显示
-            stateOfPage.flagCRG = 1;
-            stateOfPage.flagDepth = 0;
-            stateOfPage.class = relationGroupName;
-            modifyLeftAndJump(icm, relationGroupName);
-            $(this).next().trigger('click'); // 关闭当前 modal
-
-            $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + relationGroupName + ']')
-                    .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
-
-            enableSave();
-
-            // 进一步添加具体 relation
-            $('#stigmod-cont-right-scroll').find('.stigmod-addattrel-last').trigger('click');
-        }
-    }
+    //// 处理：点击 addrelationgroup 确认按钮
+    //function handleAddRelGrpOk() {
+    //    var $inputs = $(this).closest('#stigmod-modal-addrelationgroup')
+    //            .find('input[type=text]:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
+    //    var class1 = $inputs.eq(0).val();
+    //    var class2 = $inputs.eq(1).val();
+    //    var relationGroupName = (class1 < class2) ? class1 + '-' + class2 : class2 + '-' + class1; // 关系组的name是两端的类的拼合
+    //
+    //    function isValidRelationGroup(model, $compo, relationGroupName) {
+    //        if (model.doesNodeExist(1, relationGroupName)) {
+    //
+    //            $compo.tooltip('destroy');  // 首先要清除旧的提示
+    //            $compo.tooltip({
+    //                animation: false,
+    //                title: 'Relation group already exists.',
+    //                placement: 'top',
+    //                trigger: 'manual'
+    //                //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
+    //            });
+    //            $compo.tooltip('show');
+    //
+    //            return false;
+    //
+    //        } else {
+    //            return true;
+    //        }
+    //    }
+    //
+    //    if (checkInputs(icm, $inputs) && isValidRelationGroup(icm, $(this).closest('.modal-footer'), relationGroupName)) {
+    //
+    //        // 更新模型
+    //        icm.addRelGrp(relationGroupName);
+    //
+    //        // 更新显示
+    //        stateOfPage.flagCRG = 1;
+    //        stateOfPage.flagDepth = 0;
+    //        stateOfPage.class = relationGroupName;
+    //        modifyLeftAndJump(icm, relationGroupName);
+    //        $(this).next().trigger('click'); // 关闭当前 modal
+    //
+    //        $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + relationGroupName + ']')
+    //                .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+    //
+    //        enableSave();
+    //
+    //        // 进一步添加具体 relation
+    //        $('#stigmod-cont-right-scroll').find('.stigmod-addattrel-last').trigger('click');
+    //    }
+    //}
 
     // 处理：addattribute 和 addrelation 的入口
     function handleAddAttrRelEntrance() {

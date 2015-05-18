@@ -836,7 +836,7 @@ define(function (require, exports, module) {
              * 获取关系组名（字典序）
              * @returns {Array}
              */
-            Model.prototype.getRelgrpNames = function() {
+            Model.prototype.getRelGrpNames = function() {
                 var relgrpNames = [];
                 var modelRelgrps = this[1];
 
