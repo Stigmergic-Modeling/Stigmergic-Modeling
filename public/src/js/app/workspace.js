@@ -280,14 +280,14 @@ define(function (require, exports, module) {
         $(document).on('click', '.fa-arrow-up', handleMoveAttRelPanelUp);
         $(document).on('click', '.fa-arrow-down', handleMoveAttRelPanelDown);
 
-        // 所有 remove 按钮的入口
-        $(document).on('click', '.fa-remove, .glyphicon-trash, .stigmod-remove-trig', handleRemoveEntrance);
+        //// 所有 remove 按钮的入口
+        //$(document).on('click', '.fa-remove, .glyphicon-trash, .stigmod-remove-trig', handleRemoveEntrance);
 
-        // 点击 remove 确认按钮
-        $(document).on('click', '#stigmod-btn-remove', handleRemoveOk);
+        //// 点击 remove 确认按钮
+        //$(document).on('click', '#stigmod-btn-remove', handleRemoveOk);
 
-        // 点击 show modelView 按钮
-        $(document).on('click', '#stigmod-model-view, #stigmod-model-view-fs', handleShowModelView);
+        //// 点击 show modelView 按钮
+        //$(document).on('click', '#stigmod-model-view, #stigmod-model-view-fs', handleShowModelView);
 
         // 未保存就离开页面
         //$(window).on('beforeunload', handleLeavePage);
@@ -459,149 +459,6 @@ define(function (require, exports, module) {
     /*  ----------  *
      *  页面修改函数
      *  ----------  */
-
-
-    // 刷新中间栏 .panel 组件的 title
-    function refreshMiddelPanelTitle(model) {
-        var $panels = $('#stigmod-cont-right .panel');
-
-        $panels.each(function () {
-
-            // 对于每一个 attribute 或 relation
-            var $title = $(this).find('.panel-title > div.row > div:nth-child(2)');
-            var properties = icm.getProp(stateOfPage.flagCRG, stateOfPage.class, $(this).attr('stigmod-attrel-name'));
-            var title = '';
-
-            if (0 === stateOfPage.flagCRG) {
-
-                // 逐个拼接 properties
-                if (undefined !== properties.visibility) {
-                    var visSign = '';
-                    switch (properties.visibility) {
-                        case 'public':
-                            visSign = '+';
-                            break;
-                        case 'private':
-                            visSign = '-';
-                            break;
-                        case 'protected':
-                            visSign = '#';
-                            break;
-                        case 'package':
-                            visSign = '~';
-                            break;
-                    }
-                    title = title + visSign + ' ';
-                }
-                if (undefined !== properties.name) {
-                    title = title + properties.name + ' ';
-                }
-                if (undefined !== properties.type) {
-                    title = title + ': ' + properties.type + ' ';
-                }
-                if (undefined !== properties.multiplicity) {
-                    title = title + '[' + properties.multiplicity + '] ';
-                }
-                if (undefined !== properties.default) {
-                    title = title + '= ' + properties.default + ' ';
-                }
-
-                // 更新 title
-                $title.text(title);
-
-            } else {
-
-                var left = properties.class[0];
-                var right = properties.class[1];
-                var middle = properties.type[1];
-
-                if ('' !== middle) {
-                    middle = '(' + middle + ')';
-                }
-
-                switch (properties.type[0]) {
-                    case 'Generalization':
-                        middle = ' ◁—' + middle + '—— ';
-                        break;
-                    case 'Composition':
-                        middle = ' ◆—' + middle + '—— ';
-                        break;
-                    case 'Aggregation':
-                        middle = ' ◇—' + middle + '—— ';
-                        break;
-                    case 'Association':
-                        middle = ' ——' + middle + '—— ';
-                        break;
-                }
-
-                if (undefined !== properties.multiplicity) {
-                    left = left + ' [' + properties.multiplicity[0] + '] ';
-                    right = ' [' + properties.multiplicity[1] + '] ' + right;
-                }
-
-                // 更新 title
-                $title.empty();
-                $title.append('<span>' + left + '</span>');
-                $title.append('<span>' + middle + '</span>').find('span:last-child').css({'font-family': 'Lucida Console'});
-                $title.append('<span>' + right + '</span>');
-            }
-        });
-    }
-
-    // 局部删除中间栏组件
-    function removeMiddle(model, name) {
-
-        $('#stigmod-cont-right .panel[stigmod-attrel-name=' + name + ']').remove();
-    }
-
-    // 填充左侧栏
-    function fillLeft(model) {
-        var $compo = null,
-                i;
-
-        // 向左侧栏填入 class 组件和数据
-        var modelClassOrdered = [];
-        $compo = $('#stigmod-nav-left-scroll .panel:first-child .list-group').empty(); // 清空
-        var modelClasses = model[0];
-
-        for (var modelClass in modelClasses) { // 类名读入数组
-            if (modelClasses.hasOwnProperty(modelClass)) {
-                modelClassOrdered.push(modelClass);
-            }
-        }
-
-        modelClassOrdered.sort(); // 排序
-
-        for (i = 0; i < modelClassOrdered.length; ++i) { // 类名
-            $compo.append(componentLeftClass);
-            $compo.find('a:last-child > span:first-child').text(modelClassOrdered[i])
-                    .attr('stigmod-nav-left-tag', modelClassOrdered[i]); // 以名称作为标签写在组件上，便于查找
-        }
-
-        // 向左侧栏填入 relation group 组件和数据
-        var modelRelationGroupOrdered = [];
-        var modelRelationGroups = model[1];
-        $compo = $('#stigmod-nav-left-scroll .panel:last-child .list-group').empty(); // 清空
-
-        for (var modelRelationGroup in modelRelationGroups) { // 关系组名读入数组
-            if (modelRelationGroups.hasOwnProperty(modelRelationGroup)) {
-                modelRelationGroupOrdered.push(modelRelationGroup);
-            }
-        }
-
-        modelRelationGroupOrdered.sort(); // 排序
-
-        for (i = 0; i < modelRelationGroupOrdered.length; ++i) { // 关系组名
-            $compo.append(componentLeftRelationGroup);
-            $compo.find('a:last-child > span:first-child').text(modelRelationGroupOrdered[i])
-                    .attr('stigmod-nav-left-tag', modelRelationGroupOrdered[i]); // 以名称作为标签写在组件上，便于查找
-        }
-    }
-
-    // 填充中间栏为空白
-    function fillMiddleBlank() {
-        $('#stigmod-cont-right-scroll').empty();
-    }
 
 
     /*  ----------  *
@@ -829,78 +686,6 @@ define(function (require, exports, module) {
         }
     }
 
-    // 处理：所有删除按钮的入口
-    function handleRemoveEntrance() {  // TODO：直接写图标类不是长久之计
-        setTimeout(function () { // 延时是为了解决 stateOfPage 还没有更新 modal 就弹出的问题
-            $('#stigmod-modal-remove').modal('show');
-        }, 10);
-    }
-
-    // 处理：点击 remove 确认按钮
-    function handleRemoveOk() {  // TODO: 删除后，stateOfPage的更新。
-        switch (stateOfPage.flagDepth) {
-            case 0:
-
-                // 修改 model
-                icm.removeSubModel([stateOfPage.flagCRG], stateOfPage.class);
-                if (0 === stateOfPage.flagCRG) { // 删除 class 时，还要删除与之相关的 relation group
-                    var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
-
-                    for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
-                        if (relationGroups.hasOwnProperty(nameRG)) {
-                            var matchName = null;
-                            var classPat = new RegExp('\\b' + stateOfPage.class + '\\b');
-
-                            matchName = nameRG.match(classPat);
-                            if (null !== matchName) {
-                                icm.removeSubModel([1], nameRG);
-                            }
-                        }
-                    }
-                }
-
-                // 更新显示
-                fillLeft(icm);
-                fillMiddleBlank();
-                break;
-
-            case 1:
-
-                // 修改 model
-                icm.removeSubModel([stateOfPage.flagCRG, stateOfPage.class, 0], stateOfPage.attribute);
-                icm.removeOrderElem(stateOfPage.flagCRG, stateOfPage.class, stateOfPage.attribute);
-
-                // 更新显示
-                removeMiddle(icm, stateOfPage.attribute);
-                break;
-
-            case 2:
-
-                // 修改 model
-                icm.removeSubModel([stateOfPage.flagCRG, stateOfPage.class, 0, stateOfPage.attribute, 0], stateOfPage.property);
-
-                // 更新显示
-                var prop = ['.stigmod-attr-prop-', '.stigmod-rel-prop-'];
-                var strPanel = '#stigmod-cont-right .panel[stigmod-attrel-name=' +
-                               stateOfPage.attribute + '] ' + prop[stateOfPage.flagCRG] + stateOfPage.property;
-                var $root = $(strPanel);
-                var $text = $root.find('.stigmod-clickedit-disp');
-                var num = $text.length;
-
-                for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
-                    $text.eq(i).text('');
-                }
-                $root.hide();
-
-                // 刷新所有panel的标题
-                refreshMiddelPanelTitle(icm);
-                break;
-        }
-
-        $(this).next().trigger('click'); // 关闭当前 modal
-
-        enableSave();
-    }
 
     function handleMdlRemove() {
         var type = new Array();
@@ -914,22 +699,6 @@ define(function (require, exports, module) {
         $(this).find('.stigmod-modal-remove-name').text(name[stateOfPage.flagDepth]);
     }
 
-    function handleShowModelView() {
-
-        // 清除旧的 svg 和 Detail
-        $('#view').find('svg').remove();
-        $('#classDetail').remove();
-        $('#relationDetail').remove();
-
-        // 显示模型图像
-        $('#stigmod-modal-d3view').modal('show');
-
-        // 刷新模型图像
-        setTimeout(function() {
-            modelView(icm);
-        }, 500);
-
-    }
 
 
     // 处理：panel 拖放排序

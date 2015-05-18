@@ -98,6 +98,13 @@ define(function (require, exports, module) {
         this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建关系时更新icm模型
         this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建关系时更新icm模型
         this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系时局部更新中间栏
+
+        // removeConfirm对话框
+        this.removeConfirmDlgWgt = new RemoveConfirmDialogWgt('#stigmod-modal-remove');
+        this.removeConfirmDlgWgt.init(this.icm, this.stateOfPage);
+        this.removeConfirmDlgWgt.on('classRemoved', 'refreshLeftColAndBlankMiddleCol', this);  // 删除类或关系组后刷新左侧栏
+        this.removeConfirmDlgWgt.on('attributeRemoved', 'removeMiddlePanel', this);  // 删除类或关系组后刷新左侧栏
+        this.removeConfirmDlgWgt.on('propertyRemoved', 'refreshMiddlePanelTitle', this);  // 删除类或关系组后刷新左侧栏
     }
 
     // 初始化
@@ -172,6 +179,12 @@ define(function (require, exports, module) {
         this.leftColWgt.refresh(this.icm);
     };
 
+    // 刷新左侧栏并清空中间栏
+    Page.prototype.refreshLeftColAndBlankMiddleCol = function () {
+        this.leftColWgt.refresh(this.icm);
+        this.middleColWgt.blank();
+    };
+
     // 刷新左侧栏并重新激活item
     Page.prototype.refreshLeftColAndActivate = function (name) {
         this.leftColWgt.refresh(this.icm);
@@ -202,6 +215,17 @@ define(function (require, exports, module) {
     // 更新中间栏
     Page.prototype.insertNewMiddleItem = function (name) {
         this.middleColWgt.insertNewItem(this.icm, this.stateOfPage, name)
+    };
+
+    // 局部删除中间栏Panel
+    Page.prototype.removeMiddlePanel = function (name) {  // TODO: 这里写得不好，越级操作了
+        var selector = '#stigmod-cont-right .panel[stigmod-attrel-name=' + name + ']';
+        $(selector).remove();
+    };
+
+    // 刷新中间栏的PanelTitle
+    Page.prototype.refreshMiddlePanelTitle = function () {
+        this.middleColWgt.refreshMiddlePanelTitle(this.icm, this.stateOfPage);
     };
 
     // 左中侧三栏（panel）高度调整
@@ -440,6 +464,9 @@ define(function (require, exports, module) {
 
         // addattribute 和 addrelation 的入口
         $(document).on('click', '.stigmod-addattrel-trig', handleAddAttrRelEntrance);
+
+        // 所有 remove 按钮的入口
+        $(document).on('click', '.fa-remove, .glyphicon-trash, .stigmod-remove-trig', handleRemoveEntrance);
 
         // 处理：中间栏 class 状态捕获
         function handleCapClass() {
@@ -830,6 +857,13 @@ define(function (require, exports, module) {
                 }
             }, 10);
         }
+
+        // 处理：所有删除按钮的入口
+        function handleRemoveEntrance() {  // TODO：直接写图标类不是长久之计
+            setTimeout(function () { // 延时是为了解决 stateOfPage 还没有更新 modal 就弹出的问题
+                $('#stigmod-modal-remove').modal('show');
+            }, 10);
+        }
     };
 
     // 刷新中间栏
@@ -844,6 +878,11 @@ define(function (require, exports, module) {
             this.element.append(this.relationContentBasicWgt.element);
             this.relationContentBasicWgt.refresh(icm, stateOfPage, this.element);
         }
+    };
+
+    // 清空中间栏
+    MiddleColWgt.prototype.blank = function () {
+        this.element.empty();
     };
 
     // 刷新中间栏panel的标题
@@ -1138,6 +1177,9 @@ define(function (require, exports, module) {
         // 点击退出全屏
         $(document).on('click', '.stigmod-exit-full-screen-btn', handleClkExitFS);
 
+        // 点击 show modelView 按钮
+        $(document).on('click', '#stigmod-model-view, #stigmod-model-view-fs', handleShowModelView);
+
         // 处理：点击保存按钮
         function handleClkSave() {
 
@@ -1206,6 +1248,23 @@ define(function (require, exports, module) {
                 middle: 202,
                 right: 202
             });
+        }
+
+        // 处理：点击 show modelView 按钮
+        function handleShowModelView() {
+
+            // 清除旧的 svg 和 Detail
+            $('#view').find('svg').remove();
+            $('#classDetail').remove();
+            $('#relationDetail').remove();
+
+            // 显示模型图像
+            $('#stigmod-modal-d3view').modal('show');
+
+            // 刷新模型图像
+            setTimeout(function() {
+                modelView(icm);
+            }, 500);
         }
 
         // 显示遮罩
@@ -1579,6 +1638,90 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示role项
             $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
             $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
+        }
+    };
+
+
+
+    /**
+     * removeConfirm 对话框组件
+     * @constructor
+     */
+    function RemoveConfirmDialogWgt() {
+        DialogWgt.apply(this, arguments);
+    }
+    _.extend(RemoveConfirmDialogWgt, DialogWgt);
+
+    // 事件监听初始化
+    RemoveConfirmDialogWgt.prototype.init = function (icm, stateOfPage) {
+        this.initSuperClass();
+        var widget = this;
+
+        // 点击 remove 确认按钮
+        $(document).on('click', '#stigmod-btn-remove', handleRemoveOk);
+
+        // 处理：点击 remove 确认按钮
+        function handleRemoveOk() {  // TODO: 删除后，stateOfPage的更新。(貌似没有这个需求)
+            switch (stateOfPage.flagDepth) {
+                case 0:
+
+                    // 修改 model
+                    icm.removeSubModel([stateOfPage.flagCRG], stateOfPage.clazz);
+                    if (0 === stateOfPage.flagCRG) { // 删除 class 时，还要删除与之相关的 relation group
+                        var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
+
+                        for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
+                            if (relationGroups.hasOwnProperty(nameRG)) {
+                                var matchName = null;
+                                var classPat = new RegExp('\\b' + stateOfPage.clazz + '\\b');
+
+                                matchName = nameRG.match(classPat);
+                                if (null !== matchName) {
+                                    icm.removeSubModel([1], nameRG);
+                                }
+                            }
+                        }
+                    }
+
+                    // 更新显示
+                    widget.fire('classRemoved', null);
+                    break;
+
+                case 1:
+
+                    // 修改 model
+                    icm.removeSubModel([stateOfPage.flagCRG, stateOfPage.clazz, 0], stateOfPage.attribute);
+                    icm.removeOrderElem(stateOfPage.flagCRG, stateOfPage.clazz, stateOfPage.attribute);
+
+                    // 更新显示
+                    widget.fire('attributeRemoved', stateOfPage.attribute);
+                    break;
+
+                case 2:
+
+                    // 修改 model
+                    icm.removeSubModel([stateOfPage.flagCRG, stateOfPage.clazz, 0, stateOfPage.attribute, 0], stateOfPage.property);
+
+                    // 更新显示
+                    var prop = ['.stigmod-attr-prop-', '.stigmod-rel-prop-'];
+                    var strPanel = '#stigmod-cont-right .panel[stigmod-attrel-name=' +
+                            stateOfPage.attribute + '] ' + prop[stateOfPage.flagCRG] + stateOfPage.property;
+                    var $root = $(strPanel);
+                    var $text = $root.find('.stigmod-clickedit-disp');
+                    var num = $text.length;
+
+                    for (var i = 0; i < num - 1; ++i) { // 同时适用于单列和多列的情况 (最后一个元素是按钮，不参与循环中的处理)
+                        $text.eq(i).text('');
+                    }
+                    $root.hide();
+
+                    // 刷新所有panel的标题
+                    widget.fire('propertyRemoved', null);
+                    break;
+            }
+
+            widget.close(); // 关闭当前 modal
+            enableSave();
         }
     };
 
