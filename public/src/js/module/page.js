@@ -62,8 +62,15 @@ define(function (require, exports, module) {
         this.addRelGrpDlgWgt.on('addRelGrp', 'addRelGrp', this.icm);  // 新建关系组时更新icm模型
         this.addRelGrpDlgWgt.on('addRelGrp', 'refreshLeftColAndActivateAndJump', this);  // 新建关系组时更新页面显示
 
+        // addAttribute对话框
+        this.addAttributeDlgWgt = new AttributeDialogWgt('#stigmod-modal-addattribute');
+        this.addAttributeDlgWgt.init(this.icm, this.stateOfPage);
+        this.addAttributeDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系组时更新页面状态
+        this.addAttributeDlgWgt.on('addAttribute', 'addAttr', this.icm);  // 新建关系组时更新icm模型
+        this.addAttributeDlgWgt.on('addPropOfA', 'addPropOfA', this.icm);  // 新建关系组时更新icm模型
+        this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系组时更新icm模型
 
-        this.addAttributeDlgWgt = new DialogWgt('#stigmod-modal-addattribute');
+
         this.addRelationDlgWgt = new DialogWgt('#stigmod-modal-addrelation');
 
     }
@@ -98,6 +105,11 @@ define(function (require, exports, module) {
     // 刷新中间栏
     Page.prototype.refreshMiddleCol = function () {
         this.middleColWgt.refresh(this.icm, this.stateOfPage);
+    };
+
+    // 更新中间栏
+    Page.prototype.insertNewMiddleItem = function (name) {
+        this.middleColWgt.insertNewItem(this.icm, this.stateOfPage, name)
     };
 
 
@@ -260,6 +272,9 @@ define(function (require, exports, module) {
         $(document).on('click', '.stigmod-clickedit-btn-edit', handleEnterEdit); // “编辑”按钮的点击编辑功能
         $(document).on('click', '.stigmod-clickedit-btn-ok', handleSubmitEdit); // 编辑组件内的“提交”按钮功能
         $(document).on('click', '.stigmod-clickedit-btn-cancel', handleCancelEdit); // 编辑组件内的“取消”按钮功能
+
+        // addattribute 和 addrelation 的入口
+        $(document).on('click', '.stigmod-addattrel-trig', handleAddAttrRelEntrance);
 
         // 处理：中间栏 class 状态捕获
         function handleCapClass() {
@@ -623,6 +638,33 @@ define(function (require, exports, module) {
 
             event.preventDefault();
         }
+
+        // 处理：addattribute 和 addrelation 的入口
+        function handleAddAttrRelEntrance() {
+            var $this = $(this); // 为了在 setTimeout() 函数中仍能正却使用
+            setTimeout(function () { // 延时是为了解决 stateOfPage 还没有更新 modal 就弹出的问题
+
+                // 获取添加位置和方向信息（也可写在 setTimeout() 之外）
+                if ($this.hasClass('stigmod-addattrel-last')) { // 在add大按钮的上方添加（即所有panel的末尾，可能还没有panel）
+                    stateOfPage.addAttrRel.position = '@';
+                    stateOfPage.addAttrRel.direction = 0;
+                } else {
+                    stateOfPage.addAttrRel.position = $this.closest('.panel').attr('stigmod-attrel-name');
+                    if ($this.hasClass('stigmod-addattrel-above')) { // 向上添加
+                        stateOfPage.addAttrRel.direction = 0;
+                    } else { // 向下添加
+                        stateOfPage.addAttrRel.direction = 1;
+                    }
+                }
+
+                // 弹框
+                if (0 === stateOfPage.flagCRG) {
+                    $('#stigmod-modal-addattribute').modal('show');
+                } else {
+                    $('#stigmod-modal-addrelation').modal('show');
+                }
+            }, 10);
+        }
     };
 
     // 刷新中间栏
@@ -649,6 +691,100 @@ define(function (require, exports, module) {
         }
     };
 
+    // 局部添加中间栏组件(无刷新)
+    MiddleColWgt.prototype.insertNewItem = function (icm, stateOfPage, name, noUnfold) {
+
+        // 若第三个参数 noUnfold 被传入且为真，则仅点击一次（变为蓝色）；否则点击两次（变蓝且展开）
+        var $compo = null;
+        var collapseIndex = null;
+
+        // 计算新 .panel 的编号
+        var strPanel = '#stigmod-cont-right .panel ' +
+                ((0 === stateOfPage.flagCRG) ? '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title');
+        var $panelTitle = $(strPanel); // 取出所有 .panel
+
+        if (0 === $panelTitle.length) { // 还没有 .panel
+            collapseIndex = 0;
+
+        } else { // 已经有至少一个 .panel
+            var indexMax = -1;
+
+            $panelTitle.each(function () {
+                var indexTmp = $(this).attr('data-target');
+                indexTmp = parseInt(indexTmp.substr('#collapse'.length));
+
+                if (indexTmp > indexMax) {
+                    indexMax = indexTmp;
+                }
+            });
+
+            collapseIndex = indexMax + 1; // 由于上下移动 attrel 功能的加入，这里需要取所有现存编号中的最大值加一作为新的编号
+        }
+
+        var templateWgt = 0 === stateOfPage.flagCRG
+                ? this.attributeContentBasicWgt.templateWgt.t.newElement()
+                : this.relationContentBasicWgt.templateWgt.t.newElement();
+
+        // 找到正确的位置并插入新 .panel
+        if ('@' === stateOfPage.addAttrRel.position) {
+            $compo = $('#stigmod-cont-right .list-group').before(templateWgt).prev();
+        } else {
+            var baseSelector = '#stigmod-cont-right .panel[stigmod-attrel-name=' + stateOfPage.addAttrRel.position + ']';
+            if (0 === stateOfPage.addAttrRel.direction) { // 上插
+                $compo = $(baseSelector).before(templateWgt).prev();
+            } else { // 下插
+                $compo = $(baseSelector).after(templateWgt).next();
+            }
+        }
+
+        // 在 .panel 中记录 attribute 或 relation 的名字，便于点击时更新 stateOfPage
+        $compo.attr({'stigmod-attrel-name': name});
+
+        // 设置collapse属性
+        var strTitle = 0 === stateOfPage.flagCRG ? '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
+        var $collapseTrigger = $compo.find(strTitle).attr({'data-target': '#collapse' + collapseIndex});
+        var $collapseContent = $compo.find('.panel-collapse').attr({'id': 'collapse' + collapseIndex});
+        var icmProperties = icm[stateOfPage.flagCRG][stateOfPage.clazz][0][name][0];
+
+        for (var icmProperty in icmProperties) {
+            if (icmProperties.hasOwnProperty(icmProperty)) {
+                var $propertyRow = null;
+
+                if (0 === stateOfPage.flagCRG) {
+                    $propertyRow = $collapseContent.find('.stigmod-attr-prop-' + icmProperty).show();
+
+                    $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
+                            .text(icm[stateOfPage.flagCRG][stateOfPage.clazz][0][name][0][icmProperty]);
+
+                } else {
+                    $propertyRow = $collapseContent.find('.stigmod-rel-prop-' + icmProperty).show();
+
+                    $propertyRow.find('td:nth-child(2) > .stigmod-clickedit-disp')
+                            .text(icm[stateOfPage.flagCRG][stateOfPage.clazz][0][name][0][icmProperty][0]);
+                    $propertyRow.find('td:nth-child(3) > .stigmod-clickedit-disp')
+                            .text(icm[stateOfPage.flagCRG][stateOfPage.clazz][0][name][0][icmProperty][1]);
+                }
+            }
+        }
+
+        // 刷新所有panel的标题
+        this.refreshMiddlePanelTitle(icm, stateOfPage);
+
+        // 激活本panel
+        if (noUnfold) {
+            $compo.trigger('click'); // 变蓝，不展开
+
+        } else {
+            $compo.trigger('click'); // 变蓝
+
+            setTimeout(function () {  // 展开
+                var strTitle = 0 === stateOfPage.flagCRG ?
+                        '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
+
+                $compo.find(strTitle).trigger('click');
+            }, 10);
+        }
+    };
 
 
     /**
@@ -939,6 +1075,64 @@ define(function (require, exports, module) {
 
                 // 进一步添加具体 relation
                 $('#stigmod-cont-right-scroll').find('.stigmod-addattrel-last').trigger('click');
+            }
+        }
+    };
+
+
+
+    /**
+     * addAttribute 对话框组件
+     * @constructor
+     */
+    function AttributeDialogWgt() {
+        DialogWgt.apply(this, arguments);
+    }
+    _.extend(AttributeDialogWgt, DialogWgt);
+
+    // 事件监听初始化
+    AttributeDialogWgt.prototype.init = function (icm, stateOfPage) {
+
+        var widget = this;
+
+        // 点击 addattribute 确认按钮
+        $(document).on('click', '#stigmod-btn-addattribute', handleAddAttrOk);
+
+        // 处理：点击 addattribute 确认按钮
+        function handleAddAttrOk() {
+            var $visibleInputs = $(this).closest('#stigmod-modal-addattribute')
+                    .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
+
+            if (checkInputs(icm, $visibleInputs, stateOfPage)) {
+
+                // 添加 attribute 名
+                var attributeName = $(this).closest('#stigmod-modal-addattribute').find('#stigmod-addatt-name input').val();
+                widget.fire('addAttribute', [stateOfPage.clazz, attributeName, stateOfPage.addAttrRel]);
+
+                // 添加 properties
+                var $propertyNew = $(this).closest('#stigmod-modal-addattribute').find('tr:visible');
+
+                $propertyNew.each(function () {
+                    var caseName = $(this).attr('stigmod-addatt-case');
+                    var propertyName = $(this).find('td:first-child').text();
+                    var propertyValue = null;
+                    switch (caseName) {
+                        case 'text':
+                            propertyValue = $(this).find('input').val();
+                            break;
+                        case 'radio':
+                            propertyValue = $(this).find('input:checked').parent().text();
+                            break;
+                    }
+
+                    widget.fire('addPropOfA', [stateOfPage.clazz, attributeName, [propertyName, propertyValue]]);
+                });
+
+                //insertMiddle(icm, attributeName);
+                widget.fire('insertNewItem', attributeName);
+                widget.close(); // 关闭当前 modal
+
+                enableSave();
             }
         }
     };

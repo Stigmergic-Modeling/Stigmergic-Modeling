@@ -38,7 +38,7 @@ define(function (require, exports, module) {
             off: function (type, fn, context) {  // 取消监听
                 this.visitSubscribers('unsubscribe', type, fn, context);
             },
-            fire: function (type, publication) {  // 发射
+            fire: function (type, publication) {  // 发射  ！注意，若希望传递单数组参数，则需要额外包裹一层[]
                 this.visitSubscribers('publish', type, publication);
             },
             visitSubscribers: function (action, type, arg, context) {  // 辅助函数
@@ -48,7 +48,10 @@ define(function (require, exports, module) {
                         max = subscribers ? subscribers.length : 0;
                 for (i = 0;  i < max; i++) {
                     if (action === 'publish') {
-                        subscribers[i].fn.call(subscribers[i].context, arg);
+                        if (!Array.isArray(arg)) {  // 若参数不是数组，则将参数放入数组
+                            arg = [arg];
+                        }
+                        subscribers[i].fn.apply(subscribers[i].context, arg);  // 用apply可以传递任意多参数，但需要额外包裹一层[]
                     } else {
                         if (subscribers[i].fn === arg && subscribers[i].context === context) {
                             subscribers.splice(i, 1);
