@@ -281,4 +281,5 @@ define(function (require, exports, module) {
         return namesObjArray.sort(compareBy('ref')).map(function(o) {return o.name});
     }
 
+
 });
