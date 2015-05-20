@@ -38,6 +38,7 @@ define(function (require, exports, module) {
         // 模型
         this.stateOfPage = new StateOfPage(stateRawData);
         this.icm = new ICM(icmRawData);
+        this.ccm = new CCM();
 
         // 参数
         this.panelHeight = {
@@ -71,7 +72,7 @@ define(function (require, exports, module) {
 
         // addClass对话框
         this.addClassDlgWgt = new ClassDialogWgt('#stigmod-modal-addclass');
-        this.addClassDlgWgt.init(this.icm);
+        this.addClassDlgWgt.init(this.icm, this.ccm);
         this.addClassDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建类时更新页面状态
         this.addClassDlgWgt.on('addClass', 'addClass', this.icm);  // 新建类时更新icm模型
         this.addClassDlgWgt.on('addClass', 'refreshLeftColAndActivateAndJump', this);  // 新建类时更新页面显示
@@ -85,7 +86,7 @@ define(function (require, exports, module) {
 
         // addAttribute对话框
         this.addAttributeDlgWgt = new AttributeDialogWgt('#stigmod-modal-addattribute');
-        this.addAttributeDlgWgt.init(this.icm, this.stateOfPage);
+        this.addAttributeDlgWgt.init(this.icm, this.ccm, this.stateOfPage);
         this.addAttributeDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建属性时更新页面状态
         this.addAttributeDlgWgt.on('addAttribute', 'addAttr', this.icm);  // 新建属性时更新icm模型
         this.addAttributeDlgWgt.on('addPropOfA', 'addPropOfA', this.icm);  // 新建属性时更新icm模型
@@ -117,6 +118,7 @@ define(function (require, exports, module) {
         // 显示左侧栏
         this.refreshLeftCol();
 
+        // 别名
         var icm = this.icm;
         var stateOfPage = this.stateOfPage;
 
@@ -293,7 +295,7 @@ define(function (require, exports, module) {
         this.middleColWgt.refreshMiddlePanelTitle(this.icm, this.stateOfPage);
     };
 
-    // 左中侧三栏（panel）高度调整
+    // 左中右三栏（panel）高度调整
     Page.prototype.resizePanel = function (heightObj) {
         var key;
 
@@ -1570,7 +1572,7 @@ define(function (require, exports, module) {
     _.extend(ClassDialogWgt, DialogWgt);
 
     // 事件监听初始化
-    ClassDialogWgt.prototype.init = function (icm) {
+    ClassDialogWgt.prototype.init = function (icm, ccm) {
 
         this.initSuperClass();
 
@@ -1611,7 +1613,7 @@ define(function (require, exports, module) {
             $(this).find('input').val('');
 
             // 刷新 modal 推荐栏
-            //refreshModalRec('#stigmod-modal-rec-class');
+            refreshModalRec('#stigmod-modal-rec-class', icm, ccm);
         }
     };
 
@@ -1707,7 +1709,7 @@ define(function (require, exports, module) {
     _.extend(AttributeDialogWgt, DialogWgt);
 
     // 事件监听初始化
-    AttributeDialogWgt.prototype.init = function (icm, stateOfPage) {
+    AttributeDialogWgt.prototype.init = function (icm, ccm, stateOfPage) {
 
         this.initSuperClass();
 
@@ -1770,7 +1772,7 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
 
             // 刷新 modal 推荐栏
-            //refreshModalRec('#stigmod-modal-rec-attribute');
+            refreshModalRec('#stigmod-modal-rec-attribute', icm, ccm);
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -2421,6 +2423,53 @@ define(function (require, exports, module) {
             //    return res;
             //}
         };
+    }
+
+    // 刷新 modal 推荐栏
+    function refreshModalRec(selector, icm, ccm) {
+        var data = ccm.getClasses(icm),
+                $container = $(selector).empty(),
+                i, len, $item, popover;
+        var componentModalRec = document.getElementById('template-modal-rec').innerHTML;  // TODO oo化
+
+        //console.log(data);
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = $(componentModalRec).appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+
+            popover = getPopover(data[i].attribute);
+            $item.attr('data-content', popover);
+            //$(document).on('click', $item, fillInBlanks);
+            $item.on('click', fillInBlanks);  // 绑定填表动作
+        }
+
+        // 重新激活所有的 popover
+        $('[data-toggle="popover"]').popover();
+
+        function getPopover(item) {
+            var elem, popover = '', i, len;
+
+            // item 不为空时才进行转换
+            if (item) {
+                for (i = 0, len = item.length; i < len; i++) {
+                    elem = '<p>' + item[i].name;
+                    if (item[i].type) {
+                        elem += (' : ' + item[i].type);
+                    }
+                    elem += '</p>';
+                    popover += elem;
+                }
+            }
+
+            //console.log(popover);
+            return popover;
+        }
+
+        function fillInBlanks(event) {
+            var name = $(this).find('span.tag').text();
+            console.log(name);
+            $(this).closest('div.modal-dialog').find('div.modal-normal input[type=text]:not([readonly])').val(name);
+        }
     }
 
 });
