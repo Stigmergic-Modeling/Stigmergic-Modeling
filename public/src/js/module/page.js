@@ -1534,6 +1534,7 @@ define(function (require, exports, module) {
      */
     function DialogWgt() {
         Widget.apply(this, arguments);
+        this.initSuperClass();
     }
     _.extend(DialogWgt, Widget);
 
@@ -1548,7 +1549,7 @@ define(function (require, exports, module) {
 
         // 处理：modal 显示时复位
         function handleMdlRmTooltip() {  // 对任何 modal 都有效
-            $(this).find('.tooltip').remove();  // 移除所有的 tooltip 组件
+            $(this).find('.tooltip').remove();  // 移除所有的 tooltip 组件（输入提示）
         }
         function handleMdlFocus() {  // 对任何 modal 都有效
             focusOnInputIn($(this));
@@ -1574,7 +1575,8 @@ define(function (require, exports, module) {
     // 事件监听初始化
     ClassDialogWgt.prototype.init = function (icm, ccm) {
 
-        this.initSuperClass();
+        this.initInputWgts();
+        this.initRecWgt(icm, ccm);
 
         var widget = this;
 
@@ -1613,10 +1615,29 @@ define(function (require, exports, module) {
             $(this).find('input').val('');
 
             // 刷新 modal 推荐栏
-            refreshModalRec('#stigmod-modal-rec-class', icm, ccm);
+            //refreshModalRec('#stigmod-modal-rec-class', icm, ccm);
         }
     };
 
+    // 初始化该Dialog组件中的Input组件
+    ClassDialogWgt.prototype.initInputWgts = function () {
+        this.clazz = {};
+
+        // 文本输入
+        this.clazz.name = new TextInputWgt('#stigmod-addclass-name');
+    };
+
+    // 设置该Dialog组件中Input组件的值
+    ClassDialogWgt.prototype.setInputWgtValue = function (classModel) {
+        this.clazz.name.setValue([ classModel.name ]);
+    };
+
+    // 初始化推荐栏
+    ClassDialogWgt.prototype.initRecWgt = function (icm, ccm) {
+        this.recommendation = new ClassRecWgt('#stigmod-modal-rec-class');
+        this.recommendation.init(icm, ccm);
+        this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
+    };
 
 
     /**
@@ -1630,8 +1651,6 @@ define(function (require, exports, module) {
 
     // 事件监听初始化
     RelGrpDialogWgt.prototype.init = function (icm) {
-
-        this.initSuperClass();
 
         var widget = this;
 
@@ -1711,7 +1730,7 @@ define(function (require, exports, module) {
     // 事件监听初始化
     AttributeDialogWgt.prototype.init = function (icm, ccm, stateOfPage) {
 
-        this.initSuperClass();
+        this.initInputWgts();
 
         var widget = this;
 
@@ -1772,7 +1791,7 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
 
             // 刷新 modal 推荐栏
-            refreshModalRec('#stigmod-modal-rec-attribute', icm, ccm);
+            //refreshModalRec('#stigmod-modal-rec-attribute', icm, ccm);
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -1787,6 +1806,58 @@ define(function (require, exports, module) {
         }
     };
 
+    // 初始化该Dialog组件中的Input组件
+    AttributeDialogWgt.prototype.initInputWgts = function () {
+        var attribute;
+        attribute = this.attribute = {};  // attribute中收编所有的property
+
+        // 文本输入
+        attribute.name = new TextInputWgt('#stigmod-addatt-name');
+        attribute.type = new TextInputWgt('#stigmod-addatt-type');
+        attribute.multiplicity = new TextInputWgt('#stigmod-addatt-multiplicity');
+        attribute.visibility = new TextInputWgt('#stigmod-addatt-visibility');
+        attribute.default = new TextInputWgt('#stigmod-addatt-default');
+        attribute.constraint = new TextInputWgt('#stigmod-addatt-constraint');
+        attribute.subsets = new TextInputWgt('#stigmod-addatt-subsets');
+        attribute.redefines = new TextInputWgt('#stigmod-addatt-redefines');
+
+        // 单选输入
+        attribute.ordering = new RadioInputWgt('#stigmod-addatt-ordering');
+        attribute.uniqueness = new RadioInputWgt('#stigmod-addatt-uniqueness');
+        attribute.readOnly = new RadioInputWgt('#stigmod-addatt-readOnly');
+        attribute.union = new RadioInputWgt('#stigmod-addatt-union');
+        attribute.composite = new RadioInputWgt('#stigmod-addatt-composite');
+
+
+        // test
+        $(this.element).on('click', (function() {
+            this.setInputWgtValue();
+        }).bind(this));
+    };
+
+    // 设置该Dialog组件中Input组件的值
+    AttributeDialogWgt.prototype.setInputWgtValue = function (attrModel) {
+
+        // fake data
+        attrModel = {
+            name: {code:{}},
+            type: {int:{}},
+            multiplicity: {'1..*':{}}
+        };
+
+        for (var property in attrModel) {
+            if (attrModel.hasOwnProperty(property)) {
+                this.attribute[property].setValue([ Object.keys(attrModel[property])[0] ]);  // TODO 不再取第一个名字，而是取引用数最高的名字
+            }
+        }
+    };
+
+    // 刷新推荐栏
+    AttributeDialogWgt.prototype.refreshRec = function () {
+
+    };
+
+
 
     /**
      * addRelation 对话框组件
@@ -1799,8 +1870,6 @@ define(function (require, exports, module) {
 
     // 事件监听初始化
     RelationDialogWgt.prototype.init = function (icm, stateOfPage) {
-
-        this.initSuperClass();
 
         var widget = this;
 
@@ -2092,6 +2161,158 @@ define(function (require, exports, module) {
 
 
 
+    /**
+     * 输入组件
+     * 注意: 组件的element并不直接是input，而是包裹在input外层的元素（可能有多层包裹，一般是TR+TD的包裹方式）
+     * @constructor
+     */
+    function InputWgt() {
+        Widget.apply(this, arguments);
+    }
+    _.extend(InputWgt, Widget);
+
+
+
+
+    /**
+     * 文本输入组件
+     * @constructor
+     */
+    function TextInputWgt() {
+        InputWgt.apply(this, arguments);
+        this.init();
+    }
+    _.extend(TextInputWgt, InputWgt);
+
+    // 初始化
+    TextInputWgt.prototype.init = function () {
+        var wrapper = this.element;
+
+        this.inputElements = wrapper.find('input[type=text]');  // input元素
+        this.number = this.inputElements.length;  // input元素个数
+    };
+
+    // 为组件设置值
+    TextInputWgt.prototype.setValue = function (value) {  // value 是一个数组，即使只有一个参数
+        var i;
+
+        for (i = 0; i < this.number; i++) {
+            this.inputElements.eq(i).val(value[i]);
+        }
+    };
+
+
+
+    /**
+     * 单选输入组件
+     * @constructor
+     */
+    function RadioInputWgt() {
+        InputWgt.apply(this, arguments);
+    }
+    _.extend(RadioInputWgt, InputWgt);
+
+
+
+    /**
+     * 多选输入组件
+     * @constructor
+     */
+    function CheckBoxInputWgt() {
+        InputWgt.apply(this, arguments);
+    }
+    _.extend(CheckBoxInputWgt, InputWgt);
+
+
+    /**
+     * 推荐组件
+     * @constructor
+     */
+    function RecommendationWgt() {
+        Widget.apply(this, arguments);
+        this.addTemplateWidget({t: '#template-modal-rec'});  // 所有推荐栏都使用同样的模板（list-group）
+    }
+    _.extend(RecommendationWgt, Widget);
+
+
+
+    /**
+     * Class推荐组件
+     * @constructor
+     */
+    function ClassRecWgt() {
+        RecommendationWgt.apply(this, arguments);
+    }
+    _.extend(ClassRecWgt, RecommendationWgt);
+
+    // 初始化
+    ClassRecWgt.prototype.init = function (icm, ccm) {
+        this.data = ccm.getClasses(icm);
+
+        var data = this.data,
+                $container = this.element.empty(),
+                template = this.templateWgt.t,
+                widget = this,
+                i, len, $item, popover;
+
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = template.newElement().appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+            $item.attr('data-i', i);  // 做标记，用于处理点击
+
+            popover = this.getPopover(data[i].attribute);
+            $item.attr('data-content', popover);
+
+            // 点击填表
+            $item.on('click', fillInBlanks);
+        }
+
+        // 重新激活所有的 popover
+        this.element.find('[data-toggle="popover"]').popover();
+
+        // 处理：点击填表
+        function fillInBlanks(event) {
+            var i = $(this).attr('data-i');
+            widget.fire('itemClicked', data[i]);
+        }
+    };
+
+    // 过滤结果
+    ClassRecWgt.prototype.filter = function () {
+
+    };
+
+    // 获取popover内容
+    ClassRecWgt.prototype.getPopover = function (item) {
+        var elem, popover = '', i, len;
+
+        // item 不为空时才进行转换
+        if (item) {
+            for (i = 0, len = item.length; i < len; i++) {
+                elem = '<p>' + item[i].name;
+                if (item[i].type) {
+                    elem += (' : ' + item[i].type);
+                }
+                elem += '</p>';
+                popover += elem;
+            }
+        }
+
+        return popover;
+    };
+
+
+    /**
+     * Attribute推荐组件
+     * @constructor
+     */
+    function AttributeRecWgt() {
+        RecommendationWgt.apply(this, arguments);
+    }
+    _.extend(AttributeRecWgt, RecommendationWgt);
+
+
+
     /** ---------------------- *
      *
      *         辅助函数
@@ -2172,16 +2393,16 @@ define(function (require, exports, module) {
             case 'multiplicity-add':
             case 'multiplicity-modify':
                 pattern = /^(\*|\d+(\.\.(\d+|\*))?)$/;
-            function isValidMultiplicity(mul) {  // 检验是否第一个数小于第二个数
-                var hasTwoNum = /\.\./;
-                if (hasTwoNum.test(mul)) {
-                    var num = input.split('..');  // 获得“..”两端的数字
-                    if ('*' !== num[1]) {
-                        return parseInt(num[0]) < parseInt(num[1]);  // 当第一个数大于等于第二个数时，返回 false
+                function isValidMultiplicity(mul) {  // 检验是否第一个数小于第二个数
+                    var hasTwoNum = /\.\./;
+                    if (hasTwoNum.test(mul)) {
+                        var num = input.split('..');  // 获得“..”两端的数字
+                        if ('*' !== num[1]) {
+                            return parseInt(num[0]) < parseInt(num[1]);  // 当第一个数大于等于第二个数时，返回 false
+                        }
                     }
+                    return true;  // 其他情况都返回 true
                 }
-                return true;  // 其他情况都返回 true
-            }
 
                 if (!pattern.test(input)) {  // 格式不合法
                     return 'Valid Format: ' + pattern.toString();
@@ -2425,51 +2646,5 @@ define(function (require, exports, module) {
         };
     }
 
-    // 刷新 modal 推荐栏
-    function refreshModalRec(selector, icm, ccm) {
-        var data = ccm.getClasses(icm),
-                $container = $(selector).empty(),
-                i, len, $item, popover;
-        var componentModalRec = document.getElementById('template-modal-rec').innerHTML;  // TODO oo化
-
-        //console.log(data);
-        for (i = 0, len = data.length; i < len; i++) {
-            $item = $(componentModalRec).appendTo($container);
-            $item.find('.tag').text(data[i].name);  // 填入名字
-
-            popover = getPopover(data[i].attribute);
-            $item.attr('data-content', popover);
-            //$(document).on('click', $item, fillInBlanks);
-            $item.on('click', fillInBlanks);  // 绑定填表动作
-        }
-
-        // 重新激活所有的 popover
-        $('[data-toggle="popover"]').popover();
-
-        function getPopover(item) {
-            var elem, popover = '', i, len;
-
-            // item 不为空时才进行转换
-            if (item) {
-                for (i = 0, len = item.length; i < len; i++) {
-                    elem = '<p>' + item[i].name;
-                    if (item[i].type) {
-                        elem += (' : ' + item[i].type);
-                    }
-                    elem += '</p>';
-                    popover += elem;
-                }
-            }
-
-            //console.log(popover);
-            return popover;
-        }
-
-        function fillInBlanks(event) {
-            var name = $(this).find('span.tag').text();
-            console.log(name);
-            $(this).closest('div.modal-dialog').find('div.modal-normal input[type=text]:not([readonly])').val(name);
-        }
-    }
 
 });
