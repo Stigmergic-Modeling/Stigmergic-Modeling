@@ -57,6 +57,11 @@ define(function (require, exports, module) {
                                 "ref": 1
                             }
                         },
+                        "readOnly": {
+                            "False": {
+                                "ref": 1
+                            }
+                        },
                         "ref": 1
                     },
                     "ID65252432": {
@@ -70,6 +75,11 @@ define(function (require, exports, module) {
                         },
                         "type": {
                             "string": {
+                                "ref": 1
+                            }
+                        },
+                        "ordering": {
+                            "True": {
                                 "ref": 1
                             }
                         },
@@ -210,7 +220,11 @@ define(function (require, exports, module) {
         return getRecommendNames(classNames);
     };
 
-
+    /**
+     * 获取ccm中所有的类（及其attributes）
+     * @param icm
+     * @returns {Array}
+     */
     CCM.prototype.getClasses = function(icm) {
         var classCluster, maxRef, names, className, attributes, attribute, tmpObj,
                 clazz, classes = [];
@@ -257,6 +271,29 @@ define(function (require, exports, module) {
         }
 
         return classes;
+    };
+
+    CCM.prototype.getAttributes = function (icm, classCluster) {
+        var attributes, attribute, res, tmpObj, property;
+
+        attributes = this.clazz[classCluster].attribute;
+        res = [];
+        for (attribute in attributes) {
+            if (attributes.hasOwnProperty(attribute)) {
+
+                // TODO: 按引用数取最高
+                tmpObj = {};
+                for (property in attributes[attribute]) {
+                    if (attributes[attribute].hasOwnProperty(property) && property != 'ref') {
+                        tmpObj[property] = Object.keys(attributes[attribute][property])[0];
+                    }
+                }
+
+                res.push(tmpObj);
+            }
+        }
+        console.log(res);
+        return res;
     };
 
     /**

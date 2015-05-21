@@ -1576,7 +1576,6 @@ define(function (require, exports, module) {
     ClassDialogWgt.prototype.init = function (icm, ccm) {
 
         this.initInputWgts();
-        this.initRecWgt(icm, ccm);
 
         var widget = this;
 
@@ -1615,7 +1614,7 @@ define(function (require, exports, module) {
             $(this).find('input').val('');
 
             // 刷新 modal 推荐栏
-            //refreshModalRec('#stigmod-modal-rec-class', icm, ccm);
+            widget.initRecWgt(icm, ccm);
         }
     };
 
@@ -1791,7 +1790,7 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
 
             // 刷新 modal 推荐栏
-            //refreshModalRec('#stigmod-modal-rec-attribute', icm, ccm);
+            widget.initRecWgt(icm, ccm);
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -1812,49 +1811,43 @@ define(function (require, exports, module) {
         attribute = this.attribute = {};  // attribute中收编所有的property
 
         // 文本输入
-        attribute.name = new TextInputWgt('#stigmod-addatt-name');
-        attribute.type = new TextInputWgt('#stigmod-addatt-type');
-        attribute.multiplicity = new TextInputWgt('#stigmod-addatt-multiplicity');
-        attribute.visibility = new TextInputWgt('#stigmod-addatt-visibility');
-        attribute.default = new TextInputWgt('#stigmod-addatt-default');
-        attribute.constraint = new TextInputWgt('#stigmod-addatt-constraint');
-        attribute.subsets = new TextInputWgt('#stigmod-addatt-subsets');
-        attribute.redefines = new TextInputWgt('#stigmod-addatt-redefines');
+        attribute.name = new TextInputWgt('#stigmod-addatt-name');  // name 永远显示，没有控制开关
+        attribute.type = new TextInputWgt('#stigmod-addatt-type', '#stigmod-addatt-type-swt');
+        attribute.multiplicity = new TextInputWgt('#stigmod-addatt-multiplicity', '#stigmod-addatt-multiplicity-swt');
+        attribute.visibility = new TextInputWgt('#stigmod-addatt-visibility', '#stigmod-addatt-visibility-swt');
+        attribute.default = new TextInputWgt('#stigmod-addatt-default', '#stigmod-addatt-default-swt');
+        attribute.constraint = new TextInputWgt('#stigmod-addatt-constraint', '#stigmod-addatt-constraint-swt');
+        attribute.subsets = new TextInputWgt('#stigmod-addatt-subsets', '#stigmod-addatt-subsets-swt');
+        attribute.redefines = new TextInputWgt('#stigmod-addatt-redefines', '#stigmod-addatt-redefines-swt');
 
         // 单选输入
-        attribute.ordering = new RadioInputWgt('#stigmod-addatt-ordering');
-        attribute.uniqueness = new RadioInputWgt('#stigmod-addatt-uniqueness');
-        attribute.readOnly = new RadioInputWgt('#stigmod-addatt-readOnly');
-        attribute.union = new RadioInputWgt('#stigmod-addatt-union');
-        attribute.composite = new RadioInputWgt('#stigmod-addatt-composite');
-
-
-        // test
-        $(this.element).on('click', (function() {
-            this.setInputWgtValue();
-        }).bind(this));
+        attribute.ordering = new RadioInputWgt('#stigmod-addatt-ordering', '#stigmod-addatt-ordering-swt');
+        attribute.uniqueness = new RadioInputWgt('#stigmod-addatt-uniqueness', '#stigmod-addatt-uniqueness-swt');
+        attribute.readOnly = new RadioInputWgt('#stigmod-addatt-readOnly', '#stigmod-addatt-readOnly-swt');
+        attribute.union = new RadioInputWgt('#stigmod-addatt-union', '#stigmod-addatt-union-swt');
+        attribute.composite = new RadioInputWgt('#stigmod-addatt-composite', '#stigmod-addatt-composite-swt');
     };
 
     // 设置该Dialog组件中Input组件的值
     AttributeDialogWgt.prototype.setInputWgtValue = function (attrModel) {
+        var properties = 'name type multiplicity visibility default constraint subsets redefines ordering uniqueness readOnly union composite'.split(' '),
+                len = properties.length,
+                i;
 
-        // fake data
-        attrModel = {
-            name: {code:{}},
-            type: {int:{}},
-            multiplicity: {'1..*':{}}
-        };
-
-        for (var property in attrModel) {
-            if (attrModel.hasOwnProperty(property)) {
-                this.attribute[property].setValue([ Object.keys(attrModel[property])[0] ]);  // TODO 不再取第一个名字，而是取引用数最高的名字
+        for (i = 0; i < len; i++) {
+            if (properties[i] in attrModel) {
+                this.attribute[properties[i]].turnOn([ attrModel[properties[i]] ]);
+            } else {
+                this.attribute[properties[i]].turnOff();
             }
         }
     };
 
-    // 刷新推荐栏
-    AttributeDialogWgt.prototype.refreshRec = function () {
-
+    // 初始化推荐栏
+    AttributeDialogWgt.prototype.initRecWgt = function (icm, ccm) {
+        this.recommendation = new AttributeRecWgt('#stigmod-modal-rec-attribute');
+        this.recommendation.init(icm, ccm);
+        this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
     };
 
 
@@ -2167,10 +2160,39 @@ define(function (require, exports, module) {
      * @constructor
      */
     function InputWgt() {
-        Widget.apply(this, arguments);
+        Widget.call(this, arguments[0]);  // 注意！InputWgt中不能有template（第二个参数仅用于构造开关）
+
+        // 若传入了第二个参数，则构造一个开关
+        if (arguments[1]) {
+            this.addSwitch(arguments[1]);
+        }
     }
     _.extend(InputWgt, Widget);
 
+    // 增加开关（一般为CheckBoxInputWgt类型）
+    InputWgt.prototype.addSwitch = function (selector) {
+        this.swt = new CheckBoxInputWgt(selector);
+    };
+
+    // 打开
+    InputWgt.prototype.turnOn = function (value) {
+        this.setValue(value);
+        this.element.show();
+
+        if (this.swt) {
+            this.swt.doCheck();
+        }
+    };
+
+    // 关闭
+    InputWgt.prototype.turnOff = function () {
+        this.setValue(['', '']);
+        this.element.hide();
+
+        if (this.swt) {
+            this.swt.undoCheck();
+        }
+    };
 
 
 
@@ -2209,19 +2231,61 @@ define(function (require, exports, module) {
      */
     function RadioInputWgt() {
         InputWgt.apply(this, arguments);
+        this.init();
     }
     _.extend(RadioInputWgt, InputWgt);
+
+    // 初始化
+    RadioInputWgt.prototype.init = function () {
+        var wrapper = this.element;
+
+        this.tds = wrapper.find('td');  // 表格中的td元素，第一个td是不含input的名字
+        this.number = this.tds.length - 1;  // 有效td个数
+    };
+
+    // 为组件设置值
+    RadioInputWgt.prototype.setValue = function (value) {  // value 是一个数组，即使只有一个参数
+        var i, radio;
+
+        for (i = 1; i - 1 < this.number; i++) {  // i从1开始，只看有效的td
+            radio = this.tds.eq(i).find('input');
+
+            if ('True' === value[i - 1]) {
+                radio.eq(0).prop({'checked': true});  // 一定要用prop() | 因为attr()不好使，仅在第一次执行时有用
+                radio.eq(1).removeAttr('checked');
+
+            } else if ('False' === value[i - 1]) {
+                radio.eq(0).removeAttr('checked');
+                radio.eq(1).prop({'checked': true});
+
+            } else {
+                radio.eq(0).removeAttr('checked');
+                radio.eq(1).removeAttr('checked');
+            }
+        }
+    };
 
 
 
     /**
-     * 多选输入组件
+     * 多选输入组件(不同于文本或单选，一般仅做为输入组件的开关存在)
      * @constructor
      */
     function CheckBoxInputWgt() {
         InputWgt.apply(this, arguments);
     }
     _.extend(CheckBoxInputWgt, InputWgt);
+
+    // 勾选
+    CheckBoxInputWgt.prototype.doCheck = function () {
+        this.element.find('input[type=checkbox]').prop('checked', true);
+    };
+
+    // 取消勾选
+    CheckBoxInputWgt.prototype.undoCheck = function () {
+        this.element.find('input[type=checkbox]').removeAttr('checked');
+    };
+
 
 
     /**
@@ -2311,6 +2375,59 @@ define(function (require, exports, module) {
     }
     _.extend(AttributeRecWgt, RecommendationWgt);
 
+    // 初始化
+    AttributeRecWgt.prototype.init = function (icm, ccm) {
+        this.data = ccm.getAttributes(icm, 'ID65252430');  // TODO test
+
+        var data = this.data,
+                $container = this.element.empty(),
+                template = this.templateWgt.t,
+                widget = this,
+                i, len, $item, popover;
+
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = template.newElement().appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+            $item.attr('data-i', i);  // 做标记，用于处理点击
+
+            popover = this.getPopover(data[i]);
+            $item.attr('data-content', popover);
+
+            // 点击填表
+            $item.on('click', fillInBlanks);
+        }
+
+        // 重新激活所有的 popover
+        this.element.find('[data-toggle="popover"]').popover();
+
+        // 处理：点击填表
+        function fillInBlanks(event) {
+            var i = $(this).attr('data-i');
+            widget.fire('itemClicked', data[i]);
+        }
+    };
+
+    // 过滤结果
+    AttributeRecWgt.prototype.filter = function () {
+
+    };
+
+    // 获取popover内容
+    AttributeRecWgt.prototype.getPopover = function (item) {
+        var elem, popover = '', key;
+
+        // item 不为空时才进行转换
+        if (item) {
+            for (key in item) {
+                if (item.hasOwnProperty(key)) {
+                    elem = '<p>' + key + ' : ' + item[key] + '</p>';
+                    popover += elem;
+                }
+            }
+        }
+
+        return popover;
+    };
 
 
     /** ---------------------- *

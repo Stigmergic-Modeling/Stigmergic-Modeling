@@ -25,8 +25,5 @@ define(function (require, exports, module) {
         };
         var page = new Page(pageInfo, dataPassedIn.model);
         page.init();
-
-
     });
-
 });
