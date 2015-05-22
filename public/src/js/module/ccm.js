@@ -105,7 +105,7 @@ define(function (require, exports, module) {
                             }
                         },
                         "type": {
-                            "ID65252435": {
+                            "boolean": {
                                 "ref": 1
                             }
                         },
@@ -221,6 +221,49 @@ define(function (require, exports, module) {
     };
 
     /**
+     * 获取CCM中某classCluster所有属性名
+     * @param icm
+     * @param classCluster
+     * @returns {Array}
+     */
+    CCM.prototype.getAttributeNames = function (icm, classCluster) {
+        var attributes = this.clazz[classCluster].attribute,
+                attributeCluster,
+                attributeNames = [],
+                attributeHash = {},
+                i, len,
+                names, name;
+
+
+        // 获得互不重复的 names 及其 ref 数
+        for (attributeCluster in attributes) {
+            if (attributes.hasOwnProperty(attributeCluster)) {
+                names = Object.keys(attributes[attributeCluster].name);
+
+                for (i = 0, len = names.length; i < len; i++) {
+                    console.log(icm);
+                    if (!icm[0]['Course'] || !(names[i] in icm[0]['Course'][0])) {  // 去重 TODO 使用正确的className
+
+                        // 收集
+                        if (!attributeHash[names[i]] || attributeHash[names[i]] < attributes[attributeCluster].name[names[i]].ref) {  // 自身去重
+                            attributeHash[names[i]] = attributes[attributeCluster].name[names[i]].ref;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 将 names 及其 ref 数，用于接下来的排序、输出
+        for (name in attributeHash) {
+            if (attributeHash.hasOwnProperty(name)) {
+                attributeNames.push({name: name, ref: attributeHash[name]});
+            }
+        }
+
+        return getRecommendNames(attributeNames);
+    };
+
+    /**
      * 获取ccm中所有的类（及其attributes）
      * @param icm
      * @returns {Array}
@@ -273,6 +316,12 @@ define(function (require, exports, module) {
         return classes;
     };
 
+    /**
+     * 获取ccm中某classCluster的属性
+     * @param icm
+     * @param classCluster
+     * @returns {Array}
+     */
     CCM.prototype.getAttributes = function (icm, classCluster) {
         var attributes, attribute, res, tmpObj, property;
 
@@ -292,7 +341,7 @@ define(function (require, exports, module) {
                 res.push(tmpObj);
             }
         }
-        console.log(res);
+
         return res;
     };
 

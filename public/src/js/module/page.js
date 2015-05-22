@@ -120,6 +120,7 @@ define(function (require, exports, module) {
 
         // 别名
         var icm = this.icm;
+        var ccm = this.ccm;
         var stateOfPage = this.stateOfPage;
 
         // 输入框中每输入一个字符，进行一次内容合法性检查。keyup 事件保证 input 的 value 改变后才调用 checkInput
@@ -152,12 +153,12 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, 'classInICM', 4)
+                    source: substringMatcher(icm, ccm, 'classInICM', 4)
                 },
                 {
                     name: 'rgNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, 'relGroupInICM', 4)
+                    source: substringMatcher(icm, ccm, 'relGroupInICM', 4)
                 });
 
         // 为 modelview 搜索栏添加下拉提示
@@ -169,20 +170,20 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, 'classInICM', 6)
+                    source: substringMatcher(icm, ccm, 'classInICM', 6)
                 });
 
-        // 为 addclass modal 添加下拉提示
-        $('#stigmod-addclass-input').typeahead({
-                    hint: true,
-                    highlight: true,
-                    minLength: 1
-                },
-                {
-                    name: 'clsNames',
-                    displayKey: 'value',
-                    source: substringMatcher(icm, 'classInCCM', 6)
-                });
+        //// 为 addclass modal 添加下拉提示
+        //$('#stigmod-addclass-input').typeahead({
+        //            hint: true,
+        //            highlight: true,
+        //            minLength: 1
+        //        },
+        //        {
+        //            name: 'clsNames',
+        //            displayKey: 'value',
+        //            source: substringMatcher(icm, ccm, 'classInCCM', 6)
+        //        });
 
         // 为 addrelationgroup modal 添加下拉提示
         $('#stigmod-addrelgrp-input-first, #stigmod-addrelgrp-input-second').typeahead({
@@ -193,13 +194,12 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher('classInICM', 6)
+                    source: substringMatcher(icm, ccm, 'classInICM', 6)
                 });
 
         // 处理：输入框中每输入一个字符，进行一次内容合法性检查
         function handleCheckInputs() {
             checkInput(icm, $(this), stateOfPage);
-            //$(this).closest('.modal').find('.modal-recommendation').addClass('modal-recommendation-animation');
         }
 
         // 处理：输入框的 Enter、ESC 功能 (目前支持：编辑单元.stigmod-clickedit-root 、模态框.modal)
@@ -1574,6 +1574,19 @@ define(function (require, exports, module) {
 
     // 事件监听初始化
     ClassDialogWgt.prototype.init = function (icm, ccm) {
+        var $input = $('#stigmod-addclass-input');
+
+        // 为 addclass modal 添加下拉提示
+        $input.typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'clsNames',
+                    displayKey: 'value',
+                    source: substringMatcher(icm, ccm, 'classInCCM', 6)
+                });
 
         this.initInputWgts();
 
@@ -1584,6 +1597,9 @@ define(function (require, exports, module) {
 
         // modal 显示前复位
         $(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
+
+        // 输入框中每输入一个字符，过滤一次推荐栏的内容
+        $input.on('keyup', handleFilterRec);
 
         // 处理：点击 addclass 确认按钮
         function handleAddClassOk() {
@@ -1602,7 +1618,8 @@ define(function (require, exports, module) {
                 // 更新模型和显示
                 widget.fire('addClass', className);
                 widget.close();  // 关闭当前 modal
-                $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + className + ']')
+                $('#stigmod-nav-left-scroll')
+                        .find('span[stigmod-nav-left-tag=' + className + ']')
                         .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
 
                 enableSave();
@@ -1615,6 +1632,11 @@ define(function (require, exports, module) {
 
             // 刷新 modal 推荐栏
             widget.initRecWgt(icm, ccm);
+        }
+
+        // 处理：过滤推荐栏的内容
+        function handleFilterRec() {
+            widget.recommendation.filter($(this).val());
         }
     };
 
@@ -1728,6 +1750,19 @@ define(function (require, exports, module) {
 
     // 事件监听初始化
     AttributeDialogWgt.prototype.init = function (icm, ccm, stateOfPage) {
+        var $input = $('#stigmod-addatt-name').find('input[type=text]');
+
+        // 为 addattribute modal 添加下拉提示
+        $input.typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'attNames',
+                    displayKey: 'value',
+                    source: substringMatcher(icm, ccm, 'attributeInCCM', 6)
+                });
 
         this.initInputWgts();
 
@@ -1741,6 +1776,9 @@ define(function (require, exports, module) {
 
         // add attribute 和 add relation 的 modal 中 checkbox 的动作
         $(document).on('change', '#stigmod-modal-addattribute input[type="checkbox"]', handleAddAttrChkBox);
+
+        // 输入框中每输入一个字符，过滤一次推荐栏的内容
+        $input.on('keyup', handleFilterRec);
 
         // 处理：点击 addattribute 确认按钮
         function handleAddAttrOk() {
@@ -1802,6 +1840,11 @@ define(function (require, exports, module) {
             } else {
                 $(id).css({'display': 'none'});
             }
+        }
+
+        // 处理：过滤推荐栏的内容
+        function handleFilterRec() {
+            widget.recommendation.filter($(this).val());
         }
     };
 
@@ -2153,7 +2196,6 @@ define(function (require, exports, module) {
 
 
 
-
     /**
      * 输入组件
      * 注意: 组件的element并不直接是input，而是包裹在input外层的元素（可能有多层包裹，一般是TR+TD的包裹方式）
@@ -2210,7 +2252,7 @@ define(function (require, exports, module) {
     TextInputWgt.prototype.init = function () {
         var wrapper = this.element;
 
-        this.inputElements = wrapper.find('input[type=text]');  // input元素
+        this.inputElements = wrapper.find('input[type=text]:not([readonly])');  // input元素
         this.number = this.inputElements.length;  // input元素个数
     };
 
@@ -2251,7 +2293,7 @@ define(function (require, exports, module) {
             radio = this.tds.eq(i).find('input');
 
             if ('True' === value[i - 1]) {
-                radio.eq(0).prop({'checked': true});  // 一定要用prop() | 因为attr()不好使，仅在第一次执行时有用
+                radio.eq(0).prop({'checked': true});  // 一定要用prop() | 因为attr()不好使，其仅在第一次执行时有用
                 radio.eq(1).removeAttr('checked');
 
             } else if ('False' === value[i - 1]) {
@@ -2298,6 +2340,23 @@ define(function (require, exports, module) {
     }
     _.extend(RecommendationWgt, Widget);
 
+    // 过滤结果
+    RecommendationWgt.prototype.filter = function (text) {
+        var $items = this.element.children(),
+                len = $items.length,
+                i, $item;
+
+        for (i = 0; i < len; i++) {
+            $item = $items.eq(i);
+
+            if ($item.find('span.tag').text() === text) {
+                $item.show();
+            } else {
+                $item.hide();
+            }
+        }
+    };
+
 
 
     /**
@@ -2334,16 +2393,14 @@ define(function (require, exports, module) {
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
 
+        // 初始时不显示
+        this.filter('');
+
         // 处理：点击填表
         function fillInBlanks(event) {
             var i = $(this).attr('data-i');
             widget.fire('itemClicked', data[i]);
         }
-    };
-
-    // 过滤结果
-    ClassRecWgt.prototype.filter = function () {
-
     };
 
     // 获取popover内容
@@ -2400,16 +2457,14 @@ define(function (require, exports, module) {
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
 
+        // 初始时不显示
+        this.filter('');
+
         // 处理：点击填表
         function fillInBlanks(event) {
             var i = $(this).attr('data-i');
             widget.fire('itemClicked', data[i]);
         }
-    };
-
-    // 过滤结果
-    AttributeRecWgt.prototype.filter = function () {
-
     };
 
     // 获取popover内容
@@ -2709,7 +2764,7 @@ define(function (require, exports, module) {
     }
 
     // 输入框下拉提示功能中取得子串的辅助函数
-    function substringMatcher(icm, flag, maxLength) {  // 所生成的 matches 集合的最大长度（对于每一个 dataset 来说）
+    function substringMatcher(icm, ccm, flag, maxLength) {  // 所生成的 matches 集合的最大长度（对于每一个 dataset 来说）
 
         return function findMatches(q, cb) {
             var matches,
@@ -2720,6 +2775,7 @@ define(function (require, exports, module) {
                 case 'classInICM': strs = Object.keys(icm[0]); break;
                 case 'relGroupInICM': strs = Object.keys(icm[1]); break;
                 case 'classInCCM': strs = ccm.getClassNames(icm); break;
+                case 'attributeInCCM': strs = ccm.getAttributeNames(icm, 'ID65252430'); break;  // TODO 使用正确的ClassID
                 default: strs = [];
             }
 

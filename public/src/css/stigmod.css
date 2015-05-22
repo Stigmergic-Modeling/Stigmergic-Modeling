@@ -684,22 +684,28 @@ fieldset[disabled] .stigmod-input {
 #stigmod-modal-addclass > .modal-dialog,
 #stigmod-modal-addattribute > .modal-dialog {
   width: 900px;
+  /*min-height: 300px;*/
 }
 #stigmod-modal-addclass .modal-content,
 #stigmod-modal-addattribute .modal-content {
   width: 600px;
+
   /*float: left;*/
 }
 #stigmod-modal-addclass .modal-recommendation,
 #stigmod-modal-addattribute .modal-recommendation {
   width: 300px;
-  min-height: 450px;
+  /*min-height: 300px;*/
   position: absolute;
   box-shadow: none;
   top: 0;
   right: 0;
   bottom: 0;
   /*overflow: scroll;*/
+}
+#stigmod-addclass-name {
+  margin-top: 45px;
+  margin-bottom: 45px;
 }
 
 /* modal旁边的推荐框 */
