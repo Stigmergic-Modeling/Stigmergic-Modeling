@@ -1788,7 +1788,7 @@ define(function (require, exports, module) {
             if (checkInputs(icm, $visibleInputs, stateOfPage)) {
 
                 // 添加 attribute 名
-                var attributeName = $(this).closest('#stigmod-modal-addattribute').find('#stigmod-addatt-name input').val();
+                var attributeName = $(this).closest('#stigmod-modal-addattribute').find('#stigmod-addatt-name input:not([readonly])').val();
                 widget.fire('addAttribute', [stateOfPage.clazz, attributeName, stateOfPage.addAttrRel]);
 
                 // 添加 properties
@@ -1800,7 +1800,7 @@ define(function (require, exports, module) {
                     var propertyValue = null;
                     switch (caseName) {
                         case 'text':
-                            propertyValue = $(this).find('input').val();
+                            propertyValue = $(this).find('input:not([readonly])').val();
                             break;
                         case 'radio':
                             propertyValue = $(this).find('input:checked').parent().text();
@@ -1967,12 +1967,12 @@ define(function (require, exports, module) {
 
                     if ('type' === propertyName) {
                         propertyValue1 = $(this).find('button').text();
-                        propertyValue2 = $(this).find('input').val();
+                        propertyValue2 = $(this).find('input:not([readonly])').val();
                     } else {
                         switch (caseName) {
                             case 'text':
-                                propertyValue1 = $(this).find('input').first().val();
-                                propertyValue2 = $(this).find('input').last().val();
+                                propertyValue1 = $(this).find('input:not([readonly])').first().val();
+                                propertyValue2 = $(this).find('input:not([readonly])').last().val();
                                 break;
                             case 'radio':
                                 propertyValue1 = $(this).find('input:checked').first().parent().text();
@@ -2258,10 +2258,16 @@ define(function (require, exports, module) {
 
     // 为组件设置值
     TextInputWgt.prototype.setValue = function (value) {  // value 是一个数组，即使只有一个参数
-        var i;
+        var i, el;
 
         for (i = 0; i < this.number; i++) {
-            this.inputElements.eq(i).val(value[i]);
+            el = this.inputElements.eq(i);
+            el.val(value[i]);
+
+            // 触发文本合法性检查（value为空字符串时，表示需要重置该组件，因此不需触发检查。）
+            if (value[i] !== '') {  // （若value为空字符串时触发检查，则会引发错误显示tooltip的BUG）
+                el.trigger('keyup');
+            }
         }
     };
 

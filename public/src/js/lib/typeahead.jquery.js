@@ -491,6 +491,10 @@ define(function (require, exports, module) {
                 },
                 setInputValue: function setInputValue(value, silent) {
                     this.$input.val(value);
+
+                    // @ 特别为stigmod更改，为了触发stigmod中的“文本合法性检查”以及“推荐栏更新”
+                    this.$input.trigger('keyup');
+
                     silent ? this.clearHint() : this._checkInputValue();
                 },
                 resetInputValue: function resetInputValue() {
