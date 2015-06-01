@@ -16,14 +16,14 @@
       <span class="fa fa-sitemap"></span>
     </button>
     <button type="button" class="btn btn-default stigmod-model-save-btn" disabled>
-      <span class="glyphicon glyphicon-floppy-disk"></span>
+      <span class="glyphicon glyphicon-upload"></span>
     </button>
     <button type="button" class="btn btn-default stigmod-exit-full-screen-btn">
       <span class="glyphicon glyphicon-resize-small"></span>
     </button>
   </div>
   <!-- 顶部项目名称栏 -->
-  <div class="row stigmod-hide-when-full-screen">
+  <div class="row stigmod-hide-when-full-screen" id="stigmod-header">
     <div class="col-xs-8">
       <h1 id="stigmod-model-title">
         <span class="fa fa-cube" id="stigmod-model-title-icon"></span>
@@ -43,8 +43,8 @@
           </ul>
           <% } %>
         </span>&nbsp;
-        <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><span class="glyphicon glyphicon-floppy-disk"></span></span>
-        <span class="stigmod-model-saved"><span class="glyphicon glyphicon-floppy-disk"></span></span>
+        <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><span class="glyphicon glyphicon-upload"></span></span>
+        <span class="stigmod-model-saved"><span class="glyphicon glyphicon-upload"></span></span>
       </h1>
     </div>
     <div class="col-xs-4">
@@ -79,7 +79,7 @@
         <!-- 搜索栏 -->
         <div class="list-group-item">
           <div class="input-group">
-            <input type="text" class="typeahead form-control" id="stigmod-search-left-input" placeholder="Search">
+            <input type="text" class="form-control" id="stigmod-search-left-input" placeholder="Search">
             <span class="input-group-btn">
               <button class="btn btn-default" type="button" id="stigmod-search-left-btn"><span class="glyphicon glyphicon-search"></span></button>
             </span>
@@ -223,7 +223,7 @@
           <input type="text" class="form-control" stigmod-inputcheck="class-modify" value="" placeholder="">
           <span class="input-group-btn">
             <button class="btn btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-            <button class="btn btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+            <button class="btn btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
           </span>
         </span>
     </div>
@@ -324,7 +324,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -347,7 +347,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -370,7 +370,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -393,7 +393,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -416,7 +416,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -439,7 +439,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -465,7 +465,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -491,7 +491,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -517,7 +517,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -543,7 +543,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -566,7 +566,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -589,7 +589,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -615,7 +615,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -746,7 +746,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -775,7 +775,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -804,7 +804,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -833,7 +833,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -868,7 +868,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -903,7 +903,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -938,7 +938,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -973,7 +973,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -1002,7 +1002,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -1031,7 +1031,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -1066,7 +1066,7 @@
             <span class="stigmod-clickedit-edit">
               <span class="btn-group">
                 <button class="btn btn-sm btn-default stigmod-clickedit-btn-ok" type="button"><span class="glyphicon glyphicon-ok"></span></button>
-                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                <button class="btn btn-sm btn-default stigmod-clickedit-btn-cancel" type="button"><span class="glyphicon glyphicon-ban-circle"></span></button>
               </span>
             </span>
           </td>
@@ -1120,6 +1120,26 @@
   </div>
 </script>
 
+<script type="text/template" id="template-modal-rec">
+  <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="Course" data-placement="left" data-html="true" data-content="">
+    <span class="tag"></span>
+    <span class="pull-right stigmod-hovershow-cont">
+      <span class="fa fa-magnet">
+      </span>
+    </span>
+  </a>
+</script>
+
+<script type="text/template" id="template-modal-rec-backup">
+  <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="Course" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">
+    Courses (Name)
+    <span class="pull-right stigmod-hovershow-cont">
+      <span class="fa fa-magnet">
+      </span>
+    </span>
+  </a>
+</script>
+
 
 <script src="/src/js/sea/sea.js"></script>
 <script>
@@ -1127,7 +1147,7 @@
 
   seajs.config({
     paths: {
-      'js': 'http://<%= host %>:<%= port %>/dist/js'
+      'js': 'http://<%= host %>:<%= port %>/src/js'
     }
   });
   seajs.use('js/app/workspace');

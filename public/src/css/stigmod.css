@@ -681,6 +681,142 @@ fieldset[disabled] .stigmod-input {
   z-index: 10000;
 }
 
+#stigmod-modal-addclass > .modal-dialog,
+#stigmod-modal-addattribute > .modal-dialog {
+  width: 900px;
+  /*min-height: 300px;*/
+}
+#stigmod-modal-addclass .modal-content,
+#stigmod-modal-addattribute .modal-content {
+  width: 600px;
+
+  /*float: left;*/
+}
+#stigmod-modal-addclass .modal-recommendation,
+#stigmod-modal-addattribute .modal-recommendation {
+  width: 300px;
+  /*min-height: 300px;*/
+  position: absolute;
+  box-shadow: none;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  /*overflow: scroll;*/
+}
+#stigmod-addclass-name {
+  margin-top: 45px;
+  margin-bottom: 45px;
+}
+
+/* modal旁边的推荐框 */
+@-webkit-keyframes show-rec {
+  from {
+    transform-origin: left;
+    transform: rotate3d(0, 1, 0, 90deg) skewY(10deg);
+    margin-right: -150px;
+  }
+  to {
+    transform-origin: left;
+    transform: rotate3d(0, 0, 0, 0deg) skewY(0deg);
+    margin-right: 0;
+  }
+}
+/*@-moz-keyframes show-rec {*/
+  /*from {*/
+    /*-moz-transform-origin: left;*/
+    /*-moz-transform: rotate3d(0, 1, 0, 90deg);*/
+    /*margin-right: -150px;*/
+  /*}*/
+  /*to {*/
+    /*-moz-transform-origin: left;*/
+    /*-moz-transform: rotate3d(0, 0, 0, 0deg);*/
+    /*margin-right: 0;*/
+  /*}*/
+/*}*/
+@-o-keyframes show-rec {
+  from {
+    transform-origin: left;
+    transform: rotate3d(0, 1, 0, 90deg) skewY(10deg);
+    margin-right: -150px;
+  }
+  to {
+    transform-origin: left;
+    transform: rotate3d(0, 0, 0, 0deg) skewY(0deg);
+    margin-right: 0;
+  }
+}
+@keyframes show-rec {
+  from {
+    transform-origin: left;
+    transform: rotate3d(0, 1, 0, 90deg) skewY(10deg);
+    margin-right: -150px;
+  }
+  to {
+    transform-origin: left;
+    transform: rotate3d(0, 0, 0, 0deg) skewY(0deg);
+    margin-right: 0;
+  }
+}
+@-webkit-keyframes show-cont {
+  from {
+    margin-left: 150px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+/*@-moz-keyframes show-cont {*/
+  /*from {*/
+    /*margin-left: 150px;*/
+  /*}*/
+  /*to {*/
+    /*margin-left: 0;*/
+  /*}*/
+/*}*/
+@-o-keyframes show-cont {
+  from {
+    margin-left: 150px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+@keyframes show-cont {
+  from {
+    margin-left: 150px;
+  }
+  to {
+    margin-left: 0;
+  }
+}
+.modal-recommendation .modal-body {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  bottom: 65px;
+  left: 0;
+  overflow: hidden;
+}
+.modal-recommendation .modal-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 65px;
+}
+.modal-normal-animation {
+  -webkit-animation: show-cont 0.5s 0.3s both;
+  /*-moz-animation: show-cont 0.5s 0.3s both;*/
+  -o-animation: show-cont 0.5s 0.3s both;
+  animation: show-cont 0.5s 0.3s both;
+}
+.modal-recommendation-animation {
+  -webkit-animation: show-rec 0.5s 0.3s both;
+  /*-moz-animation: show-rec 0.5s 0.3s both;*/
+  -o-animation: show-rec 0.5s 0.3s both;
+  animation: show-rec 0.5s 0.3s both;
+}
+
 /* --------------------------------------------- *
  *
  * workspace 页面 
@@ -1282,12 +1418,21 @@ span.twitter-typeahead .tt-hint {
 #targetClass{
   background-color: white;
 }
+#sourceClassDetail{
+  background-color: white;
+}
+#targetClassDetail{
+  background-color: white;
+}
 #tooltip p {
   margin: 0;
   font-size: 14px;
   line-height: 20px;
 }
 #multi span{
+  background-color: white;
+}
+#rolename span{
   background-color: white;
 }
 #view {
