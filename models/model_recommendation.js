@@ -21,6 +21,7 @@ var fs = require('fs');
 
 exports.getRecommendation = function(projectID, user, recommendSet, callback){
     // 使用递归嵌套保证 ops 的执行顺序
+
     (function next(index) {
 
         if(index < recommendSet.length){
@@ -29,19 +30,19 @@ exports.getRecommendation = function(projectID, user, recommendSet, callback){
 
             switch(recommend[0]){
                 case "CLS":
-                    recommendCLS(projectID, user, recommend, theCallbackFunc);
+                    recommendCLS(projectID, user, recommend, item, theCallbackFunc);
                     break;
                 case "ATT":
-                    recommendATT(projectID, user, recommend, theCallbackFunc);
+                    recommendATT(projectID, user, recommend, item, theCallbackFunc);
                     break;
                 case "POA":
-                    recommendPOA(projectID, user, recommend, theCallbackFunc);
+                    recommendPOA(projectID, user, recommend, item, theCallbackFunc);
                     break;
                 case "RLT":
-                    recommendRLT(projectID, user, recommend, theCallbackFunc);
+                    recommendRLT(projectID, user, recommend, item, theCallbackFunc);
                     break;
                 case "POR":
-                    recommendPOR(projectID, user, recommend, theCallbackFunc);
+                    recommendPOR(projectID, user, recommend, item, theCallbackFunc);
                     break;
                 default:
                     next(index+1);
@@ -63,7 +64,7 @@ exports.getRecommendation = function(projectID, user, recommendSet, callback){
 }
 
 
-var recommendCLS = function(projectID, user, recommend, callback){
+var recommendCLS = function(projectID, user, recommend, item, callback){
     //推荐Project下的Class信息
 
     //TODO 待修改？当前是按照名字最多来处理的。如claasName分别在两个class中引用1次和10次，则计高引用的为10
@@ -101,6 +102,13 @@ var recommendCLS = function(projectID, user, recommend, callback){
                 });
                 recommendArray = uniqueAndSort(recommendArray);
             }
+
+            //转换成Json格式输出
+            recommendArray.forEach(function(element){
+                if(item[element[0]] == undefined)   item[element[0]] = {};
+                item[element[0]]["ref"] = element[1];
+            });
+
             //console.log(recommendArray);
             //return callback(err,recommendArray);     //TODO TypeError: undefined is not a function???
         });
@@ -108,7 +116,7 @@ var recommendCLS = function(projectID, user, recommend, callback){
 };
 
 
-var recommendATT = function(projectID, user, recommend, callback){
+var recommendATT = function(projectID, user, recommend, item, callback){
     //TODO 此处有缺陷，难以将属性与关系分离
     dbOperationControl.class.getId(projectID, user, recommend[1], function(classId){
         var filter = {
@@ -147,6 +155,12 @@ var recommendATT = function(projectID, user, recommend, callback){
                     recommendArray.push([element.target,element.user.length])
                 });
                 recommendArray = uniqueAndSort(recommendArray);
+
+                //转换成Json格式输出
+                recommendArray.forEach(function(element){
+                    if(item[element[0]] == undefined)   item[element[0]] = {};
+                    item[element[0]]["ref"] = element[1];
+                });
                 //console.log(recommendArray)
                 //return callback(err,recommendArray);  //TODO TypeError: undefined is not a function???
             });
@@ -154,7 +168,7 @@ var recommendATT = function(projectID, user, recommend, callback){
     });
 };
 
-var recommendPOA = function(projectID, user, recommend, callback){
+var recommendPOA = function(projectID, user, recommend, item, callback){
     dbOperationControl.attribute.getId(projectID, user, recommend[1], recommend[2], function(attributeId){
 
         var filter = {
@@ -175,7 +189,13 @@ var recommendPOA = function(projectID, user, recommend, callback){
                 recommendSet[element.relation.attribute] = array;
             });
             for(var key in recommendSet){
-                recommendSet[key] = uniqueAndSort(recommendSet[key])
+                var propertyArray = uniqueAndSort(recommendSet[key]);
+                item[key] = {};
+
+                propertyArray.forEach(function(element){
+                    if(item[key][element[0]] == undefined)   item[key][element[0]] = {};
+                    item[key][element[0]]["ref"] = element[1];
+                });
             }
             //console.log(recommendSet)
             //return callback(err,[recommendSet]);        //TODO TypeError: undefined is not a function???
@@ -184,7 +204,7 @@ var recommendPOA = function(projectID, user, recommend, callback){
     });
 };
 
-var recommendRLT = function(projectID, user, recommend, callback){
+var recommendRLT = function(projectID, user, recommend, item, callback){
 
     //获得ClassName对应的id
     var classSet = recommend[1].split("-");
@@ -216,7 +236,7 @@ var recommendRLT = function(projectID, user, recommend, callback){
                 console.log(relationSet);
 
                 //从另一侧找
-               var relationFilter = new Merge(filter, {
+                var relationFilter = new Merge(filter, {
                     relation : {
                         attribute: 'class'
                     },
@@ -230,6 +250,11 @@ var recommendRLT = function(projectID, user, recommend, callback){
                             recommendArray.push([element.source,element.user.length])
                     });
                     recommendArray = uniqueAndSort(recommendArray);
+
+                    recommendArray.forEach(function(element){
+                        if(item[element[0]] == undefined)   item[element[0]] = {};
+                        item[element[0]]["ref"] = element[1];
+                    });
                     //return callback(err,recommendArray);                  //TODO TypeError: undefined is not a function???
                 });
             });
@@ -240,7 +265,7 @@ var recommendRLT = function(projectID, user, recommend, callback){
 };
 
 
-var recommendPOR = function(projectID, user, recommend, callback){
+var recommendPOR = function(projectID, user, recommend, item, callback){
     var filter = {
         collection: 'conceptDiag_edge',
         projectID: projectID,
@@ -257,8 +282,15 @@ var recommendPOR = function(projectID, user, recommend, callback){
             array.push([element.target,element.user.length])
         });
         for(var key in recommendSet){
-            recommendSet[key] = uniqueAndSort(recommendSet[key])
+            var propertyArray = uniqueAndSort(recommendSet[key]);
+            item[key] = {};
+
+            propertyArray.forEach(function(element){
+                if(item[key][element[0]] == undefined)   item[key][element[0]] = {};
+                item[key][element[0]]["ref"] = element[1];
+            });
         }
+
         return callback(err,recommendSet);
     });
 };
