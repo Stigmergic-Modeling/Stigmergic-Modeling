@@ -682,18 +682,24 @@ fieldset[disabled] .stigmod-input {
 }
 
 #stigmod-modal-addclass > .modal-dialog,
-#stigmod-modal-addattribute > .modal-dialog {
+#stigmod-modal-addrelationgroup > .modal-dialog,
+#stigmod-modal-addattribute > .modal-dialog,
+#stigmod-modal-addrelation > .modal-dialog {
   width: 900px;
   /*min-height: 300px;*/
 }
 #stigmod-modal-addclass .modal-content,
-#stigmod-modal-addattribute .modal-content {
+#stigmod-modal-addrelationgroup .modal-content,
+#stigmod-modal-addattribute .modal-content,
+#stigmod-modal-addrelation .modal-content {
   width: 600px;
 
   /*float: left;*/
 }
 #stigmod-modal-addclass .modal-recommendation,
-#stigmod-modal-addattribute .modal-recommendation {
+#stigmod-modal-addrelationgroup .modal-recommendation,
+#stigmod-modal-addattribute .modal-recommendation,
+#stigmod-modal-addrelation .modal-recommendation {
   width: 300px;
   /*min-height: 300px;*/
   position: absolute;
