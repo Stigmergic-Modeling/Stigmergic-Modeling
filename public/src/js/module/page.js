@@ -337,7 +337,7 @@ define(function (require, exports, module) {
 
             // 刷新模型图像
             setTimeout(function() {
-                modelView(icm);
+                modelView(icm, '');
 
                 // 解锁
                 stateOfPage.windowResizeMutex = 0;
@@ -1514,7 +1514,7 @@ define(function (require, exports, module) {
 
             // 刷新模型图像
             setTimeout(function() {
-                modelView(icm);
+                modelView(icm, stateOfPage.clazz);
             }, 500);
         }
 

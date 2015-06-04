@@ -7,7 +7,7 @@ define(function(require, exports, module) {
   module.exports = modelview;
 
   // 用d3实现model可视化
-  function modelview(model) {
+  function modelview(model, currentClass) {
 
     var $container = $('.stigmod-modal-d3');
 
@@ -546,10 +546,10 @@ define(function(require, exports, module) {
       d3.select("#tooltip")
         .append("div")
         .attr("id", "classDetail")
-        .attr("style", "border: 1px solid #999");
+        .attr("style", "border: 1px solid #999; border-radius: 5px; padding:10px 0px;");
 
-      d3.select("#classDetail")
-        .append("br");
+      // d3.select("#classDetail")
+      //   .append("br");
 
       d3.select("#classDetail")
         .append("p")
@@ -558,7 +558,7 @@ define(function(require, exports, module) {
 
       d3.select("#classDetail")
         .append("hr")
-        .attr("style", "border-top:1px solid #999");
+        .attr("style", "border-top:1px solid #999; margin:10px 0px;");
 
       // 显示类的属性及相关信息
       d3.select("#classDetail")
@@ -576,9 +576,11 @@ define(function(require, exports, module) {
           .text(propertyDetail);
       });
 
-      d3.select("#attributes")
-        .append("hr")
-        .attr("style", "border-top:1px solid #999");
+      // d3.select("#attributes")
+      //   .append("hr")
+      //   .attr("style", "border-top:1px solid #999");
+      // d3.select("#classDetail")
+      //   .append("br");
 
       //显示类的属性
       d3.select("#tooltip").classed("hidden", false);
@@ -667,42 +669,58 @@ define(function(require, exports, module) {
 
       d3.select("#tooltip")
         .append("div")
-        .attr("id", "relationDetail")
-        .attr("class", "row");
+        .attr("id", "relationDetail");
+        // .attr("class", "row");
 
       // 上端类名
       d3.select("#relationDetail")
         .append("div")
         .attr("id", "targetClass")
-        .attr("class","col-xs-12") 
-        .attr("style", "border: 1px solid; padding: 0px; padding-top: 10px; padding-bottom: 10px;");
+        // .attr("class","col-xs-12") 
+        // .attr("style", "border: 1px solid #999; padding: 0px; padding-top: 10px; padding-bottom: 10px;");
+        .attr("style", "border: 1px solid #999; border-radius: 5px; padding:10px 0px; max-height: 155px; overflow: auto");
+
+      // d3.select("#targetClass")
+      //   .append("br");
+
       d3.select("#targetClass")
         .append("p")
         .attr("style", "text-align:center;font-weight:bold")
         .text(targetName);
 
-      d3.select("#relationDetail")
-        .append("div")
-        .attr("id", "targetClassDetail")
-        .attr("class","col-xs-12")
-        .attr("style", "border: 1px solid; border-top: 0px; padding: 0px; padding-top: 10px; padding-bottom: 10px; max-height: 95px; overflow: auto");
+      d3.select("#targetClass")
+        .append("hr")
+        .attr("style", "border-top:1px solid #999; margin:10px 0px;");
 
-      d3.select("#targetClassDetail")
+      // 显示类的属性及相关信息
+      d3.select("#targetClass")
         .append("span")
-        .attr("id", "attributes");
+        .attr("id", "targetAttributes");
+
+      // d3.select("#relationDetail")
+      //   .append("div")
+      //   .attr("id", "targetClassDetail")
+      //   // .attr("class","col-xs-12")
+      //   .attr("style", "border: 1px solid #999; border-top: 0px; padding: 0px; padding-top: 10px; padding-bottom: 10px; max-height: 95px; overflow: auto");
+
+      // d3.select("#targetClassDetail")
+      //   .append("span")
+      //   .attr("id", "attributes");
 
       var attribute = "";
       edge.target.attribute.forEach(function(property) {
         var propertyDetail = property.name;
         if (property.type !== undefined)
           propertyDetail = propertyDetail + " : " + property.type;
-        d3.select("#attributes")
+        d3.select("#targetAttributes")
           .append("p")
           .attr("style", "padding-left:5%")
           .text(propertyDetail);
       });
 
-      d3.select("#attributes");
+      // d3.select("#targetClass")
+      //   .append("br");
+
 
 
       //关系的展示
@@ -761,34 +779,50 @@ define(function(require, exports, module) {
         .append("div")
         .attr("id", "sourceClass")
         .attr("class","col-xs-12")
-        .attr("style", "border: 1px solid; padding: 0px; padding-top: 10px; padding-bottom: 10px");
+        .attr("style", "border: 1px solid #999; border-radius: 5px; padding:10px 0px; max-height: 155px; overflow: auto");
+        // .attr("style", "border: 1px solid #999; padding: 0px; padding-top: 10px; padding-bottom: 10px");
+
+      // d3.select("#sourceClass")
+      //   .append("br");
 
       d3.select("#sourceClass")
         .append("p")
         .attr("style", "text-align:center;font-weight:bold")
         .text(sourceName);
 
-      d3.select("#relationDetail")
-        .append("div")
-        .attr("id", "sourceClassDetail")
-        .attr("class","col-xs-12")
-        .attr("style", "border: 1px solid; border-top: 0px; padding: 0px; padding-top: 10px; padding-bottom: 10px; max-height:95px; overflow:auto");
+      d3.select("#sourceClass")
+        .append("hr")
+        .attr("style", "border-top:1px solid #999; margin:10px 0px;");
 
-
-      d3.select("#sourceClassDetail")
+      // 显示类的属性及相关信息
+      d3.select("#sourceClass")
         .append("span")
-        .attr("id", "attributes");
+        .attr("id", "sourceAttributes");
+
+      // d3.select("#relationDetail")
+      //   .append("div")
+      //   .attr("id", "sourceClassDetail")
+      //   // .attr("class","col-xs-12")
+      //   .attr("style", "border: 1px solid #999; border-top: 0px; padding: 0px; padding-top: 10px; padding-bottom: 10px; max-height:95px; overflow:auto");
+
+
+      // d3.select("#sourceClassDetail")
+      //   .append("span")
+      //   .attr("id", "attributes");
 
       var attribute = "";
       edge.source.attribute.forEach(function(property) {
         var propertyDetail = property.name;
         if (property.type !== undefined)
           propertyDetail = propertyDetail + " : " + property.type;
-        d3.select("#attributes")
+        d3.select("#sourceAttributes")
           .append("p")
           .attr("style", "padding-left:5%")
           .text(propertyDetail);
       });
+
+      // d3.select("#sourceClass")
+      //   .append("br");
        
        
 
@@ -917,6 +951,16 @@ define(function(require, exports, module) {
     .on("mouseout", function(d) {
       mouseout();
     });
+
+    //载入页面时高亮当前选中的类
+    if(currentClass !== ''){
+      for(var j = 0; j < dataset.nodes.length; j ++){
+        if(dataset.nodes[j].name === currentClass){
+          clickNode(dataset.nodes[j]);
+          break;
+        }
+      }
+    }
 
 
     //Every time the simulation "ticks", this will be called
