@@ -126,6 +126,10 @@ app.all('/:model/workspace',routes.state.checkLogin);
 app.get('/:model/workspace', routes.model.enterWorkspace);
 app.post('/:model/workspace', routes.model.updateModel);
 
+// workspace 页面获取最新 ccm 方法
+app.all('/:model/getccm', routes.state.checkLogin);
+app.get('/:model/getccm', routes.model.getCCM);
+
 // workspace demo 页面 get 方法
 app.get('/workspacedemo', routes.model.enterWorkspaceDemo);
 

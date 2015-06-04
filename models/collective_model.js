@@ -22,13 +22,14 @@ var fs = require('fs');
 exports.getCollectiveModel = function(projectID, callback){
 
     var model = {class:{},relationGroup:{}};
-    var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
+    var mutex = 1;  // 对应 getClass 和 getRelation 这两个任务
 
     // 获取所有 class
     collectiveModel.getClassSet(projectID, function (classSet) {
 
         model.class = classSet;
         var classSetLen = Object.keys(classSet).length;
+
         // 若 class 个数为 0，则直接退出 getClass 任务
         if (!classSetLen) {
             if (--mutex === 0) {
@@ -45,12 +46,11 @@ exports.getCollectiveModel = function(projectID, callback){
 
             var item = model["class"][key]["attribute"] = {};
 
-            //当前已知该class的name，和所包含的attribute的name(在order中)
+            // 当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-            collectiveModel.getAttributeSet(projectID, item, key, function (item, attributeSet) {
-
-                item = attributeSet;
+            collectiveModel.getAttributeSet(projectID, item, ObjectID(key), function (item, attributeSet) {
                 var attributeSetLen = Object.keys(attributeSet).length;
+
                 if (!attributeSetLen) {
                     if (--mutex === 0) {
                         return callback(null, model);
@@ -59,21 +59,23 @@ exports.getCollectiveModel = function(projectID, callback){
                 }
 
                 mutex += attributeSetLen - 1;
-                for (var key in attributeSet) {
+                for (var attribute in attributeSet) {
+
                     //获得对应attribute的Property
-                    collectiveModel.getAttributePropertySet(projectID, item, key, function(item,propertySet){
+                    item[attribute] = {};
+
+                    collectiveModel.getAttributePropertySet(projectID, item[attribute], ObjectID(attribute), function (item, propertySet) {
 
                         //转换并存储
-                        for(var key in propertySet){
-                            if(key == "role"){
-                                item["name"] = propertySet[key];
-                            }else if(key == "class"){
-                                item["type"] = propertySet[key];
-                            }else if(key == "isAttribute"){
+                        for(var property in propertySet) {
+                            if (property == "role") {
+                                item["name"] = propertySet[property];
+                            } else if (property == "class") {
+                                item["type"] = propertySet[property];
+                            } else if (property == "isAttribute") {
                                 continue;
-                            }
-                            else{
-                                item[key] = propertySet[key];
+                            } else {
+                                item[property] = propertySet[property];
                             }
                         }
 
@@ -89,19 +91,18 @@ exports.getCollectiveModel = function(projectID, callback){
 
 var collectiveModel = {
     getClassSet: function(projectID, callback) {
-        //获取classId,className和class的attributeOrder
 
         //获取className和attributeOrder
         var filter = {
             projectID : projectID,
-            type : 'class'
+            type : 'class',
+            user: { $not: { $size: 0}}  // 不提取引用用户数为0的部分
         };
         dbOperation.get("conceptDiag_vertex",filter,function(err,docs){
             var classSet = {};
             var classIdArray = [];
             docs.forEach(function(element){
                 classIdArray.push(element._id);
-                classSet[element.source]={};
             });
 
             var filter2 = {
@@ -110,13 +111,21 @@ var collectiveModel = {
                     "direction": '',
                     "attribute": 'className'
                 },
-                "source": {"$in":classIdArray}
+                "source": {"$in":classIdArray},
+                user: { $not: { $size: 0}}  // 不提取引用用户数为0的部分
             }
+
             dbOperation.get("conceptDiag_edge",filter2,function(err,docs){
                 docs.forEach(function(element){
-                    classSet[element.source][element.target] = {};
-                    classSet[element.source][element.target]["ref"] = element.user.length;
+
+                    if (typeof classSet[element.source] === 'undefined') {  // 开辟空间
+                        classSet[element.source] = {};
+                        classSet[element.source].name = {};
+                    }
+                    classSet[element.source].name[element.target] = {};
+                    classSet[element.source].name[element.target]["ref"] = element.user.length;
                 });
+
                 return callback(classSet);
             });
         });
@@ -124,8 +133,10 @@ var collectiveModel = {
 
     getAttributeSet: function (projectID, item, classId, callback) {
         var filter = {
-            projectID: projectID
+            projectID: projectID,
+            user: { $not: { $size: 0}}  // 不提取引用用户数为0的部分
         }
+
         //找到所有与class相关的可能作为attribute的relation节点
         var relationFilter = new Merge(filter, {
             relation : {
@@ -134,6 +145,7 @@ var collectiveModel = {
             },
             target: classId
         });
+
         dbOperation.get("conceptDiag_edge", relationFilter ,function (err, docs) {
 
             var relationArray = [];
@@ -158,6 +170,7 @@ var collectiveModel = {
                 docs.forEach(function(element){
                     attributeSet[element.source]={};  // direction 默认为1
                 });
+
                 return callback(item,attributeSet);
             })
         });
@@ -167,7 +180,8 @@ var collectiveModel = {
         var filter = {
             projectID: projectID,
             "source":attributeId,
-            "relation.direction": '1'
+            "relation.direction": '1',
+            user: { $not: { $size: 0}}  // 不提取引用用户数为0的部分
         }
 
         //find attributeProperty
@@ -179,6 +193,7 @@ var collectiveModel = {
                 propertySet[element.relation.attribute][element.target] = {};
                 propertySet[element.relation.attribute][element.target]["ref"] = element.user.length;
             });
+
             return callback(item,propertySet);
         });
     },

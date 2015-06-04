@@ -123,6 +123,12 @@ define(function (require, exports, module) {
         var ccm = this.ccm;
         var stateOfPage = this.stateOfPage;
 
+        // 获取最新ccm数据
+        //setTimeout(function() {
+            ccm.getCCM(stateOfPage.modelName);
+        //}, 1000);
+
+
         // 输入框中每输入一个字符，进行一次内容合法性检查。keyup 事件保证 input 的 value 改变后才调用 checkInput
         $(document).on('keyup', 'input[type=text]', handleCheckInputs);
 

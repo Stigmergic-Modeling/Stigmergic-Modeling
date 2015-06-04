@@ -4,6 +4,7 @@ var fs = require('fs');
 var ObjectID = require('mongodb').ObjectID;
 var ModelInfo = require('../models/model_info.js');
 var Model = require('../models/model.js');
+var CCM = require('../models/collective_model.js');
 
 /**
  * workspace 页面 get 方法
@@ -106,6 +107,32 @@ exports.updateModel = function(req, res) {
         res.send('hello world');  // 测试前端载入动画用
     }, 2000);
     */
+};
+
+/**
+ * workspace 页面获取最新 ccm 方法
+ */
+exports.getCCM = function(req, res) {
+
+    console.log("GET CCM: Workspace");
+    console.log(req.session.user);
+    console.log(req.params.model);
+
+    ModelInfo.getOneByUserAndName(req.session.user.mail, req.params.model, function(err, modelInfo) {
+        if (!modelInfo) {
+            req.flash('error', 'No model exists');
+
+            return res.redirect('/u');
+        }
+
+        //console.log(modelInfo);
+        //console.log('modelInfo done');
+
+        CCM.getCollectiveModel(modelInfo.ccm_id, function(err, ccm) {
+            console.log(ccm);
+            res.send(ccm);
+        });
+    });
 };
 
 /**

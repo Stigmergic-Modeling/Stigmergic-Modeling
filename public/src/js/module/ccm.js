@@ -1,5 +1,7 @@
 define(function (require, exports, module) {
 
+    var $ = require('../lib/jquery');
+
     module.exports = CCM;
 
     /*  ----------------------------------  *
@@ -182,6 +184,27 @@ define(function (require, exports, module) {
     }
 
     /**
+     * 更新前端CCM
+     */
+    CCM.prototype.getCCM = function (icmName) {
+        var ccm = this;
+        var url = '/' + icmName + '/getccm';
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json'
+        })
+                .done(function (collectiveModel) {
+                    ccm.clazz = collectiveModel.class;
+                    //console.log('collectiveModel.class', collectiveModel.class);
+                })
+                .fail(function () {
+                    console.log('getCCM failed');
+                });
+    };
+
+    /**
      * 获取CCM中所有类名，用于输入框下拉列表推荐
      * @returns {Array}
      */
@@ -273,6 +296,7 @@ define(function (require, exports, module) {
                 clazz, classes = [];
 
         // TODO：去重
+        console.log('this.clazz', this.clazz);
 
         for (classCluster in this.clazz) {
             if (this.clazz.hasOwnProperty(classCluster)) {
