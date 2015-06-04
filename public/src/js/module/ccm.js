@@ -29,123 +29,7 @@ define(function (require, exports, module) {
         }
 
         // 目前是写死的数据
-        this.clazz = {
-            "ID65252430": {
-                "name": {
-                    "Course": {
-                        "ref": 5
-                    },
-                    "Class": {
-                        "ref": 5
-                    },
-                    "Courses": {
-                        "ref": 1
-                    }
-                },
-                "attribute": {
-                    "ID65252431": {
-                        "name": {
-                            "name": {
-                                "ref": 1
-                            }
-                        },
-                        "type": {
-                            "string": {
-                                "ref": 1
-                            }
-                        },
-                        "multiplicity": {
-                            "1..*": {
-                                "ref": 1
-                            }
-                        },
-                        "readOnly": {
-                            "False": {
-                                "ref": 1
-                            }
-                        },
-                        "ref": 1
-                    },
-                    "ID65252432": {
-                        "name": {
-                            "code": {
-                                "ref": 1
-                            },
-                            "studentNumber": {
-                                "ref": 1
-                            }
-                        },
-                        "type": {
-                            "string": {
-                                "ref": 1
-                            }
-                        },
-                        "ordering": {
-                            "True": {
-                                "ref": 1
-                            }
-                        },
-                        "ref": 1
-                    },
-                    "ID65252433": {
-                        "name": {
-                            "credit": {
-                                "ref": 1
-                            }
-                        },
-                        "type": {
-                            "float": {
-                                "ref": 1
-                            }
-                        },
-                        "ref": 1
-                    },
-                    "ID65252434": {
-                        "name": {
-                            "character": {
-                                "ref": 1
-                            }
-                        },
-                        "type": {
-                            "boolean": {
-                                "ref": 1
-                            }
-                        },
-                        "ref": 1
-                    }
-                },
-                "ref": 11
-            },
-            "ID65252435": {
-                "name": {
-                    "CourseCharacter": {
-                        "ref": 1
-                    }
-                },
-                "attribute": {
-                    "ID65252436": {
-                        "name": {
-                            "compulsory": {
-                                "ref": 1
-                            },
-                            "mustTake": {
-                                "ref": 1
-                            }
-                        },
-                        "ref": 4
-                    }
-                },
-                "ref": 4
-            },
-            "ID65252439": {
-                "name": {
-                    "Student": {
-                        "ref": 1
-                    }
-                },
-                "ref": 3
-            }
-        };
+        this.clazz = {};
 
         this.relgrp = {
             "ID65252430-ID65252439": {
@@ -249,7 +133,11 @@ define(function (require, exports, module) {
      * @param classCluster
      * @returns {Array}
      */
-    CCM.prototype.getAttributeNames = function (icm, classCluster) {
+    CCM.prototype.getAttributeNames = function (icm, classCluster, className) {
+        if (!this.clazz[classCluster]) {
+            return [];
+        }
+
         var attributes = this.clazz[classCluster].attribute,
                 attributeCluster,
                 attributeNames = [],
@@ -257,15 +145,14 @@ define(function (require, exports, module) {
                 i, len,
                 names, name;
 
-
         // 获得互不重复的 names 及其 ref 数
         for (attributeCluster in attributes) {
             if (attributes.hasOwnProperty(attributeCluster)) {
                 names = Object.keys(attributes[attributeCluster].name);
 
                 for (i = 0, len = names.length; i < len; i++) {
-                    console.log(icm);
-                    if (!icm[0]['Course'] || !(names[i] in icm[0]['Course'][0])) {  // 去重 TODO 使用正确的className
+                    //console.log(icm);
+                    if (!icm[0][className] || !(names[i] in icm[0][className][0])) {  // 去重 TODO 使用正确的className
 
                         // 收集
                         if (!attributeHash[names[i]] || attributeHash[names[i]] < attributes[attributeCluster].name[names[i]].ref) {  // 自身去重
@@ -296,13 +183,14 @@ define(function (require, exports, module) {
                 clazz, classes = [];
 
         // TODO：去重
-        console.log('this.clazz', this.clazz);
+        //console.log('this.clazz', this.clazz);
 
         for (classCluster in this.clazz) {
             if (this.clazz.hasOwnProperty(classCluster)) {
 
                 // 获取引用数最多的名字
                 clazz = {};
+                clazz.id = classCluster;  // 记录id，用于点击临时绑定
                 maxRef = 0;
                 names = this.clazz[classCluster].name;
                 for (className in names) {
@@ -348,6 +236,10 @@ define(function (require, exports, module) {
      */
     CCM.prototype.getAttributes = function (icm, classCluster) {
         var attributes, attribute, res, tmpObj, property;
+
+        if (!this.clazz[classCluster]) {
+            return [];
+        }
 
         attributes = this.clazz[classCluster].attribute;
         res = [];

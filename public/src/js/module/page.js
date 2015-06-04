@@ -39,6 +39,7 @@ define(function (require, exports, module) {
         this.stateOfPage = new StateOfPage(stateRawData);
         this.icm = new ICM(icmRawData);
         this.ccm = new CCM();
+        //console.log('icm', this.icm);
 
         // 参数
         this.panelHeight = {
@@ -72,10 +73,11 @@ define(function (require, exports, module) {
 
         // addClass对话框
         this.addClassDlgWgt = new ClassDialogWgt('#stigmod-modal-addclass');
-        this.addClassDlgWgt.init(this.icm, this.ccm);
+        this.addClassDlgWgt.init(this.icm, this.ccm, this.stateOfPage);
         this.addClassDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建类时更新页面状态
         this.addClassDlgWgt.on('addClass', 'addClass', this.icm);  // 新建类时更新icm模型
         this.addClassDlgWgt.on('addClass', 'refreshLeftColAndActivateAndJump', this);  // 新建类时更新页面显示
+        this.addClassDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
 
         // addRelGrp对话框
         this.addRelGrpDlgWgt = new RelGrpDialogWgt('#stigmod-modal-addrelationgroup');
@@ -124,10 +126,7 @@ define(function (require, exports, module) {
         var stateOfPage = this.stateOfPage;
 
         // 获取最新ccm数据
-        //setTimeout(function() {
-            ccm.getCCM(stateOfPage.modelName);
-        //}, 1000);
-
+        this.getUpdatedCCM();
 
         // 输入框中每输入一个字符，进行一次内容合法性检查。keyup 事件保证 input 的 value 改变后才调用 checkInput
         $(document).on('keyup', 'input[type=text]', handleCheckInputs);
@@ -159,12 +158,12 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, 'classInICM', 4)
+                    source: substringMatcher(icm, ccm, stateOfPage,  'classInICM', 4)
                 },
                 {
                     name: 'rgNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, 'relGroupInICM', 4)
+                    source: substringMatcher(icm, ccm, stateOfPage,  'relGroupInICM', 4)
                 });
 
         // 为 modelview 搜索栏添加下拉提示
@@ -176,20 +175,8 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, 'classInICM', 6)
+                    source: substringMatcher(icm, ccm, stateOfPage,  'classInICM', 6)
                 });
-
-        //// 为 addclass modal 添加下拉提示
-        //$('#stigmod-addclass-input').typeahead({
-        //            hint: true,
-        //            highlight: true,
-        //            minLength: 1
-        //        },
-        //        {
-        //            name: 'clsNames',
-        //            displayKey: 'value',
-        //            source: substringMatcher(icm, ccm, 'classInCCM', 6)
-        //        });
 
         // 为 addrelationgroup modal 添加下拉提示
         $('#stigmod-addrelgrp-input-first, #stigmod-addrelgrp-input-second').typeahead({
@@ -200,7 +187,7 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, 'classInICM', 6)
+                    source: substringMatcher(icm, ccm, stateOfPage,  'classInICM', 6)
                 });
 
         // 处理：输入框中每输入一个字符，进行一次内容合法性检查
@@ -343,6 +330,11 @@ define(function (require, exports, module) {
                 stateOfPage.windowResizeMutex = 0;
             }, 500);
         }
+    };
+
+    // 获取最新ccm用于推荐（异步）
+    Page.prototype.getUpdatedCCM = function () {
+        this.ccm.getCCM(this.stateOfPage.modelName);
     };
 
 
@@ -1575,11 +1567,14 @@ define(function (require, exports, module) {
      */
     function ClassDialogWgt() {
         DialogWgt.apply(this, arguments);
+
+        this.adoptingRec = false;  // 标志位，用于标志是否采纳推荐
+        this.adoptedClassId = '';  // 所采纳推荐类的ID
     }
     _.extend(ClassDialogWgt, DialogWgt);
 
     // 事件监听初始化
-    ClassDialogWgt.prototype.init = function (icm, ccm) {
+    ClassDialogWgt.prototype.init = function (icm, ccm, stateOfPage) {
         var $input = $('#stigmod-addclass-input');
 
         // 为 addclass modal 添加下拉提示
@@ -1591,7 +1586,7 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, 'classInCCM', 6)
+                    source: substringMatcher(icm, ccm, stateOfPage,  'classInCCM', 6)
                 });
 
         this.initInputWgts();
@@ -1612,7 +1607,8 @@ define(function (require, exports, module) {
             var $input = $(this).closest('#stigmod-modal-addclass').find('input[type=text]:not([readonly])');
 
             if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
-                var className = $input.val();
+                var className = $input.val()
+                        , classId = widget.adoptingRec ? widget.adoptedClassId : new ObjectId().toString();
 
                 // 更新页面状态
                 widget.fire('pageStateChanged', {
@@ -1622,7 +1618,7 @@ define(function (require, exports, module) {
                 });
 
                 // 更新模型和显示
-                widget.fire('addClass', className);
+                widget.fire('addClass', [className, classId]);
                 widget.close();  // 关闭当前 modal
                 $('#stigmod-nav-left-scroll')
                         .find('span[stigmod-nav-left-tag=' + className + ']')
@@ -1635,6 +1631,10 @@ define(function (require, exports, module) {
         // 处理：modal 显示前复位
         function handleMdlAddClass() {
             $(this).find('input').val('');
+
+            widget.adoptingRec = false;
+            widget.adoptedClassId = '';
+            widget.fire('init');
 
             // 刷新 modal 推荐栏
             widget.initRecWgt(icm, ccm);
@@ -1657,6 +1657,10 @@ define(function (require, exports, module) {
     // 设置该Dialog组件中Input组件的值
     ClassDialogWgt.prototype.setInputWgtValue = function (classModel) {
         this.clazz.name.setValue([ classModel.name ]);
+
+        // 绑定id
+        this.adoptingRec = true;
+        this.adoptedClassId = classModel.id;
     };
 
     // 初始化推荐栏
@@ -1767,7 +1771,7 @@ define(function (require, exports, module) {
                 {
                     name: 'attNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, 'attributeInCCM', 6)
+                    source: substringMatcher(icm, ccm, stateOfPage, 'attributeInCCM', 6)
                 });
 
         this.initInputWgts();
@@ -1834,7 +1838,7 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
 
             // 刷新 modal 推荐栏
-            widget.initRecWgt(icm, ccm);
+            widget.initRecWgt(icm, ccm, stateOfPage);
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -1893,9 +1897,9 @@ define(function (require, exports, module) {
     };
 
     // 初始化推荐栏
-    AttributeDialogWgt.prototype.initRecWgt = function (icm, ccm) {
+    AttributeDialogWgt.prototype.initRecWgt = function (icm, ccm, stateOfPage) {
         this.recommendation = new AttributeRecWgt('#stigmod-modal-rec-attribute');
-        this.recommendation.init(icm, ccm);
+        this.recommendation.init(icm, ccm, stateOfPage);
         this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
     };
 
@@ -2383,6 +2387,7 @@ define(function (require, exports, module) {
     // 初始化
     ClassRecWgt.prototype.init = function (icm, ccm) {
         this.data = ccm.getClasses(icm);
+        console.log('this.data', this.data);
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2445,8 +2450,9 @@ define(function (require, exports, module) {
     _.extend(AttributeRecWgt, RecommendationWgt);
 
     // 初始化
-    AttributeRecWgt.prototype.init = function (icm, ccm) {
-        this.data = ccm.getAttributes(icm, 'ID65252430');  // TODO test
+    AttributeRecWgt.prototype.init = function (icm, ccm, stateOfPage) {
+        var classId = icm.getClassId(stateOfPage.clazz);
+        this.data = ccm.getAttributes(icm, classId);  // TODO test
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2776,18 +2782,19 @@ define(function (require, exports, module) {
     }
 
     // 输入框下拉提示功能中取得子串的辅助函数
-    function substringMatcher(icm, ccm, flag, maxLength) {  // 所生成的 matches 集合的最大长度（对于每一个 dataset 来说）
+    function substringMatcher(icm, ccm, stateOfPage,  flag, maxLength) {  // 所生成的 matches 集合的最大长度（对于每一个 dataset 来说）
 
         return function findMatches(q, cb) {
             var matches,
                     substrRegex,
-                    strs;  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
+                    strs,  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
+                    classId = icm.getClassId(stateOfPage.clazz);
 
             switch (flag) {
                 case 'classInICM': strs = Object.keys(icm[0]); break;
                 case 'relGroupInICM': strs = Object.keys(icm[1]); break;
                 case 'classInCCM': strs = ccm.getClassNames(icm); break;
-                case 'attributeInCCM': strs = ccm.getAttributeNames(icm, 'ID65252430'); break;  // TODO 使用正确的ClassID
+                case 'attributeInCCM': strs = ccm.getAttributeNames(icm, classId, stateOfPage.clazz); break;  // TODO 使用正确的ClassID
                 default: strs = [];
             }
 

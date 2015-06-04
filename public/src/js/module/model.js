@@ -123,6 +123,9 @@ define(function (require, exports, module) {
         // relationGroup
         this[1] = {};
 
+        // name to id
+        this[2] = {};
+
         // log
         this.operationLog = [];
         this.operationLogHistory = [];  // 用于保存 log 的历史，便于回滚
@@ -135,6 +138,7 @@ define(function (require, exports, module) {
         if (arguments.length > 0) {
             this[0] = JSON.parse(JSON.stringify(modelPassIn[0]));
             this[1] = JSON.parse(JSON.stringify(modelPassIn[1]));
+            this[2] = JSON.parse(JSON.stringify(modelPassIn[2]));
         }
 
         // 使用动态原型模式，在构造函数内部定义原型方法
@@ -675,9 +679,13 @@ define(function (require, exports, module) {
              *  ------- */
 
             // 增加类
-            Model.prototype.addClass = function (className) {
+            Model.prototype.addClass = function (className, classId) {
 
                 this.addNode([0], [className, [{}, {'order': []}]]);  // 空括号很重要
+
+                // 更新name2id映射
+                console.log('classId', classId);
+                this[2][className] = {id: classId};
             };
 
             // 增加类的属性
@@ -849,6 +857,18 @@ define(function (require, exports, module) {
                 relgrpNames.sort(); // 排序
 
                 return relgrpNames;
+            };
+
+            /**
+             * 由className获取classId
+             * @param className
+             * @returns {*}
+             */
+            Model.prototype.getClassId = function (className) {
+                if (!this[2][className]) {
+                    return null;
+                }
+                return this[2][className].id;
             };
 
 

@@ -41,11 +41,11 @@ var ErrUpdate = function(state,newError){
  */
 
 var getIndividualModel = function (projectID, user, callback) {
-    var model = [{}, {}];
+    var model = [{}, {}, {}];
     var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
 
     // 获取所有 class
-    individualModel.getClassSet(projectID, user, function (classSet) {
+    individualModel.getClassSet(projectID, user, model[2], function (classSet) {  // model[2] 是name到id的映射
 
         var classSetLen = Object.keys(classSet).length;
         // 若 class 个数为 0，则直接退出 getClass 任务
@@ -66,7 +66,7 @@ var getIndividualModel = function (projectID, user, callback) {
 
             //当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-            individualModel.getAttribute(projectID, user, item, classSet[key].classId, function (item, attributeSet) {
+            individualModel.getAttribute(projectID, user, item, classSet[key].classId, model[2][key].attribute, function (item, attributeSet, attributeNameToId) {
 
                 var attributeSetLen = attributeSet.length;
                 if (!attributeSetLen) {
@@ -85,6 +85,8 @@ var getIndividualModel = function (projectID, user, callback) {
                         var name =  propertySet.role;
                         item[0][name] = [{}];
                         var property = item[0][name][0];
+
+                        attributeNameToId[name] = {id: attributeId};  // name到id的映射
 
                         for(var key in propertySet){
                             if(key == "role"){
@@ -165,7 +167,7 @@ var getIndividualModel = function (projectID, user, callback) {
 }
 
 var individualModel = {
-    getClassSet: function(projectID, user, callback) {
+    getClassSet: function(projectID, user, classNameToId, callback) {
         //获取classId,className和class的attributeOrder
         var filter = {
             projectID : projectID,
@@ -193,13 +195,14 @@ var individualModel = {
             dbOperation.get("conceptDiag_edge",filter2,function(err,docs){
                 docs.forEach(function(element){
                     classSet[element.target]["classId"] = element.source;
+                    classNameToId[element.target] = {id: element.source, attribute: {}};  // 提取name到id的映射，并为其中attribute的映射开辟空间
                 });
                 return callback(classSet);
             });
         });
     },
 
-    getAttribute: function (projectID, user, item, classId, callback) {
+    getAttribute: function (projectID, user, item, classId, attributeNameToId, callback) {
         var filter = {
             projectID: projectID,
             user: user
@@ -236,7 +239,7 @@ var individualModel = {
                 docs.forEach(function(element){
                     attributeArray.push(element.source);  // direction 默认为1
                 });
-                return callback(item,attributeArray);
+                return callback(item, attributeArray, attributeNameToId);
             })
         });
     },
@@ -639,7 +642,7 @@ var class_ = {
 var attribute = {
     getId: function(projectID, user, className, attributeName, callback){
         class_.getId(projectID, user, className, function(classId){
-            individualModel.getAttribute(projectID, user, null, classId, function(item,attributeIdArray){
+            individualModel.getAttribute(projectID, user, null, classId, null, function(item,attributeIdArray){
                 // 找到className，attributeName同时存在的关系Relation (有可能是非属性关系)
                 var relationFilter = {
                     projectID : projectID,
