@@ -127,6 +127,7 @@ define(function (require, exports, module) {
 
         // 获取最新ccm数据
         this.getUpdatedCCM();
+        console.log(this.icm);
 
         // 输入框中每输入一个字符，进行一次内容合法性检查。keyup 事件保证 input 的 value 改变后才调用 checkInput
         $(document).on('keyup', 'input[type=text]', handleCheckInputs);
@@ -1607,8 +1608,9 @@ define(function (require, exports, module) {
             var $input = $(this).closest('#stigmod-modal-addclass').find('input[type=text]:not([readonly])');
 
             if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
-                var className = $input.val()
-                        , classId = widget.adoptingRec ? widget.adoptedClassId : new ObjectId().toString();
+                var className = $input.val(),
+                        classId = widget.adoptingRec ? widget.adoptedClassId : new ObjectId().toString(),
+                        addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 更新页面状态
                 widget.fire('pageStateChanged', {
@@ -1618,7 +1620,7 @@ define(function (require, exports, module) {
                 });
 
                 // 更新模型和显示
-                widget.fire('addClass', [className, classId]);
+                widget.fire('addClass', [className, classId, addingType]);
                 widget.close();  // 关闭当前 modal
                 $('#stigmod-nav-left-scroll')
                         .find('span[stigmod-nav-left-tag=' + className + ']')

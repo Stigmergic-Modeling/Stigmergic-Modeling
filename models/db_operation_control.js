@@ -41,11 +41,15 @@ var ErrUpdate = function(state,newError){
  */
 
 var getIndividualModel = function (projectID, user, callback) {
-    var model = [{}, {}, {}];
+    var model = [{}, {}, {
+        clazz: {},
+        attr: {},  // 格式 className-attributeName : attributeId
+        relation: {}
+    }];
     var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
 
     // 获取所有 class
-    individualModel.getClassSet(projectID, user, model[2], function (classSet) {  // model[2] 是name到id的映射
+    individualModel.getClassSet(projectID, user, model[2]['clazz'], function (classSet) {  // model[2] 是name到id的映射
 
         var classSetLen = Object.keys(classSet).length;
         // 若 class 个数为 0，则直接退出 getClass 任务
@@ -66,7 +70,7 @@ var getIndividualModel = function (projectID, user, callback) {
 
             //当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-            individualModel.getAttribute(projectID, user, item, classSet[key].classId, model[2][key].attribute, function (item, attributeSet, attributeNameToId) {
+            individualModel.getAttribute(projectID, user, item, classSet[key].classId, model[2]['clazz'][key].attribute, function (item, attributeSet, attributeNameToId) {
 
                 var attributeSetLen = attributeSet.length;
                 if (!attributeSetLen) {

@@ -124,7 +124,11 @@ define(function (require, exports, module) {
         this[1] = {};
 
         // name to id
-        this[2] = {};
+        this[2] = {
+            clazz: {},
+            attr: {},  // 格式 className-attributeName : attributeId
+            relation: {}
+        };
 
         // log
         this.operationLog = [];
@@ -169,7 +173,7 @@ define(function (require, exports, module) {
             };
 
             // 在某路径的端点之下增加一个端点
-            Model.prototype.addNode = function (path, pairsKV) {
+            Model.prototype.addNode = function (path, pairsKV, CCMId, addType) {
 
                 if (!(path instanceof Array)) {
                     throw new TypeError('Model.addNode(): The first argument must be an array.');
@@ -178,7 +182,7 @@ define(function (require, exports, module) {
                     throw new TypeError('Model.addNode(): The second argument must be an array with two elements.');
                 }
 
-                this.log('ADD', path, pairsKV);
+                this.log('ADD', path, [pairsKV[0], pairsKV[1], CCMId, addType]);
 
                 var subModel = this.getSubModel(path);
 
@@ -323,10 +327,10 @@ define(function (require, exports, module) {
                  *  日志条目的格式：
                  *
                  *  增加
-                 *  ADD_CLS class
+                 *  ADD_CLS class classCCMId addingType (fresh, binding)
                  *  ADD_RLG relationGroup
-                 *  ADD_ATT class attribute
-                 *  ADD_RLT relationGroup relation
+                 *  ADD_ATT class attribute attributeCCMId addingType (fresh, binding)
+                 *  ADD_RLT relationGroup relation relationCCMId addingType (fresh, binding)
                  *  ADD_POA class attribute property value
                  *  ADD_POR relationGroup relation property value
                  *
@@ -376,11 +380,14 @@ define(function (require, exports, module) {
 
                             if (0 === path[0]) {
                                 item.push('CLS');
+                                item.push(args[0]);  // class name
+                                item.push(args[2]);  // class ccm id
+                                item.push(args[3]);  // adding type
+
                             } else {
                                 item.push('RLG');
+                                item.push(args[0]);
                             }
-
-                            item.push(args[0]);
 
                         } else if (3 === path.length) {
 
@@ -391,7 +398,9 @@ define(function (require, exports, module) {
                             }
 
                             item.push(path[1]);
-                            item.push(args[0]);
+                            item.push(args[0]);  // attribute name / relation icm id
+                            item.push(args[2]);  // attribute ccm id / relation ccm id
+                            item.push(args[3]);  // adding type
 
                         } else if (5 === path.length) {
 
@@ -679,23 +688,23 @@ define(function (require, exports, module) {
              *  ------- */
 
             // 增加类
-            Model.prototype.addClass = function (className, classId) {
+            Model.prototype.addClass = function (className, classCCMId, addingType) {
 
-                this.addNode([0], [className, [{}, {'order': []}]]);  // 空括号很重要
+                this.addNode([0], [className, [{}, {'order': []}]], classCCMId, addingType);  // 空括号很重要
 
                 // 更新name2id映射
-                console.log('classId', classId);
-                this[2][className] = {id: classId};
+                //console.log('classId', classId);
+                this[2]['clazz'][className] = {id: classCCMId};
             };
 
             // 增加类的属性
-            Model.prototype.addAttr = function (className, attrName, pos) {
+            Model.prototype.addAttr = function (className, attrName, pos, attrCCMId, addingType) {
 
                 if (!(pos instanceof Object)) {
                     throw new TypeError('Model.addAttr(): The third argument must be an object.');
                 }
 
-                this.addNode([0, className, 0], [attrName, [{}]]);  // 空括号很重要
+                this.addNode([0, className, 0], [attrName, [{}]], attrCCMId, addingType);  // 空括号很重要
                 this.insertOrderElem(0, className, attrName, pos.position, pos.direction);  // 将 attribute 插入到指定位置
             };
 
@@ -716,13 +725,13 @@ define(function (require, exports, module) {
             };
 
             // 增加关系组中的关系
-            Model.prototype.addRelation = function (relGrpName, relID, pos) {
+            Model.prototype.addRelation = function (relGrpName, relID, pos, relationCCMId, addingType) {
 
                 if (!(pos instanceof Object)) {
                     throw new TypeError('Model.addAttr(): The third argument must be an object.');
                 }
 
-                this.addNode([1, relGrpName, 0], [relID, [{}]]);  // 空括号很重要
+                this.addNode([1, relGrpName, 0], [relID, [{}], relationCCMId, addingType]);  // 空括号很重要
                 this.insertOrderElem(1, relGrpName, relID, pos.position, pos.direction);  // 将 attribute 插入到指定位置
             };
 
@@ -865,10 +874,10 @@ define(function (require, exports, module) {
              * @returns {*}
              */
             Model.prototype.getClassId = function (className) {
-                if (!this[2][className]) {
+                if (!this[2]['clazz'][className]) {
                     return null;
                 }
-                return this[2][className].id;
+                return this[2]['clazz'][className].id;
             };
 
 
