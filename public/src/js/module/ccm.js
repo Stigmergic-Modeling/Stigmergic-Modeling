@@ -131,7 +131,8 @@ define(function (require, exports, module) {
      * 获取CCM中某classCluster所有属性名
      * @param icm
      * @param classCluster
-     * @returns {Array}
+     * @param className
+     * @returns {*}
      */
     CCM.prototype.getAttributeNames = function (icm, classCluster, className) {
         if (!this.clazz[classCluster]) {
@@ -180,17 +181,16 @@ define(function (require, exports, module) {
      */
     CCM.prototype.getClasses = function(icm) {
         var classCluster, maxRef, names, className, attributes, attribute, tmpObj,
-                clazz, classes = [];
-
-        // TODO：去重
-        //console.log('this.clazz', this.clazz);
+                clazz, classes = [],
+                classNamesInICM = Object.keys(icm[0]),
+                classIdsInICM = '';  // TODO 用这个id过滤掉ccm中相同id的概念节点
 
         for (classCluster in this.clazz) {
             if (this.clazz.hasOwnProperty(classCluster)) {
 
                 // 获取引用数最多的名字
                 clazz = {};
-                clazz.id = classCluster;  // 记录id，用于点击临时绑定
+                clazz.id = classCluster;  // 记录id，用于采用推荐时绑定
                 maxRef = 0;
                 names = this.clazz[classCluster].name;
                 for (className in names) {
@@ -200,6 +200,9 @@ define(function (require, exports, module) {
                             clazz.name = className;
                         }
                     }
+                }
+                if (classNamesInICM.indexOf(clazz.name) != -1) {
+                    continue;  // 与当前 ICM class 名称相同的 CCM class 不会被推荐
                 }
 
                 // 获取所有的属性
@@ -232,10 +235,27 @@ define(function (require, exports, module) {
      * 获取ccm中某classCluster的属性
      * @param icm
      * @param classCluster
+     * @param className
      * @returns {Array}
      */
-    CCM.prototype.getAttributes = function (icm, classCluster) {
-        var attributes, attribute, res, tmpObj, property;
+    CCM.prototype.getAttributes = function (icm, classCluster, className) {
+        var attributes, attribute, res, tmpObj, property, attrName,
+                attrInICM = icm[2]['clazz'][className]['attribute'],
+                attrNamesInICM = {},  // icm中该class中的attribute名，用于去重
+                attrIdsInICM ={};  // icm中该class中的attribute ID，用于去重
+
+        for (attrName in icm[0][className][0]) {
+            if (icm[0][className][0].hasOwnProperty(attrName)) {
+                attrNamesInICM[attrName] = true;  // 构造 attrNamesInICM
+            }
+        }
+
+        for (attrName in attrNamesInICM) {
+            if (attrNamesInICM.hasOwnProperty(attrName)) {
+                var id = attrInICM[attrName];
+                attrIdsInICM[id] = true;  // 构造 attrIdsInICM
+            }
+        }
 
         if (!this.clazz[classCluster]) {
             return [];
@@ -247,11 +267,17 @@ define(function (require, exports, module) {
             if (attributes.hasOwnProperty(attribute)) {
 
                 // TODO: 按引用数取最高
-                tmpObj = {};
+                tmpObj = {
+                    id: attribute,  // 记录id，用于采用推荐时绑定
+                    ref: attributes[attribute].ref
+                };
                 for (property in attributes[attribute]) {
                     if (attributes[attribute].hasOwnProperty(property) && property != 'ref') {
                         tmpObj[property] = Object.keys(attributes[attribute][property])[0];
                     }
+                }
+                if (tmpObj.name in attrNamesInICM || tmpObj.id in attrIdsInICM) {
+                    continue;  // 与当前 ICM attribute 名称或ID相同的 CCM attribute 不会被推荐
                 }
 
                 res.push(tmpObj);

@@ -93,6 +93,7 @@ define(function (require, exports, module) {
         this.addAttributeDlgWgt.on('addAttribute', 'addAttr', this.icm);  // 新建属性时更新icm模型
         this.addAttributeDlgWgt.on('addPropOfA', 'addPropOfA', this.icm);  // 新建属性时更新icm模型
         this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
+        //this.addAttributeDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
 
         // addRelation对话框
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
@@ -1587,7 +1588,7 @@ define(function (require, exports, module) {
                 {
                     name: 'clsNames',
                     displayKey: 'value',
-                    source: substringMatcher(icm, ccm, stateOfPage,  'classInCCM', 6)
+                    source: substringMatcher(icm, ccm, stateOfPage, 'classInCCM', 6)
                 });
 
         this.initInputWgts();
@@ -1757,6 +1758,9 @@ define(function (require, exports, module) {
      */
     function AttributeDialogWgt() {
         DialogWgt.apply(this, arguments);
+
+        this.adoptingRec = false;  // 标志位，用于标志是否采纳推荐
+        this.adoptedAttrId = '';  // 所采纳推荐属性的ID
     }
     _.extend(AttributeDialogWgt, DialogWgt);
 
@@ -1798,10 +1802,12 @@ define(function (require, exports, module) {
                     .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
 
             if (checkInputs(icm, $visibleInputs, stateOfPage)) {
+                var attrId = widget.adoptingRec ? widget.adoptedAttrId : new ObjectId().toString(),
+                        addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 添加 attribute 名
                 var attributeName = $(this).closest('#stigmod-modal-addattribute').find('#stigmod-addatt-name input:not([readonly])').val();
-                widget.fire('addAttribute', [stateOfPage.clazz, attributeName, stateOfPage.addAttrRel]);
+                widget.fire('addAttribute', [stateOfPage.clazz, attributeName, stateOfPage.addAttrRel, attrId, addingType]);
 
                 // 添加 properties
                 var $propertyNew = $(this).closest('#stigmod-modal-addattribute').find('tr:visible');
@@ -1838,6 +1844,10 @@ define(function (require, exports, module) {
             $(this).find('tr').hide();
             $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示name项
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示type项
+
+            widget.adoptingRec = false;
+            widget.adoptedAttrId = '';
+            widget.fire('init');
 
             // 刷新 modal 推荐栏
             widget.initRecWgt(icm, ccm, stateOfPage);
@@ -1896,6 +1906,10 @@ define(function (require, exports, module) {
                 this.attribute[properties[i]].turnOff();
             }
         }
+
+        // 绑定id
+        this.adoptingRec = true;
+        this.adoptedAttrId = attrModel.id;
     };
 
     // 初始化推荐栏
@@ -2389,7 +2403,7 @@ define(function (require, exports, module) {
     // 初始化
     ClassRecWgt.prototype.init = function (icm, ccm) {
         this.data = ccm.getClasses(icm);
-        console.log('this.data', this.data);
+        console.log('this.data(getClasses)', this.data);
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2454,7 +2468,8 @@ define(function (require, exports, module) {
     // 初始化
     AttributeRecWgt.prototype.init = function (icm, ccm, stateOfPage) {
         var classId = icm.getClassId(stateOfPage.clazz);
-        this.data = ccm.getAttributes(icm, classId);  // TODO test
+        this.data = ccm.getAttributes(icm, classId, stateOfPage.clazz);  // TODO test
+        console.log('this.data(getAttributes)', this.data);
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2489,12 +2504,16 @@ define(function (require, exports, module) {
 
     // 获取popover内容
     AttributeRecWgt.prototype.getPopover = function (item) {
-        var elem, popover = '', key;
+        var elem, popover = '', key,
+                hiddenList = {  // 屏蔽掉功能字段
+                    'id': true,
+                    'ref': true
+                };
 
         // item 不为空时才进行转换
         if (item) {
             for (key in item) {
-                if (item.hasOwnProperty(key)) {
+                if (item.hasOwnProperty(key) && !(key in hiddenList)) {
                     elem = '<p>' + key + ' : ' + item[key] + '</p>';
                     popover += elem;
                 }
