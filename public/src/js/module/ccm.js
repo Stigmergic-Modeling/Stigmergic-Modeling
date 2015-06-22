@@ -182,8 +182,23 @@ define(function (require, exports, module) {
     CCM.prototype.getClasses = function(icm) {
         var classCluster, maxRef, names, className, attributes, attribute, tmpObj,
                 clazz, classes = [],
-                classNamesInICM = Object.keys(icm[0]),
-                classIdsInICM = '';  // TODO 用这个id过滤掉ccm中相同id的概念节点
+                cName,
+                classInICM = icm[2]['clazz'],
+                classNamesInICM = {},  // icm中class名，用于去重
+                classIdsInICM ={};  // icm中classID，用于去重
+
+        for (cName in icm[0]) {
+            if (icm[0].hasOwnProperty(cName)) {
+                classNamesInICM[cName] = true;  // 构造 classNamesInICM
+            }
+        }
+
+        for (cName in classNamesInICM) {
+            if (classNamesInICM.hasOwnProperty(cName)) {
+                var id = classInICM[cName];
+                classIdsInICM[id] = true;  // 构造 classIdsInICM
+            }
+        }
 
         for (classCluster in this.clazz) {
             if (this.clazz.hasOwnProperty(classCluster)) {
@@ -201,7 +216,7 @@ define(function (require, exports, module) {
                         }
                     }
                 }
-                if (classNamesInICM.indexOf(clazz.name) != -1) {
+                if (clazz.name in classNamesInICM || clazz.id in classIdsInICM) {
                     continue;  // 与当前 ICM class 名称相同的 CCM class 不会被推荐
                 }
 

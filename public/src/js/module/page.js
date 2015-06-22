@@ -93,7 +93,7 @@ define(function (require, exports, module) {
         this.addAttributeDlgWgt.on('addAttribute', 'addAttr', this.icm);  // 新建属性时更新icm模型
         this.addAttributeDlgWgt.on('addPropOfA', 'addPropOfA', this.icm);  // 新建属性时更新icm模型
         this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
-        //this.addAttributeDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
+        this.addAttributeDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
 
         // addRelation对话框
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
@@ -2540,7 +2540,7 @@ define(function (require, exports, module) {
             case 'class-add':
                 pattern = /^[A-Z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
+                    return 'Valid Format: English letters, with initials in capitals.';
                 } else if (model.doesNodeExist(0, input)) {  // 类名重复
                     return 'Class already exists.';
                 } else {  // 合法
@@ -2550,7 +2550,7 @@ define(function (require, exports, module) {
             case 'class-modify':
                 pattern = /^[A-Z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
+                    return 'Valid Format: English letters, with initials in capitals.';
                 } else if ((stateOfPage.clazz !== input) && model.doesNodeExist(0, input)) {  // 新类名与【其他】类名重复 (与该类修改前类名重复是允许的)
                     return 'Class already exists.';
                 } else {  // 合法
@@ -2571,7 +2571,7 @@ define(function (require, exports, module) {
             case 'attribute-add':
                 pattern = /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
+                    return 'Valid Format: English letters, with the first letter in lowercase.';
                 } else if (model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名重复
                     return 'Attribute name already exists.';
                 } else {  // 合法
@@ -2581,7 +2581,7 @@ define(function (require, exports, module) {
             case 'attribute-modify':
                 pattern = /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
+                    return 'Valid Format: English letters, with the first letter in lowercase.';
                 } else if ((stateOfPage.attribute !== input) && model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名与其他 attribute 重复
                     return 'Attribute name already exists.';
                 } else {  // 合法
@@ -2594,7 +2594,7 @@ define(function (require, exports, module) {
             case 'type-modify':
                 pattern = /^(int|float|string|boolean)$/;  // build-in types
                 if (!pattern.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是类
-                    return 'Valid Type: A class or built-in type (int|float|string|boolean).';
+                    return 'Valid Type: A class or built-in type ("int" / "float" / "string" / "boolean").';
                 } else {  // 合法
                     return 'valid';
                 }
@@ -2616,7 +2616,7 @@ define(function (require, exports, module) {
                 }
 
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: ' + pattern.toString();
+                    return 'Valid Format: A number("*" denotes "multiple"), or two numbers concatenated by ".."';
                 } else if (!isValidMultiplicity(input)) {  // 第一个数大于第二个数
                     return 'The second number should be bigger.';
                 } else {  // 合法
@@ -2628,7 +2628,7 @@ define(function (require, exports, module) {
             case 'visibility-modify':
                 pattern = /^(public|private|protected|package)$/;
                 if (!pattern.test(input)) {
-                    return 'Valid Format: ' + pattern.toString();
+                    return 'Valid Format: "public" / "private" / "protected" / "package"';
                 } else {  // 合法
                     return 'valid';
                 }
@@ -2639,7 +2639,7 @@ define(function (require, exports, module) {
             case 'relation-modify':
                 pattern = /^(|[a-z][A-Za-z]*)$/;  // 可为空
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Type: ' + pattern.toString();
+                    return 'Valid Format: NULL or english letters, with the first letter in lowercase.';
                 } else {  // 合法
                     return 'valid';
                 }
@@ -2650,7 +2650,7 @@ define(function (require, exports, module) {
             case 'role-modify':
                 pattern = /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Type: ' + pattern.toString();
+                    return 'Valid Format: English letters, with the first letter in lowercase.';
                 } else {  // 合法
                     return 'valid';
                 }
@@ -2669,7 +2669,7 @@ define(function (require, exports, module) {
             case 'end-modify':
                 pattern = /^.+$/;  // 非空
                 if (!pattern.test(input)) {
-                    return 'Input can not be void.';
+                    return 'Input can not be NULL.';
                 } else {  // 合法
                     return 'valid';
                 }
