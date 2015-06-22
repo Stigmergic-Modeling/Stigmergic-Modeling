@@ -463,9 +463,9 @@ var class_ = {
             });
         });
     },
-    add : function(projectID,user,className,type,callback){
+    add : function(projectID,user,className,type,classId,callback){
         //首先创建class vertex
-        this.createId(projectID, user, className, function(classId){
+        //this.createId(projectID, user, className, function(classId){
             //创建子信息
             var dateSetBase = {
                 projectID: projectID,
@@ -527,7 +527,7 @@ var class_ = {
                 //console.log('attribute order [] updated');
                 if(--mutex === 0) return callback(errs);
             });
-        });
+        //});
     },
 
     delete: function(projectID,user,className,callback){
@@ -757,13 +757,13 @@ var attribute = {
             });
         });
     },
-    add : function(projectID,user,className,attributeName,callback){
+    add : function(projectID,user,className,attributeName,attributeId,callback){
         var errs = null;
         var mutex = 0;
-        this.getId(projectID,user,className,attributeName,function(attributeId){
-            if(attributeId != undefined)  return callback("Aleady Exists",null);
+        //this.getId(projectID,user,className,attributeName,function(attributeId){
+        //    if(attributeId != undefined)  return callback("Aleady Exists",null);
             //not exist
-            attribute.createId(projectID, user, className, attributeName,function(attributeId){
+        //    attribute.createId(projectID, user, className, attributeName,function(attributeId){
 
                 //建立类到属性的连线
                 mutex ++;
@@ -794,8 +794,8 @@ var attribute = {
                 attributeProperty.add(projectID,user,attributeId,'role',attributeName,function(){
                     if(--mutex === 0) return callback(errs);
                 });
-            });
-        });
+        //    });
+        //});
     },
 
     delete: function(projectID,user,className,attributeName,callback){
@@ -990,8 +990,7 @@ var relationGroup = {
 }
 
 var relation = {
-    add: function (projectID, user, relationId, callback) {
-
+    createId: function (projectID, user, relationId, callback) {
         //save vertex
         var dataSet = {
             _id: relationId,
@@ -1004,6 +1003,19 @@ var relation = {
 
             // 直接回调，Index在ADDPOR的时候再建立，此时尚缺少type数据
             return callback(err, docs);
+        });
+    },
+    add: function (projectID, user, relationId, callback) {
+        var dataSet = {
+            'collection': "conceptDiag_vertex",
+            'projectID': projectID,
+            '_id': relationId,
+            'user':user,
+            "type":"association"
+        };
+        //TODO 此save函数存在问题
+        saveData(dataSet,function(err,result){
+            return callback(err,result);
         });
     },
 

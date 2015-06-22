@@ -5,6 +5,7 @@ var dbOperationControl  = require('./db_operation_control');
 var modelInfo = require('./model_info');
 var ObjectID = require("mongodb").ObjectID;
 var async = require("async");
+var CCM = require('./collective_model.js');
 
 exports.modelGet = function(projectID,user,callback){
     dbOperationControl.getIndividualModel(projectID,user,function(err,result){
@@ -95,6 +96,12 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
                     }
                 });
 
+
+                CCM.getCollectiveModel(modelInfo.ccm_id, function(err, ccm) {
+                    console.log(ccm);
+                    res.send(ccm);
+                });
+
             }, 100);  // 延时100ms，尽量保证ops中所有的底层操作都已经完成（真的只是尽力而已）
 
             return;
@@ -144,9 +151,19 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
 var classOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            dbOperationControl.class.add(projectID,user,dataItem[3],"normal",function(err,doc){
-                return callback(err,doc);
-            });
+            var haveId = dataItem[4];
+            if(haveId){
+                var classId = ObjectID(dataItem[5]);
+                dbOperationControl.class.add(projectID,user,dataItem[3],"normal",classId,function(err,doc){
+                    return callback(err,doc);
+                });
+            }else{
+                dbOperationControl.class.createId(projectID, user, dataItem[3], function(classId){
+                    dbOperationControl.class.add(projectID,user,dataItem[3],"normal",classId,function(err,doc){
+                        return callback(err,doc);
+                    });
+                });
+            }
             break;
 
         case 'MOD':
@@ -166,9 +183,19 @@ var classOperation = function (projectID, user, dataItem, callback) {
 var attributeOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],function(err,doc){
-                return callback(err,doc);
-            });
+            var haveId = dataItem[5];
+            if(haveId){
+                var attributeId = ObjectID(dataItem[6]);
+                dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],attributeId,function(err,doc){
+                    return callback(err,doc);
+                });
+            }else{
+                dbOperationControl.attribute.createId(projectID, user, dataItem[3],dataItem[4],function(attributeId){
+                    dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],attributeId,function(err,doc){
+                        return callback(err,doc);
+                    });
+                });
+            }
             break;
 
         case 'MOD':
@@ -241,6 +268,18 @@ var relationOperation = function (projectID, user, dataItem, callback) {
             dbOperationControl.relation.add(projectID, user, ObjectID(dataItem[4]), function (err, doc) {
                 return callback(err, doc);
             });
+
+            var haveId = dataItem[5];
+            if(haveId){
+                var relationId = ObjectID(dataItem[6]);
+                dbOperationControl.relation.add(projectID,user,relationId,function(err,doc){
+                    return callback(err,doc);
+                });
+            }else{
+                dbOperationControl.relation.createId(projectID, user, ObjectID(dataItem[4]), function (err, doc) {
+                    return callback(err, doc);
+                });
+            }
             break;
 
         case 'RMV':
