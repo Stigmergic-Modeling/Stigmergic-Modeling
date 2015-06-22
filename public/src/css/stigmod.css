@@ -816,6 +816,9 @@ fieldset[disabled] .stigmod-input {
   -o-animation: show-cont 0.5s 0.3s both;
   animation: show-cont 0.5s 0.3s both;
 }
+.modal-normal-no-animation {
+  margin-left: 150px;
+}
 .modal-recommendation-animation {
   -webkit-animation: show-rec 0.5s 0.3s both;
   /*-moz-animation: show-rec 0.5s 0.3s both;*/

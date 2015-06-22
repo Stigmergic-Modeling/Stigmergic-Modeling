@@ -97,11 +97,12 @@ define(function (require, exports, module) {
 
         // addRelation对话框
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
-        this.addRelationDlgWgt.init(this.icm, this.stateOfPage);
+        this.addRelationDlgWgt.init(this.icm, this.ccm, this.stateOfPage);
         this.addRelationDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系时更新页面状态
         this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建关系时更新icm模型
         this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建关系时更新icm模型
         this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系时局部更新中间栏
+        this.addRelationDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
 
         // removeConfirm对话框
         this.removeConfirmDlgWgt = new RemoveConfirmDialogWgt('#stigmod-modal-remove');
@@ -1927,11 +1928,14 @@ define(function (require, exports, module) {
      */
     function RelationDialogWgt() {
         DialogWgt.apply(this, arguments);
+
+        this.adoptingRec = false;  // 标志位，用于标志是否采纳推荐
+        this.adoptedAttrId = '';  // 所采纳推荐属性的ID
     }
     _.extend(RelationDialogWgt, DialogWgt);
 
     // 事件监听初始化
-    RelationDialogWgt.prototype.init = function (icm, stateOfPage) {
+    RelationDialogWgt.prototype.init = function (icm, ccm, stateOfPage) {
 
         var widget = this;
 
@@ -2037,6 +2041,13 @@ define(function (require, exports, module) {
             $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示role项
             $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
             $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
+
+            widget.adoptingRec = false;
+            widget.adoptedAttrId = '';
+            widget.fire('init');
+
+            // 刷新 modal 推荐栏
+            widget.initRecWgt(icm, ccm, stateOfPage);
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -2074,6 +2085,13 @@ define(function (require, exports, module) {
 
             event.preventDefault();
         }
+    };
+
+    // 初始化推荐栏
+    RelationDialogWgt.prototype.initRecWgt = function (icm, ccm, stateOfPage) {
+        this.recommendation = new RelationRecWgt('#stigmod-modal-rec-relation');
+        this.recommendation.init(icm, ccm, stateOfPage);
+        this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
     };
 
 
@@ -2218,6 +2236,7 @@ define(function (require, exports, module) {
                 }
             }
         }
+        //console.log('StateOfPage', this);
     };
 
 
@@ -2468,7 +2487,7 @@ define(function (require, exports, module) {
     // 初始化
     AttributeRecWgt.prototype.init = function (icm, ccm, stateOfPage) {
         var classId = icm.getClassId(stateOfPage.clazz);
-        this.data = ccm.getAttributes(icm, classId, stateOfPage.clazz);  // TODO test
+        this.data = ccm.getAttributes(icm, classId, stateOfPage.clazz);
         console.log('this.data(getAttributes)', this.data);
 
         var data = this.data,
@@ -2504,6 +2523,73 @@ define(function (require, exports, module) {
 
     // 获取popover内容
     AttributeRecWgt.prototype.getPopover = function (item) {
+        var elem, popover = '', key,
+                hiddenList = {  // 屏蔽掉功能字段
+                    'id': true,
+                    'ref': true
+                };
+
+        // item 不为空时才进行转换
+        if (item) {
+            for (key in item) {
+                if (item.hasOwnProperty(key) && !(key in hiddenList)) {
+                    elem = '<p>' + key + ' : ' + item[key] + '</p>';
+                    popover += elem;
+                }
+            }
+        }
+
+        return popover;
+    };
+
+
+    /**
+     * Relation推荐组件
+     * @constructor
+     */
+    function RelationRecWgt() {
+        RecommendationWgt.apply(this, arguments);
+    }
+    _.extend(RelationRecWgt, RecommendationWgt);
+
+    // 初始化
+    RelationRecWgt.prototype.init = function (icm, ccm, stateOfPage) {
+        this.data = ccm.getRelations(icm, stateOfPage.clazz);
+        console.log('this.data(getRelations)', this.data);
+
+        var data = this.data,
+                $container = this.element.empty(),
+                template = this.templateWgt.t,
+                widget = this,
+                i, len, $item, popover;
+
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = template.newElement().appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+            $item.attr('data-i', i);  // 做标记，用于处理点击
+
+            popover = this.getPopover(data[i]);
+            $item.attr('data-content', popover);
+
+            // 点击填表
+            $item.on('click', fillInBlanks);
+        }
+
+        // 重新激活所有的 popover
+        this.element.find('[data-toggle="popover"]').popover();
+
+        // 初始时不显示
+        this.filter('');
+
+        // 处理：点击填表
+        function fillInBlanks(event) {
+            var i = $(this).attr('data-i');
+            widget.fire('itemClicked', data[i]);
+        }
+    };
+
+    // 获取popover内容
+    RelationRecWgt.prototype.getPopover = function (item) {
         var elem, popover = '', key,
                 hiddenList = {  // 屏蔽掉功能字段
                     'id': true,
