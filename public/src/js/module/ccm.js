@@ -28,14 +28,18 @@ define(function (require, exports, module) {
             return new arguments.callee(ccmPassIn);
         }
 
-        // 目前是写死的数据
         this.clazz = {};
 
         this.relgrp = {
-            "ID65252430-ID65252439": {
-                "ID65252448": {
+            "554b0e254102f9a612c0a472-555066cd882a296d270c5507": {
+                "558366c7004b1400ebfce399": {
                     "type": {
                         "Composition": {
+                            "ref": 1
+                        }
+                    },
+                    "name": {
+                        "hasA": {
                             "ref": 1
                         }
                     },
@@ -45,7 +49,7 @@ define(function (require, exports, module) {
                         }
                     },
                     "clazz": {
-                        "ID65252430-ID65252439": {
+                        "554b0e254102f9a612c0a472-555066cd882a296d270c5507": {
                             "ref": 1
                         }
                     },
@@ -300,6 +304,83 @@ define(function (require, exports, module) {
         }
 
         return res;
+    };
+
+    /**
+     * 获取ccm中的relations
+     * @param icm
+     * @param relgrpName
+     * @returns {Array}
+     */
+    CCM.prototype.getRelations = function (icm, relgrpName) {
+        var relations, relation, res, tmpObj, property,
+                relationIdsInICM ={};  // icm中该class中的relation ID，用于去重
+
+        var relgrpId = relgrpName2Id(relgrpName);
+
+        for (relation in icm[1][relgrpName][0]) {  // TODO 当前版本ICM中relationName和relationId是相同的，但下一版本不同，需要转换
+            if (icm[1][relgrpName][0].hasOwnProperty(relation)) {
+                relationIdsInICM[relation] = true;  // 构造 relationIdsInICM
+            }
+        }
+        //console.log('relationIdsInICM', relationIdsInICM);
+        //console.log('relgrpId', relgrpId);
+
+        if (!this.relgrp[relgrpId]) {
+            return [];
+        }
+
+        relations = this.relgrp[relgrpId];
+        res = [];
+        for (relation in relations) {
+            if (relations.hasOwnProperty(relation)) {
+
+                // TODO: 按引用数取最高
+                tmpObj = {
+                    id: relation,  // 记录id，用于采用推荐时绑定
+                    ref: relations[relation].ref
+                };
+                console.log(relations[relation]);
+                for (property in relations[relation]) {
+                    if (relations[relation].hasOwnProperty(property) && property != 'ref') {
+                        if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
+                            tmpObj[property] = clazzIds2Names(Object.keys(relations[relation][property])[0]);
+                        } else {
+                            tmpObj[property] = Object.keys(relations[relation][property])[0];
+                        }
+                    }
+                }
+                // TODO：调试完成后，需要将下文注释还原为代码
+                //if (tmpObj.id in relationIdsInICM) {
+                //    continue;  // 与当前 ICM relation ID相同的 CCM relation 不会被推荐
+                //}
+
+                res.push(tmpObj);
+            }
+        }
+        //console.log('relationIdsInICM', res);
+        return res;
+
+        // 辅助函数
+        function relgrpName2Id(relgrpName) {
+            var clazz = relgrpName.split('-');
+            var id0 = icm[2]['clazz'][clazz[0]].id;
+            var id1 = icm[2]['clazz'][clazz[1]].id;
+            return id0 + '-' + id1;
+        }
+        function clazzIds2Names(clazzIds) {
+            var id = clazzIds.split('-');
+            var clazz = relgrpName.split('-');
+            var id0 = icm[2]['clazz'][clazz[0]].id;
+            //var id1 = icm[2]['clazz'][clazz[1]].id;
+            if (id0 === id[0]) {
+                return relgrpName;
+            } else if (id0 === id[1]) {
+                return clazz[1] + '-' + clazz[0];
+            } else {
+                return 'error-error';
+            }
+        }
     };
 
     /**
