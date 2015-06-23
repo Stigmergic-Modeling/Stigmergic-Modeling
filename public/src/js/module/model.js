@@ -731,7 +731,7 @@ define(function (require, exports, module) {
                     throw new TypeError('Model.addAttr(): The third argument must be an object.');
                 }
 
-                this.addNode([1, relGrpName, 0], [relID, [{}], relationCCMId, addingType]);  // 空括号很重要
+                this.addNode([1, relGrpName, 0], [relID, [{}]], relationCCMId, addingType);  // 空括号很重要
                 this.insertOrderElem(1, relGrpName, relID, pos.position, pos.direction);  // 将 attribute 插入到指定位置
             };
 
