@@ -856,23 +856,41 @@ var attributeProperty = {
         // attribute 的 type 在底层数据库中是以 class 的形式存在的
         if ('type' === propertyName) {
             propertyName = 'class';
+            class_.getId(projectID, user, propertyValue, function(classId){
+                if(classId != undefined)    propertyValue = classId;
+                var dataSet = {
+                    projectID: projectID,
+                    user: user,
+                    collection: "conceptDiag_edge",
+                    source: attributeId,
+                    relation:{
+                        direction:'1',
+                        attribute:propertyName
+                    },
+                    target:propertyValue
+                };
+
+                saveData(dataSet,function(err,doc){
+                    return callback(err);
+                });
+            });
+        }else{
+            var dataSet = {
+                projectID: projectID,
+                user: user,
+                collection: "conceptDiag_edge",
+                source: attributeId,
+                relation:{
+                    direction:'1',
+                    attribute:propertyName
+                },
+                target:propertyValue
+            };
+
+            saveData(dataSet,function(err,doc){
+                return callback(err);
+            });
         }
-
-        var dataSet = {
-            projectID: projectID,
-            user: user,
-            collection: "conceptDiag_edge",
-            source: attributeId,
-            relation:{
-                direction:'1',
-                attribute:propertyName
-            },
-            target:propertyValue
-        };
-
-        saveData(dataSet,function(err,doc){
-            return callback(err);
-        });
     },
 
     delete: function (projectID, user, attributeId, propertyName, callback) {
@@ -1112,7 +1130,49 @@ var relationProperty = {
                 if(--mutex === 0) return callback(errs);
             });
 
-        } else {  // 当 propertyName 不是 type 时
+        } else if(propertyName === 'class'){
+            // 添加 relation 的 property （增加 edge）
+            mutex += 2;
+            class_.getId(projectID, user, propertyValue[0], function(classId0){
+                var dataSet4left = {
+                    projectID: projectID,
+                    user: user,
+                    collection: "conceptDiag_edge",
+                    source: relationId,
+                    relation: {
+                        direction: '0',
+                        attribute: propertyName
+                    },
+                    target: classId0
+                };
+
+                saveData(dataSet4left, function (err, doc) {
+                    errs = ErrUpdate(errs, err);
+                    if (--mutex === 0) return callback(errs);
+                });
+
+
+                class_.getId(projectID, user, propertyValue[1], function(classId1){
+                    var dataSet4right = {
+                        projectID: projectID,
+                        user: user,
+                        collection: "conceptDiag_edge",
+                        source: relationId,
+                        relation: {
+                            direction: '1',
+                            attribute: propertyName
+                        },
+                        target: classId1
+                    };
+
+                    saveData(dataSet4right, function (err, doc) {
+                        errs = ErrUpdate(errs, err);
+                        if (--mutex === 0) return callback(errs);
+                    });
+                });
+            });
+        }
+        else{  // 当 propertyName 不是 type 时
 
             // 添加 relation 的 property （增加 edge）
             mutex += 2;

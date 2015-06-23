@@ -89,18 +89,20 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
                         // 如果有需要更新的 order
                         orderOperation(projectID, user, orderChanges, function(err, doc){
 
-                            return callback(err);
+                            dbOperationControl.getIndividualModel(projectID,user,function(err,result){
+                                return callback(err,result);
+                            })
                         });
 
                     } else {
-                        return callback(null);
+                        dbOperationControl.getIndividualModel(projectID,user,function(err,result){
+                            return callback(err,result);
+                        })
                     }
                 });
 
 
-                dbOperationControl.getIndividualModel(projectID,user,function(err,result){
-                    return callback(err,result);
-                })
+
 
             }, 100);  // 延时100ms，尽量保证ops中所有的底层操作都已经完成（真的只是尽力而已）
 

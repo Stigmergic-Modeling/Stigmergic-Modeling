@@ -48,7 +48,9 @@ exports.getCollectiveModel = function(projectID, callback){
 
             // 当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-            collectiveModel.getAttributeSet(projectID, item, ObjectID(key), function (item, attributeSet) {
+
+            collectiveModel.getAttributeSet(projectID, item, ObjectID(key), function (item, attributeSet,classId) {
+
                 var attributeSetLen = Object.keys(attributeSet).length;
 
                 if (!attributeSetLen) {
@@ -59,22 +61,23 @@ exports.getCollectiveModel = function(projectID, callback){
                 }
 
                 mutex += attributeSetLen - 1;
-                for (var attribute in attributeSet) {
+                for (var attributeId in attributeSet) {
 
                     //获得对应attribute的Property
-                    item[attribute] = {};
+                    var subItem = item[attributeId] = attributeSet[attributeId];
 
-                    collectiveModel.getAttributePropertySet(projectID, item[attribute], ObjectID(attribute), function (item, propertySet) {
+                    collectiveModel.getAttributePropertySet(projectID, subItem, classId, ObjectID(attributeId), function(subItem, propertySet) {
+
                         //转换并存储
                         for(var property in propertySet) {
                             if (property == "role") {
-                                item["name"] = propertySet[property];
+                                subItem["name"] = propertySet[property];
                             } else if (property == "class") {
-                                item["type"] = propertySet[property];
+                                subItem["type"] = propertySet[property];
                             } else if (property == "isAttribute") {
                                 continue;
                             } else {
-                                item[property] = propertySet[property];
+                                subItem[property] = propertySet[property];
                             }
                         }
 
@@ -166,15 +169,15 @@ var collectiveModel = {
             dbOperation.get("conceptDiag_vertex",filter,function(err,docs){
                 var attributeSet = {};
                 docs.forEach(function(element){
-                    attributeSet[element._id]={ref:attributeSet.user.length,name:{}};//如果一个关系节点，引用次数为M = p(属性引用) + q（关系引用）。 此处我们统计M
+                    attributeSet[element._id]={ref:element.user.length,name:{}};//如果一个关系节点，引用次数为M = p(属性引用) + q（关系引用）。 此处我们统计M
                 });
 
-                return callback(item,attributeSet);
+                return callback(item,attributeSet,classId);
             });
         });
     },
 
-    getAttributePropertySet: function (projectID, item, classId, attributeId, callback) {
+    getAttributePropertySet: function (projectID, subItem, classId, attributeId, callback) {
         var filter = {
             projectID: projectID,
             "source":attributeId,
@@ -184,6 +187,7 @@ var collectiveModel = {
         }
         //find relationProperty
         dbOperation.get("conceptDiag_edge",filter,function(err,docs){
+
             var userList = [[],[]];
 
             docs.forEach(function(element){
@@ -197,8 +201,7 @@ var collectiveModel = {
             var filter0 = {
                 projectID: projectID,
                 "source":attributeId,
-                "relation.direction": '0',
-                "target": classId,
+                "relation.direction": '1',
                 user: { $in: userList[0]}  // 不提取引用用户数为0的部分
             }
             dbOperation.get("conceptDiag_edge",filter0,function(err,docs){
@@ -209,8 +212,7 @@ var collectiveModel = {
                     if(propertySet[element.relation.attribute][element.target]["ref"] == undefined) propertySet[element.relation.attribute][element.target]["ref"]=0;
                     propertySet[element.relation.attribute][element.target]["ref"] += element.user.length;
                 });
-                mutex --;
-                if(mutex == 0)  return callback(item,propertySet);
+                if(--mutex == 0)  return callback(subItem,propertySet);
 
             });
 
@@ -218,19 +220,18 @@ var collectiveModel = {
             var filter1 = {
                 projectID: projectID,
                 "source":attributeId,
-                "relation.direction": '1',
-                "target": classId,
+                "relation.direction": '0',
                 user: { $in: userList[1]}  // 不提取引用用户数为0的部分
             }
             dbOperation.get("conceptDiag_edge",filter1,function(err,docs){
+
                 docs.forEach(function(element){
                     if(propertySet[element.relation.attribute] == undefined)    propertySet[element.relation.attribute] = {};
                     if(propertySet[element.relation.attribute][element.target] == undefined)    propertySet[element.relation.attribute][element.target] = {};
                     if(propertySet[element.relation.attribute][element.target]["ref"] == undefined) propertySet[element.relation.attribute][element.target]["ref"]=0;
                     propertySet[element.relation.attribute][element.target]["ref"] += element.user.length;
                 });
-                mutex --;
-                if(mutex == 0)  return callback(item,propertySet);
+                if(--mutex == 0)  return callback(subItem,propertySet);
             });
         });
     },
@@ -239,19 +240,23 @@ var collectiveModel = {
     getRelationGroup: function(projectID,classSet, callback) {
         var relationGroupSet = {};
 
-        classSet.forEach(function(classId){
+        for(var classId in classSet){
+        //classSet.forEach(function(classId){
             var attributeSet = classSet[classId]["attribute"];
-            attributeSet.forEach(function(attributeId){
+            for(var attributeId in attributeSet){
                 var target = attributeSet[attributeId]["type"];
 
                 if(target != undefined){
-                    var relationGroupId = collectiveModel.getRelationGroupName(classId,target);
+                    for(var classId2 in target){
+                        break;
+                    }
+                    var relationGroupId = collectiveModel.getRelationGroupName(classId,classId2);
 
-                    if(relationGroupSet[relationGroupId] == undefined) relationGroup[relationGroupId] = {};
+                    if(relationGroupSet[relationGroupId] == undefined) relationGroupSet[relationGroupId] = {};
                     relationGroupSet[relationGroupId][classId] = classSet[classId]["attribute"][attributeId];
                 }
-            });
-        });
+            }
+        };
 
         return callback(relationGroupSet);
     },
