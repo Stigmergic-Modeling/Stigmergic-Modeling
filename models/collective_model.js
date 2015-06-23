@@ -20,7 +20,7 @@ var fs = require('fs');
  *  -------------------------------------------------------- */
 
 exports.getCollectiveModel = function(projectID, callback){
-
+    //TODO 图中关系节点，我们无法分辨attribute和relation。所以统计时是混合统计的
     var model = {class:{},relationGroup:{}};
     var mutex = 1;  // 对应 getClass 和 getRelation 这两个任务
 
@@ -65,7 +65,6 @@ exports.getCollectiveModel = function(projectID, callback){
                     item[attribute] = {};
 
                     collectiveModel.getAttributePropertySet(projectID, item[attribute], ObjectID(attribute), function (item, propertySet) {
-
                         //转换并存储
                         for(var property in propertySet) {
                             if (property == "role") {
@@ -80,7 +79,11 @@ exports.getCollectiveModel = function(projectID, callback){
                         }
 
                         if (--mutex === 0) {
-                            return callback(null, model);
+                            collectiveModel.getRelationGroup(projectID, model["class"], function (relationGroupSet) {
+                                model["relationGroup"] = relationGroupSet;
+
+                                return callback(null, model);
+                            })
                         }
                     });
                 }
@@ -102,6 +105,7 @@ var collectiveModel = {
             var classSet = {};
             var classIdArray = [];
             docs.forEach(function(element){
+                classSet[element._id]={ref:element.user.length,name:{}};
                 classIdArray.push(element._id);
             });
 
@@ -117,11 +121,12 @@ var collectiveModel = {
 
             dbOperation.get("conceptDiag_edge",filter2,function(err,docs){
                 docs.forEach(function(element){
-
+                    /*  上面已经开辟过了
                     if (typeof classSet[element.source] === 'undefined') {  // 开辟空间
                         classSet[element.source] = {};
                         classSet[element.source].name = {};
                     }
+                    */
                     classSet[element.source].name[element.target] = {};
                     classSet[element.source].name[element.target]["ref"] = element.user.length;
                 });
@@ -138,10 +143,130 @@ var collectiveModel = {
         }
 
         //找到所有与class相关的可能作为attribute的relation节点
-        var relationFilter = new Merge(filter, {
+        var attributeFilter = new Merge(filter, {
             relation : {
                 direction: '0',
                 attribute: 'class'
+            },
+            target: classId
+        });
+
+        dbOperation.get("conceptDiag_edge", attributeFilter ,function (err, docs) {
+
+            var attributeIdArray = [];
+            docs.forEach(function(element){
+                // attribute or relation
+                attributeIdArray.push(element.source);
+            });
+
+            var filter = {
+                projectID : projectID,
+                _id : {$in:attributeIdArray}
+            };
+            dbOperation.get("conceptDiag_vertex",filter,function(err,docs){
+                var attributeSet = {};
+                docs.forEach(function(element){
+                    attributeSet[element._id]={ref:attributeSet.user.length,name:{}};//如果一个关系节点，引用次数为M = p(属性引用) + q（关系引用）。 此处我们统计M
+                });
+
+                return callback(item,attributeSet);
+            });
+        });
+    },
+
+    getAttributePropertySet: function (projectID, item, classId, attributeId, callback) {
+        var filter = {
+            projectID: projectID,
+            "source":attributeId,
+            "relation.attribute": 'class',
+            "target": classId,
+            user: { $not: { $size: 0}}  // 不提取引用用户数为0的部分
+        }
+        //find relationProperty
+        dbOperation.get("conceptDiag_edge",filter,function(err,docs){
+            var userList = [[],[]];
+
+            docs.forEach(function(element){
+                userList[element.relation.direction] = userList[element.relation.direction].concat(element.user) ;
+            });
+
+            var mutex = 2;
+            var propertySet = {};
+
+            //class在1侧，取0侧的属性
+            var filter0 = {
+                projectID: projectID,
+                "source":attributeId,
+                "relation.direction": '0',
+                "target": classId,
+                user: { $in: userList[0]}  // 不提取引用用户数为0的部分
+            }
+            dbOperation.get("conceptDiag_edge",filter0,function(err,docs){
+                //find attributeProperty
+                docs.forEach(function(element){
+                    if(propertySet[element.relation.attribute] == undefined)    propertySet[element.relation.attribute] = {};
+                    if(propertySet[element.relation.attribute][element.target] == undefined)    propertySet[element.relation.attribute][element.target] = {};
+                    if(propertySet[element.relation.attribute][element.target]["ref"] == undefined) propertySet[element.relation.attribute][element.target]["ref"]=0;
+                    propertySet[element.relation.attribute][element.target]["ref"] += element.user.length;
+                });
+                mutex --;
+                if(mutex == 0)  return callback(item,propertySet);
+
+            });
+
+            //class在0侧，取1侧的属性
+            var filter1 = {
+                projectID: projectID,
+                "source":attributeId,
+                "relation.direction": '1',
+                "target": classId,
+                user: { $in: userList[1]}  // 不提取引用用户数为0的部分
+            }
+            dbOperation.get("conceptDiag_edge",filter1,function(err,docs){
+                docs.forEach(function(element){
+                    if(propertySet[element.relation.attribute] == undefined)    propertySet[element.relation.attribute] = {};
+                    if(propertySet[element.relation.attribute][element.target] == undefined)    propertySet[element.relation.attribute][element.target] = {};
+                    if(propertySet[element.relation.attribute][element.target]["ref"] == undefined) propertySet[element.relation.attribute][element.target]["ref"]=0;
+                    propertySet[element.relation.attribute][element.target]["ref"] += element.user.length;
+                });
+                mutex --;
+                if(mutex == 0)  return callback(item,propertySet);
+            });
+        });
+    },
+
+
+    getRelationGroup: function(projectID,classSet, callback) {
+        var relationGroupSet = {};
+
+        classSet.forEach(function(classId){
+            var attributeSet = classSet[classId]["attribute"];
+            attributeSet.forEach(function(attributeId){
+                var target = attributeSet[attributeId]["type"];
+
+                if(target != undefined){
+                    var relationGroupId = collectiveModel.getRelationGroupName(classId,target);
+
+                    if(relationGroupSet[relationGroupId] == undefined) relationGroup[relationGroupId] = {};
+                    relationGroupSet[relationGroupId][classId] = classSet[classId]["attribute"][attributeId];
+                }
+            });
+        });
+
+        return callback(relationGroupSet);
+    },
+    /*
+    getAttributeSet: function (projectID, item, classId, callback) {
+        var filter = {
+            projectID: projectID,
+            user: { $not: { $size: 0}}  // 不提取引用用户数为0的部分
+        }
+
+        //找到所有与class相关的可能作为relation的relation节点
+        var relationFilter = new Merge(filter, {
+            relation : {
+                direction: '0',
+                relation: 'class'
             },
             target: classId
         });
@@ -150,7 +275,7 @@ var collectiveModel = {
 
             var relationArray = [];
             docs.forEach(function(element){
-                // attribute or relation
+                // relation or relation
                 relationArray.push(element.source);
             });
 
@@ -165,13 +290,31 @@ var collectiveModel = {
             });
 
             dbOperation.get("conceptDiag_edge", relationFilter, function (err, docs) {
-
+                ///*
                 var attributeSet = {};
                 docs.forEach(function(element){
-                    attributeSet[element.source]={};  // direction 默认为1
+                    attributeSet[element.source]={ref:element.user.length};  // direction 默认为1
+                    //如果一个关系节点，引用次数为M = p(属性引用) + q（关系引用）。 此处我们只统计了p
                 });
 
                 return callback(item,attributeSet);
+                //*//*
+                var attributeIdArray = [];
+                docs.forEach(function(element){
+                    attributeIdArray.push(element.source);
+                });
+                var filter = {
+                    projectID : projectID,
+                    _id : {$in:attributeIdArray}
+                };
+                dbOperation.get("conceptDiag_vertex",filter,function(err,docs){
+                    var attributeSet = {};
+                    docs.forEach(function(element){
+                        attributeSet[element._id]={ref:attributeSet.user.length,name:{}};//如果一个关系节点，引用次数为M = p(属性引用) + q（关系引用）。 此处我们统计M
+                    });
+
+                    return callback(item,attributeSet);
+                });
             })
         });
     },
@@ -199,32 +342,7 @@ var collectiveModel = {
     },
 
 
-    getRelationGroupAndRelation: function (projectID, user, callback) {
-        var filter = {
-            projectID : projectID,
-            user : user,
-            type : 'relation_group'
-        }
-
-        // 获取所有的 relation group 的name，以及其中所有 relation 的 id
-        dbOperation.get("conceptDiag_order", filter, function (err, docs) {
-            if (err) {
-                return callback(err, null);
-            }
-            var relationGroupSet = {};
-
-            docs.forEach(function (element) {
-                relationGroupSet[element.identifier] = [];  // relationGroupSet[element.identifier][0] 的位置被预留
-                relationGroupSet[element.identifier][0] = {};
-                relationGroupSet[element.identifier][1] = {
-                    order: element.order
-                };
-            });
-
-            return callback(err, relationGroupSet);
-        });
-    },
-
+    /*
     getRelationProperty: function (projectID, user, relationGroupName, relationId, callback) {
         var filter = {
             projectID: projectID,
@@ -286,19 +404,13 @@ var collectiveModel = {
             });
         });
     },
+    */
 
-    transAttribute: function(attributeSet){
-        var newAttributeSet = {};
-        var banList = {'isAttribute':{},'role':{}};
-        for(var key in attributeSet){
-            var attributeName = attributeSet[key][0]['role'];
-            newAttributeSet[attributeName] = [{}];
-            for(var subkey in attributeSet[key][0]){
-                if(banList[subkey]) continue;
-                newAttributeSet[attributeName][0][subkey] = attributeSet[key][0][subkey];
-            }
-        }
-        return newAttributeSet;
+    getRelationGroupName: function(id1,id2){
+        var name;
+        if(id1<id2) name = id1+'-'+id2;
+        else name = id1+'-'+id2;
+        return name;
     }
 }
 
