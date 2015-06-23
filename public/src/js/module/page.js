@@ -1985,12 +1985,11 @@ define(function (require, exports, module) {
             }
 
             if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {
-
-                // 生成 relation id
-                var idRelFront = new ObjectId().toString();
+                var relationId = widget.adoptingRec ? widget.adoptedRelationId : new ObjectId().toString(),
+                        addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 添加 relation id 作为该relation在前端的Key
-                icm.addRelation(stateOfPage.clazz, idRelFront, stateOfPage.addAttrRel);
+                icm.addRelation(stateOfPage.clazz, relationId, stateOfPage.addAttrRel, relationId, addingType);
 
                 // 添加 properties
                 var $propertyNew = $(this).closest('#stigmod-modal-addrelation').find('tr:visible');
@@ -2017,10 +2016,10 @@ define(function (require, exports, module) {
                         }
                     }
 
-                    icm.addPropOfR(stateOfPage.clazz, idRelFront, [propertyName, [propertyValue1, propertyValue2]]);
+                    icm.addPropOfR(stateOfPage.clazz, relationId, [propertyName, [propertyValue1, propertyValue2]]);
                 });
 
-                widget.fire('insertNewItem', idRelFront);
+                widget.fire('insertNewItem', relationId);
                 widget.close(); // 关闭当前 modal
 
                 enableSave();
@@ -2143,7 +2142,6 @@ define(function (require, exports, module) {
         } else {
             this.relation.name.turnOn(['']);
         }
-
 
         // 绑定id
         this.adoptingRec = true;
