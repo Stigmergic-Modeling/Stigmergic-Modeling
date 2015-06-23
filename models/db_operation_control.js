@@ -43,13 +43,13 @@ var ErrUpdate = function(state,newError){
 var getIndividualModel = function (projectID, user, callback) {
     var model = [{}, {}, {
         clazz: {},
-        attr: {},  // 格式 className-attributeName : attributeId
+        //attr: {},  // 格式 className-attributeName : attributeId
         relation: {}
     }];
     var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
 
     // 获取所有 class
-    individualModel.getClassSet(projectID, user, model[2]['clazz'], function (classSet) {  // model[2] 是name到id的映射
+    individualModel.getClassSet(projectID, user, model[2]['clazz'], function(classSet) {  // model[2] 是name到id的映射
 
         var classSetLen = Object.keys(classSet).length;
         // 若 class 个数为 0，则直接退出 getClass 任务
@@ -139,6 +139,10 @@ var getIndividualModel = function (projectID, user, callback) {
         for (var rlg in relationGroupSet) {
             var relationArray = relationGroupSet[rlg][1]['order'];
             var relationArrayLen = relationArray.length;
+
+            for(var i=0;i<relationArray.length;i++){
+                model[2]['relation'][relationArray[i]] = relationArray[i];
+            }
 
             // 若 relation 个数为 0，则直接退出 getRelationGroupAndRelation 任务
             if (!relationArrayLen) {
@@ -412,6 +416,7 @@ var class_ = {
             "target": className
         });
         dbOperation.get("conceptDiag_edge",classNameFilter,function(err,docs){
+
             //筛选出其中未被当前user使用的节点
             var classIdArray = [];
             var refSet = {};
@@ -436,6 +441,7 @@ var class_ = {
                         maxRef =  refSet[element._id];
                     }
                 });
+
                 if(classId != undefined){
                     var dataSet = {
                         'collection': "conceptDiag_vertex",
