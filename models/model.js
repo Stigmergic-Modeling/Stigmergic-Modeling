@@ -9,6 +9,7 @@ var CCM = require('./collective_model.js');
 
 exports.modelGet = function(projectID,user,callback){
     dbOperationControl.getIndividualModel(projectID,user,function(err,result){
+
         return callback(err,result);
     })
 }
@@ -97,10 +98,9 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
                 });
 
 
-                CCM.getCollectiveModel(modelInfo.ccm_id, function(err, ccm) {
-                    console.log(ccm);
-                    res.send(ccm);
-                });
+                dbOperationControl.getIndividualModel(projectID,user,function(err,result){
+                    return callback(err,result);
+                })
 
             }, 100);  // 延时100ms，尽量保证ops中所有的底层操作都已经完成（真的只是尽力而已）
 
@@ -151,9 +151,9 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
 var classOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            var haveId = dataItem[4];
-            if(haveId){
-                var classId = ObjectID(dataItem[5]);
+            var haveId = dataItem[5];
+            if(haveId == "binding"){
+                var classId = ObjectID(dataItem[4]);
                 dbOperationControl.class.add(projectID,user,dataItem[3],"normal",classId,function(err,doc){
                     return callback(err,doc);
                 });
@@ -183,9 +183,9 @@ var classOperation = function (projectID, user, dataItem, callback) {
 var attributeOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            var haveId = dataItem[5];
-            if(haveId){
-                var attributeId = ObjectID(dataItem[6]);
+            var haveId = dataItem[6];
+            if(haveId == "binding"){
+                var attributeId = ObjectID(dataItem[5]);
                 dbOperationControl.attribute.add(projectID,user,dataItem[3],dataItem[4],attributeId,function(err,doc){
                     return callback(err,doc);
                 });
@@ -265,13 +265,9 @@ var relationGroupOperation = function (projectID, user, dataItem, callback) {
 var relationOperation = function (projectID, user, dataItem, callback) {
     switch(dataItem[1]){
         case 'ADD':
-            dbOperationControl.relation.add(projectID, user, ObjectID(dataItem[4]), function (err, doc) {
-                return callback(err, doc);
-            });
-
-            var haveId = dataItem[5];
-            if(haveId){
-                var relationId = ObjectID(dataItem[6]);
+            var haveId = dataItem[6];
+            if(haveId == "binding"){
+                var relationId = ObjectID(dataItem[5]);
                 dbOperationControl.relation.add(projectID,user,relationId,function(err,doc){
                     return callback(err,doc);
                 });
