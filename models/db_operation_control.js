@@ -267,7 +267,13 @@ var individualModel = {
             docs.forEach(function(element){
                 property[element.relation.attribute] = element.target;
             });
-            return callback(attributeId,property);
+
+            if(property["class"] != undefined){
+                class_.getName(projectID, user, property["class"],function(className){
+                    if(className != null) property["class"]  = className;
+                    return callback(attributeId,property);
+                })
+            }
         });
     },
 
@@ -355,7 +361,16 @@ var individualModel = {
 
                 propertySet['type'][1] = docs[0].name ? docs[0].name : '';  // 在前端模型中，name 存储在 ‘type’ 中
 
-                return callback(err, relationGroupName, relationId, propertySet);
+                class_.getName(projectID, user, ObjectID(propertySet["class"][0]),function(className0){
+                    propertySet["class"][0] = className0;
+
+                    class_.getName(projectID, user, ObjectID(propertySet["class"][1]),function(className1){
+                        propertySet["class"][1] = className1;
+
+                        return callback(err, relationGroupName, relationId, propertySet);
+                    })
+                })
+
             });
         });
     },
@@ -380,6 +395,27 @@ var individualModel = {
  */
 
 var class_ = {
+    getName: function(projectID, user, classId, callback){
+        var filter = {
+            projectID: projectID,
+            user:user
+        }
+        //找到包含className的边，其边的source为classId
+        var classFilter = new Merge(filter,{
+            "relation":{
+                "direction": '',
+                "attribute": 'className'
+            },
+            "source": classId
+        });
+        dbOperation.get("conceptDiag_edge",classFilter,function(err,docs){
+            var className = null;
+            if(docs){
+                if(docs[0]) className=docs[0].target;
+            }
+            return callback(className);
+        });
+    },
     getId: function(projectID, user, className, callback){
         var filter = {
             projectID: projectID,
