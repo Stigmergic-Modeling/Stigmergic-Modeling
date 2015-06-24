@@ -33,6 +33,7 @@ define(function (require, exports, module) {
      */
     function Page(stateRawData, icmRawData) {
 
+        var page = this;  // 用于穿透闭包
         _.makePublisher(this);
 
         // 模型
@@ -64,7 +65,12 @@ define(function (require, exports, module) {
         this.middleColWgt.on('classNameChanged', 'refreshLeftColAndActivate', this);  // 中间栏点击时更新页面状态
 
         // 右侧栏
-        //this.rightColWgt = new rightColWgt();
+        this.rightColWgt = new RightColWgt('#stigmod-rcmd-right');
+        var recInterval = 1000;  // 每隔20s更新一侧右侧推荐栏的推荐结果
+        setInterval(function() {
+            page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
+        }, recInterval);
+
 
         // 顶部栏(网站导航条之下)
         this.headerWgt = new HeaderWgt('#stigmod-header');
@@ -1400,6 +1406,24 @@ define(function (require, exports, module) {
     };
 
 
+    /**
+     * 右侧推荐栏组件
+     * @constructor
+     */
+    function RightColWgt() {
+        Widget.apply(this, arguments);
+    }
+    _.extend(RightColWgt, Widget);
+
+    RightColWgt.prototype.init = function (icm, ccm, stateOfPage) {
+        var widget = this;
+
+        widget.classRec = new RightColClassRecWgt('#stigmod-rcmd-class');
+        //widget.relationRec = new RightColRelationRecWgt('#stigmod-rcmd-relation');
+        widget.classRec.init(icm, ccm, stateOfPage);
+        //widget.relationRec.init(icm, ccm, stateOfPage);
+    };
+
 
     /**
      * 顶部栏组件(也包括全屏时的悬浮窗)
@@ -2525,7 +2549,7 @@ define(function (require, exports, module) {
     // 初始化
     ClassRecWgt.prototype.init = function (icm, ccm) {
         this.data = ccm.getClasses(icm);
-        console.log('this.data(getClasses)', this.data);
+        //console.log('this.data(getClasses)', this.data);
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2715,6 +2739,56 @@ define(function (require, exports, module) {
 
         return popover;
     };
+
+
+    /**
+     * 右侧栏中的Class推荐组件
+     * @constructor
+     */
+    function RightColClassRecWgt() {
+        ClassRecWgt.apply(this, arguments);
+    }
+    _.extend(RightColClassRecWgt, ClassRecWgt);
+
+    // 初始化（覆盖ClassRecWgt中的init）
+    RightColClassRecWgt.prototype.init = function (icm, ccm) {
+        this.data = ccm.getClasses(icm);
+        console.log('this.data(getClasses)', this.data);
+        this.element.find('[data-toggle="popover"]').popover('destroy');  // 在清空元素前销毁可能存在的旧popover
+
+        var data = this.data,
+                $container = this.element.empty(),
+                template = this.templateWgt.t,
+                widget = this,
+                i, len, $item, popover;
+
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = template.newElement().appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+            $item.attr('data-i', i);  // 做标记，用于处理点击
+
+            popover = this.getPopover(data[i].attribute);
+            $item.attr('data-content', popover);
+            $item.attr('title', 'CLASS : ' + data[i].name);
+
+            // 点击填表
+            $item.on('click', fillInBlanks);
+        }
+
+        // 重新激活所有的 popover
+        this.element.find('[data-toggle="popover"]').popover();
+
+        // 初始时不显示
+        //this.filter('');
+
+        // 处理：点击填表
+        function fillInBlanks(event) {
+            //var i = $(this).attr('data-i');
+            //widget.fire('itemClicked', data[i]);
+        }
+    };
+
+
 
 
     /** ---------------------- *
