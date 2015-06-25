@@ -752,6 +752,7 @@ var attribute = {
                             "direction": '1',
                             "attribute": 'role'
                         },
+                        "type": "association",
                         "target": attributeName
                     });
 
