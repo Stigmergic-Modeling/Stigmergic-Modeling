@@ -33,6 +33,7 @@ define(function (require, exports, module) {
      */
     function Page(stateRawData, icmRawData) {
 
+        var page = this;  // 用于穿透闭包
         _.makePublisher(this);
 
         // 模型
@@ -64,7 +65,14 @@ define(function (require, exports, module) {
         this.middleColWgt.on('classNameChanged', 'refreshLeftColAndActivate', this);  // 中间栏点击时更新页面状态
 
         // 右侧栏
-        //this.rightColWgt = new rightColWgt();
+        this.rightColWgt = new RightColWgt('#stigmod-rcmd-right');
+        //page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
+        var recInterval = 1000;  // 每隔20s更新一侧右侧推荐栏的推荐结果
+        setTimeout(function() {
+            page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
+            page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
+        }, recInterval);
+
 
         // 顶部栏(网站导航条之下)
         this.headerWgt = new HeaderWgt('#stigmod-header');
@@ -338,6 +346,11 @@ define(function (require, exports, module) {
     // 获取最新ccm用于推荐（异步）
     Page.prototype.getUpdatedCCM = function () {
         this.ccm.getCCM(this.stateOfPage.modelName);
+    };
+
+    // 触发对话框
+    Page.prototype.openDialog = function (widgetName, elementModel) {
+        this[widgetName].open(elementModel);
     };
 
 
@@ -1400,6 +1413,24 @@ define(function (require, exports, module) {
     };
 
 
+    /**
+     * 右侧推荐栏组件
+     * @constructor
+     */
+    function RightColWgt() {
+        Widget.apply(this, arguments);
+    }
+    _.extend(RightColWgt, Widget);
+
+    RightColWgt.prototype.init = function (icm, ccm, stateOfPage) {
+        var widget = this;
+
+        widget.classRec = new RightColClassRecWgt('#stigmod-rcmd-class');
+        //widget.relationRec = new RightColRelationRecWgt('#stigmod-rcmd-relation');
+        widget.classRec.init(icm, ccm);
+        //widget.relationRec.init(icm, ccm);
+    };
+
 
     /**
      * 顶部栏组件(也包括全屏时的悬浮窗)
@@ -1545,7 +1576,7 @@ define(function (require, exports, module) {
         // modal 显示时复位
         var modalId = '#' + this.element.attr('id');
 
-        $(document).on('show.bs.modal', modalId, handleMdlRmTooltip);
+        $(document).on('shown.bs.modal', modalId, handleMdlRmTooltip);  // checkinput的提示会在需要时由checkinput加入
         $(document).on('shown.bs.modal', modalId, handleMdlFocus);
 
         // 处理：modal 显示时复位
@@ -1555,6 +1586,11 @@ define(function (require, exports, module) {
         function handleMdlFocus() {  // 对任何 modal 都有效
             focusOnInputIn($(this));
         }
+    };
+
+    // 打开对话框
+    DialogWgt.prototype.superOpen = function () {
+        this.element.modal('show');
     };
 
     // 关闭对话框
@@ -1573,15 +1609,17 @@ define(function (require, exports, module) {
 
         this.adoptingRec = false;  // 标志位，用于标志是否采纳推荐
         this.adoptedClassId = '';  // 所采纳推荐类的ID
+
+        this.preInfo = null;  // 预存信息，一般由右侧推荐栏的 item click 产生
+        this.$input = $('#stigmod-addclass-input');
     }
     _.extend(ClassDialogWgt, DialogWgt);
 
     // 事件监听初始化
     ClassDialogWgt.prototype.init = function (icm, ccm, stateOfPage) {
-        var $input = $('#stigmod-addclass-input');
 
         // 为 addclass modal 添加下拉提示
-        $input.typeahead({
+        this.$input.typeahead({
                     hint: true,
                     highlight: true,
                     minLength: 1
@@ -1603,7 +1641,7 @@ define(function (require, exports, module) {
         $(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
 
         // 输入框中每输入一个字符，过滤一次推荐栏的内容
-        $input.on('keyup', handleFilterRec);
+        this.$input.on('keyup', handleFilterRec);
 
         // 处理：点击 addclass 确认按钮
         function handleAddClassOk() {
@@ -1634,14 +1672,26 @@ define(function (require, exports, module) {
 
         // 处理：modal 显示前复位
         function handleMdlAddClass() {
-            $(this).find('input').val('');
-
-            widget.adoptingRec = false;
-            widget.adoptedClassId = '';
-            widget.fire('init');
-
+            //widget.element.find('[data-toggle="tooltip"]').tooltip('destroy');
             // 刷新 modal 推荐栏
             widget.initRecWgt(icm, ccm);
+
+            if (!widget.preInfo) {  // 没有预存信息，正常初始化
+                widget.$input.val('');
+                widget.$input.typeahead('val', '');  // typeahead 也需要清空
+
+                widget.adoptingRec = false;
+                widget.adoptedClassId = '';
+
+            } else {  // 有预存信息，用预存信息填表（意味着进入绑定模式），并清除预存信息
+                widget.setInputWgtValue(widget.preInfo);
+                widget.preInfo = null;
+            }
+
+            widget.fire('init');
+
+            //// 刷新 modal 推荐栏
+            //widget.initRecWgt(icm, ccm);
         }
 
         // 处理：过滤推荐栏的内容
@@ -1672,6 +1722,16 @@ define(function (require, exports, module) {
         this.recommendation = new ClassRecWgt('#stigmod-modal-rec-class');
         this.recommendation.init(icm, ccm);
         this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
+    };
+
+    // 打开对话框（覆盖超类的方法）
+    ClassDialogWgt.prototype.open = function (classModel) {
+
+        // 预存信息
+        this.preInfo = classModel;
+
+        // 真正打开对话框
+        this.superOpen();
     };
 
 
@@ -1838,7 +1898,11 @@ define(function (require, exports, module) {
 
         // 处理：modal 显示前复位
         function handleMdlAddAttr() {
+            // 刷新 modal 推荐栏
+            widget.initRecWgt(icm, ccm, stateOfPage);
+
             $(this).find('input[type=text]').val('');
+            $input.typeahead('val', '');  // typeahead 复位
             $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
             $(this).find('input[type=checkbox]').removeAttr('checked');
             $(this).find('input[value=type]').prop('checked', true); // 保留type项的选中状态
@@ -1850,8 +1914,7 @@ define(function (require, exports, module) {
             widget.adoptedAttrId = '';
             widget.fire('init');
 
-            // 刷新 modal 推荐栏
-            widget.initRecWgt(icm, ccm, stateOfPage);
+
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -2368,7 +2431,14 @@ define(function (require, exports, module) {
 
         for (i = 0; i < this.number; i++) {
             el = this.inputElements.eq(i);
+
+            // 填文本框
             el.val(value[i]);
+
+            // 若文本框有下拉提示附件，则还要更新tt的值（非常关键）
+            if (el.hasClass('tt-input')) {
+                el.typeahead('val', value[i]);
+            }
 
             // 触发文本合法性检查（value为空字符串时，表示需要重置该组件，因此不需触发检查。）
             if (value[i] !== '') {  // （若value为空字符串时触发检查，则会引发错误显示tooltip的BUG）
@@ -2525,7 +2595,7 @@ define(function (require, exports, module) {
     // 初始化
     ClassRecWgt.prototype.init = function (icm, ccm) {
         this.data = ccm.getClasses(icm);
-        console.log('this.data(getClasses)', this.data);
+        //console.log('this.data(getClasses)', this.data);
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2715,6 +2785,60 @@ define(function (require, exports, module) {
 
         return popover;
     };
+
+
+    /**
+     * 右侧栏中的Class推荐组件
+     * @constructor
+     */
+    function RightColClassRecWgt() {
+        ClassRecWgt.apply(this, arguments);
+    }
+    _.extend(RightColClassRecWgt, ClassRecWgt);
+
+    // 初始化（覆盖ClassRecWgt中的init）
+    RightColClassRecWgt.prototype.init = function (icm, ccm) {
+        this.data = ccm.getClasses(icm);
+        console.log('this.data(getClasses)', this.data);
+        this.element.find('[data-toggle="popover"]').popover('destroy');  // 在清空元素前销毁可能存在的旧popover
+
+        var data = this.data,
+                $container = this.element.empty(),
+                template = this.templateWgt.t,
+                widget = this,
+                i, len, $item, popover;
+
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = template.newElement().appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+            $item.attr('data-i', i);  // 做标记，用于处理点击
+            //$item.attr('data-id', data[i].id);  // 做标记，用于处理点击
+            //$item.attr('data-name', data[i].name);  // 做标记，用于处理点击
+
+            popover = this.getPopover(data[i].attribute);
+            $item.attr('data-content', popover);
+            $item.attr('title', 'CLASS : ' + data[i].name);
+
+            // 点击打开对话框
+            $item.on('click', openDiag);
+        }
+
+        // 重新激活所有的 popover
+        this.element.find('[data-toggle="popover"]').popover();
+
+        // 初始时不显示
+        //this.filter('');
+
+        // 处理：点击打开对话框
+        function openDiag(event) {
+            //var className = $(this).attr('data-name');
+            //var classId = $(this).attr('data-id');
+            var i = $(this).attr('data-i');
+            widget.fire('openDialog', ['addClassDlgWgt', data[i]]);
+        }
+    };
+
+
 
 
     /** ---------------------- *

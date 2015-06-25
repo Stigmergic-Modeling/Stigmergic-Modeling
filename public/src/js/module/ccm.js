@@ -350,10 +350,10 @@ define(function (require, exports, module) {
                         }
                     }
                 }
-                // TODO：调试完成后，需要将下文注释还原为代码
-                //if (tmpObj.id in relationIdsInICM) {
-                //    continue;  // 与当前 ICM relation ID相同的 CCM relation 不会被推荐
-                //}
+                // DONE：调试完成后，需要将下文注释还原为代码
+                if (tmpObj.id in relationIdsInICM) {
+                    continue;  // 与当前 ICM relation ID相同的 CCM relation 不会被推荐
+                }
 
                 res.push(tmpObj);
             }
