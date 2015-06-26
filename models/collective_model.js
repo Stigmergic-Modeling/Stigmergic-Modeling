@@ -23,7 +23,7 @@ exports.getCollectiveModel = function(projectID, callback){
     //TODO 图中关系节点，我们无法分辨attribute和relation。所以统计时是混合统计的
     var model = {class:{},relationGroup:{}};
     var mutex = 1;  // 对应 getClass 和 getRelation 这两个任务
-
+    var relationMutex = 0;
     // 获取所有 class
     collectiveModel.getClassSet(projectID, function (classSet) {
 
@@ -32,14 +32,14 @@ exports.getCollectiveModel = function(projectID, callback){
 
         // 若 class 个数为 0，则直接退出 getClass 任务
         if (!classSetLen) {
-            if (--mutex === 0) {
+            //if (--mutex === 0) {
                 return callback(null, model);
-            }
-            return;
+            //}
+            //return;
         }
 
         // 若 class 个数不为 0，则退出 getClassSet 任务，同时加入所有 class 之下的任务（原子性得到保证）
-        mutex += classSetLen - 1;
+        //mutex += classSetLen*2 - 1;
 
         // 对每个 class
         for (var key in classSet) {
@@ -48,7 +48,7 @@ exports.getCollectiveModel = function(projectID, callback){
 
             // 当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-
+            mutex++;
             collectiveModel.getAttributeSet(projectID, item, ObjectID(key), function (item, attributeSet, attributeUserSet, classId) {
 
                 var attributeSetLen = Object.keys(attributeSet).length;
@@ -80,7 +80,6 @@ exports.getCollectiveModel = function(projectID, callback){
                                 subItem[property] = propertySet[property];
                             }
                         }
-
                         if (--mutex === 0) {
                             return callback(null, model);
                         }
@@ -102,8 +101,8 @@ exports.getCollectiveModel = function(projectID, callback){
                 }
 
                 //mutex += relationSetLen - 1;
-                mutex += 1;
-                var relationMutex = relationSetLen;
+                //mutex += 1;
+                relationMutex += relationSetLen;
 
                 relationItem[classId] = {};
                 relationItem[classId]["relation"]= relationSet;
@@ -131,11 +130,11 @@ exports.getCollectiveModel = function(projectID, callback){
                             subItem[property] = propertySet[property];
                         }
 
-                        if (--relationMutex === 0) {
+                        if (--relationMutex == 0) {
                             collectiveModel.getRelationGroup(projectID, relationItem, function (relationGroupSet) {
                                 model["relationGroup"] = relationGroupSet;
 
-                                if (--mutex === 0) {
+                                if (--mutex == 0) {
                                     return callback(null, model);
                                 }
                             })
@@ -353,13 +352,11 @@ var collectiveModel = {
             var relationSet = classSet[classId]["relation"];
             for(var relationId in relationSet){
                 mutex++;
-
                 var target = relationSet[relationId]["class"];  //另一侧class
 
                 if(target != undefined){
                     for(var classId2 in target){
-                        --mutex
-                        continue;
+                        break;
                     }
 
                     var info = collectiveModel.getRelationGroupName(classId,classId2);
