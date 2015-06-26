@@ -1056,7 +1056,7 @@ var relation = {
         var dataSet = {
             _id: relationId,
             projectID: projectID,
-            name: '',
+            //name: '',
             user: [user]
         };
 
@@ -1129,40 +1129,40 @@ var relationProperty = {
             var name = propertyValue[1];
 
             // 若是Association，需要增加一条edge标识其具体类型（Association、Composition or Aggregation）
-            if ('Generalization' !== type) {
-                mutex ++;
-                var dataSet4AssoTypeEdge = {
-                    projectID: projectID,
-                    user: user,
-                    collection: 'conceptDiag_edge',
-                    source: relationId,
-                    target: '1',
-                    relation: {
-                        direction: '1',  // 固定加在 E1 端，与 isAttribute 的位置一致
-                        attribute: 'is' + type  // 'isAssociation', 'isComposition' or 'isAggregation'
-                    }
+            //if ('Generalization' !== type) {
+            mutex ++;
+            var dataSet4AssoTypeEdge = {
+                projectID: projectID,
+                user: user,
+                collection: 'conceptDiag_edge',
+                source: relationId,
+                target: '1',
+                relation: {
+                    direction: '1',  // 固定加在 E1 端，与 isAttribute 的位置一致
+                    attribute: 'is' + type  // 'isAssociation', 'isComposition' or 'isAggregation'
                 }
-
-                saveData(dataSet4AssoTypeEdge, function (err, doc) {
-                    errs = ErrUpdate(errs, err);
-                    if(--mutex === 0) return callback(errs);
-                });
             }
+
+            saveData(dataSet4AssoTypeEdge, function (err, doc) {
+                errs = ErrUpdate(errs, err);
+                if(--mutex === 0) return callback(errs);
+            });
+            //}
 
             // 更新该 relation 的 vertex 中的 name
             mutex ++;
-            var dataSet4Vertex = {};
-            dataSet4Vertex.collection = 'conceptDiag_vertex';
-            dataSet4Vertex.filter = {
-                _id: relationId,
+            var dataSet4NameEdge = {
                 projectID: projectID,
-                user: user
-            }
-            dataSet4Vertex.updateData = {
-                name : name
+                user: user,
+                collection: 'conceptDiag_edge',
+                source: relationId,
+                target: name,
+                relation: {
+                    attribute: "name"  // 'isAssociation', 'isComposition' or 'isAggregation'
+                }
             }
 
-            updateData(dataSet4Vertex, function (err, doc) {
+            saveData(dataSet4NameEdge, function (err, doc) {
                 errs = ErrUpdate(errs, err);
                 if(--mutex === 0) return callback(errs);
             });

@@ -306,7 +306,7 @@ var collectiveModel = {
                     }else{
                         relationInfoSet[id]["user"] = collectiveModel.complement(relationInfoSet[id]["user"],relationNonUserSet[id]);
                         var length = relationInfoSet[id]["user"].length;
-                        if(length>0) relationSet[id]={ref:length,name:{}};
+                        if(length>0) relationSet[id]={ref:length};
                     }
                 });
 
@@ -317,9 +317,9 @@ var collectiveModel = {
 
     getRelationPropertySet: function (projectID, subItem, classId, relationId, relationInfo, callback) {
 
-        var direction = "0";
-        if(relationInfo.direction == "0")   direction = "1";
-
+        //var direction = "0";
+        //if(relationInfo.direction == "0")   direction = "1";
+        var direction = relationInfo.direction
         var filter = {
             projectID: projectID,
             "source":relationId,
@@ -336,22 +336,30 @@ var collectiveModel = {
                 if(propertySet[element.relation.attribute][element.target]["ref"] == undefined) propertySet[element.relation.attribute][element.target]["ref"]=0;
                 propertySet[element.relation.attribute][element.target]["ref"] += element.user.length;
             });
+
+            if(propertySet["direction"] == undefined) propertySet["direction"]={};
+            if(propertySet["direction"][direction]  == undefined) propertySet["direction"][direction]={ref:relationInfo.user.length};
+
             return callback(subItem,propertySet);
         });
     },
 
     getRelationGroup: function(projectID,classSet, callback) {
         var relationGroupSet = {};
+        var mutex = 0;
 
         for(var classId in classSet){
         //classSet.forEach(function(classId){
             var relationSet = classSet[classId]["relation"];
             for(var relationId in relationSet){
+                mutex++;
+
                 var target = relationSet[relationId]["class"];  //另一侧class
 
                 if(target != undefined){
                     for(var classId2 in target){
-                        break;
+                        --mutex
+                        continue;
                     }
 
                     var info = collectiveModel.getRelationGroupName(classId,classId2);
@@ -362,14 +370,86 @@ var collectiveModel = {
                     if(relationGroupSet[relationGroupId][relationId] == undefined)
                         relationGroupSet[relationGroupId][relationId]={};
                     relationGroupSet[relationGroupId][relationId][classId] = classSet[classId]["relation"][relationId];
+                    relationGroupSet[relationGroupId][relationId]["ref"] = relationGroupSet[relationGroupId][relationId][classId]["ref"];
+                    //获得relation的name和type
+                    collectiveModel.getRelationNameAndType(projectID, ObjectID(relationId), relationGroupSet[relationGroupId][relationId] ,function(relation){
+                        if(--mutex==0) return callback(relationGroupSet);
+                    });
                 }
             }
-
-            console.log(relationGroupSet[relationGroupId])
         };
-        //重新排序
+    },
 
-        return callback(relationGroupSet);
+    getRelationNameAndType: function(projectID,relationId,item,callback){
+        item["name"] = {};
+        item["type"] = {};
+        var mutex = 5;
+
+        var filterName = {
+            projectID: projectID,
+            "source":relationId,
+            "relation.attribute": "name"
+        };
+        dbOperation.get("conceptDiag_edge",filterName,function(err,docs){
+            //find relationProperty
+            docs.forEach(function(element){
+                item["name"][element.target] = {ref: element.user.length};
+            });
+
+            if(--mutex == 0) return callback(item);
+        });
+
+        var filterType1 = {
+            projectID: projectID,
+            "source":relationId,
+            "relation.attribute": "isAssociation"
+        };
+        dbOperation.get("conceptDiag_edge",filterType1,function(err,docs){
+            //find relationProperty
+            docs.forEach(function(element){
+                item["type"]["isAssociation"] = {ref: element.user.length};
+            });
+            if(--mutex == 0) return callback(item);
+        });
+
+        var filterType2 = {
+            projectID: projectID,
+            "source":relationId,
+            "relation.attribute": "isComposition"
+        };
+        dbOperation.get("conceptDiag_edge",filterType2,function(err,docs){
+            //find relationProperty
+            docs.forEach(function(element){
+                item["type"]["isComposition"] = {ref: element.user.length};
+            });
+            if(--mutex == 0) return callback(item);
+        });
+
+        var filterType3 = {
+            projectID: projectID,
+            "source":relationId,
+            "relation.attribute": "isAggregation"
+        };
+        dbOperation.get("conceptDiag_edge",filterType3,function(err,docs){
+            //find relationProperty
+            docs.forEach(function(element){
+                item["type"]["isAggregation"] = {ref: element.user.length};
+            });
+            if(--mutex == 0) return callback(item);
+        });
+
+        var filterType4 = {
+            projectID: projectID,
+            "source":relationId,
+            "relation.attribute": "isGeneralization"
+        };
+        dbOperation.get("conceptDiag_edge",filterType3,function(err,docs){
+            //find relationProperty
+            docs.forEach(function(element){
+                item["type"]["isGeneralization"] = {ref: element.user.length};
+            });
+            if(--mutex == 0) return callback(item);
+        });
     },
 
     complement: function(a,b){
