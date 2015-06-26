@@ -316,9 +316,9 @@ var collectiveModel = {
 
     getRelationPropertySet: function (projectID, subItem, classId, relationId, relationInfo, callback) {
 
-        //var direction = "0";
-        //if(relationInfo.direction == "0")   direction = "1";
-        var direction = relationInfo.direction
+        var direction = "0";
+        if(relationInfo.direction == "0")   direction = "1";
+        //var direction = relationInfo.direction
         var filter = {
             projectID: projectID,
             "source":relationId,
@@ -366,8 +366,8 @@ var collectiveModel = {
                     if(relationGroupSet[relationGroupId] == undefined) relationGroupSet[relationGroupId] = {};
                     if(relationGroupSet[relationGroupId][relationId] == undefined)
                         relationGroupSet[relationGroupId][relationId]={};
-                    relationGroupSet[relationGroupId][relationId][classId] = classSet[classId]["relation"][relationId];
-                    relationGroupSet[relationGroupId][relationId]["ref"] = relationGroupSet[relationGroupId][relationId][classId]["ref"];
+                    relationGroupSet[relationGroupId][relationId][classId2] = classSet[classId]["relation"][relationId];
+                    relationGroupSet[relationGroupId][relationId]["ref"] = relationGroupSet[relationGroupId][relationId][classId2]["ref"];
                     //获得relation的name和type
                     collectiveModel.getRelationNameAndType(projectID, ObjectID(relationId), relationGroupSet[relationGroupId][relationId] ,function(relation){
                         if(--mutex==0) return callback(relationGroupSet);
