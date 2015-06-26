@@ -85,7 +85,7 @@ define(function (require, exports, module) {
         })
                 .done(function (collectiveModel) {
                     ccm.clazz = collectiveModel.class;
-                    //console.log('collectiveModel.class', collectiveModel.class);
+                    console.log('collectiveModel', collectiveModel);
                 })
                 .fail(function () {
                     console.log('getCCM failed');
@@ -341,15 +341,43 @@ define(function (require, exports, module) {
                     ref: relations[relation].ref
                 };
                 console.log(relations[relation]);
-                for (property in relations[relation]) {
-                    if (relations[relation].hasOwnProperty(property) && property != 'ref') {
+
+                //for (property in relations[relation]) {
+                //    if (relations[relation].hasOwnProperty(property) && property != 'ref') {
+                //        if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
+                //            tmpObj[property] = clazzIds2Names(Object.keys(relations[relation][property])[0]);
+                //        } else {
+                //            tmpObj[property] = Object.keys(relations[relation][property])[0];
+                //        }
+                //    }
+                //}
+
+                // 确定两端哪边是E0，哪端是E1
+                var ends = Object.keys(relations[relation]);
+                var end0 = relations[relation][ends[0]].end;
+                if (!end0['0'] || end0['1'].ref > end0['0'].ref) {  // 确保ends[0]与真正的END0对应
+                    var tmpEndClass = ends[0];
+                    ends[0] = ends[1];
+                    ends[1] = tmpEndClass;
+                }
+
+                // 构造用于显示的relation
+                var tmpProp = null;
+                for (property in relations[relation][ends[0]]) {
+                    if (relations[relation][ends[0]].hasOwnProperty(property) && property != 'ref') {
+
+                        // 拼接左右两端  TODO 按引用数排序后选出
+                        tmpProp = Object.keys(relations[relation][ends[0]][property])[0] + '-' +
+                                  Object.keys(relations[relation][ends[1]][property])[0];
+
                         if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
-                            tmpObj[property] = clazzIds2Names(Object.keys(relations[relation][property])[0]);
+                            tmpObj[property] = clazzIds2Names(tmpProp);
                         } else {
-                            tmpObj[property] = Object.keys(relations[relation][property])[0];
+                            tmpObj[property] = tmpProp;
                         }
                     }
                 }
+
                 // DONE：调试完成后，需要将下文注释还原为代码
                 if (tmpObj.id in relationIdsInICM) {
                     continue;  // 与当前 ICM relation ID相同的 CCM relation 不会被推荐
@@ -366,7 +394,14 @@ define(function (require, exports, module) {
             var clazz = relgrpName.split('-');
             var id0 = icm[2]['clazz'][clazz[0]].id;
             var id1 = icm[2]['clazz'][clazz[1]].id;
-            return id0 + '-' + id1;
+
+            // 对于ID，也是小的在左侧
+            if (id0 < id1) {
+                return id0 + '-' + id1;
+            } else {
+                return id1 + '-' + id0;
+            }
+
         }
         function clazzIds2Names(clazzIds) {
             var id = clazzIds.split('-');
