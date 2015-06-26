@@ -113,7 +113,7 @@ exports.getCollectiveModel = function(projectID, callback){
                     var subItem = relationSet[relationId];
 
                     collectiveModel.getRelationPropertySet(projectID, subItem, classId, ObjectID(relationId),relationInfoSet[relationId], function(subItem, propertySet) {
-
+                        /*
                         //转换并存储
                         for(var property in propertySet) {
                             if (property == "role") {
@@ -125,6 +125,10 @@ exports.getCollectiveModel = function(projectID, callback){
                             } else {
                                 subItem[property] = propertySet[property];
                             }
+                        }
+                        */
+                        for(var property in propertySet) {
+                            subItem[property] = propertySet[property];
                         }
 
                         if (--relationMutex === 0) {
@@ -343,19 +347,27 @@ var collectiveModel = {
         //classSet.forEach(function(classId){
             var relationSet = classSet[classId]["relation"];
             for(var relationId in relationSet){
-                var target = relationSet[relationId]["type"];
+                var target = relationSet[relationId]["class"];  //另一侧class
 
                 if(target != undefined){
                     for(var classId2 in target){
                         break;
                     }
-                    var relationGroupId = collectiveModel.getRelationGroupName(classId,classId2);
+
+                    var info = collectiveModel.getRelationGroupName(classId,classId2);
+                    var relationGroupId = info[0];
+                    var order = info[1];
 
                     if(relationGroupSet[relationGroupId] == undefined) relationGroupSet[relationGroupId] = {};
-                    relationGroupSet[relationGroupId][classId] = classSet[classId]["relation"][relationId];
+                    if(relationGroupSet[relationGroupId][relationId] == undefined)
+                        relationGroupSet[relationGroupId][relationId]={};
+                    relationGroupSet[relationGroupId][relationId][classId] = classSet[classId]["relation"][relationId];
                 }
             }
+
+            console.log(relationGroupSet[relationGroupId])
         };
+        //重新排序
 
         return callback(relationGroupSet);
     },
@@ -379,11 +391,18 @@ var collectiveModel = {
         return array;
     },
 
-    getRelationGroupName: function(id1,id2){
+    getRelationGroupName: function(id0,id1){
         var name;
-        if(id1<id2) name = id1+'-'+id2;
-        else name = id1+'-'+id2;
-        return name;
+        var order;
+        if(id0<id1) {
+            name = id0+'-'+id1;
+            order = 0;
+        }
+        else{
+            name = id1+'-'+id0;
+            order = 1
+        }
+        return [name,order];
     }
 }
 
