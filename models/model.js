@@ -73,7 +73,7 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
         if (index === ops.length) {
 
             // TODO: 这个延时是临时解决方案，因为 models/db_operation.js 中的 “线程”池 机制有问题，会导致没有执行完底层操作就回调
-            setTimeout(function () {
+            //setTimeout(function () {
 
                 // 更新 icm 和 ccm 的信息
                 updateModelInfo(projectID, icmName, user, function (err) {
@@ -104,7 +104,7 @@ exports.modelOperation = function(projectID, icmName, user, ops, orderChanges, c
 
 
 
-            }, 100);  // 延时100ms，尽量保证ops中所有的底层操作都已经完成（真的只是尽力而已）
+            //}, 100);  // 延时100ms，尽量保证ops中所有的底层操作都已经完成（真的只是尽力而已）
 
             return;
         }

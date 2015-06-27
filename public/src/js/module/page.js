@@ -349,6 +349,7 @@ define(function (require, exports, module) {
 
     // 获取最新ccm用于推荐（异步）
     Page.prototype.getUpdatedCCM = function () {
+        console.log('this.stateOfPage.modelName', this.stateOfPage.modelName);
         this.ccm.getCCM(this.stateOfPage.modelName);
     };
 
@@ -2780,7 +2781,7 @@ define(function (require, exports, module) {
         // item 不为空时才进行转换
         if (item) {
             for (key in item) {
-                if (item.hasOwnProperty(key) && !(key in hiddenList)) {
+                if (item.hasOwnProperty(key) && !(key in hiddenList) && item[key] !== '') {  // 屏蔽不想要的项和空值
                     elem = '<p>' + key + ' : ' + item[key] + '</p>';
                     popover += elem;
                 }

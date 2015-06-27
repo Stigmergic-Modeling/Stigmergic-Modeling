@@ -85,6 +85,7 @@ define(function (require, exports, module) {
         })
                 .done(function (collectiveModel) {
                     ccm.clazz = collectiveModel.class;
+                    ccm.relgrp = collectiveModel.relationGroup;
                     console.log('collectiveModel', collectiveModel);
                 })
                 .fail(function () {
@@ -325,7 +326,7 @@ define(function (require, exports, module) {
      * @returns {Array}
      */
     CCM.prototype.getRelations = function (icm, relgrpName) {
-        var relations, relation, res, tmpObj, property,
+        var relations, relation, res, tmpObj, property, i,
                 relationIdsInICM ={};  // icm中该class中的relation ID，用于去重
 
         var relgrpId = relgrpName2Id(relgrpName);
@@ -352,37 +353,75 @@ define(function (require, exports, module) {
                     id: relation,  // 记录id，用于采用推荐时绑定
                     ref: relations[relation].ref
                 };
-                console.log(relations[relation]);
+                //console.log(relations[relation]);
 
-                //for (property in relations[relation]) {
-                //    if (relations[relation].hasOwnProperty(property) && property != 'ref') {
-                //        if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
-                //            tmpObj[property] = clazzIds2Names(Object.keys(relations[relation][property])[0]);
-                //        } else {
-                //            tmpObj[property] = Object.keys(relations[relation][property])[0];
-                //        }
-                //    }
-                //}
+                // 确定name
+                var maxName = {
+                    name: '',
+                    ref: 0
+                };
+                var names = relations[relation].name;
+                //console.log('Object.keys(names).length', Object.keys(names));
+                //if (!(Object.keys(names).length === 1 && names[''])) {
+                for (var tmpName in names) {
+                    if (names.hasOwnProperty(tmpName) && names[tmpName].ref > maxName.ref) {
+                        maxName.name = tmpName;
+                        maxName.ref = tmpName.ref;
+                    }
+                }
+                tmpObj.name = maxName.name;
+
+                // 确定关系类型
+                var relType = 'isGeneralization isAggregation isComposition isAssociation'.split(' ');
+                var maxType = {
+                    type: '',
+                    ref: 0
+                };
+                for (i = 0; i < relType.length; i++) {
+                    if (relations[relation].type[relType[i]]) {
+                        console.log('relations[relation][relType[i]]', relations[relation].type[relType[i]]);
+                        if (relations[relation].type[relType[i]].ref > maxType.ref) {
+                            maxType.type = relType[i];
+                            maxType.ref = relations[relation].type[relType[i]].ref;
+                        }
+                    }
+                }
+                tmpObj.type = maxType.type.substring(2);  //  删除‘is’
 
                 // 确定两端哪边是E0，哪端是E1
                 var ends = Object.keys(relations[relation]);
-                var end0 = relations[relation][ends[0]].end;
-                if (!end0['0'] || end0['1'].ref > end0['0'].ref) {  // 确保ends[0]与真正的END0对应
+                //console.log('ends', ends);
+                var nonEntity = 'ref name type'.split(' ');
+                for (i = 0; i < nonEntity.length; i++) {
+                    ends.splice(ends.indexOf(nonEntity[i]), 1);
+                }
+                //console.log('ends', ends);
+                var end0 = relations[relation][ends[0]].direction;
+                //console.log('end0', end0);
+                if (!end0['0'] || (end0['1'] && end0['1'].ref > end0['0'].ref)) {  // 确保ends[0]与真正的END0对应
                     var tmpEndClass = ends[0];
                     ends[0] = ends[1];
                     ends[1] = tmpEndClass;
                 }
+                //console.log('ends', ends);
 
                 // 构造用于显示的relation
                 var tmpProp = null;
                 for (property in relations[relation][ends[0]]) {
                     if (relations[relation][ends[0]].hasOwnProperty(property) && property != 'ref') {
 
+                        // 去除我们不希望构造在关系两端的内容
+                        var nonProp = 'direction name isGeneralization isAggregation isComposition isAssociation'.split(' ');
+                        for (i = 0; i < nonProp.length; i++) {
+                            if (property === nonProp[i]) break;
+                        }
+                        if (i !== nonProp.length) continue;
+
                         // 拼接左右两端  TODO 按引用数排序后选出
                         tmpProp = Object.keys(relations[relation][ends[0]][property])[0] + '-' +
                                   Object.keys(relations[relation][ends[1]][property])[0];
 
-                        if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
+                        if (property === 'class') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
                             tmpObj[property] = clazzIds2Names(tmpProp);
                         } else {
                             tmpObj[property] = tmpProp;
