@@ -22,7 +22,7 @@ var fs = require('fs');
 exports.getCollectiveModel = function(projectID, callback){
     //TODO 图中关系节点，我们无法分辨attribute和relation。所以统计时是混合统计的
     var model = {class:{},relationGroup:{}};
-    var mutex = 1;  // 对应 getClass 和 getRelation 这两个任务
+    var mutex = 2;  // 对应 getClass 和 getRelation 这两个任务
     var relationMutex = 0;
     // 获取所有 class
     collectiveModel.getClassSet(projectID, function (classSet) {
@@ -32,15 +32,15 @@ exports.getCollectiveModel = function(projectID, callback){
 
         // 若 class 个数为 0，则直接退出 getClass 任务
         if (!classSetLen) {
-            //if (--mutex === 0) {
+            if (--mutex === 0) {
                 return callback(null, model);
-            //}
-            //return;
+            }
+            return;
         }
 
         // 若 class 个数不为 0，则退出 getClassSet 任务，同时加入所有 class 之下的任务（原子性得到保证）
-        //mutex += classSetLen*2 - 1;
-
+        mutex += classSetLen-1;
+        relationMutex += classSetLen;
         // 对每个 class
         for (var key in classSet) {
 
@@ -48,7 +48,6 @@ exports.getCollectiveModel = function(projectID, callback){
 
             // 当前已知该class的name，和所包含的attribute的name(在order中)
             // 对某个 class，获取所有 attribute
-            mutex++;
             collectiveModel.getAttributeSet(projectID, item, ObjectID(key), function (item, attributeSet, attributeUserSet, classId) {
 
                 var attributeSetLen = Object.keys(attributeSet).length;
@@ -94,38 +93,44 @@ exports.getCollectiveModel = function(projectID, callback){
                 var relationSetLen = Object.keys(relationSet).length;
 
                 if (!relationSetLen) {
-                    if (--mutex === 0) {
-                        return callback(null, model);
+                    if (--relationMutex == 0) {
+                        collectiveModel.getRelationGroup(projectID, relationItem, function (relationGroupSet) {
+                            model["relationGroup"] = relationGroupSet;
+
+                            if (--mutex == 0) {
+                                return callback(null, model);
+                            }
+                        })
                     }
                     return;
                 }
 
                 //mutex += relationSetLen - 1;
                 //mutex += 1;
-                relationMutex += relationSetLen;
+                relationMutex += relationSetLen-1 ;
 
                 relationItem[classId] = {};
                 relationItem[classId]["relation"]= relationSet;
-
+                console.log('relationSet', relationSet);
                 for (var relationId in relationSet) {
                     //获得对应relation的Property
                     var subItem = relationSet[relationId];
-
+                    console.log('relationId', relationId);
                     collectiveModel.getRelationPropertySet(projectID, subItem, classId, ObjectID(relationId),relationInfoSet[relationId], function(subItem, propertySet) {
                         /*
-                        //转换并存储
-                        for(var property in propertySet) {
-                            if (property == "role") {
-                                subItem["name"] = propertySet[property];
-                            } else if (property == "class") {
-                                subItem["type"] = propertySet[property];
-                            } else if (property == "isAttribute") {
-                                continue;
-                            } else {
-                                subItem[property] = propertySet[property];
-                            }
-                        }
-                        */
+                         //转换并存储
+                         for(var property in propertySet) {
+                         if (property == "role") {
+                         subItem["name"] = propertySet[property];
+                         } else if (property == "class") {
+                         subItem["type"] = propertySet[property];
+                         } else if (property == "isAttribute") {
+                         continue;
+                         } else {
+                         subItem[property] = propertySet[property];
+                         }
+                         }
+                         */
                         for(var property in propertySet) {
                             subItem[property] = propertySet[property];
                         }
@@ -176,11 +181,11 @@ var collectiveModel = {
             dbOperation.get("conceptDiag_edge",filter2,function(err,docs){
                 docs.forEach(function(element){
                     /*  上面已经开辟过了
-                    if (typeof classSet[element.source] === 'undefined') {  // 开辟空间
-                        classSet[element.source] = {};
-                        classSet[element.source].name = {};
-                    }
-                    */
+                     if (typeof classSet[element.source] === 'undefined') {  // 开辟空间
+                     classSet[element.source] = {};
+                     classSet[element.source].name = {};
+                     }
+                     */
                     classSet[element.source].name[element.target] = {};
                     classSet[element.source].name[element.target]["ref"] = element.user.length;
                 });
@@ -274,6 +279,9 @@ var collectiveModel = {
             var relationInfoSet = {};
             docs.forEach(function(element){
                 // relation or relation
+                if (element.source == null) {
+                    console.log('--------------element.source', element);
+                }
                 relationIdArray.push(element.source);
                 relationInfoSet[element.source]={
                     direction : element.relation.direction,
@@ -348,7 +356,7 @@ var collectiveModel = {
         var mutex = 0;
 
         for(var classId in classSet){
-        //classSet.forEach(function(classId){
+            //classSet.forEach(function(classId){
             var relationSet = classSet[classId]["relation"];
             for(var relationId in relationSet){
                 mutex++;
@@ -440,7 +448,7 @@ var collectiveModel = {
             "source":relationId,
             "relation.attribute": "isGeneralization"
         };
-        dbOperation.get("conceptDiag_edge",filterType3,function(err,docs){
+        dbOperation.get("conceptDiag_edge",filterType4,function(err,docs){
             //find relationProperty
             docs.forEach(function(element){
                 item["type"]["isGeneralization"] = {ref: element.user.length};
