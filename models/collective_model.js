@@ -111,11 +111,11 @@ exports.getCollectiveModel = function(projectID, callback){
 
                 relationItem[classId] = {};
                 relationItem[classId]["relation"]= relationSet;
-
+                console.log('relationSet', relationSet);
                 for (var relationId in relationSet) {
                     //获得对应relation的Property
                     var subItem = relationSet[relationId];
-
+                    console.log('relationId', relationId);
                     collectiveModel.getRelationPropertySet(projectID, subItem, classId, ObjectID(relationId),relationInfoSet[relationId], function(subItem, propertySet) {
                         /*
                          //转换并存储
@@ -279,6 +279,9 @@ var collectiveModel = {
             var relationInfoSet = {};
             docs.forEach(function(element){
                 // relation or relation
+                if (element.source == null) {
+                    console.log('--------------element.source', element);
+                }
                 relationIdArray.push(element.source);
                 relationInfoSet[element.source]={
                     direction : element.relation.direction,
@@ -432,7 +435,7 @@ var collectiveModel = {
             "source":relationId,
             "relation.attribute": "isAggregation"
         };
-        dbOperation.get("conceptDiag_edge",filterType4,function(err,docs){
+        dbOperation.get("conceptDiag_edge",filterType3,function(err,docs){
             //find relationProperty
             docs.forEach(function(element){
                 item["type"]["isAggregation"] = {ref: element.user.length};

@@ -67,15 +67,15 @@ define(function (require, exports, module) {
         // 右侧栏
         this.rightColWgt = new RightColWgt('#stigmod-rcmd-right');
         //page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
-        var recInterval = 20000;  // 每隔20s更新一侧右侧推荐栏的推荐结果
+        //var recInterval = 20000;  // 每隔20s更新一侧右侧推荐栏的推荐结果
         setTimeout(function() {
             page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
             page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
-        }, 5000);
-        setInterval(function() {
-            page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
-            page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
-        }, recInterval);
+        }, 2000);
+        //setInterval(function() {
+        //    page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
+        //    page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
+        //}, recInterval);
 
 
         // 顶部栏(网站导航条之下)
@@ -90,6 +90,7 @@ define(function (require, exports, module) {
         this.addClassDlgWgt.on('addClass', 'addClass', this.icm);  // 新建类时更新icm模型
         this.addClassDlgWgt.on('addClass', 'refreshLeftColAndActivateAndJump', this);  // 新建类时更新页面显示
         this.addClassDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
+        this.addClassDlgWgt.on('addClass', 'updateRightCol', this);// 确认新建类后，更新右侧推荐栏（要点是去掉刚刚加入ICM的类）
 
         // addRelGrp对话框
         this.addRelGrpDlgWgt = new RelGrpDialogWgt('#stigmod-modal-addrelationgroup');
@@ -115,6 +116,7 @@ define(function (require, exports, module) {
         this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建关系时更新icm模型
         this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系时局部更新中间栏
         this.addRelationDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
+        this.addRelationDlgWgt.on('addRelation', 'updateRightCol', this);// 确认新建属性后，更新右侧推荐栏（要点是去掉刚刚加入ICM的属性）
 
         // removeConfirm对话框
         this.removeConfirmDlgWgt = new RemoveConfirmDialogWgt('#stigmod-modal-remove');
@@ -356,6 +358,12 @@ define(function (require, exports, module) {
     // 触发对话框
     Page.prototype.openDialog = function (widgetName, elementModel) {
         this[widgetName].open(elementModel);
+    };
+
+    // 刷新右侧推荐栏
+    Page.prototype.updateRightCol = function () {
+        this.rightColWgt.init(this.icm, this.ccm, this.stateOfPage);
+        this.rightColWgt.classRec.on('openDialog', 'openDialog', this);
     };
 
 
@@ -1301,6 +1309,7 @@ define(function (require, exports, module) {
             var strTitle = 0 === stateOfPage.flagCRG ? '.stigmod-attr-cont-middle-title' : '.stigmod-rel-cont-middle-title';
             var $collapseTrigger = $compo.find(strTitle).attr({'data-target': '#collapse' + i});
             var $collapseContent = $compo.find('.panel-collapse').attr({'id': 'collapse' + i});
+            console.log('modelAttribute[i]', modelAttribute[i]);
             var modelProperties = icm[stateOfPage.flagCRG][stateOfPage.clazz][0][modelAttribute[i]][0];
 
             // 设置 properties
@@ -2176,7 +2185,7 @@ define(function (require, exports, module) {
         // 文本输入
         relation.name = new TextInputWgt('#stigmod-addrel-type');  // 单个框、没有开关(与type组件共用同一个id)
         relation.role = new TextInputWgt('#stigmod-addrel-role', '#stigmod-addrel-role-swt');
-        relation.clazz = new TextInputWgt('#stigmod-addrel-class');  // 没有开关
+        relation.class = new TextInputWgt('#stigmod-addrel-class');  // 没有开关
         relation.multiplicity = new TextInputWgt('#stigmod-addrel-multiplicity', '#stigmod-addrel-multiplicity-swt');
         relation.subsets = new TextInputWgt('#stigmod-addrel-subsets', '#stigmod-addrel-subsets-swt');
         relation.redefines = new TextInputWgt('#stigmod-addrel-redefines', '#stigmod-addrel-redefines-swt');
@@ -2193,9 +2202,9 @@ define(function (require, exports, module) {
     RelationDialogWgt.prototype.setInputWgtValue = function (relationModel) {
 
         // 处理双框
-        var properties = 'role clazz multiplicity ordering uniqueness readOnly union subsets redefines composite'.split(' '),
+        var properties = 'role class multiplicity ordering uniqueness readOnly union subsets redefines composite'.split(' '),
                 len = properties.length, i;
-
+        console.log('relationModel', relationModel);
         for (i = 0; i < len; i++) {
             if (properties[i] in relationModel) {
                 this.relation[properties[i]].turnOn(relationModel[properties[i]].split('-'));
@@ -2807,6 +2816,7 @@ define(function (require, exports, module) {
         console.log('this.data(getClasses)', this.data);
         this.element.find('[data-toggle="popover"]').popover('destroy');  // 在清空元素前销毁可能存在的旧popover
 
+        this.data.splice(5, Number.MAX_VALUE);  // 截取前10个，显示到推荐栏
         var data = this.data,
                 $container = this.element.empty(),
                 template = this.templateWgt.t,

@@ -273,6 +273,8 @@ var individualModel = {
                     if(className != null) property["class"]  = className;
                     return callback(attributeId,property);
                 })
+            } else {
+                return callback(attributeId,property);
             }
         });
     },

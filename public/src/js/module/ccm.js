@@ -239,10 +239,9 @@ define(function (require, exports, module) {
                         if (attributes[attribute].type) {
                             var tmpValue = Object.keys(attributes[attribute].type)[0];
                             if (tmpValue !== 'int' && tmpValue !== 'string' && tmpValue !== 'float' && tmpValue !== 'boolean') {
-                                tmpObj.type = 'Some Class';  // TODO 从classid映射成name（若ICM中没有该id，则需要从ccm重寻找……）
+                                tmpObj.type = 'ClassType';  // TODO 从classid映射成name（若ICM中没有该id，则需要从ccm重寻找……）
                             } else {
                                 tmpObj.type = tmpValue;
-                                console.log('tmpValue', tmpValue);
                             }
                         }
 
@@ -301,7 +300,7 @@ define(function (require, exports, module) {
                     if (attributes[attribute].hasOwnProperty(property) && property !== 'ref') {
                         var tmpValue = Object.keys(attributes[attribute][property])[0];
                         if (property === 'type' && tmpValue !== 'int' && tmpValue !== 'string' && tmpValue !== 'float' && tmpValue !== 'boolean') {
-                            tmpObj[property] = 'Some Class';
+                            tmpObj[property] = 'ClassType';
                         } else {
                             tmpObj[property] = tmpValue;
                             console.log('tmpValue', tmpValue);
