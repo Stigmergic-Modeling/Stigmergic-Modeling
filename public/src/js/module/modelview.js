@@ -15,10 +15,15 @@ define(function(require, exports, module) {
     var width = $container[0].clientWidth - 30;
     var height = $container[0].clientHeight - 80;  // 80px 包含了各种 margin padding
 
+    var colorFillArray = {green: "#30B6AF", yellow: "#FCC940", blue: "#4356C0", grey:"#DFE1E3",
+                          orange: "#F25A29", purple: "#AD62CE", red: "#FF6C7C"};
+    var colorStrokeArray = {green: "#46A39E", yellow: "#F3BA25", blue: "#3445A2", grey:"#D4D6D7",
+                            orange: "#DC4717", purple: "#9453B1", red: "#EB5D6C"};
+
     var selectedColor = "#005499";  //选择之后圈和连线的颜色
-    var lineColor = "#b4c1f3";      //连线的颜色
-    var strokeColor = ["#8491c3", "#FFD700"];    //不选择时圈的颜色
-    var fillColor = ["#73bbe2", "#F0E68C"];      //点的颜色
+    var lineColor = "#BABDBC";      //连线的颜色
+    var strokeColor = ["#46A39E", "#F3BA25"];    //不选择时圈的颜色
+    var fillColor = ["#30B6AF", "#FCC940"];      //点的颜色
     var nameNotSelectedFill = "#999"; //名字的颜色
 
     var lineWidth = 1;              //连线的宽度
@@ -58,15 +63,43 @@ define(function(require, exports, module) {
 
     //关系转存入edges
     for (RelationVar in model[1]) {
+
       var myrelation = {};
-      for (AttributeVar in model[1][RelationVar][0]) {
-        myrelation.type = model[1][RelationVar][0][AttributeVar][0]["type"][0];
-        var class1 = model[1][RelationVar][0][AttributeVar][0]["class"][1];
-        var class2 = model[1][RelationVar][0][AttributeVar][0]["class"][0];
-        myrelation.source = nodeRecord[class1];
-        myrelation.target = nodeRecord[class2];
-        myrelation.multiplicity = model[1][RelationVar][0][AttributeVar][0]["multiplicity"];
-        myrelation.role = model[1][RelationVar][0][AttributeVar][0]["role"];
+      var relationNum = 0;
+
+      //计算relationgroup中有多少关系
+      for (i in model[1][RelationVar][0]) {
+        relationNum ++;
+      }
+
+      if(relationNum == 1) {
+        for (AttributeVar in model[1][RelationVar][0]) {
+          myrelation.type = model[1][RelationVar][0][AttributeVar][0]["type"][0];
+          var class1 = model[1][RelationVar][0][AttributeVar][0]["class"][1];
+          var class2 = model[1][RelationVar][0][AttributeVar][0]["class"][0];
+          myrelation.source = nodeRecord[class1];
+          myrelation.target = nodeRecord[class2];
+          myrelation.multiplicity = model[1][RelationVar][0][AttributeVar][0]["multiplicity"];
+          myrelation.role = model[1][RelationVar][0][AttributeVar][0]["role"];
+        }
+      }
+      else {
+        var relationCount = 0;
+        myrelation.group = {};
+        myrelation.type = "RelationGroup";
+        for (AttributeVar in model[1][RelationVar][0]) {
+          myrelation.group[relationCount] = {};
+          if(relationCount == 0) {
+            var class1 = model[1][RelationVar][0][AttributeVar][0]["class"][1];
+            var class2 = model[1][RelationVar][0][AttributeVar][0]["class"][0];
+            myrelation.source = nodeRecord[class1];
+            myrelation.target = nodeRecord[class2];
+          }
+          myrelation.group[relationCount].type = model[1][RelationVar][0][AttributeVar][0]["type"][0];
+          myrelation.group[relationCount].multiplicity = model[1][RelationVar][0][AttributeVar][0]["multiplicity"];
+          myrelation.group[relationCount].role = model[1][RelationVar][0][AttributeVar][0]["role"];
+          relationCount += 1;
+        }
       }
       dataset.edges.push(myrelation);
     }
@@ -136,6 +169,18 @@ define(function(require, exports, module) {
       .call(drag);
       // .call(force.drag().on("drag", function(d) { drag() }));
 
+
+    //设置图例
+    //d3.select("#Enumeration")
+    //    .append("svg:circle")
+    //    .attr("r", 5)
+    //    .attr("fill", fillColor[0])
+    //    .attr("stroke", strokeColor[0]);
+    //d3.select("#Enumeration")
+    //    .append("p")
+    //    .text("Enumeration");
+
+
     //节点添加文本，文本内容为节点名称
     var myname = node.append("text")
       .attr("x", function(d){
@@ -167,10 +212,11 @@ define(function(require, exports, module) {
       .attr("refY", 0)
       .attr("orient", "auto")
       .append("svg:path")
-      .attr("stroke-width", lineWidth)
-      .attr("d", "M0,-5L10,0L0,5Z")
-      .attr("fill", "#fff")
-      .attr("stroke", lineColor);
+        .attr("class", "marker")
+        .attr("stroke-width", lineWidth)
+        .attr("d", "M0,-5L10,0L0,5Z")
+        .attr("fill", "#fff")
+        .attr("stroke", lineColor);
 
     //连线高亮时的Generalization箭头
     var genMarkerHover = defs.append("marker")
@@ -200,10 +246,11 @@ define(function(require, exports, module) {
       .attr("refY", 0)
       .attr("orient", "auto")
       .append("svg:path")
-      .attr("stroke-width", lineWidth)
-      .attr("d", "M0,-5L10,0L0,5L-10,0Z")
-      .attr("fill", "#fff")
-      .attr("stroke", lineColor);
+        .attr("class", "marker")
+        .attr("stroke-width", lineWidth)
+        .attr("d", "M0,-5L10,0L0,5L-10,0Z")
+        .attr("fill", "#fff")
+        .attr("stroke", lineColor);
 
     //连线高亮时的Aggregation箭头
     var aggreMarkerHover = defs.append("marker")
@@ -232,10 +279,12 @@ define(function(require, exports, module) {
       .attr("refY", 0)
       .attr("orient", "auto")
       .append("svg:path")
-      .attr("stroke-width", lineWidth)
-      .attr("d", "M0,-5L10,0L0,5L-10,0Z")
-      .attr("fill", lineColor)
-      .attr("stroke", lineColor);
+        .attr("class", "marker")
+        .attr("id", "compositionMarker")
+        .attr("stroke-width", lineWidth)
+        .attr("d", "M0,-5L10,0L0,5L-10,0Z")
+        .attr("fill", lineColor)
+        .attr("stroke", lineColor);
 
     //连线高亮时的Composition箭头
     var comMarkerHover = defs.append("marker")
@@ -302,6 +351,7 @@ define(function(require, exports, module) {
      *   参数：空
      */
     function noneClickStyle() {
+      //d3.select("#relationGroupDetail").classed("hidden", true);
       node.selectAll("circle")
         .attr("fill-opacity", 0.9)
         .attr("fill", function(d){
@@ -529,7 +579,9 @@ define(function(require, exports, module) {
      *   参数：被点击的节点node
      */
     function clickNode(node){
-      
+
+      //d3.select("#relationGroupDetail").classed("hidden", true);
+
       tmpnode = node;
       tmpedge = null;
 
@@ -638,8 +690,11 @@ define(function(require, exports, module) {
         clickNode(tmpnode);
       else if(tmpedge !== null)
         clickEdge(tmpedge);
-      else //如无需高亮的节点，隐藏右侧的详细信息
+      else {
         d3.select("#tooltip").classed("hidden", true);
+        //d3.select("#relationGroupDetail").classed("hidden", true);
+      } //如无需高亮的节点，隐藏右侧的详细信息
+
     }
 
     /**
@@ -659,11 +714,18 @@ define(function(require, exports, module) {
       var sourceName = edge.source.name;
       var targetName = edge.target.name;
       var type = edge.type;
-      var multi1 = edge.multiplicity[1];
-      var multi2 = edge.multiplicity[0];
-      var role1 = edge.role[1];
-      var role2 = edge.role[0];
-
+      if(type === "RelationGroup") {
+        var multi1 = "";
+        var multi2 = "";
+        var role1 = "";
+        var role2 = "";
+      }
+      else {
+        var multi1 = edge.multiplicity[1];
+        var multi2 = edge.multiplicity[0];
+        var role1 = edge.role[1];
+        var role2 = edge.role[0];
+      }
       // d3.select("#tooltip")
       //   .style("left", mywidth - 350);
 
@@ -724,29 +786,65 @@ define(function(require, exports, module) {
 
 
       //关系的展示
-      d3.select("#relationDetail")
-        .append("div")
-        .attr("id", "multi")
-        .attr("class","col-xs-5")
-        .attr("style", "text-align:right; height: 180px;padding: 0px; padding-top: 3px");
-
-      d3.select("#relationDetail")
-        .append("div")
-        .attr("id", "relation")
-        .attr("class","col-xs-2")
-        .attr("style", "text-align:center; padding: 0px");
 
 
-      d3.select("#relationDetail")
-        .append("div")
-        .attr("id", "rolename")
-        .attr("class","col-xs-5")
-        .attr("style", "height: 180px; padding: 0px; padding-top: 3px");
+      /************* todo ***********/
+      if(type === "RelationGroup") {
 
-      d3.select("#relation")
-        .append("img")
-        .attr("src", "/src/img/" + type + ".png")
-        .attr("height", 180);
+        //d3.select("#relationDetail")
+        //  .append("div")
+        //  .attr("id", "relationGroup")
+        //  .attr("class","col-xs-2")
+        //  .attr("style", "text-align:center; padding: 0px");
+        d3.select("#relationDetail")
+            .append("div")
+            .attr("id", "relationGroup")
+            .attr("class","col-xs-12")
+            .attr("style", "text-align:center; padding: 0px");
+
+        var relationGroup = edge.group;
+        for (singleRelation in relationGroup) {
+          var singleType = edge.group[singleRelation].type;
+
+          d3.select("#relationGroup")
+              //.append("span")
+              //.attr("style", "width: 80")
+              .append("img")
+              .attr("src", "/src/img/" + singleType + ".png")
+              .attr("height", 180);
+        }
+      }
+      else {
+
+        d3.select("#relationDetail")
+            .append("div")
+            .attr("id", "multi")
+            .attr("class","col-xs-5")
+            .attr("style", "text-align:right; height: 180px;padding: 0px; padding-top: 3px");
+
+        d3.select("#relationDetail")
+          .append("div")
+          .attr("id", "relation")
+          .attr("class","col-xs-2")
+          .attr("style", "text-align:center; padding: 0px");
+
+        d3.select("#relationDetail")
+            .append("div")
+            .attr("id", "rolename")
+            .attr("class","col-xs-5")
+            .attr("style", "height: 180px; padding: 0px; padding-top: 3px");
+
+        d3.select("#relation")
+            .append("img")
+            .attr("src", "/src/img/" + type + ".png")
+            .attr("height", 180);
+      }
+
+
+      //d3.select("#relationGroup")
+      //    .append("img")
+      //    .attr("src", "/src/img/" + type + ".png")
+      //    .attr("height", 180);
 
       d3.select("#multi")
         .append("p")
@@ -835,6 +933,23 @@ define(function(require, exports, module) {
 
       //高亮与该边相连的节点
       highlightEdge(edge);
+
+      //d3.select("#singleRelation").remove();
+      //d3.select("#relationGroupDetail").classed("hidden", true);
+
+      /********todo*******/
+      if(type === "RelationGroup") {
+        //d3.select("#relationGroupDetail").append("div").attr("id","singleRelation");
+        //var relationGroup = edge.group;
+        //for(singleRelation in relationGroup) {
+        //  var singleType = edge.group[singleRelation].type;
+        //  d3.select("#singleRelation").append("img")
+        //      .attr("src", "/src/img/" + singleType + ".png")
+        //      .attr("height", 180);
+        //}
+        //d3.select("#relationGroupDetail").classed("hidden", false);
+      }
+
     }
 
     function mouseoverEdge(edge){
@@ -849,6 +964,7 @@ define(function(require, exports, module) {
     svg.on("click", function(d) {
       noneClickStyle();
       d3.select("#tooltip").classed("hidden", true);
+      //d3.select("#relationGroupDetail").classed("hidden", true);
       tmpnode = null; 
       tmpedge = null; 
     });
@@ -900,23 +1016,148 @@ define(function(require, exports, module) {
         }
       });
 
+    var selectedLegend = "";
+    var classSelectedColor = "green";
+    var enumerationSelectedColor = "yellow";
+    var classSelectedCaption = "1";
+    var enumerationSelectedCaption = "1";
+    var relationSelectedColor = "grey";
+
+    d3.select("#classLegend")
+        .on("click", function(){
+          d3.select("#linkLegendOption").classed("hidden", true);
+          selectedLegend = "Class";
+          d3.event.stopPropagation();
+          d3.select("#optionText").text("Class");
+          d3.select("#optionCircle")
+              .attr("stroke",strokeColor[0])
+              .attr("fill",fillColor[0]);
+          //d3.select("#optionColor").text("Green");
+          d3.select("#nodeLegendOption").classed("hidden", false);
+          document.getElementById("colorSelect").value = classSelectedColor;
+          document.getElementById("captionSelect").value = classSelectedCaption;
+
+        });
+    d3.select("#enumerationLegend")
+        .on("click",function(){
+          d3.select("#linkLegendOption").classed("hidden", true);
+          selectedLegend = "Enumeration";
+          d3.select("#optionText").text("Enumeration");
+          d3.select("#optionCircle")
+              .attr("stroke",strokeColor[1])
+              .attr("fill",fillColor[1]);
+          //d3.select("#optionColor").text("Yellow");
+          d3.select("#nodeLegendOption").classed("hidden", false);
+          document.getElementById("colorSelect").value = enumerationSelectedColor;
+          document.getElementById("captionSelect").value = enumerationSelectedCaption;
+        });
+
+    d3.select("#relationLegend")
+        .on("click",function(){
+          d3.select("#nodeLegendOption").classed("hidden", true);
+          selectedLegend = "Relation";
+          d3.select("#relationOptionText").text("Relation");
+          d3.select("#optionLine")
+              .attr("stroke",lineColor);
+          d3.select("#linkLegendOption").classed("hidden", false);
+          document.getElementById("relationColorSelect").value = relationSelectedColor;
+
+        });
+
+    d3.selectAll(".close")
+        .on("click", function(){
+          d3.select("#nodeLegendOption").classed("hidden", true);
+          d3.select("#linkLegendOption").classed("hidden", true);
+        });
+
+
+
     d3.select("#colorSelect")
       .on("change", function(){
-        var colorValue = document.getElementById("colorSelect").value;
-        if(colorValue === "blue"){
-          fillColor[0] = "#73bbe2";
-          strokeColor[0] = "#8491c3";
-        }
-        else if(colorValue === "red"){
-          fillColor[0] = "rgb(238, 211, 210)";
-          strokeColor[0] = "#FF7744";
-        }
-        else if(colorValue === "green"){
-          fillColor[0] = "rgb(230, 238, 214)";
-          strokeColor[0] = "#00AA00";
-        }
-        mouseout();
+          var colorValue = document.getElementById("colorSelect").value;
+          if(selectedLegend === "Class"){
+            classSelectedColor = colorValue;
+            fillColor[0] = colorFillArray[colorValue];
+            strokeColor[0] = colorStrokeArray[colorValue];
+            d3.select("#classLegend")
+                .attr("fill", colorFillArray[colorValue])
+                .attr("stroke", colorStrokeArray[colorValue]);
+          }
+          else if(selectedLegend === "Enumeration"){
+            enumerationSelectedColor = colorValue;
+            fillColor[1] = colorFillArray[colorValue];
+            strokeColor[1] = colorStrokeArray[colorValue];
+            d3.select("#enumerationLegend")
+                .attr("fill", colorFillArray[colorValue])
+                .attr("stroke", colorStrokeArray[colorValue]);
+          }
+          d3.select("#optionCircle")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          mouseout();
       });
+
+    d3.select("#captionSelect")
+        .on("change", function(){
+          var captionValue = document.getElementById("captionSelect").value;
+          if(selectedLegend === "Class"){
+            myname.text(function(d) {
+              if(d.classtype == 0){
+                if(captionValue == 1){
+                  classSelectedCaption = 1;
+                  return d.name;
+                }
+                else {
+                  classSelectedCaption = 0;
+                  return "";
+                }
+              }
+              else {
+                if(enumerationSelectedCaption == 1){
+                  return d.name;
+                }
+                else
+                  return "";
+              }
+            });
+          }
+          else if(selectedLegend === "Enumeration"){
+            myname.text(function(d) {
+              if(d.classtype == 1){
+                if(captionValue == 1){
+                  enumerationSelectedCaption = 1;
+                  return d.name;
+                }
+                else {
+                  enumerationSelectedCaption = 0;
+                  return "";
+                }
+              }
+              else {
+                if(classSelectedCaption == 1){
+                  return d.name;
+                }
+                else
+                  return "";
+              }
+            });
+          }
+          mouseout();
+        });
+    d3.select("#relationColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("relationColorSelect").value;
+          lineColor = colorFillArray[colorValue];
+          d3.select("#relationLegend")
+              .attr("stroke", lineColor);
+          d3.select("#optionLine")
+              .attr("stroke", lineColor);
+          d3.selectAll(".marker")
+              .attr("stroke", lineColor);
+          d3.select("#compositionMarker")
+              .attr("fill", lineColor);
+          mouseout();
+        });
 
 
 

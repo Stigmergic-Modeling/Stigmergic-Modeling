@@ -534,6 +534,111 @@
           <div id = "relationDetail">
           </div>
         </div>
+        <!--<div id="relationGroupDetail" class="hidden">-->
+          <!--<div id="singleRelation"></div>-->
+        <!--</div>-->
+
+        <div id = "legend">
+          <div id = "Class">
+            <svg width = "130" height = "24">
+              <circle id = "classLegend" cursor="pointer" cx = "12" cy = "12" r="10" stroke="#46A39E" fill="#30B6AF"/>
+              <text x="35" y = "19">Class</text>
+            </svg>
+
+          </div>
+          <div id = "Enumeration">
+            <svg width = "150" height = "24">
+              <circle id = "enumerationLegend" cursor="pointer" cx = "12" cy = "12" r="10" stroke="#F3BA25" fill="#FCC940"/>
+              <text x="35" y = "19">Enumeration</text>
+            </svg>
+          </div>
+
+          <div id = "Relation">
+            <svg width = "150" height = "24">
+              <line id = "relationLegend" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#DFE1E3" stroke-width="2"/>
+              <text x="35" y = "19">Relation</text>
+            </svg>
+          </div>
+        </div>
+        <!--<div id = "legendOption" class="hidden">-->
+          <!--<svg width = "250" height = "30">-->
+            <!--<circle id = "optionCircle" cx = "17" cy = "18" r="5" stroke="#46A39E" fill="#30B6AF"/>-->
+            <!--<text id="optionText" x="40" y = "23" fill="#DCDEE0">Class</text>-->
+            <!--<circle id = "closeOption" cursor="pointer" cx="240" cy="10" r="3" fill="red"/>-->
+          <!--</svg>-->
+          <!--<hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>-->
+
+          <!--<svg width = "200" height = "30">-->
+            <!--<text x="12" y = "23" fill="#DCDEE0">Caption: </text>-->
+            <!--<text id="optionCaption" x="75" y = "23" fill="white">ClassName</text>-->
+          <!--</svg>-->
+          <!--<hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>-->
+
+          <!--<svg width = "200" height = "30">-->
+            <!--<text x="12" y = "23" fill="#DCDEE0">Color: </text>-->
+            <!--<text id="optionColor" x="75" y = "23" fill="white">Green </text>-->
+          <!--</svg>-->
+        <!--</div>-->
+        <div id = "nodeLegendOption" class = "hidden">
+          <svg width = "250" height = "35">
+            <circle id = "optionCircle" cx = "17" cy = "21" r="5" stroke="#46A39E" fill="#30B6AF"/>
+            <text id="optionText" x="40" y = "26" fill="#DCDEE0">Class</text>
+          </svg>
+
+
+          <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+          <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+          <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+            <span style="color: #DCDEE0; margin-left: 12px">Caption: </span>
+            <select id = "captionSelect" style="margin-left:10px">
+              <option value="1">ClassName</option>
+              <option value="0">None</option>
+            </select>
+          </div>
+
+          <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+          <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+            <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+            <select id = "colorSelect" style="margin-left:10px">
+              <option value="green">Green</option>
+              <option value="blue">Blue</option>
+              <option value="yellow">Yellow</option>
+              <option value="grey">Grey</option>
+              <option value="orange">Orange</option>
+              <option value="purple">Purple</option>
+              <option value="red">Red</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div id = "linkLegendOption" class = "hidden">
+          <svg width = "250" height = "35">
+            <line id = "optionLine" x1="10" y1="20" x2="30" y2="20" stroke="#DFE1E3" stroke-width="2"/>
+            <text id="relationOptionText" x="40" y = "26" fill="#DCDEE0">Relation</text>
+          </svg>
+
+          <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+          <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+          <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+            <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+            <select id = "relationColorSelect" style="margin-left:10px">
+              <option value="green">Green</option>
+              <option value="blue">Blue</option>
+              <option value="yellow">Yellow</option>
+              <option value="grey">Grey</option>
+              <option value="orange">Orange</option>
+              <option value="purple">Purple</option>
+              <option value="red">Red</option>
+            </select>
+          </div>
+
+        </div>
         <div class="row">
           <div class="col-xs-12" id="view">
           </div>
