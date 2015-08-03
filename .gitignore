@@ -10,3 +10,5 @@ public/dist/
 *.swo
 *.cmd
 *.log
+target/
+*.iml
