@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "name": "gruntStigMod",
+  "devDependencies": {
+  	"grunt": "^0.4.5",
+  	"grunt-contrib-uglify": "~0.2.0",
+  	"grunt-contrib-clean": "~0.4.0",
+  	"grunt-cmd-transport": "~0.2.0",
+  	"grunt-cmd-concat": "~0.2.0"
+  }
+}
