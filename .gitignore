@@ -2,10 +2,10 @@
 logs/
 node_modules/
 mongodb/
-public/node_modules/
-public/build/
-public/build2/
-public/dist/
+src/main/public/node_modules/
+src/main/public/build/
+src/main/public/build2/
+src/main/webapp/WEB-INF/static/dist/js/app/
 *.swp
 *.swo
 *.cmd

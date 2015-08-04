@@ -7,9 +7,9 @@
     <!--meta name="viewport" content="width=device-width, initial-scale=1"--><!-- 禁用响应式布局 -->
     <%--<title>Stigmergic-Modeling - ${title}</title>--%>
     <!-- CSS -->
-    <link href="/public/src/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/public/src/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/public/src/css/stigmod.css" rel="stylesheet">
+    <link href="/static/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/dist/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/dist/css/stigmod.css" rel="stylesheet">
 
     <!--[if lt IE 9]><script src="http:html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
@@ -20,7 +20,7 @@
 <nav class="navbar navbar-default navbar-fixed-top stigmod-hide-when-full-screen" role="navigation" id="navbarTop">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/"><img src="/public/src/img/stigmod_logo_sm.png" alt="stigmod-logo-sm"/></a>
+            <a class="navbar-brand" href="/"><img src="/static/dist/img/stigmod_logo_sm.png" alt="stigmod-logo-sm"/></a>
         </div>
         <div class="collapse navbar-collapse">
             <form class="navbar-form navbar-left" role="search">

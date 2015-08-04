@@ -24,7 +24,7 @@ module.exports = function(grunt) {
         build2: {
             expand: true,
             cwd: 'build/',
-            src: 'js/app/*',
+            src: ['js/app/*', 'js/module/*'],
             dest: 'build2/'
         }
     },
@@ -33,8 +33,8 @@ module.exports = function(grunt) {
       dist: {
         expand: true,
         cwd: 'build2/',
-        src: 'js/*/*',
-        dest: 'dist/'
+        src: ['js/app/*', 'js/module/*'],
+        dest: '../webapp/WEB-INF/static/dist/'
       }
     }
   });

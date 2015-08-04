@@ -5,7 +5,7 @@
     <div class="col-xs-12">
         <div id="stigmod-indexpage">
             <h1 class="text-center">Welcome to</h1>
-            <h1 class="text-center"><img src="/public/src/img/stigmod_logo_op.png" alt="stigmod-logo"/> !</h1>
+            <h1 class="text-center"><img src="/static/dist/img/stigmod_logo_op.png" alt="stigmod-logo"/> !</h1>
             <br /><br />
             <p class="text-center">Used for collaborative groups to create a conceptual model.</p>
             <p class="text-center">Based on UML 2.0 class diagram specifications and stigmergy theory.</p>
@@ -21,11 +21,11 @@
     </div>
 </div>
 
-<script src="/public/src/js/sea/sea.js"></script>
+<script src="/static/dist/js/sea/sea.js"></script>
 <script>
     seajs.config({
         paths: {
-            'js': 'http://${host}:${port}/public/dist/js'
+            'js': 'http://${host}:${port}/static/dist/js'
         }
     });
     seajs.use('js/app/index');
