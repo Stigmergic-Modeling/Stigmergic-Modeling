@@ -1415,26 +1415,12 @@ span.twitter-typeahead .tt-hint {
   z-index:10001;
   /*pointer-events: none;*/
 }
-/*#relationGroupDetail {*/
-  /*position: absolute;*/
-  /*right: auto;*/
-  /*left: 350px;*/
-  /*top: 150px;*/
-  /*width: auto;*/
-  /*height: auto;*/
-  /*background-color: none;*/
-  /*cursor: move;*/
-  /*z-index:10001;*/
-  /*border: 1px solid #999;*/
-  /*border-radius: 5px;*/
-  /*padding: 0px 10px;*/
-  /*/!*pointer-events: none;*!/*/
-/*}*/
+
 #legend {
   position: absolute;
   right: 50px;
   left: auto;
-  bottom: 30px;
+  bottom: 70px;
   width: 200px;
   height: auto;
   border: 1px solid #999;
@@ -1442,7 +1428,20 @@ span.twitter-typeahead .tt-hint {
   z-index:10001;
   padding: 8px;
 }
-#nodeLegendOption {
+#legendFold {
+  position: absolute;
+  right: 50px;
+  left: auto;
+  bottom: 30px;
+  width: 200px;
+  height: 40px;
+  border: 1px solid #999;
+  border-radius: 5px;
+  z-index:10001;
+  padding: 8px;
+  background-color: #999;
+}
+.legendOption {
   position: absolute;
   right: 50px;
   left: auto;
@@ -1457,20 +1456,6 @@ span.twitter-typeahead .tt-hint {
   z-index:10001;
 }
 
-#linkLegendOption {
-  position: absolute;
-  right: 50px;
-  left: auto;
-  top: 30px;
-  width: 250px;
-  height: auto;
-  /*border: 1px solid #999;*/
-  /*fill: black;*/
-  opacity: 0.8;
-  background-color: black;
-  border-radius: 5px;
-  z-index:10001;
-}
 
 #tooltip.hidden {
   display: none;
