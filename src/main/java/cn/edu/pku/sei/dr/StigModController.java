@@ -14,30 +14,39 @@ public class StigModController {
     String host = "localhost";
     String port = "9999";
 
+    // front page
     @RequestMapping(value="/", method = RequestMethod.GET)
     public String index(ModelMap model) {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "index");
-
-//        List<Integer> allProducts = new ArrayList<Integer>();
-//        allProducts.addAll(Arrays.asList(4, 5, 6));
-//        System.out.println(allProducts);
-//        model.addAttribute("allProducts", allProducts);
-//
-//        List<String> customerList = new ArrayList<String>();
-//        customerList.addAll(Arrays.asList("Zhang San", "Li Si", "Wang Wu"));
-//        System.out.println(customerList);
-//        model.addAttribute("customerList", customerList);
-
         return "index";
     }
 
+    // about this web app
+    @RequestMapping(value="/about", method = RequestMethod.GET)
+    public String about(ModelMap model) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "about");
+        return "about";
+    }
+
+    // sign up page GET
     @RequestMapping(value="/reg", method = RequestMethod.GET)
     public String reg(ModelMap model) {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign Up");
         return "reg";
+    }
+
+    // sign in page GET
+    @RequestMapping(value="/login", method = RequestMethod.GET)
+    public String login(ModelMap model) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Sign In");
+        return "login";
     }
 }
