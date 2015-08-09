@@ -1,0 +1,68 @@
+<html>
+<body>
+###set( $foo = 11 )
+##    #set( $bar = 6 )
+#####set( $x = null )
+##Hello $foo World!
+##<br>
+##$host:$port
+##<br>
+####$!x
+##
+##    #set( $primate = "monkey" )
+####    #set( $customer = "monkey" )
+####    #set( $customer.Behavior = $primate )
+##    #set( $bill = "time")
+##    #set( $monkey = $bill ) ## variable reference
+##    #set( $monkey.Friend = "monica" ) ## string literal
+####    #set( $monkey.Blame = $whitehouse.Leak ) ## property reference
+####    #set( $monkey.Plan = $spindoctor.weave($web) ) ## method reference
+####    #set( $monkey.Number = 123 ) ##number literal
+####    #set( $monkey.Say = ["Not", $my, "fault"] ) ## ArrayList
+##    #set( $monkey.Map = {"banana" : "good", "roast beef" : "bad"}) ## Map
+##
+##<br>
+##$monkey.Friend
+##
+##<br>
+##    #set( $directoryRoot = "www" )
+##    #set( $templateName = "index.vm" )
+##    #set( $template = "$directoryRoot/$templateName" )
+##    $template<br>
+##"$directoryRoot/$templateName"
+##<br>
+###[[don't parse me!]]#<br>
+###[[<br>
+###foreach ($woogie in $boogie)<br>
+##nothing will happen to $woogie<br>
+###end<br>
+##]]#<br>
+##
+##    #if( $foo < 10 )
+##    <strong>Go North</strong>
+##    #elseif( $foo == 10 )
+##    <strong>Go East</strong>
+##    #elseif( $bar == 6 )
+##    <strong>Go South</strong>
+##    #else
+##    <strong>Go West</strong>
+##    #end
+##<br>
+##    #if( $foo == $bar)it's true!#{else}it's not!#end<br>
+
+###set ($allProducts = [1, 2, 3])
+$allProducts
+<ul>
+    #foreach( $product in $allProducts )
+        <li>$product</li>
+    #end
+</ul>
+
+<table>
+    #foreach( $customer in $customerList )
+        <tr><td>$foreach.count</td><td>$customer</td></tr>
+    #end
+</table>
+
+</body>
+<html>
