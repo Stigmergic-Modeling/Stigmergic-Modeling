@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <context:component-scan base-package="cn.edu.pku.sei.dr"/>
+    <context:component-scan base-package="net.stigmod.controller"/>
 
     <mvc:resources mapping="/static/**" location="/WEB-INF/static/"/>
     <mvc:annotation-driven/>
