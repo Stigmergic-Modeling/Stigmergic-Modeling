@@ -1,0 +1,8 @@
+<decorators defaultdir="/WEB-INF/velocity">
+    <!--<decorator name="frontpage" page="index.vm">-->
+          <!--<pattern>/</pattern>-->
+    <!--</decorator>-->
+    <!--<decorator name="main" page="index.vm">-->
+          <!--<pattern>/*</pattern>-->
+    <!--</decorator>-->
+</decorators>

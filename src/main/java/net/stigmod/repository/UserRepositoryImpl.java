@@ -1,12 +1,11 @@
 package net.stigmod.repository;
 
-//import org.neo4j.cineasts.domain.Movie;
-//import org.neo4j.cineasts.domain.Rating;
 import net.stigmod.domain.User;
 import net.stigmod.service.CineastsUserDetails;
+import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -18,20 +17,26 @@ import org.springframework.transaction.annotation.Transactional;
  * @author mh
  * @since 06.03.11
  */
-public class UserRepositoryImpl implements CineastsUserDetailsService {
+public class
+        UserRepositoryImpl implements CineastsUserDetailsService {
 
     @Autowired
-    private Neo4jOperations template;
+    private UserRepository userRepository;
+
+    @Autowired
+    private Session session;
 
     @Override
-    public CineastsUserDetails loadUserByUsername(String login) throws UsernameNotFoundException, DataAccessException {
+    public CineastsUserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         final User user = findByLogin(login);
-        if (user==null) throw new UsernameNotFoundException("Username not found: "+login);
+        if (user == null) {
+            throw new UsernameNotFoundException("Username not found: " + login);
+        }
         return new CineastsUserDetails(user);
     }
 
     private User findByLogin(String login) {
-        return template.findByIndexedValue(User.class,"login",login).to(User.class).singleOrNull();
+        return IteratorUtil.firstOrNull(findByProperty("login", login).iterator());
     }
 
     @Override
@@ -46,21 +51,20 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
         return null;
     }
 
-//    @Override
-//    @Transactional
-//    public Rating rate(Movie movie, User user, int stars, String comment) {
-//        return user.rate(template,movie, stars, comment);
-//    }
-
-
     @Override
     @Transactional
     public User register(String login, String name, String password) {
         User found = findByLogin(login);
-        if (found!=null) throw new RuntimeException("Login already taken: "+login);
-        if (name==null || name.isEmpty()) throw new RuntimeException("No name provided.");
-        if (password==null || password.isEmpty()) throw new RuntimeException("No password provided.");
-        User user=template.save(new User(login,name,password,User.Roles.ROLE_USER));
+        if (found != null) {
+            throw new RuntimeException("Login already taken: " + login);
+        }
+        if (name == null || name.isEmpty()) {
+            throw new RuntimeException("No name provided.");
+        }
+        if (password == null || password.isEmpty()) {
+            throw new RuntimeException("No password provided.");
+        }
+        User user=userRepository.save(new User(login,name,password, User.SecurityRole.ROLE_USER));
         setUserInSession(user);
         return user;
     }
@@ -68,7 +72,7 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
     void setUserInSession(User user) {
         SecurityContext context = SecurityContextHolder.getContext();
         CineastsUserDetails userDetails = new CineastsUserDetails(user);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(),userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(), userDetails.getAuthorities());
         context.setAuthentication(authentication);
 
     }
@@ -79,7 +83,12 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
 //        User friend = findByLogin(friendLogin);
 //        if (!user.equals(friend)) {
 //            user.addFriend(friend);
-//            template.save(user);
+//            userRepository.save(user);
 //        }
 //    }
+
+    public Iterable<User> findByProperty(String propertyName, Object propertyValue) {
+        return session.loadAll(User.class, new Filter(propertyName, propertyValue));
+    }
+
 }
