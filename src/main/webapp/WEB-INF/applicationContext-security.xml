@@ -13,19 +13,20 @@
     </security:global-method-security>
 
     <security:http> <!-- use-expressions="true" -->
-        <security:intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>
-        <security:intercept-url pattern="/import/*" access="hasRole('ROLE_ADMIN')"/>
-        <security:intercept-url pattern="/user/**" access="hasRole('ROLE_USER')"/>
-        <security:intercept-url pattern="/auth/login" access="isAnonymous()"/>
-        <security:intercept-url pattern="/auth/register" access="isAnonymous()"/>
-        <security:intercept-url pattern="/resources/**" access="permitAll"/>
-        <security:intercept-url pattern="/images/**" access="permitAll"/>
-        <security:intercept-url pattern="/**" access="isAnonymous() || hasRole('ROLE_USER')"/>
+        <!--<security:intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>-->
+        <!--<security:intercept-url pattern="/import/*" access="hasRole('ROLE_ADMIN')"/>-->
+        <!--<security:intercept-url pattern="/user/**" access="hasRole('ROLE_USER')"/>-->
+        <!--<security:intercept-url pattern="/auth/login" access="isAnonymous()"/>-->
+        <!--<security:intercept-url pattern="/auth/register" access="isAnonymous()"/>-->
+        <!--<security:intercept-url pattern="/resources/**" access="permitAll"/>-->
+        <!--<security:intercept-url pattern="/images/**" access="permitAll"/>-->
+        <!--<security:intercept-url pattern="/**" access="isAnonymous() || hasRole('ROLE_USER')"/>-->
         <security:form-login login-page="/auth/login" authentication-failure-url="/auth/login?login_error=true"
                              default-target-url="/user" login-processing-url="/j_spring_security_check" username-parameter="username" password-parameter="password"/>
-        <security:logout logout-success-url="/" invalidate-session="true" logout-url="/j_spring_security_logout"/>
-        <security:access-denied-handler error-page="/auth/denied" />
-        <security:csrf/>
+        <!--<security:logout logout-success-url="/" invalidate-session="true" logout-url="/j_spring_security_logout"/>-->
+        <!--<security:access-denied-handler error-page="/auth/denied" />-->
+        <!--<security:csrf/>-->
+        <!--<security:csrf disabled="true"/>-->
     </security:http>
 
     <security:authentication-manager>

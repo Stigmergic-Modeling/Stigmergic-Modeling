@@ -18,8 +18,9 @@ public class User {
     private static final String SALT = "cewuiqwzie";
     @GraphId
     Long nodeId;
-    String login;
-    String name;
+//    String login;
+//    String name;
+    String mail;
     String password;
     String info;
 
@@ -35,15 +36,13 @@ public class User {
     public User() {
     }
 
-    public User(String login, String name, String password) {
-        this.login = login;
-        this.name = name;
+    public User(String mail, String password) {
+        this.mail = mail;
         this.password = password;
     }
 
-    public User(String login, String name, String password, SecurityRole... roles) {
-        this.login = login;
-        this.name = name;
+    public User(String mail, String password, SecurityRole... roles) {
+        this.mail = mail;
         this.password = encode(password);
         this.roles = roles;
     }
@@ -74,15 +73,15 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", name, login);
+        return String.format("%s", mail);
     }
 
     public String getName() {
-        return name;
+        return mail;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String mail) {
+        this.mail = mail;
     }
 
 //    public Set<User> getFriends() {
@@ -94,7 +93,7 @@ public class User {
     }
 
     public String getLogin() {
-        return login;
+        return mail;
     }
 
     public String getPassword() {
@@ -134,16 +133,12 @@ public class User {
 
         User user = (User) o;
 
-        if (login != null ? !login.equals(user.login) : user.login != null) {
-            return false;
-        }
-
-        return true;
+        return mail == null ? user.mail == null : mail.equals(user.mail);
     }
 
     @Override
     public int hashCode() {
-        return login != null ? login.hashCode() : 0;
+        return mail != null ? mail.hashCode() : 0;
     }
 
     public enum SecurityRole implements GrantedAuthority {

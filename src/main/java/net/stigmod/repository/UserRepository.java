@@ -4,11 +4,13 @@ package net.stigmod.repository;
 import net.stigmod.domain.User;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+//import org.springframework.stereotype.Repository;
 
 /**
  * @author mh
  * @since 02.04.11
  */
+//@Repository
 public interface UserRepository extends GraphRepository<User>,
         CineastsUserDetailsService {
 

@@ -5,7 +5,7 @@ mongodb/
 src/main/public/node_modules/
 src/main/public/build/
 src/main/public/build2/
-src/main/webapp/WEB-INF/static/dist/js/app/
+src/main/webapp/WEB-INF/static/dist/js/
 *.swp
 *.swo
 *.cmd

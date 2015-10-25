@@ -11,14 +11,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+//import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author mh
  * @since 06.03.11
  */
-public class
-        UserRepositoryImpl implements CineastsUserDetailsService {
+//@Repository
+public class UserRepositoryImpl implements CineastsUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -53,18 +54,21 @@ public class
 
     @Override
     @Transactional
-    public User register(String login, String name, String password) {
-        User found = findByLogin(login);
+    public User register(String mail, String password, String passwordRepeat) {
+        User found = findByLogin(mail);
         if (found != null) {
-            throw new RuntimeException("Login already taken: " + login);
-        }
-        if (name == null || name.isEmpty()) {
-            throw new RuntimeException("No name provided.");
+            throw new RuntimeException("Email already taken: " + mail);
         }
         if (password == null || password.isEmpty()) {
             throw new RuntimeException("No password provided.");
         }
-        User user=userRepository.save(new User(login,name,password, User.SecurityRole.ROLE_USER));
+        if (passwordRepeat == null || passwordRepeat.isEmpty()) {
+            throw new RuntimeException("No password-repeat provided.");
+        }
+        if (!password.equals(passwordRepeat)) {  // 判断两次输入的密码是否一致
+            throw new RuntimeException("Passwords provided do not equal.");
+        }
+        User user = userRepository.save(new User(mail, password, User.SecurityRole.ROLE_USER));
         setUserInSession(user);
         return user;
     }
@@ -74,7 +78,6 @@ public class
         CineastsUserDetails userDetails = new CineastsUserDetails(user);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(), userDetails.getAuthorities());
         context.setAuthentication(authentication);
-
     }
 
 //    @Override

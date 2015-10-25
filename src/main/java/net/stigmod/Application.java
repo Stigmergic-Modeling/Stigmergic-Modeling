@@ -23,7 +23,7 @@ public class Application extends Neo4jConfiguration {
 
     @Override
     public SessionFactory getSessionFactory() {
-        return new SessionFactory("org.neo4j.cineasts.domain");
+        return new SessionFactory("net.stigmod.domain");
     }
 
     @Bean

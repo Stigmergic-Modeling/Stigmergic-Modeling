@@ -23,7 +23,7 @@ public interface CineastsUserDetailsService extends UserDetailsService {
 //    Rating rate(Movie movie, User user, int stars, String comment);
 
     @Transactional
-    User register(String login, String name, String password);
+    User register(String mail, String password, String passwordRepeat);
 
 //    @Transactional
 //    void addFriend(String login, final User userFromSession);
