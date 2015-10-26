@@ -1,5 +1,9 @@
 <script src="/static/dist/js/sea/sea.js"></script>
 <script>
+    if ('user' === jsFile) {
+        var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
+    }
+
     seajs.config({
         paths: {
             'js': 'http://${host}:${port}/static/dist/js'

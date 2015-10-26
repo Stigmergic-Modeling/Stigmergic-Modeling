@@ -1,0 +1,116 @@
+#parse ("header.vm")
+
+<div id="stigmod-pg-user">
+    <div class="row">
+        <!-- 左侧信息栏 -->
+        <div class="col-xs-3">
+##            <% if (undefined !== userInfo.avatar && null !== userInfo.avatar && '' !== userInfo.avatar) { %>
+            #if (${userInfo.avatar})
+                <img src="<%= userInfo.avatar %>" class="img-responsive img-rounded"/>
+            #else
+                <a href="/u/settings/profile">
+                    <img src="/src/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
+                </a>
+            #end
+            <br />
+##            <div id="stigmod-username"><%= userInfo.name %></div>
+            <div id="stigmod-username">${userInfo.mail}</div>
+            <hr />
+            <div id="stigmod-info-left">
+##                <% if (undefined !== userInfo.location && '' !== userInfo.location) { %>
+##                <p><span class="glyphicon glyphicon-map-marker stigmod-detailinfo-icon"></span>&nbsp;<%= userInfo.location %></p>
+##                <% } %>
+##                <% if (undefined !== userInfo.mail && '' !== userInfo.mail) { %>
+##                <p><span class="glyphicon glyphicon-envelope stigmod-detailinfo-icon"></span>&nbsp;<%= userInfo.mail %></p>
+##                <% } %>
+##                <% if (undefined !== userInfo.url && '' !== userInfo.url) { %>
+##                <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span>&nbsp;<%= userInfo.url %></p>
+##                <% } %>
+##                <% if (undefined !== userSignUpDate && '' !== userSignUpDate) { %>
+##                <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span>&nbsp;Joined&nbsp;on&nbsp;<%= userSignUpDate %></div>
+##                <% } %>
+            </div>
+            <hr />
+            <div class="row"> <!-- 三个坑待填 -->
+                <div class="col-xs-4">
+                </div>
+                <div class="col-xs-4">
+                </div>
+                <div class="col-xs-4">
+                </div>
+            </div>
+        </div>
+        <!-- 右侧 Model 栏 -->
+        <div class="col-xs-9">
+            <!-- Model 搜索栏 -->
+            <div class="row">
+                <div class="col-xs-12">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#"><span class="fa fa-cube"></span> &nbsp;Models</a></li>
+                        <li role="presentation"><a href="#"><span class="glyphicon glyphicon-comment"></span> &nbsp;Discussions</a></li>
+                        <li role="presentation"><a href="#"><span class="glyphicon glyphicon-transfer"></span> &nbsp;Activities</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Model 显示栏 -->
+            <div class="row" id="stigmod-searchbar">
+                <div class="col-xs-12">
+                    <form class="form-inline" role="form">
+                        <div class="form-group" id="stigmod-searchbar-form">
+                            <input type="text" class="form-control" placeholder="Find a model..." id="stigmod-searchbar-input">
+                        </div>
+                        <button class="btn btn-default">Search</button>
+                        <a class="btn btn-success" id="stigmod-searchbar-newbtn" href="/newmodel"><span class="fa fa-cube"></span>&nbsp;New</a>
+                    </form>
+                </div>
+            </div>
+            <hr />
+            <div id="stigmod-model-info-container">
+                <!-- ModelInfo 显示组件位置 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ModelInfo 显示组件 -->
+<script type="text/template" id="template-model-info">
+    <div class="stigmod-modelshow">
+        <div class="row">
+            <div class="col-xs-9 stigmod-modelshow-title">
+                <a href=""></a>
+            </div>
+            <div class="col-xs-3 stigmod-modelshow-info">
+                <span class="glyphicon glyphicon-th-large"></span>
+                <span class="stigmod-modelshow-class"></span> &nbsp;&nbsp;
+                <span class="glyphicon glyphicon-random"></span>
+                <span class="stigmod-modelshow-relation"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10 stigmod-modelshow-description">
+            </div>
+            <div class="col-xs-2">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 stigmod-modelshow-date">
+            </div>
+        </div>
+        <hr />
+    </div>
+</script>
+
+##<script src="/src/js/sea/sea.js"></script>
+##<script>
+##    var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
+##
+##    seajs.config({
+##        paths: {
+##            'js': 'http://<%= host %>:<%= port %>/dist/js'
+##        }
+##    });
+##    seajs.use('js/app/user.js');
+##</script>
+
+#set ($jsFile = "user")
+#parse ("footer.vm")

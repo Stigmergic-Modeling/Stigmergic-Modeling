@@ -2,6 +2,7 @@ package net.stigmod.controller;
 
 //import java.util.*;
 
+import net.stigmod.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.csrf.CsrfToken;  // 用于向vm模板中传递csrf token
 import org.springframework.stereotype.Controller;
@@ -67,23 +68,28 @@ public class StigModController {
             ModelMap model) {
         try {
             userRepository.register(mail, password, passwordRepeat);
-//            return "forward:/user/" + mail;
             return "index";
         } catch(Exception e) {
             return "reg";
-//            model.addAttribute("j_username", mail);
-//            model.addAttribute("error", e.getMessage());
-//            return "/auth/registerpage";
         }
-//        return "reg";
     }
 
     // sign in page GET
     @RequestMapping(value="/login", method = RequestMethod.GET)
-    public String login(ModelMap model) {
+    public String login(ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+        model.addAttribute("userInfo", user);
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign In");
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
         return "login";
     }
 }

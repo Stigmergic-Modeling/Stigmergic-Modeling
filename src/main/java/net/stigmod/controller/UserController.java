@@ -33,7 +33,7 @@ public class UserController {
 //        if (user!=null) {
 //            model.addAttribute("recommendations", movieRepository.getRecommendations(user));
 //        }
-        return "/user/index";
+        return "/user";
     }
 
 //    @RequestMapping(value = "/user/{login}/friends", method = RequestMethod.POST)
