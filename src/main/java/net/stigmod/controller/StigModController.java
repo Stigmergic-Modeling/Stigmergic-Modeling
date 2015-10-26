@@ -44,7 +44,7 @@ public class StigModController {
     }
 
     // sign up page GET
-    @RequestMapping(value="/reg", method = RequestMethod.GET)
+    @RequestMapping(value="/signup", method = RequestMethod.GET)
     public String reg(ModelMap model, HttpServletRequest request) {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
@@ -56,11 +56,11 @@ public class StigModController {
             model.addAttribute("_csrf", csrfToken);
         }
 
-        return "reg";
+        return "signup";
     }
 
     // sign up page POST
-    @RequestMapping(value="/reg", method = RequestMethod.POST)
+    @RequestMapping(value="/signup", method = RequestMethod.POST)
     public String regPost(
             @RequestParam(value = "mail") String mail,
             @RequestParam(value = "password") String password,
@@ -70,12 +70,12 @@ public class StigModController {
             userRepository.register(mail, password, passwordRepeat);
             return "index";
         } catch(Exception e) {
-            return "reg";
+            return "signup";
         }
     }
 
     // sign in page GET
-    @RequestMapping(value="/login", method = RequestMethod.GET)
+    @RequestMapping(value="/signin", method = RequestMethod.GET)
     public String login(ModelMap model, HttpServletRequest request) {
         final User user = userRepository.getUserFromSession();
         model.addAttribute("userInfo", user);
@@ -90,6 +90,6 @@ public class StigModController {
             model.addAttribute("_csrf", csrfToken);
         }
 
-        return "login";
+        return "signin";
     }
 }

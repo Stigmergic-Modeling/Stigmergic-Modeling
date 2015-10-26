@@ -14,15 +14,15 @@
 
     <security:http> <!-- use-expressions="true" -->
         <security:intercept-url pattern="/" access="isAnonymous()"/>
-        <security:intercept-url pattern="/login*" access="isAnonymous()"/>
-        <!--<security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>-->
-        <!--<security:form-login login-page="/login"-->
-                             <!--authentication-failure-url="/login?login_error=true"-->
-                             <!--default-target-url="/user"-->
-                             <!--login-processing-url="/login"-->
-                             <!--username-parameter="mail"-->
-                             <!--password-parameter="password"/>-->
-        <security:form-login login-page="/login"/>
+        <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
+        <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
+        <security:form-login login-page="/signin"
+                             authentication-failure-url="/signin?login_error=true"
+                             default-target-url="/user"
+                             login-processing-url="/signin"
+                             username-parameter="mail"
+                             password-parameter="password"/>
+        <!--<security:form-login login-page="/login"/>-->
 
 
         <!--<security:intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>-->
