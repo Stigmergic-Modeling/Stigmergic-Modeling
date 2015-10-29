@@ -3,6 +3,7 @@ package net.stigmod.repository;
 //import net.stigmod.domain.Rating;
 import net.stigmod.domain.User;
 //import org.springframework.data.neo4j.annotation.Query;
+import net.stigmod.service.StigmodUserDetailsService;
 import org.springframework.data.neo4j.repository.GraphRepository;
 //import org.springframework.stereotype.Repository;
 

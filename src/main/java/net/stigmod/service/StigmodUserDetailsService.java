@@ -1,4 +1,4 @@
-package net.stigmod.repository;
+package net.stigmod.service;
 
 //import org.neo4j.cineasts.domain.Movie;
 //import org.neo4j.cineasts.domain.Rating;

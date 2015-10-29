@@ -2,6 +2,7 @@ package net.stigmod.repository;
 
 import net.stigmod.domain.User;
 import net.stigmod.service.StigmodUserDetails;
+import net.stigmod.service.StigmodUserDetailsService;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.session.Session;
