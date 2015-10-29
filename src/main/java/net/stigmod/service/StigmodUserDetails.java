@@ -12,10 +12,10 @@ import java.util.Collections;
  * @author mh
  * @since 07.03.11
  */
-public class CineastsUserDetails implements UserDetails {
+public class StigmodUserDetails implements UserDetails {
     private final User user;
 
-    public CineastsUserDetails(User user) {
+    public StigmodUserDetails(User user) {
         this.user = user;
     }
 

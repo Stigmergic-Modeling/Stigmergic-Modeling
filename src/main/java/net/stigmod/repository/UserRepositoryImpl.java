@@ -1,7 +1,7 @@
 package net.stigmod.repository;
 
 import net.stigmod.domain.User;
-import net.stigmod.service.CineastsUserDetails;
+import net.stigmod.service.StigmodUserDetails;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.session.Session;
@@ -11,15 +11,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-//import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+//import org.springframework.stereotype.Repository;
 
 /**
  * @author mh
  * @since 06.03.11
  */
 //@Repository
-public class UserRepositoryImpl implements CineastsUserDetailsService {
+public class UserRepositoryImpl implements StigmodUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -28,12 +29,12 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
     private Session session;
 
     @Override
-    public CineastsUserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    public StigmodUserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         final User user = findByLogin(login);
         if (user == null) {
             throw new UsernameNotFoundException("Username not found: " + login);
         }
-        return new CineastsUserDetails(user);
+        return new StigmodUserDetails(user);
     }
 
     private User findByLogin(String login) {
@@ -45,8 +46,8 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         Object principal = authentication.getPrincipal();
-        if (principal instanceof CineastsUserDetails) {
-            CineastsUserDetails userDetails = (CineastsUserDetails) principal;
+        if (principal instanceof StigmodUserDetails) {
+            StigmodUserDetails userDetails = (StigmodUserDetails) principal;
             return userDetails.getUser();
         }
         return null;
@@ -75,7 +76,7 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
 
     void setUserInSession(User user) {
         SecurityContext context = SecurityContextHolder.getContext();
-        CineastsUserDetails userDetails = new CineastsUserDetails(user);
+        StigmodUserDetails userDetails = new StigmodUserDetails(user);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(), userDetails.getAuthorities());
         context.setAuthentication(authentication);
     }

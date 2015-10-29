@@ -14,7 +14,10 @@
 
     <security:http> <!-- use-expressions="true" -->
         <security:intercept-url pattern="/" access="isAnonymous()"/>
+        <security:intercept-url pattern="/static/**" access="permitAll"/>
+        <security:intercept-url pattern="/about" access="permitAll"/>
         <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
+        <security:intercept-url pattern="/signup*" access="isAnonymous()"/>
         <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
         <security:form-login login-page="/signin"
                              authentication-failure-url="/signin?login_error=true"
@@ -22,7 +25,6 @@
                              login-processing-url="/signin"
                              username-parameter="mail"
                              password-parameter="password"/>
-        <!--<security:form-login login-page="/login"/>-->
 
 
         <!--<security:intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>-->
