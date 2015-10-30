@@ -18,7 +18,7 @@
         <security:intercept-url pattern="/about" access="permitAll"/>
         <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
         <security:intercept-url pattern="/signup*" access="isAnonymous()"/>
-        <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
+        <!--<security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>-->
         <security:form-login login-page="/signin"
                              authentication-failure-url="/signin?login_error=true"
                              default-target-url="/user"

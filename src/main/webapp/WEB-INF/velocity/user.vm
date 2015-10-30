@@ -5,16 +5,16 @@
         <!-- 左侧信息栏 -->
         <div class="col-xs-3">
 ##            <% if (undefined !== userInfo.avatar && null !== userInfo.avatar && '' !== userInfo.avatar) { %>
-            #if (${user.avatar})
-                <img src="<%= userInfo.avatar %>" class="img-responsive img-rounded"/>
+            #if (${avatar})
+                <img src="${avatar}" class="img-responsive img-rounded"/>
             #else
                 <a href="/u/settings/profile">
-                    <img src="/src/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
+                    <img src="/static/dist/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
                 </a>
             #end
             <br />
 ##            <div id="stigmod-username"><%= userInfo.name %></div>
-            <div id="stigmod-username">${user.mail}</div>
+            <div id="stigmod-username">${user}</div>
             <hr />
             <div id="stigmod-info-left">
 ##                <% if (undefined !== userInfo.location && '' !== userInfo.location) { %>
@@ -100,17 +100,6 @@
     </div>
 </script>
 
-##<script src="/src/js/sea/sea.js"></script>
-##<script>
-##    var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
-##
-##    seajs.config({
-##        paths: {
-##            'js': 'http://<%= host %>:<%= port %>/dist/js'
-##        }
-##    });
-##    seajs.use('js/app/user.js');
-##</script>
 
 #set ($jsFile = "user")
 #parse ("footer.vm")

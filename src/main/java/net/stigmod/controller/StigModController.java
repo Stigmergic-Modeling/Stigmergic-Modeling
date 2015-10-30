@@ -78,12 +78,9 @@ public class StigModController {
         }
     }
 
-    // sign in page GET
+    // sign in page GET  (POST route is taken care of by Spring-Security)
     @RequestMapping(value="/signin", method = RequestMethod.GET)
     public String login(ModelMap model, HttpServletRequest request) {
-//        final User user = userRepository.getUserFromSession();
-//        model.addAttribute("userInfo", user);
-
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign In");
