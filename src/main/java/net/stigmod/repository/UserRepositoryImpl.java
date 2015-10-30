@@ -39,7 +39,7 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
     }
 
     private User findByLogin(String login) {
-        return IteratorUtil.firstOrNull(findByProperty("login", login).iterator());
+        return IteratorUtil.firstOrNull(findByProperty("mail", login).iterator());
     }
 
     @Override

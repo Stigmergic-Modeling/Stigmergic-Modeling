@@ -37,6 +37,8 @@ public class StigModController {
     // about this web app
     @RequestMapping(value="/about", method = RequestMethod.GET)
     public String about(ModelMap model) {
+        final User user = userRepository.getUserFromSession();
+        model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "about");
@@ -68,17 +70,19 @@ public class StigModController {
             ModelMap model) {
         try {
             userRepository.register(mail, password, passwordRepeat);
-            return "index";
+            return "redirect:/user";
         } catch(Exception e) {
-            return "signup";
+//            System.out.println("I am not feeling good!!!!!!!!!!!!!!!!!");
+//            e.printStackTrace();
+            return "redirect:/about";
         }
     }
 
     // sign in page GET
     @RequestMapping(value="/signin", method = RequestMethod.GET)
     public String login(ModelMap model, HttpServletRequest request) {
-        final User user = userRepository.getUserFromSession();
-        model.addAttribute("userInfo", user);
+//        final User user = userRepository.getUserFromSession();
+//        model.addAttribute("userInfo", user);
 
         model.addAttribute("host", host);
         model.addAttribute("port", port);

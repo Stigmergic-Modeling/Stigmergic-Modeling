@@ -5,7 +5,7 @@
         <!-- 左侧信息栏 -->
         <div class="col-xs-3">
 ##            <% if (undefined !== userInfo.avatar && null !== userInfo.avatar && '' !== userInfo.avatar) { %>
-            #if (${userInfo.avatar})
+            #if (${user.avatar})
                 <img src="<%= userInfo.avatar %>" class="img-responsive img-rounded"/>
             #else
                 <a href="/u/settings/profile">
@@ -14,7 +14,7 @@
             #end
             <br />
 ##            <div id="stigmod-username"><%= userInfo.name %></div>
-            <div id="stigmod-username">${userInfo.mail}</div>
+            <div id="stigmod-username">${user.mail}</div>
             <hr />
             <div id="stigmod-info-left">
 ##                <% if (undefined !== userInfo.location && '' !== userInfo.location) { %>
