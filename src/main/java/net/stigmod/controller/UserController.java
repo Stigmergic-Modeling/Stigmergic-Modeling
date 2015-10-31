@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class UserController {
 
+    // Common settings
     private Config config = ConfigLoader.load();
+    private String host = config.getHost();
+    private String port = config.getPort();
 
     @Autowired
     UserRepository userRepository;
@@ -34,8 +37,8 @@ public class UserController {
     public String profile(Model model) {
         final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
-        model.addAttribute("host", config.getHost());
-        model.addAttribute("port", config.getPort());
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
         model.addAttribute("title", "user");
 //        if (user!=null) {
 //            model.addAttribute("recommendations", movieRepository.getRecommendations(user));

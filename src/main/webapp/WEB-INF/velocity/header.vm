@@ -39,7 +39,7 @@
             #else
                 <li><a href="/user"><span class="glyphicon glyphicon-user"></span> ${user} </a></li>
                 <li><a href="/u/settings/profile"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
-                <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
+                <li><a href="/signout"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
             #end
             </ul>
         </div>

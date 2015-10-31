@@ -18,13 +18,17 @@
         <security:intercept-url pattern="/about" access="permitAll"/>
         <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
         <security:intercept-url pattern="/signup*" access="isAnonymous()"/>
-        <!--<security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>-->
+        <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
         <security:form-login login-page="/signin"
                              authentication-failure-url="/signin?login_error=true"
                              default-target-url="/user"
                              login-processing-url="/signin"
                              username-parameter="mail"
                              password-parameter="password"/>
+        <!--<security:access-denied-handler error-page="/auth/denied" />-->
+        <!--<security:logout logout-success-url="/signin"-->
+                         <!--invalidate-session="true"-->
+                         <!--logout-url="/signout"/>-->
 
 
         <!--<security:intercept-url pattern="/admin/*" access="hasRole('ROLE_ADMIN')"/>-->

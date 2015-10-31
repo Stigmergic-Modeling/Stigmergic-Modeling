@@ -1,9 +1,13 @@
 package net.stigmod.controller;
 
-//import java.util.*;
 
 import net.stigmod.domain.User;
+import net.stigmod.util.config.Config;
+import net.stigmod.util.config.ConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.csrf.CsrfToken;  // 用于向vm模板中传递csrf token
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -14,13 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import net.stigmod.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class StigModController {
 
     // Common settings
-    String host = "localhost";
-    String port = "9999";
+    private Config config = ConfigLoader.load();
+    private String host = config.getHost();
+    private String port = config.getPort();
 
     @Autowired
     UserRepository userRepository;
@@ -72,8 +78,7 @@ public class StigModController {
             userRepository.register(mail, password, passwordRepeat);
             return "redirect:/user";
         } catch(Exception e) {
-//            System.out.println("I am not feeling good!!!!!!!!!!!!!!!!!");
-//            e.printStackTrace();
+            e.printStackTrace();
             return "redirect:/about";
         }
     }
@@ -92,5 +97,15 @@ public class StigModController {
         }
 
         return "signin";
+    }
+
+    // sign out
+    @RequestMapping(value="/signout", method = RequestMethod.GET)
+    public String logout (HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null){
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        return "redirect:/signin";
     }
 }
