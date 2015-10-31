@@ -6,6 +6,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
+import java.net.URL;
 
 //@Component
 public class ConfigLoader {
@@ -13,7 +14,14 @@ public class ConfigLoader {
 
     public static Config load() {
         try {
-            File file = new File("/Users/wangshijun/IdeaProjects/StigMod/target/Cafe/WEB-INF/config.xml");
+
+            // config.xml is located at "src/main/resources/config.xml" during development
+            // (resources marked as a resource dir)
+            // and at "target/Cafe/WEB-INF/classes/config.xml" during deployment (by IntelliJ deployment schema)
+            // Inspired by http://stackoverflow.com/questions/6893497/java-file-path-in-web-project
+            URL url = Thread.currentThread().getContextClassLoader().getResource("/config.xml");
+            assert url != null;
+            File file = new File(url.getFile());
             JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
 
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
