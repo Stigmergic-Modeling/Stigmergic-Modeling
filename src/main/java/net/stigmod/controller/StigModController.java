@@ -4,6 +4,8 @@ package net.stigmod.controller;
 import net.stigmod.domain.User;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +32,8 @@ public class StigModController {
 
     @Autowired
     UserRepository userRepository;
+
+    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     // front page
     @RequestMapping(value="/", method = RequestMethod.GET)
@@ -73,13 +77,23 @@ public class StigModController {
             @RequestParam(value = "mail") String mail,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
-            ModelMap model) {
+            ModelMap model, HttpServletRequest request) {
         try {
             userRepository.register(mail, password, passwordRepeat);
             return "redirect:/user";
         } catch(Exception e) {
-            e.printStackTrace();
-            return "redirect:/about";
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Sign Up");
+            // CSRF token
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                model.addAttribute("_csrf", csrfToken);
+            }
+
+            model.addAttribute("mail", mail);
+            model.addAttribute("error", e.getMessage());
+            return "signup";
         }
     }
 

@@ -4,8 +4,8 @@ package net.stigmod.controller;
 import net.stigmod.domain.User;
 //import net.stigmod.repository.MovieRepository;
 import net.stigmod.repository.UserRepository;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class UserController {
 //    @Autowired
 //    MovieRepository movieRepository;
 
-//    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
     public String profile(Model model) {

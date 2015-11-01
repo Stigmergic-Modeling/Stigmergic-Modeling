@@ -10,7 +10,11 @@
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <div class="form-group">
                 <label for="email">Your Email Address</label>
-                <input type="email" class="form-control" required autofocus id="email" name="mail" />
+                #if (${mail})
+                    <input type="email" class="form-control" required autofocus id="email" name="mail" value="${mail}"/>
+                #else
+                    <input type="email" class="form-control" required autofocus id="email" name="mail" />
+                #end
             </div>
             <div class="form-group">
                 <label for="password">Your Password</label>
