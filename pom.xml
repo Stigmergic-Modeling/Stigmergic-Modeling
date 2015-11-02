@@ -130,6 +130,13 @@
             <artifactId>neo4j</artifactId>
             <version>${neo4j.version}</version>
         </dependency>
+
+        <!-- JSON -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.4</version>
+        </dependency>
     </dependencies>
 
     <build>

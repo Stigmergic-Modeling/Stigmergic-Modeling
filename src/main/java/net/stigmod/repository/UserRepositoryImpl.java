@@ -14,13 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
-//import org.springframework.stereotype.Repository;
 
-/**
- * @author mh
- * @since 06.03.11
- */
-//@Repository
 public class UserRepositoryImpl implements StigmodUserDetailsService {
 
     @Autowired

@@ -72,4 +72,9 @@ public class UserController {
 //    private boolean areFriends(User user, User loggedIn) {
 //        return user!=null && user.isFriend(loggedIn);
 //    }
+
+    private String cvtObj2Json (Object obj) {
+        return "ok";
+    }
 }
+
