@@ -46,6 +46,16 @@ public class UserController {
         return "/user";
     }
 
+    @RequestMapping(value = "/newmodel", method = RequestMethod.GET)
+    public String newModel(Model model) {
+        final User user = userRepository.getUserFromSession();
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "New Model");
+        return "/new_model";
+    }
+
 //    @RequestMapping(value = "/user/{login}/friends", method = RequestMethod.POST)
 //    public String addFriend(Model model, @PathVariable("login") String login) {
 //        userRepository.addFriend(login, userRepository.getUserFromSession());

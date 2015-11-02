@@ -25,7 +25,7 @@
                              login-processing-url="/signin"
                              username-parameter="mail"
                              password-parameter="password"/>
-        <!--<security:access-denied-handler error-page="/auth/denied" />-->
+        <security:access-denied-handler error-page="/denied" />
         <!--<security:logout logout-success-url="/signin"-->
                          <!--invalidate-session="true"-->
                          <!--logout-url="/signout"/>-->

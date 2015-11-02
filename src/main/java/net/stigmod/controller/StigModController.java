@@ -122,4 +122,14 @@ public class StigModController {
         }
         return "redirect:/signin";
     }
+
+    // Denied page GET
+    @RequestMapping(value="/denied", method = RequestMethod.GET)
+    public String reg(ModelMap model) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Denied");
+
+        return "denied";
+    }
 }

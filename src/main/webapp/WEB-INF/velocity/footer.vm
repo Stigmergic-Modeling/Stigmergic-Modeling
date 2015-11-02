@@ -5,6 +5,8 @@
 ##        var dataPassedIn = {};
 ##    }
 
+    var dataPassedIn = {};
+
     seajs.config({
         paths: {
             'js': 'http://${host}:${port}/static/dist/js'

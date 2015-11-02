@@ -1,0 +1,16 @@
+#parse ("header.vm")
+
+<div class="row">
+    <div class="col-xs-12">
+        <div id="stigmod-indexpage">
+            <h2 class="text-center">ACCESS DENIED</h2>
+            <br />
+            <p class="text-center">
+                <a class="btn btn-default" onclick="history.go(-1);" role="button">Return</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

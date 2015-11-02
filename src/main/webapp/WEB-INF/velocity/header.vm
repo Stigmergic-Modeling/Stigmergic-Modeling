@@ -20,7 +20,11 @@
 <nav class="navbar navbar-default navbar-fixed-top stigmod-hide-when-full-screen" role="navigation" id="navbarTop">
     <div class="container">
         <div class="navbar-header">
+        #if (!${user})
             <a class="navbar-brand" href="/"><img src="/static/dist/img/stigmod_logo_sm.png" alt="stigmod-logo-sm"/></a>
+        #else
+            <a class="navbar-brand" href="/user"><img src="/static/dist/img/stigmod_logo_sm.png" alt="stigmod-logo-sm"/></a>
+        #end
         </div>
         <div class="collapse navbar-collapse">
             <form class="navbar-form navbar-left" role="search">
