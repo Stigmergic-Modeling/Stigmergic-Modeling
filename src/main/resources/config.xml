@@ -2,4 +2,10 @@
 <config>
     <host>localhost</host>
     <port>9999</port>
+    <neo4j>
+        <host>localhost</host>
+        <port>7474</port>
+        <username>neo4j</username>
+        <password>111111</password>
+    </neo4j>
 </config>

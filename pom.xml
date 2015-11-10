@@ -12,7 +12,7 @@
         <spring.version>4.1.4.RELEASE</spring.version>
         <spring-data-neo4j.version>4.0.0.RELEASE</spring-data-neo4j.version>
         <spring-security.version>4.0.0.RELEASE</spring-security.version>
-        <neo4j.version>2.2.5</neo4j.version>
+        <neo4j.version>2.3.0</neo4j.version>
     </properties>
 
     <dependencies>
@@ -116,14 +116,6 @@
         </dependency>
 
         <!-- Neo4j Libraries -->
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-kernel</artifactId>
-            <version>${neo4j.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>

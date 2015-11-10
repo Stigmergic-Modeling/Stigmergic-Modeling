@@ -1,15 +1,14 @@
 package net.stigmod.util.config;
 
-//import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
-public class Config {
-
+@XmlRootElement(namespace="package net.stigmod.util.config.Config")
+public class Neo4j {
     private String host;
     private String port;
-    private Neo4j neo4j;
+    private String username;
+    private String password;
 
     public String getHost() {
         return host;
@@ -29,12 +28,21 @@ public class Config {
         this.port = port;
     }
 
-    public Neo4j getNeo4j() {
-        return neo4j;
+    public String getUsername() {
+        return username;
     }
 
     @XmlElement
-    public void setNeo4j(Neo4j neo4j) {
-        this.neo4j = neo4j;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @XmlElement
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -1,5 +1,8 @@
 package net.stigmod;
 
+import net.stigmod.util.config.Config;
+import net.stigmod.util.config.ConfigLoader;
+import net.stigmod.util.config.Neo4j;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +22,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan("net.stigmod")
 public class Application extends Neo4jConfiguration {
 
-    public static final int NEO4J_PORT = 7474;
+    // Common settings
+    private Config config = ConfigLoader.load();
+    private Neo4j neo4j = config.getNeo4j();
+    private String host = neo4j.getHost();
+    private String port = neo4j.getPort();
+    private String username = neo4j.getUsername();
+    private String password = neo4j.getPassword();
 
     @Override
     public SessionFactory getSessionFactory() {
@@ -28,7 +37,7 @@ public class Application extends Neo4jConfiguration {
 
     @Bean
     public Neo4jServer neo4jServer() {
-        return new RemoteServer("http://localhost:" + NEO4J_PORT, "neo4j", "111111");
+        return new RemoteServer("http://" + host + ":" + port, username, password);
     }
 
     @Override
