@@ -6,6 +6,7 @@ src/main/public/node_modules/
 src/main/public/build/
 src/main/public/build2/
 src/main/webapp/WEB-INF/static/dist/js/
+src/main/resources/config.xml
 *.swp
 *.swo
 *.cmd
