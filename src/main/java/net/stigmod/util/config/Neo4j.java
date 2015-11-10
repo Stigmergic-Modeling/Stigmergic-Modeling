@@ -1,8 +1,23 @@
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project,
+ * SEIDR, Peking University,
+ * All rights reserved.
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
+
 package net.stigmod.util.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * StigMod configuration Neo4j object class
+ *
+ * @version     2015/11/10
+ * @author 	    Shijun Wang
+ */
 @XmlRootElement(namespace="package net.stigmod.util.config.Config")
 public class Neo4j {
     private String host;

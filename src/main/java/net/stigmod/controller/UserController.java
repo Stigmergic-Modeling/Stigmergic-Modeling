@@ -1,5 +1,13 @@
-package net.stigmod.controller;
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project,
+ * SEIDR, Peking University,
+ * All rights reserved.
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
 
+package net.stigmod.controller;
 
 import net.stigmod.domain.User;
 //import net.stigmod.repository.MovieRepository;
@@ -16,7 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * Handles and retrieves the login or denied page depending on the URI template
+ * Handle user related page requests
+ *
+ * @version     2015/08/11
+ * @author 	    Shijun Wang
  */
 @Controller
 public class UserController {

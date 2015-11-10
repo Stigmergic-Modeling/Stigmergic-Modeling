@@ -1,5 +1,13 @@
-package net.stigmod.controller;
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project,
+ * SEIDR, Peking University,
+ * All rights reserved.
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
 
+package net.stigmod.controller;
 
 import net.stigmod.domain.User;
 import net.stigmod.util.config.Config;
@@ -22,6 +30,12 @@ import net.stigmod.repository.UserRepository;
 import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Handle StigMod base requests
+ *
+ * @version     2015/08/04
+ * @author 	    Shijun Wang
+ */
 @Controller
 public class StigModController {
 

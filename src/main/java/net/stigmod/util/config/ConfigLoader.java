@@ -1,6 +1,13 @@
-package net.stigmod.util.config;
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project,
+ * SEIDR, Peking University,
+ * All rights reserved.
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
 
-//import org.springframework.stereotype.Component;
+package net.stigmod.util.config;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -8,7 +15,12 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.net.URL;
 
-//@Component
+/**
+ * Load StigMod configurations
+ *
+ * @version     2015/10/30
+ * @author 	    Shijun Wang
+ */
 public class ConfigLoader {
     public ConfigLoader() {}
 
