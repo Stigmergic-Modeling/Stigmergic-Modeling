@@ -1,7 +1,7 @@
 package net.stigmod.controller;
 
 
-import net.stigmod.repository.UserRepository;
+import net.stigmod.repository.node.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

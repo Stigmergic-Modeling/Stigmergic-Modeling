@@ -9,6 +9,7 @@
 
 package net.stigmod.domain;
 
+import net.stigmod.domain.node.IndividualConceptualModel;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

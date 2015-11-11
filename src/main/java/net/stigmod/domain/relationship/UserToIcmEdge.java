@@ -7,30 +7,32 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.relationship;
 
+import net.stigmod.domain.node.IndividualConceptualModel;
+import net.stigmod.domain.node.User;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 
 /**
- * An ICM is in a CCM
- *
+ * A user owns many ICMs
+ * 
  * @version 	2015/11/11
  * @author 	    Shijun Wang
  */
-@RelationshipEntity(type = "IN")
-public class IcmToCcmEdge {
+@RelationshipEntity(type = "OWNS")
+public class UserToIcmEdge {
 
     @GraphId
     private Long id;
 
     @StartNode
-    private IndividualConceptualModel icm;
+    private User user;
 
     @EndNode
-    private CollectiveConceptualModel ccm;
+    private IndividualConceptualModel icm;
 
     public Long getId() {
         return id;
@@ -40,19 +42,19 @@ public class IcmToCcmEdge {
         this.id = id;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public IndividualConceptualModel getIcm() {
         return icm;
     }
 
     public void setIcm(IndividualConceptualModel icm) {
         this.icm = icm;
-    }
-
-    public CollectiveConceptualModel getCcm() {
-        return ccm;
-    }
-
-    public void setCcm(CollectiveConceptualModel ccm) {
-        this.ccm = ccm;
     }
 }

@@ -1,6 +1,7 @@
 package net.stigmod.domain;
 
 
+import net.stigmod.domain.node.IndividualConceptualModel;
 import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 import com.google.gson.Gson;

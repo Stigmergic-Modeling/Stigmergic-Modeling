@@ -7,8 +7,10 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.node;
 
+import net.stigmod.domain.relationship.IcmToCcmEdge;
+import net.stigmod.domain.relationship.UserToIcmEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;

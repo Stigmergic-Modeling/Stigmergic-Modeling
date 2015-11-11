@@ -1,6 +1,6 @@
 package net.stigmod.converter;
 
-import net.stigmod.domain.User;
+import net.stigmod.domain.node.User;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 public class UserRolesConverter implements AttributeConverter<User.SecurityRole[],String[]> {

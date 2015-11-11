@@ -7,8 +7,10 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.relationship;
 
+import net.stigmod.domain.node.RelationNode;
+import net.stigmod.domain.node.ValueNode;
 import org.neo4j.ogm.annotation.*;
 
 /**
