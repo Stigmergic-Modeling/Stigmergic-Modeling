@@ -13,6 +13,9 @@ import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.ValueNode;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Kai Fu
  * @version 2015/11/10
@@ -29,8 +32,11 @@ public class ClassToValueEdge {
     @EndNode
     private ValueNode ender;
 
-    @Property
+    @Property(name="name")
     private String edgeName;
+
+    @Property(name="icm_list")
+    private List<Long> icmList=new ArrayList<>();
 
     public ClassToValueEdge() {}
 
@@ -62,5 +68,13 @@ public class ClassToValueEdge {
 
     public String getEdgeName() {
         return edgeName;
+    }
+
+    public List<Long> getIcmList() {
+        return icmList;
+    }
+
+    public void setIcmList(List<Long> icmList) {
+        this.icmList = icmList;
     }
 }

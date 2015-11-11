@@ -80,11 +80,4 @@ public class ValueNode {
         this.icmList = icmList;
     }
 
-    //    public List<ModelToVEdge> getMtvedges() {
-//        return mtvedges;
-//    }
-//
-//    public void setMtvedges(List<ModelToVEdge> mtvedges) {
-//        this.mtvedges = mtvedges;
-//    }
 }
