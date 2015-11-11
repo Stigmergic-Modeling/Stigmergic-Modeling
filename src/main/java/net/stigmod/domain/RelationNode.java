@@ -15,7 +15,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,24 +31,16 @@ public class RelationNode {
     @GraphId
     private Long id;
 
-    @Property
-    private String relationNodeName;
+    @Property(name="icm_list")
+    private List<Long> icmList=new ArrayList<Long>();
 
     public RelationNode() {}
-    public RelationNode(String name) {
-        this.relationNodeName=name;
-    }
-
 
     @Relationship(type="e_class",direction = Relationship.OUTGOING)
     private Set<RelationToCEdge> rtcEdges =new HashSet<RelationToCEdge>();
 
     @Relationship(type="property",direction = Relationship.OUTGOING)
     private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
-
-    //deprecated
-//    @Relationship(type="has",direction = Relationship.INCOMING)
-//    private Set<ModelToREdge> mtrEdges =new HashSet<ModelToREdge>();
 
     public Long getId() {
         return id;
@@ -56,19 +50,15 @@ public class RelationNode {
         return rtcEdges;
     }
 
-    public String getRelationNodeName() {
-        return relationNodeName;
+    public List<Long> getIcmList() {
+        return icmList;
+    }
+
+    public void setIcmList(List<Long> icmList) {
+        this.icmList = icmList;
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {
         return rtvEdges;
     }
-
-//    public Set<ModelToREdge> getMtrEdges() {
-//        return mtrEdges;
-//    }
-//
-//    public void setMtrEdges(Set<ModelToREdge> mtrEdges) {
-//        this.mtrEdges = mtrEdges;
-//    }
 }

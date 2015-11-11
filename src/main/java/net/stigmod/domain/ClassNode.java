@@ -14,7 +14,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,8 +28,8 @@ public class ClassNode {
     @GraphId
     private Long id;
 
-    @Property(name="name")
-    private String nodeName;
+    @Property(name="icm_list")
+    List<Long> icmList=new ArrayList<Long>();
 
     //连接关系与类的关系
     @Relationship(type="e_class",direction = Relationship.INCOMING)
@@ -37,18 +39,15 @@ public class ClassNode {
     @Relationship(type="property",direction = Relationship.OUTGOING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
 
-    //deprecated,由于模型变化,这个好像没用了?
-//    @Relationship(type="has",direction = Relationship.INCOMING)
-//    private Set<ModelToCEdge> mtcEdges =new HashSet<ModelToCEdge>();
 
     public ClassNode(){}
 
-    public ClassNode(String name) {
-        this.nodeName=name;
+    public List<Long> getIcmList() {
+        return icmList;
     }
 
-    public String getNodeName() {
-        return nodeName;
+    public void setIcmList(List<Long> icmList) {
+        this.icmList = icmList;
     }
 
     public Set<RelationToCEdge> getRtcEdges() {
@@ -63,7 +62,4 @@ public class ClassNode {
         return id;
     }
 
-//    public Set<ModelToCEdge> getMtcEdges() {
-//        return mtcEdges;
-//    }
 }

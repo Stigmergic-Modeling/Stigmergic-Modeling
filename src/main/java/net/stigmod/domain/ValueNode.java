@@ -31,6 +31,9 @@ public class ValueNode {
     @Property(name="name")
     private String name;
 
+    @Property(name="icm_list")
+    private List<Long> icmList=new ArrayList<Long>();
+
     @Relationship(type="property",direction = Relationship.INCOMING)
     private List<ClassToValueEdge> ctvEdges =new ArrayList<ClassToValueEdge>();
 
@@ -67,7 +70,15 @@ public class ValueNode {
         return rtvEdges;
     }
 
-//    public List<ModelToVEdge> getMtvedges() {
+    public List<Long> getIcmList() {
+        return icmList;
+    }
+
+    public void setIcmList(List<Long> icmList) {
+        this.icmList = icmList;
+    }
+
+    //    public List<ModelToVEdge> getMtvedges() {
 //        return mtvedges;
 //    }
 //
