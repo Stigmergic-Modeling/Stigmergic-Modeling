@@ -1,6 +1,15 @@
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project
+ * SEIDR, Peking University
+ * All rights reserved
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
+
 package net.stigmod.service;
 
-import net.stigmod.domain.User;
+import net.stigmod.domain.node.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,8 +18,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * @author mh
- * @since 07.03.11
+ * StigMod version of UserDetails
+ *
+ * @version     2015/11/11
+ * @author      mh
+ * @author 	    Shijun Wang
  */
 public class StigmodUserDetails implements UserDetails {
     private final User user;
@@ -35,7 +47,7 @@ public class StigmodUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getLogin();
+        return user.getMail();
     }
 
     @Override

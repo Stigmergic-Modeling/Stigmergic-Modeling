@@ -9,7 +9,7 @@
 
 package net.stigmod.controller;
 
-import net.stigmod.domain.User;
+import net.stigmod.domain.node.User;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import net.stigmod.repository.UserRepository;
+import net.stigmod.repository.node.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
 import javax.servlet.http.HttpServletResponse;

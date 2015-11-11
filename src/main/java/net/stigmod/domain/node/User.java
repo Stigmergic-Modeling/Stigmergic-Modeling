@@ -7,9 +7,10 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.node;
 
 import net.stigmod.converter.UserRolesConverter;
+import net.stigmod.domain.relationship.UserToIcmEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -23,33 +24,27 @@ import java.util.Set;
 /**
  * User object
  *
- * @version     2015/08/11
+ * @version     2015/11/11
  * @author 	    Shijun Wang
  */
-@NodeEntity
+@NodeEntity(label = "User")
 public class User {
-//    public static final String FRIEND = "FRIEND";
-//    public static final String RATED = "RATED";
     private static final String SALT = "cewuiqwzie";
-    @GraphId
-    Long nodeId;
-//    String login;
-//    String name;
-    String mail;
-    String password;
-    String info;
 
-//    @Relationship(type = FRIEND, direction = Relationship.UNDIRECTED)
-//    Set<User> friends = new HashSet<>();
+    @GraphId
+    private Long id;
+
+    // A user owns many ICMs
+    @Relationship(type = "OWNS", direction = Relationship.INCOMING)
+    private Set<UserToIcmEdge> u2iEdges =new HashSet<>();
+
+    private String mail;
+    private String password;
 
     @Convert(UserRolesConverter.class)
     private SecurityRole[] roles;
 
-//    @Relationship(type = "RATED")
-//    private Set<Rating> ratings = new HashSet<>();
-
-    public User() {
-    }
+    public User() {}
 
     public User(String mail, String password) {
         this.mail = mail;
@@ -66,62 +61,30 @@ public class User {
         return new Md5PasswordEncoder().encodePassword(password, SALT);
     }
 
-
-//    public void addFriend(User friend) {
-//        this.friends.add(friend);
-//    }
-
-//    public Rating rate(Movie movie, int stars, String comment) {
-//        if (ratings == null) {
-//            ratings = new HashSet<>();
-//        }
-//
-//        Rating rating = new Rating(this, movie, stars, comment);
-//        ratings.add(rating);
-//        movie.addRating(rating);
-//        return rating;
-//    }
-//
-//    public Set<Rating> getRatings() {
-//        return ratings;
-//    }
-
     @Override
     public String toString() {
         return String.format("%s", mail);
     }
-
-    public String getName() {
-        return mail;
-    }
-
-    public void setName(String mail) {
-        this.mail = mail;
-    }
-
-//    public Set<User> getFriends() {
-//        return friends;
+//
+//    public String getName() {
+//        return mail;
+//    }
+//
+//    public void setName(String mail) {
+//        this.mail = mail;
 //    }
 
     public SecurityRole[] getRole() {
         return roles;
     }
 
-    public String getLogin() {
-        return mail;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
+//    public String getLogin() {
+//        return mail;
+//    }
+//
+//    public String getPassword() {
+//        return password;
+//    }
 
     public void updatePassword(String old, String newPass1, String newPass2) {
         if (!password.equals(encode(old))) {
@@ -132,10 +95,6 @@ public class User {
         }
         this.password = encode(newPass1);
     }
-
-//    public boolean isFriend(User other) {
-//        return other != null && getFriends().contains(other);
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -163,5 +122,40 @@ public class User {
         public String getAuthority() {
             return name();
         }
+    }
+
+
+    // Getters & setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Set<UserToIcmEdge> getU2iEdges() {
+        return u2iEdges;
+    }
+
+    public void setU2iEdges(Set<UserToIcmEdge> u2iEdges) {
+        this.u2iEdges = u2iEdges;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

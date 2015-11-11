@@ -9,6 +9,7 @@
 
 package net.stigmod.domain;
 
+import net.stigmod.domain.node.IndividualConceptualModel;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,17 +18,17 @@ import java.util.List;
 /**
  * User page data object
  *
- * @version     2015/11/02
+ * @version     2015/11/11
  * @author 	    Shijun Wang
  */
 @Component
 public class UserPageData {
 
     private String mail;
-    private List<ModelInfo> models;
+    private List<IndividualConceptualModel> icms;
 
     public UserPageData() {
-        models = new ArrayList<>();
+        icms = new ArrayList<>();
     }
 
 
@@ -39,11 +40,11 @@ public class UserPageData {
         this.mail = mail;
     }
 
-    public List<ModelInfo> getModels() {
-        return models;
+    public List<IndividualConceptualModel> getIcms() {
+        return icms;
     }
 
-    public void setModels(List<ModelInfo> models) {
-        this.models = models;
+    public void setIcms(List<IndividualConceptualModel> icms) {
+        this.icms = icms;
     }
 }

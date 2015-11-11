@@ -7,24 +7,33 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.node;
 
+import net.stigmod.domain.relationship.IcmToCcmEdge;
 import org.neo4j.ogm.annotation.GraphId;
-import org.springframework.stereotype.Component;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Model info object
+ * Collective Conceptual Model (CCM) object
  *
- * @version     2015/11/02
+ * @version     2015/11/11
  * @author 	    Shijun Wang
  */
-@Component
-public class ModelInfo {
+@NodeEntity(label = "CCM")
+public class CollectiveConceptualModel {
 
     @GraphId
-    Long nodeId;
+    private Long id;
+
+    // An ICM is in a CCM
+    @Relationship(type = "IN", direction = Relationship.INCOMING)
+    private Set<IcmToCcmEdge> i2cEdges =new HashSet<>();
+
     private String name;
     private String description;
     private Date updateDate;
@@ -72,3 +81,4 @@ public class ModelInfo {
     }
 
 }
+

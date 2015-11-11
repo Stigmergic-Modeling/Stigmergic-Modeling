@@ -7,9 +7,9 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.repository;
+package net.stigmod.repository.node;
 
-import net.stigmod.domain.RelationToCEdge;
+import net.stigmod.domain.node.RelationNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,5 +18,5 @@ import org.springframework.stereotype.Repository;
  * @version 2015/11/10
  */
 @Repository
-public interface RelationToCEdgeRepository extends GraphRepository<RelationToCEdge>{
+public interface RelationNodeRepository extends GraphRepository<RelationNode>{
 }

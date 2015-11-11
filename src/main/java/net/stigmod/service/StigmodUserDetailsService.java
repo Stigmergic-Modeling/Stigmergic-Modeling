@@ -2,8 +2,7 @@ package net.stigmod.service;
 
 //import org.neo4j.cineasts.domain.Movie;
 //import org.neo4j.cineasts.domain.Rating;
-import net.stigmod.domain.User;
-import net.stigmod.service.StigmodUserDetails;
+import net.stigmod.domain.node.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

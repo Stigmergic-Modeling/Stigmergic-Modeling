@@ -9,9 +9,9 @@
 
 package net.stigmod.controller;
 
-import net.stigmod.domain.User;
+import net.stigmod.domain.node.User;
 //import net.stigmod.repository.MovieRepository;
-import net.stigmod.repository.UserRepository;
+import net.stigmod.repository.node.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.stigmod.util.config.Config;
@@ -19,7 +19,6 @@ import net.stigmod.util.config.ConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 

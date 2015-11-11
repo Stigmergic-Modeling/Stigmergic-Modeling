@@ -7,9 +7,9 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.repository;
+package net.stigmod.repository.node;
 
-import net.stigmod.domain.ClassNode;
+import net.stigmod.domain.node.ClassNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 

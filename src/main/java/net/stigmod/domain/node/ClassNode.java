@@ -7,9 +7,10 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
+package net.stigmod.domain.node;
 
-package net.stigmod.domain;
-
+import net.stigmod.domain.relationship.ClassToValueEdge;
+import net.stigmod.domain.relationship.RelationToCEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
@@ -24,31 +25,24 @@ import java.util.Set;
  * @author Kai Fu
  * @version 2015/11/10
  */
-
 @NodeEntity
-public class RelationNode {
-
+public class ClassNode {
     @GraphId
     private Long id;
 
     @Property(name="icm_list")
-    private List<Long> icmList=new ArrayList<Long>();
+    List<Long> icmList=new ArrayList<Long>();
 
-    public RelationNode() {}
-
-    @Relationship(type="e_class",direction = Relationship.OUTGOING)
+    //连接关系与类的关系
+    @Relationship(type="e_class",direction = Relationship.INCOMING)
     private Set<RelationToCEdge> rtcEdges =new HashSet<RelationToCEdge>();
 
+    //连接类与name值的关系
     @Relationship(type="property",direction = Relationship.OUTGOING)
-    private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
+    private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
 
-    public Long getId() {
-        return id;
-    }
 
-    public Set<RelationToCEdge> getRtcEdges() {
-        return rtcEdges;
-    }
+    public ClassNode(){}
 
     public List<Long> getIcmList() {
         return icmList;
@@ -58,7 +52,16 @@ public class RelationNode {
         this.icmList = icmList;
     }
 
-    public Set<RelationToValueEdge> getRtvEdges() {
-        return rtvEdges;
+    public Set<RelationToCEdge> getRtcEdges() {
+        return rtcEdges;
     }
+
+    public Set<ClassToValueEdge> getCtvEdges() {
+        return ctvEdges;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
 }

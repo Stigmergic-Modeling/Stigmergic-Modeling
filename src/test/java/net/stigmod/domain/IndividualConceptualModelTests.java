@@ -1,14 +1,14 @@
 package net.stigmod.domain;
 
 
+import net.stigmod.domain.node.IndividualConceptualModel;
 import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 import com.google.gson.Gson;
 
+public class IndividualConceptualModelTests {
 
-public class ModelInfoTests {
-
-    private ModelInfo modelInfo = new ModelInfo();
+    private IndividualConceptualModel modelInfo = new IndividualConceptualModel();
     private Gson gson = new Gson();
 
     @Test
