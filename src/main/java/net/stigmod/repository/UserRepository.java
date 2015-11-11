@@ -9,7 +9,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 
 public interface UserRepository extends GraphRepository<User>, StigmodUserDetailsService {
 
-    User findByLogin(String login);
+    User findByMail(String mail);
 
 //    @Query("MATCH (movie:Movie)<-[r:RATED]-(user) where ID(movie)={0} AND ID(user)={1} RETURN r")
 //    Rating findUsersRatingForMovie(long movieId, long userId);
