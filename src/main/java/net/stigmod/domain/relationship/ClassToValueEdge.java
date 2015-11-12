@@ -14,13 +14,14 @@ import net.stigmod.domain.node.ValueNode;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Kai Fu
  * @version 2015/11/10
  */
-@RelationshipEntity(type="property")
+@RelationshipEntity(type="PROPERTY")
 public class ClassToValueEdge {
 
     @GraphId
@@ -32,18 +33,24 @@ public class ClassToValueEdge {
     @EndNode
     private ValueNode ender;
 
+    @Property(name="port")
+    private String port;
+
     @Property(name="name")
     private String edgeName;
 
     @Property(name="icm_list")
-    private List<Long> icmList=new ArrayList<>();
+    private Set<Long> icmList=new HashSet<>();
 
-    public ClassToValueEdge() {}
+    public ClassToValueEdge() {
+        this.port="";
+    }
 
-    public ClassToValueEdge(String edgeName, ClassNode starter, ValueNode ender) {
+    public ClassToValueEdge(String port , String edgeName, ClassNode starter, ValueNode ender) {
         this.starter = starter;
         this.ender = ender;
         this.edgeName = edgeName;
+        this.port=port;
     }
 
     public Long getId() {
@@ -70,11 +77,23 @@ public class ClassToValueEdge {
         return edgeName;
     }
 
-    public List<Long> getIcmList() {
+    public Set<Long> getIcmList() {
         return icmList;
     }
 
-    public void setIcmList(List<Long> icmList) {
+    public void setIcmList(Set<Long> icmList) {
         this.icmList = icmList;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public void setEdgeName(String edgeName) {
+        this.edgeName = edgeName;
     }
 }

@@ -17,7 +17,8 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Kai Fu
@@ -33,23 +34,25 @@ public class ValueNode {
     @Property(name="name")
     private String name;
 
+    @Property
+    private double entropyValue;
+
     @Property(name="icm_list")
-    private List<Long> icmList=new ArrayList<Long>();
+    private Set<Long> icmList=new HashSet<Long>();
 
-    @Relationship(type="property",direction = Relationship.INCOMING)
-    private List<ClassToValueEdge> ctvEdges =new ArrayList<ClassToValueEdge>();
+    @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
+    private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
 
-    @Relationship(type="property",direction = Relationship.INCOMING)
-    private List<RelationToValueEdge> rtvEdges =new ArrayList<RelationToValueEdge>();
+    @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
+    private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
 
-    //deprecated
-//    @Relationship(type="has",direction = Relationship.INCOMING)
-//    private List<ModelToVEdge> mtvedges=new ArrayList<ModelToVEdge>();
-
-    public ValueNode(){}
+    public ValueNode(){
+        this.entropyValue=0;
+    }
 
     public ValueNode(String name) {
         this.name = name;
+        this.entropyValue=0;
     }
 
     public Long getId() {
@@ -64,20 +67,27 @@ public class ValueNode {
         this.name = name;
     }
 
-    public List<ClassToValueEdge> getCtvEdges() {
+    public Set<ClassToValueEdge> getCtvEdges() {
         return ctvEdges;
     }
 
-    public List<RelationToValueEdge> getRtvEdges() {
+    public Set<RelationToValueEdge> getRtvEdges() {
         return rtvEdges;
     }
 
-    public List<Long> getIcmList() {
+    public Set<Long> getIcmList() {
         return icmList;
     }
 
-    public void setIcmList(List<Long> icmList) {
+    public void setIcmList(Set<Long> icmList) {
         this.icmList = icmList;
     }
 
+    public double getEntropyValue() {
+        return entropyValue;
+    }
+
+    public void setEntropyValue(double entropyValue) {
+        this.entropyValue = entropyValue;
+    }
 }

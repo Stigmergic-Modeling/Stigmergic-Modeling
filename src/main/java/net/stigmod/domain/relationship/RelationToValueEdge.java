@@ -14,13 +14,14 @@ import net.stigmod.domain.node.ValueNode;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Kai Fu
  * @version 2015/11/10
  */
-@RelationshipEntity(type="property")
+@RelationshipEntity(type="PROPERTY")
 public class RelationToValueEdge {
     @GraphId
     private Long id;
@@ -31,15 +32,21 @@ public class RelationToValueEdge {
     @EndNode
     private ValueNode ender;
 
+    @Property
+    private String port;
+
     @Property(name="name")
     private String edgeName;
 
     @Property(name="icm_list")
-    private List<Long> icmList=new ArrayList<Long>();
+    private Set<Long> icmList=new HashSet<Long>();
 
-    public RelationToValueEdge() {}
+    public RelationToValueEdge() {
+        this.port="";
+    }
 
-    public RelationToValueEdge(String edgeName, RelationNode starter, ValueNode ender) {
+    public RelationToValueEdge(String port , String edgeName, RelationNode starter, ValueNode ender) {
+        this.port=port;
         this.edgeName = edgeName;
         this.starter = starter;
         this.ender = ender;
@@ -69,11 +76,19 @@ public class RelationToValueEdge {
         return edgeName;
     }
 
-    public List<Long> getIcmList() {
+    public Set<Long> getIcmList() {
         return icmList;
     }
 
-    public void setIcmList(List<Long> icmList) {
+    public void setIcmList(Set<Long> icmList) {
         this.icmList = icmList;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
     }
 }

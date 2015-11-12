@@ -14,14 +14,15 @@ import net.stigmod.domain.node.RelationNode;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Kai Fu
  * @version 2015/11/10
  */
 
-@RelationshipEntity(type="e_class")
+@RelationshipEntity(type="E_CLASSS")
 public class RelationToCEdge {
 
     @GraphId
@@ -36,15 +37,21 @@ public class RelationToCEdge {
     @Property(name="name")
     private String edgeName;
 
+    @Property(name="port")
+    private String port;
+
     @Property(name="icm_list")
-    private List<Long> icmList=new ArrayList<>();
+    private Set<Long> icmList=new HashSet<>();
 
-    public RelationToCEdge() {}
+    public RelationToCEdge() {
+        this.port=null;
+    }
 
-    public RelationToCEdge(String edgeName, RelationNode starter, ClassNode ender) {
+    public RelationToCEdge(String port , String edgeName, RelationNode starter, ClassNode ender) {
         this.edgeName=edgeName;
         this.starter=starter;
         this.ender=ender;
+        this.port=port;
     }
 
     public Long getId() {
@@ -67,11 +74,19 @@ public class RelationToCEdge {
         this.edgeName = edgeName;
     }
 
-    public List<Long> getIcmList() {
+    public Set<Long> getIcmList() {
         return icmList;
     }
 
-    public void setIcmList(List<Long> icmList) {
+    public void setIcmList(Set<Long> icmList) {
         this.icmList = icmList;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
     }
 }

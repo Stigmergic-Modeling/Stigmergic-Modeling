@@ -18,7 +18,6 @@ import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,24 +30,29 @@ public class ClassNode {
     private Long id;
 
     @Property(name="icm_list")
-    List<Long> icmList=new ArrayList<Long>();
+    private Set<Long> icmList=new HashSet<>();
+
+    @Property
+    private double entropyValue;
 
     //连接关系与类的关系
-    @Relationship(type="e_class",direction = Relationship.INCOMING)
+    @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
     private Set<RelationToCEdge> rtcEdges =new HashSet<RelationToCEdge>();
 
     //连接类与name值的关系
-    @Relationship(type="property",direction = Relationship.OUTGOING)
+    @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
 
 
-    public ClassNode(){}
+    public ClassNode(){
+        this.entropyValue=0;
+    }
 
-    public List<Long> getIcmList() {
+    public Set<Long> getIcmList() {
         return icmList;
     }
 
-    public void setIcmList(List<Long> icmList) {
+    public void setIcmList(Set<Long> icmList) {
         this.icmList = icmList;
     }
 
@@ -64,4 +68,11 @@ public class ClassNode {
         return id;
     }
 
+    public double getEntropyValue() {
+        return entropyValue;
+    }
+
+    public void setEntropyValue(double entropyValue) {
+        this.entropyValue = entropyValue;
+    }
 }
