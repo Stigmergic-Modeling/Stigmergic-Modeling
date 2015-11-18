@@ -131,7 +131,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param rtcEdges :入边
      * @return map数据结构
      */
-    private Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToCEdge> rtcEdges) {
+    public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToCEdge> rtcEdges) {
         Map<String,List<Set<Long>>> myMap=new HashMap<>();
         if((ctvEdges==null||ctvEdges.size()==0)&&(rtcEdges==null||rtcEdges.size()==0)) return myMap;
         addCTVElementToMap(myMap,ctvEdges);
@@ -146,7 +146,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param rtvEdges :出边
      * @return map数据结构
      */
-    private Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges) {
+    public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges) {
         Map<String,List<Set<Long>>> myMap=new HashMap<>();
         if((rtcEdges==null||rtcEdges.size()==0)&&(rtvEdges==null||rtvEdges.size()==0)) return myMap;
         addRTCElementToMap(myMap,rtcEdges);
@@ -161,7 +161,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param rtvEdges :入边
      * @return map数据结构
      */
-    private Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges) {
+    public Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges) {
         Map<String,List<Set<Long>>> myMap=new HashMap<>();
         if((ctvEdges==null||ctvEdges.size()==0)&&(rtvEdges==null||rtvEdges.size()==0)) return myMap;
         addCTVElementToMap(myMap,ctvEdges);
@@ -174,9 +174,9 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param myMap:以某个节点的边名为key,value是对应边的用户集合
      * @return 熵值
      */
-    private Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap) {
+    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap) {
         double entropy=0.0;
-        for(String key:myMap.keySet()) {//这里的每一个key是种类型的边(比如name)
+        for(String key : myMap.keySet()) {//这里的每一个key是种类型的边(比如name)
             List<Set<Long>> valuelist=myMap.get(key);
             Set<Long> userSet=new HashSet<Long>();//所有用户的集合
             for(int i=0;i<valuelist.size();i++) {

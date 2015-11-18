@@ -37,6 +37,9 @@ public class ValueNode {
     @Property
     private double entropyValue;
 
+    @Property
+    private Long modelId;
+
     @Property(name="icm_list")
     private Set<Long> icmList=new HashSet<Long>();
 
@@ -89,5 +92,13 @@ public class ValueNode {
 
     public void setEntropyValue(double entropyValue) {
         this.entropyValue = entropyValue;
+    }
+
+    public Long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
     }
 }

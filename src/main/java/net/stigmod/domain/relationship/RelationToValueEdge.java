@@ -41,6 +41,9 @@ public class RelationToValueEdge {
     @Property(name="icm_list")
     private Set<Long> icmList=new HashSet<Long>();
 
+    @Property
+    private Long modelId;
+
     public RelationToValueEdge() {
         this.port="";
     }
@@ -90,5 +93,13 @@ public class RelationToValueEdge {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public Long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
     }
 }

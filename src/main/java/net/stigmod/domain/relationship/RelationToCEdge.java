@@ -43,6 +43,9 @@ public class RelationToCEdge {
     @Property(name="icm_list")
     private Set<Long> icmList=new HashSet<>();
 
+    @Property
+    private Long modelId;
+
     public RelationToCEdge() {
         this.port=null;
     }
@@ -88,5 +91,13 @@ public class RelationToCEdge {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public Long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
     }
 }

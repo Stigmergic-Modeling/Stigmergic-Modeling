@@ -42,6 +42,9 @@ public class ClassToValueEdge {
     @Property(name="icm_list")
     private Set<Long> icmList=new HashSet<>();
 
+    @Property
+    private Long modelId;
+
     public ClassToValueEdge() {
         this.port="";
     }
@@ -95,5 +98,13 @@ public class ClassToValueEdge {
 
     public void setEdgeName(String edgeName) {
         this.edgeName = edgeName;
+    }
+
+    public Long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
     }
 }

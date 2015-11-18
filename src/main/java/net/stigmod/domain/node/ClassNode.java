@@ -33,6 +33,9 @@ public class ClassNode {
     private Set<Long> icmList=new HashSet<>();
 
     @Property
+    private Long modelId;
+
+    @Property
     private double entropyValue;
 
     //连接关系与类的关系
@@ -74,5 +77,13 @@ public class ClassNode {
 
     public void setEntropyValue(double entropyValue) {
         this.entropyValue = entropyValue;
+    }
+
+    public Long getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(Long modelId) {
+        this.modelId = modelId;
     }
 }

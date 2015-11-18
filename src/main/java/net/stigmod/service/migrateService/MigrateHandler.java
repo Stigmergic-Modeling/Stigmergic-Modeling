@@ -17,11 +17,9 @@ import org.springframework.stereotype.Service;
  * @version     2015/11/11
  * @author 	    Kai Fu
  */
-@Service
-public class MigrateHandler {
+public interface MigrateHandler {
 
-    public void migrateHandler() {
-
-    }
+    public void migrateInit(Long id);
+    public void migrateHandler();
 
 }
