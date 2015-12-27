@@ -45,6 +45,15 @@ public class RelationNode {
         this.entropyValue=0;
     }
 
+    public RelationNode(RelationNode relationNode) {
+        this.id=relationNode.getId();
+        this.icmList=new HashSet<>(relationNode.getIcmList());
+        this.entropyValue=relationNode.getEntropyValue();
+        this.modelId=relationNode.getModelId();
+        this.rtcEdges=new HashSet<>(relationNode.getRtcEdges());
+        this.rtvEdges=new HashSet<>(relationNode.getRtvEdges());
+    }
+
     @Relationship(type="E_CLASSS",direction = Relationship.OUTGOING)
     private Set<RelationToCEdge> rtcEdges =new HashSet<RelationToCEdge>();
 
@@ -53,6 +62,13 @@ public class RelationNode {
 
     public Long getId() {
         return id;
+    }
+
+    public void UpdateRelationNode(RelationNode relationNode) {
+        this.icmList=relationNode.getIcmList();
+        this.entropyValue=relationNode.getEntropyValue();
+        this.rtcEdges=relationNode.getRtcEdges();
+        this.rtvEdges=relationNode.getRtvEdges();
     }
 
     public Set<RelationToCEdge> getRtcEdges() {

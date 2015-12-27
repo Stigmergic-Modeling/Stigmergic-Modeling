@@ -48,11 +48,25 @@ public class RelationToValueEdge {
         this.port="";
     }
 
+    public RelationToValueEdge(RelationToValueEdge rtvEdge) {
+        this.id=rtvEdge.getId();
+        this.starter=rtvEdge.getStarter();
+        this.ender=rtvEdge.getEnder();
+        this.port=rtvEdge.port;
+        this.edgeName=rtvEdge.getEdgeName();
+        this.icmList=new HashSet<>(rtvEdge.getIcmList());
+        this.modelId=rtvEdge.getModelId();
+    }
+
     public RelationToValueEdge(String port , String edgeName, RelationNode starter, ValueNode ender) {
         this.port=port;
         this.edgeName = edgeName;
         this.starter = starter;
         this.ender = ender;
+    }
+
+    public void UpdateRelationToVEdge(RelationToValueEdge relationToValueEdge) {
+        this.icmList=relationToValueEdge.getIcmList();
     }
 
     public Long getId() {

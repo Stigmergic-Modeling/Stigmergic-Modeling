@@ -50,11 +50,25 @@ public class RelationToCEdge {
         this.port=null;
     }
 
+    public RelationToCEdge(RelationToCEdge rtcEdge) {
+        this.id=rtcEdge.getId();
+        this.starter=rtcEdge.getStarter();
+        this.ender=rtcEdge.getEnder();
+        this.port=rtcEdge.port;
+        this.edgeName=rtcEdge.getEdgeName();
+        this.icmList=new HashSet<>(rtcEdge.getIcmList());
+        this.modelId=rtcEdge.getModelId();
+    }
+
     public RelationToCEdge(String port , String edgeName, RelationNode starter, ClassNode ender) {
         this.edgeName=edgeName;
         this.starter=starter;
         this.ender=ender;
         this.port=port;
+    }
+
+    public void UpdateRelationToCEdge(RelationToCEdge relationToCEdge) {
+        this.icmList=relationToCEdge.getIcmList();
     }
 
     public Long getId() {

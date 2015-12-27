@@ -58,6 +58,22 @@ public class ValueNode {
         this.entropyValue=0;
     }
 
+    public ValueNode(ValueNode valueNode) {
+        this.id=valueNode.getId();
+        this.icmList=new HashSet<>(valueNode.getIcmList());
+        this.entropyValue=valueNode.getEntropyValue();
+        this.modelId=valueNode.getModelId();
+        this.ctvEdges=new HashSet<>(valueNode.getCtvEdges());
+        this.rtvEdges=new HashSet<>(valueNode.getRtvEdges());
+    }
+
+    public void UpdateValueNode(ValueNode valueNode) {
+        this.icmList=valueNode.getIcmList();
+        this.entropyValue=valueNode.getEntropyValue();
+        this.ctvEdges=valueNode.getCtvEdges();
+        this.rtvEdges=valueNode.getRtvEdges();
+    }
+
     public Long getId() {
         return id;
     }

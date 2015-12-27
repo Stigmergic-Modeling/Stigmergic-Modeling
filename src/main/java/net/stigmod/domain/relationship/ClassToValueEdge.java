@@ -49,11 +49,32 @@ public class ClassToValueEdge {
         this.port="";
     }
 
+    public ClassToValueEdge(ClassToValueEdge ctvEdge) {
+        this.id=ctvEdge.getId();
+        this.starter=ctvEdge.getStarter();
+        this.ender=ctvEdge.getEnder();
+        this.port=ctvEdge.port;
+        this.edgeName=ctvEdge.getEdgeName();
+        this.icmList=new HashSet<>(ctvEdge.getIcmList());
+        this.modelId=ctvEdge.getModelId();
+    }
+
+    public ClassToValueEdge(String edgeName, ClassNode starter, ValueNode ender) {
+        this.port="";
+        this.edgeName=edgeName;
+        this.starter=starter;
+        this.ender=ender;
+    }
+
     public ClassToValueEdge(String port , String edgeName, ClassNode starter, ValueNode ender) {
         this.starter = starter;
         this.ender = ender;
         this.edgeName = edgeName;
         this.port=port;
+    }
+
+    public void UpdateClassToVEdge(ClassToValueEdge classToValueEdge) {
+        this.icmList=classToValueEdge.getIcmList();//其他的要保持不变
     }
 
     public Long getId() {

@@ -51,6 +51,22 @@ public class ClassNode {
         this.entropyValue=0;
     }
 
+    public ClassNode(ClassNode classNode) {
+        this.id=classNode.getId();
+        this.icmList=new HashSet<>(classNode.getIcmList());
+        this.modelId=classNode.getModelId();
+        this.entropyValue=classNode.getEntropyValue();
+        this.rtcEdges=new HashSet<>(classNode.getRtcEdges());
+        this.ctvEdges=new HashSet<>(classNode.getCtvEdges());
+    }
+
+    public void UpdateClassNode(ClassNode classNode) {
+        this.icmList= classNode.icmList;
+        this.entropyValue=classNode.getEntropyValue();
+        this.rtcEdges=classNode.getRtcEdges();
+        this.ctvEdges=classNode.getCtvEdges();
+    }
+
     public Set<Long> getIcmList() {
         return icmList;
     }
