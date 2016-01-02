@@ -546,23 +546,24 @@ public class MigrateHandlerImpl implements MigrateHandler {
         return simVar+minEntropyDown;
     }
 
-    private void findLowerEntropyLocForRelation(Long icmId , RelationNode relationNode) {
+    private void findLowerEntropyLocForRelation(Long icmId , int sourceRelationNodeListId) {
+        RelationNode sourceRelationNode = relationNodeList.get(sourceRelationNodeListId);
         double maxEntropyDecrease=0.0;
-        long targetRelationNodeId=-1;
-        Set<RelationNode> alreadyHasCurIcmRelationNode=new HashSet<>();
+        int targetRelationNodeId=-1;
+        Set<Integer> alreadyHasCurIcmRelationNodeListId = new HashSet<>();//这个集合放入的元素全部是和relationNode一样拥有icmId用户的节点
         boolean isNullNode=false;
 
         for(int i=0;i<relationNodeList.size();i++) {
+            if(i==sourceRelationNodeListId) continue;
             RelationNode tmpRNode=relationNodeList.get(i);
-            if(tmpRNode.getId()==relationNode.getId()) continue;//本身
             if(tmpRNode.getIcmSet().contains(icmId)) {
-                alreadyHasCurIcmRelationNode.add(tmpRNode);
+                alreadyHasCurIcmRelationNodeListId.add(i);
                 continue;//如果是同样包含有该用户的节点,则先保存在already中.
             }
-            double var=simulateMigrateForRelation(icmId, relationNode, tmpRNode);
+            double var=simulateMigrateForRelation(icmId, sourceRelationNode, tmpRNode);
             if(Double.compare(maxEntropyDecrease,var)>0) {
                 maxEntropyDecrease=var;
-                targetRelationNodeId=tmpRNode.getId();
+                targetRelationNodeId=i;
             }
         }
 
@@ -570,24 +571,24 @@ public class MigrateHandlerImpl implements MigrateHandler {
         //1: 判断该用户自己迁移到一个新的节点上,系统熵值是否会下降
         if(!isNullNode) {
             RelationNode relationNode2=new RelationNode();
-            double var2=simulateMigrateForRelation(icmId, relationNode, relationNode2);
+            double var2=simulateMigrateForRelation(icmId, sourceRelationNode, relationNode2);
             if(Double.compare(maxEntropyDecrease,var2)>0) {
-                relationNodeRepository.save(relationNode2);//在数据库中保存该节点
+                relationNodeList.add(relationNode2);
                 maxEntropyDecrease=var2;
-                targetRelationNodeId=relationNode2.getId();
+                targetRelationNodeId=relationNodeList.size()-1;
             }
         }
 
         if(targetRelationNodeId!=-1) {
-            migrateRelationNodeForOneStep(icmId, relationNode.getId(), targetRelationNodeId);
+            migrateRelationNodeForOneStep(icmId, sourceRelationNodeListId, targetRelationNodeId);
             isStable=false;//记录当前程序是否发生过迁移
             return;
         }
 
         //2: 判断该用户迁移到其他包含该用户的节点上,系统熵值是否会下降
         if(targetRelationNodeId==-1) {
-            for(RelationNode twoStepRNode : alreadyHasCurIcmRelationNode) {
-                double twoStepVar=migrateRelationNodeNeedTwoStep(icmId, relationNode.getId(), twoStepRNode.getId());
+            for(Integer listId : alreadyHasCurIcmRelationNodeListId) {
+                double twoStepVar=migrateRelationNodeNeedTwoStep(icmId , sourceRelationNodeListId ,listId);
                 if(Double.compare(twoStepVar,0.0)<0) {
                     isStable=false;
                     return;//这部分搞定就可以直接结束了
@@ -1016,150 +1017,150 @@ public class MigrateHandlerImpl implements MigrateHandler {
         ctvEdgeList=null;
         rtcEdgeList=null;
         classNodeList=protectedClassNodes;
-        valueNodeList=protectedValueNodes;å
+        valueNodeList=protectedValueNodes;
         rtvEdgeList=protectedRelationToVEdges;
         rtcEdgeList=protectedRelationToCEdges;//恢复
     }
 
-    private void findUnNecessaryClassNodeEdge(Long curIcmId,ClassNode sourceCNode,ClassNode targetCNode,
-                                              Map<String,Set<Long>> unNecessaryValueNodeMap,
-                                              Map<String,Set<Long>> unNecessaryRelationNodeMap) {
-        Map<String,Set<Long>> targetCToVNodeMap=new HashMap<>();//收集的是value节点的id
-        Map<String,Set<Long>> targetRToCNodeMap=new HashMap<>();//收集的是relation节点的id
-
-        //这一步是先搜集targetCNode节点所有的边
-        for(ClassToValueEdge classToValueEdge : targetCNode.getCtvEdges()) {
-            String edgeName=classToValueEdge.getEdgeName();
-            if(targetCToVNodeMap.containsKey(edgeName)) {//一个边名,多个value节点
-                targetCToVNodeMap.get(edgeName).add(classToValueEdge.getEnder().getId());
-            }else {
-                Set<Long> set=new HashSet<>();
-                set.add(classToValueEdge.getEnder().getId());
-                targetCToVNodeMap.put(edgeName,set);
-            }
-        }
-        for(RelationToCEdge relationToCEdge : targetCNode.getRtcEdges()) {
-            String port=relationToCEdge.getPort();
-            String edgeName=relationToCEdge.getEdgeName();
-            String fullName=port+"."+edgeName;
-            if(targetRToCNodeMap.containsKey(fullName)) {
-                targetRToCNodeMap.get(fullName).add(relationToCEdge.getStarter().getId());
-            }else {
-                Set<Long> set=new HashSet<>();
-                set.add(relationToCEdge.getStarter().getId());
-                targetRToCNodeMap.put(fullName,set);
-            }
-        }
-
-        //然后看sourceCNode的所有边,是否有和targetCNode指向相同的节点
-        for(ClassToValueEdge ctvEdge : sourceCNode.getCtvEdges()) {
-            if(!ctvEdge.getIcmList().contains(curIcmId)) continue;
-            String edgeName=ctvEdge.getEdgeName();
-            Long vid=ctvEdge.getEnder().getId();
-            if(targetCToVNodeMap.containsKey(edgeName)&&targetCToVNodeMap.get(edgeName).contains(vid)) {//说明targetNode原本就存在对应的边
-                continue;
-            }else {
-                if(unNecessaryValueNodeMap.containsKey(edgeName)) {
-                    unNecessaryValueNodeMap.get(edgeName).add(vid);
-                }
-                else {
-                    Set<Long> set=new HashSet<>();
-                    set.add(vid);
-                    unNecessaryValueNodeMap.put(edgeName,set);
-                }
-            }
-        }
-
-        for(RelationToCEdge rtcEdge : sourceCNode.getRtcEdges()) {
-            if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
-            String port=rtcEdge.getPort();
-            String name=rtcEdge.getEdgeName();
-            String fullName=port+"."+name;
-            Long rid=rtcEdge.getStarter().getId();
-            if(targetRToCNodeMap.containsKey(fullName)&&targetRToCNodeMap.get(fullName).contains(rid)) {
-                continue;
-            }else {
-                if(unNecessaryRelationNodeMap.containsKey(fullName)) {
-                    unNecessaryRelationNodeMap.get(fullName).add(rid);
-                }else {
-                    Set<Long> set=new HashSet<>();
-                    set.add(rid);
-                    unNecessaryRelationNodeMap.put(fullName,set);
-                }
-            }
-        }
-    }
-
-    private void findUnNecessaryRelationNodeEdge(Long curIcmId , RelationNode sourceRNode , RelationNode targetRNode ,
-                                                 Map<String , Set<Long>> unNecessaryValueNodeMap ,
-                                                 Map<String , Set<Long>> unNecessaryClassNodeMap) {
-        Map<String,Set<Long>> targetRToCNodeMap=new HashMap<>();//收集的全是Class节点的id
-        Map<String,Set<Long>> targetRToVNodeMap=new HashMap<>();//收集的全是Value节点的id
-        //这一步是先搜集targetRNode节点所有的边
-        for(RelationToCEdge rtcEdge : targetRNode.getRtcEdges()) {
-            String port=rtcEdge.getPort();
-            String name=rtcEdge.getEdgeName();
-            String fullName=port+"."+name;
-            if(targetRToCNodeMap.containsKey(fullName)) {
-                targetRToCNodeMap.get(fullName).add(rtcEdge.getEnder().getId());
-            }else {
-                Set<Long> set=new HashSet<>();
-                set.add(rtcEdge.getEnder().getId());
-                targetRToCNodeMap.put(fullName,set);
-            }
-        }
-        for(RelationToValueEdge rtvEdge : targetRNode.getRtvEdges()) {
-            String port=rtvEdge.getPort();
-            String edgeName=rtvEdge.getEdgeName();
-            String fullName=port+"."+edgeName;
-            if(targetRToVNodeMap.containsKey(fullName)) {
-                targetRToVNodeMap.get(fullName).add(rtvEdge.getEnder().getId());
-            }else {
-                Set<Long> set=new HashSet<>();
-                set.add(rtvEdge.getEnder().getId());
-                targetRToVNodeMap.put(fullName,set);
-            }
-        }
-
-        //然后看sourceRNode的所有边,是否有和targetRNode指向相同的节点
-        for(RelationToCEdge rtcEdge : sourceRNode.getRtcEdges()) {
-            if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
-            String port=rtcEdge.getPort();
-            String name=rtcEdge.getEdgeName();
-            String fullName=port+"."+name;
-            Long cid=rtcEdge.getEnder().getId();//class node的id
-            if(targetRToCNodeMap.containsKey(fullName)&&targetRToCNodeMap.get(fullName).contains(cid)) {//说明targetNode原本就存在对应的边
-                continue;
-            }else {
-                if(unNecessaryClassNodeMap.containsKey(fullName)) {
-                    unNecessaryClassNodeMap.get(fullName).add(cid);
-                }
-                else {
-                    Set<Long> set=new HashSet<>();
-                    set.add(cid);
-                    unNecessaryClassNodeMap.put(fullName,set);
-                }
-            }
-        }
-
-        for(RelationToValueEdge rtvEdge : sourceRNode.getRtvEdges()) {
-            if(!rtvEdge.getIcmList().contains(curIcmId)) continue;
-            String port=rtvEdge.getPort();
-            String name=rtvEdge.getEdgeName();
-            String fullName =port+"."+name;
-            Long vid=rtvEdge.getEnder().getId();
-            if(targetRToVNodeMap.containsKey(fullName)&&targetRToVNodeMap.get(fullName).contains(vid)) {
-                continue;
-            }else {
-                if(unNecessaryValueNodeMap.containsKey(fullName)) {
-                    unNecessaryValueNodeMap.get(fullName).add(vid);
-                }else {
-                    Set<Long> set=new HashSet<>();
-                    set.add(vid);
-                    unNecessaryValueNodeMap.put(fullName,set);
-                }
-            }
-        }
-    }
+//    private void findUnNecessaryClassNodeEdge(Long curIcmId,ClassNode sourceCNode,ClassNode targetCNode,
+//                                              Map<String,Set<Long>> unNecessaryValueNodeMap,
+//                                              Map<String,Set<Long>> unNecessaryRelationNodeMap) {
+//        Map<String,Set<Long>> targetCToVNodeMap=new HashMap<>();//收集的是value节点的id
+//        Map<String,Set<Long>> targetRToCNodeMap=new HashMap<>();//收集的是relation节点的id
+//
+//        //这一步是先搜集targetCNode节点所有的边
+//        for(ClassToValueEdge classToValueEdge : targetCNode.getCtvEdges()) {
+//            String edgeName=classToValueEdge.getEdgeName();
+//            if(targetCToVNodeMap.containsKey(edgeName)) {//一个边名,多个value节点
+//                targetCToVNodeMap.get(edgeName).add(classToValueEdge.getEnder().getId());
+//            }else {
+//                Set<Long> set=new HashSet<>();
+//                set.add(classToValueEdge.getEnder().getId());
+//                targetCToVNodeMap.put(edgeName,set);
+//            }
+//        }
+//        for(RelationToCEdge relationToCEdge : targetCNode.getRtcEdges()) {
+//            String port=relationToCEdge.getPort();
+//            String edgeName=relationToCEdge.getEdgeName();
+//            String fullName=port+"."+edgeName;
+//            if(targetRToCNodeMap.containsKey(fullName)) {
+//                targetRToCNodeMap.get(fullName).add(relationToCEdge.getStarter().getId());
+//            }else {
+//                Set<Long> set=new HashSet<>();
+//                set.add(relationToCEdge.getStarter().getId());
+//                targetRToCNodeMap.put(fullName,set);
+//            }
+//        }
+//
+//        //然后看sourceCNode的所有边,是否有和targetCNode指向相同的节点
+//        for(ClassToValueEdge ctvEdge : sourceCNode.getCtvEdges()) {
+//            if(!ctvEdge.getIcmList().contains(curIcmId)) continue;
+//            String edgeName=ctvEdge.getEdgeName();
+//            Long vid=ctvEdge.getEnder().getId();
+//            if(targetCToVNodeMap.containsKey(edgeName)&&targetCToVNodeMap.get(edgeName).contains(vid)) {//说明targetNode原本就存在对应的边
+//                continue;
+//            }else {
+//                if(unNecessaryValueNodeMap.containsKey(edgeName)) {
+//                    unNecessaryValueNodeMap.get(edgeName).add(vid);
+//                }
+//                else {
+//                    Set<Long> set=new HashSet<>();
+//                    set.add(vid);
+//                    unNecessaryValueNodeMap.put(edgeName,set);
+//                }
+//            }
+//        }
+//
+//        for(RelationToCEdge rtcEdge : sourceCNode.getRtcEdges()) {
+//            if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
+//            String port=rtcEdge.getPort();
+//            String name=rtcEdge.getEdgeName();
+//            String fullName=port+"."+name;
+//            Long rid=rtcEdge.getStarter().getId();
+//            if(targetRToCNodeMap.containsKey(fullName)&&targetRToCNodeMap.get(fullName).contains(rid)) {
+//                continue;
+//            }else {
+//                if(unNecessaryRelationNodeMap.containsKey(fullName)) {
+//                    unNecessaryRelationNodeMap.get(fullName).add(rid);
+//                }else {
+//                    Set<Long> set=new HashSet<>();
+//                    set.add(rid);
+//                    unNecessaryRelationNodeMap.put(fullName,set);
+//                }
+//            }
+//        }
+//    }
+//
+//    private void findUnNecessaryRelationNodeEdge(Long curIcmId , RelationNode sourceRNode , RelationNode targetRNode ,
+//                                                 Map<String , Set<Long>> unNecessaryValueNodeMap ,
+//                                                 Map<String , Set<Long>> unNecessaryClassNodeMap) {
+//        Map<String,Set<Long>> targetRToCNodeMap=new HashMap<>();//收集的全是Class节点的id
+//        Map<String,Set<Long>> targetRToVNodeMap=new HashMap<>();//收集的全是Value节点的id
+//        //这一步是先搜集targetRNode节点所有的边
+//        for(RelationToCEdge rtcEdge : targetRNode.getRtcEdges()) {
+//            String port=rtcEdge.getPort();
+//            String name=rtcEdge.getEdgeName();
+//            String fullName=port+"."+name;
+//            if(targetRToCNodeMap.containsKey(fullName)) {
+//                targetRToCNodeMap.get(fullName).add(rtcEdge.getEnder().getId());
+//            }else {
+//                Set<Long> set=new HashSet<>();
+//                set.add(rtcEdge.getEnder().getId());
+//                targetRToCNodeMap.put(fullName,set);
+//            }
+//        }
+//        for(RelationToValueEdge rtvEdge : targetRNode.getRtvEdges()) {
+//            String port=rtvEdge.getPort();
+//            String edgeName=rtvEdge.getEdgeName();
+//            String fullName=port+"."+edgeName;
+//            if(targetRToVNodeMap.containsKey(fullName)) {
+//                targetRToVNodeMap.get(fullName).add(rtvEdge.getEnder().getId());
+//            }else {
+//                Set<Long> set=new HashSet<>();
+//                set.add(rtvEdge.getEnder().getId());
+//                targetRToVNodeMap.put(fullName,set);
+//            }
+//        }
+//
+//        //然后看sourceRNode的所有边,是否有和targetRNode指向相同的节点
+//        for(RelationToCEdge rtcEdge : sourceRNode.getRtcEdges()) {
+//            if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
+//            String port=rtcEdge.getPort();
+//            String name=rtcEdge.getEdgeName();
+//            String fullName=port+"."+name;
+//            Long cid=rtcEdge.getEnder().getId();//class node的id
+//            if(targetRToCNodeMap.containsKey(fullName)&&targetRToCNodeMap.get(fullName).contains(cid)) {//说明targetNode原本就存在对应的边
+//                continue;
+//            }else {
+//                if(unNecessaryClassNodeMap.containsKey(fullName)) {
+//                    unNecessaryClassNodeMap.get(fullName).add(cid);
+//                }
+//                else {
+//                    Set<Long> set=new HashSet<>();
+//                    set.add(cid);
+//                    unNecessaryClassNodeMap.put(fullName,set);
+//                }
+//            }
+//        }
+//
+//        for(RelationToValueEdge rtvEdge : sourceRNode.getRtvEdges()) {
+//            if(!rtvEdge.getIcmList().contains(curIcmId)) continue;
+//            String port=rtvEdge.getPort();
+//            String name=rtvEdge.getEdgeName();
+//            String fullName =port+"."+name;
+//            Long vid=rtvEdge.getEnder().getId();
+//            if(targetRToVNodeMap.containsKey(fullName)&&targetRToVNodeMap.get(fullName).contains(vid)) {
+//                continue;
+//            }else {
+//                if(unNecessaryValueNodeMap.containsKey(fullName)) {
+//                    unNecessaryValueNodeMap.get(fullName).add(vid);
+//                }else {
+//                    Set<Long> set=new HashSet<>();
+//                    set.add(vid);
+//                    unNecessaryValueNodeMap.put(fullName,set);
+//                }
+//            }
+//        }
+//    }
 
 }
