@@ -68,13 +68,28 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private List<ValueNode> valueNodeList;
 
+    private List<ClassToValueEdge> ctvEdgeList;
+
+    private List<RelationToCEdge> rtcEdgeList;
+
+    private List<RelationToValueEdge> rtvEdgeList;
+
+    private Set<ClassNode> changedClassNodeIdSet;//记录出现改变的classNode的Id编号(不是ListId号)
+
+    private Set<RelationNode> changedRelationNodeIdSet;
+
+    private Set<ValueNode> changedValueNodeIdSet;
+
     private boolean isStable=false;
+
+    private Long modelId;
 
     /**
      * 初始化
      * @param id (the id is ccm id)
+     * 每次执行migrateHandler进行融合操作之前,都需要执行一次migrateInit方法(当然该方法自动在migrateHandler中被调用)
      */
-    public void migrateInit(Long id) {
+    private void migrateInit(Long id) {
         //获取ccm对象
         CollectiveConceptualModel ccm=collectiveConceptualModelRepository.findOne(id);
 
@@ -83,21 +98,34 @@ public class MigrateHandlerImpl implements MigrateHandler {
         this.relationNodeList=convertRelationIdToObj(ccm.getRelationNodesId());
         this.valueNodeList=convertValueIdToObj(ccm.getValueNodesId());
 
+        modelId=ccm.getModelId();
+
+        //获取ccm种各种edge的数据
+        this.ctvEdgeList=classToVEdgeRepository.findByModelId(modelId);
+        this.rtcEdgeList=relationToCEdgeRepository.findByModelId(modelId);
+        this.rtvEdgeList=relationToVEdgeRepository.findByModelId(modelId);//之所以预先全部获取的原因在于不想在融合的过程中发生数据库存取操作
+
+        //初始化标记数组
+        changedClassNodeIdSet = new HashSet<>();
+        changedRelationNodeIdSet = new HashSet<>();
+        changedValueNodeIdSet = new HashSet<>();
+
         //初始化isStable函数
         this.isStable=false;
     }
 
     @Override
-    public void migrateHandler() {
+    public void migrateHandler(Long id) {//初始化各变量
+        migrateInit(id);
         int cNum=classNodeList.size();
         int rNum=relationNodeList.size();
         int iterNum=cNum+rNum;
         int curIterNum=0;
-        while(true) {
+        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int randValue=randomValue();
-            if(randValue<cNum) migrateClassNode(classNodeList.get(randValue));
-            else migrateRelationNode(relationNodeList.get(randValue-cNum));
+            if(randValue<cNum) migrateClassNode(randValue);
+            else migrateRelationNode(randValue - cNum);
             if(isStable&&curIterNum>iterNum) break;
             else if(isStable) curIterNum++;
             else curIterNum=0;
@@ -105,63 +133,70 @@ public class MigrateHandlerImpl implements MigrateHandler {
         System.out.println("迭代结束啦~");
     }
 
-    private void migrateClassNode(ClassNode classNode) {
-        Set<Long> icmIdSet=classNode.getIcmList();
-        for(Long icmId:icmIdSet) {
-            findLowerEntropyLocForClass(icmId , classNode);
+    private void migrateClassNode(int classNodeListId) {
+        ClassNode classNode = classNodeList.get(classNodeListId);
+        Set<Long> icmIdSet = classNode.getIcmSet();
+        for(Long icmId : icmIdSet) {
+            findLowerEntropyLocForClass(icmId , classNodeListId);
         }
     }
 
-    private void migrateRelationNode(RelationNode relationNode) {
-        Set<Long> icmIdSet=relationNode.getIcmList();
+    private void migrateRelationNode(int relationNodeListId) {
+        RelationNode relationNode = relationNodeList.get(relationNodeListId);
+        Set<Long> icmIdSet=relationNode.getIcmSet();
         for(Long icmId:icmIdSet) {
-            findLowerEntropyLocForRelation(icmId , relationNode);
+            findLowerEntropyLocForRelation(icmId , relationNodeListId);
         }
     }
 
-    private void findLowerEntropyLocForClass(Long icmId , ClassNode classNode) {
-        double maxEntropyDecrease=0.0;
-        long targetClassNodeId=-1; //因为我们目标是全局最小的熵值节点
-        Set<ClassNode> alreadyHasCurIcmClassNode=new HashSet<>();//这个集合放入的元素全部是和classNode一样拥有icmId用户的节点
-        boolean isNullNode=false;
+    private void findLowerEntropyLocForClass(Long icmId , int sourceClassNodeListId) {
+        //注意,这里的ListId不是Node本身的id,而是classNodeList中该节点的id.
+        //!!!要区分ListId和Id的区别
+        double maxEntropyDecrease = 0.0;
+        ClassNode sourceClassNode = classNodeList.get(sourceClassNodeListId);
+        int targetClassNodeListId = -1; //因为我们目标是全局最小的熵值节点
+        Set<Integer> alreadyHasCurIcmClassNodeListId = new HashSet<>();//这个集合放入的元素全部是和classNode一样拥有icmId用户的节点
+        boolean isTravseNullNode = false;//标注是否遍历过包含0用户的节点(即空节点)
 
         for(int i=0;i<classNodeList.size();i++) {//遍历classNodeList,找出使classNode节点迁移icmId用户后下降最多的节点
-            ClassNode tmpCNode=classNodeList.get(i);
-            if(tmpCNode.getId()==classNode.getId()) continue;//本身
-            if(tmpCNode.getIcmList().size()==0) isNullNode=true;
-            if(tmpCNode.getIcmList().contains(icmId)) {
-                alreadyHasCurIcmClassNode.add(tmpCNode);
-                continue;//如果是同样包含有该用户的节点,则先保存在already中.
+            if(i==sourceClassNodeListId) continue;//本身
+            ClassNode tmpCNode = classNodeList.get(i);
+            if(isTravseNullNode && tmpCNode.getIcmSet().size()==0) continue;
+            if(tmpCNode.getIcmSet().size() == 0) isTravseNullNode = true;
+            if(tmpCNode.getIcmSet().contains(icmId)) {
+                alreadyHasCurIcmClassNodeListId.add(i);
+                continue;//如果是同样包含有该用户的节点,则先保存在already中,保存的是在classNodeList中该节点的ListId号.
             }
-            double var=simulateMigrateForClass(icmId,classNode,tmpCNode);
-            if(Double.compare(maxEntropyDecrease,var)>0) {
-                maxEntropyDecrease=var;
-                targetClassNodeId=tmpCNode.getId();
+            double var = simulateMigrateForClass(icmId , sourceClassNode , tmpCNode);
+            if(Double.compare(maxEntropyDecrease , var) > 0) {
+                maxEntropyDecrease = var;
+                targetClassNodeListId = i;
             }
         }
 
         //除了将用户迁移到不包含该用户的节点上之外,还有两部分的工作要做
         //1: 判断该用户自己迁移到一个新的节点上,系统熵值是否会下降
-        if(!isNullNode) {
-            ClassNode classNode2=new ClassNode();
-            double var2=simulateMigrateForClass(icmId,classNode,classNode2);
-            if(Double.compare(maxEntropyDecrease,var2)>0) {
-                classNodeRepository.save(classNode2);//在数据库中保存该节点
-                maxEntropyDecrease=var2;
-                targetClassNodeId=classNode2.getId();
+        if(!isTravseNullNode) {
+            ClassNode classNode2 = new ClassNode();
+            double var2 = simulateMigrateForClass(icmId,sourceClassNode,classNode2);
+            if(Double.compare(maxEntropyDecrease , var2) > 0) {
+//                classNodeRepository.save(classNode2);//在数据库中保存该节点
+                classNodeList.add(classNode2);//在classNodeList中添加节点classNode2
+                maxEntropyDecrease = var2;
+                targetClassNodeListId = classNodeList.size()-1;
             }
         }
 
-        if(targetClassNodeId!=-1) {
-            migrateClassNodeForOneStep(icmId,classNode.getId(),targetClassNodeId);
+        if(targetClassNodeListId!=-1 && Double.compare(maxEntropyDecrease , 0.0)<0) {
+            migrateClassNodeForOneStep(icmId , sourceClassNodeListId , targetClassNodeListId);
             isStable=false;//记录当前程序是否发生过迁移
             return;
         }
 
         //2: 判断该用户迁移到其他包含该用户的节点上,系统熵值是否会下降
-        if(targetClassNodeId==-1) {
-            for(ClassNode twoStepCNode : alreadyHasCurIcmClassNode) {
-                double twoStepVar=migrateClassNodeNeedTwoStep(icmId,classNode.getId(),twoStepCNode.getId());
+        if(targetClassNodeListId==-1) {
+            for(Integer listId : alreadyHasCurIcmClassNodeListId) {
+                double twoStepVar=migrateClassNodeNeedTwoStep(icmId , sourceClassNodeListId ,listId);
                 if(Double.compare(twoStepVar,0.0)<0) {
                     isStable=false;
                     return;//这部分搞定就可以直接结束了
@@ -177,8 +212,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        double oldGlobalEntropy;
 //        double curGlobalEntropy;
 
-        Map<String,List<Set<Long>>>  oldSourceMap=entropyHandler.getMapForClassNode(sourceCNode.getCtvEdges(),sourceCNode.getRtcEdges());
-        Map<String,List<Set<Long>>>  oldTargetMap=entropyHandler.getMapForClassNode(targetCNode.getCtvEdges(),targetCNode.getRtcEdges());
+        Map<String,List<Set<Long>>>  oldSourceMap =
+                entropyHandler.getMapForClassNode(sourceCNode.getCtvEdges(),sourceCNode.getRtcEdges());
+        Map<String,List<Set<Long>>>  oldTargetMap =
+                entropyHandler.getMapForClassNode(targetCNode.getCtvEdges(),targetCNode.getRtcEdges());
 
         Map<String,List<Set<Long>>> newSourceMap=new HashMap<>();
         Map<String,List<Set<Long>>> newTargetMap=new HashMap<>();
@@ -353,16 +390,16 @@ public class MigrateHandlerImpl implements MigrateHandler {
     /**
      * 将用户从一个class节点迁移到另一个class节点,这个是一步的,因为另一个class节点一定不包含该用户
      * @param icmId
-     * @param sourceClassNodeId
-     * @param targetClassNodeId
+     * @param sourceClassNodeListId
+     * @param targetClassNodeListId
      */
-    public void migrateClassNodeForOneStep(Long icmId,Long sourceClassNodeId,Long targetClassNodeId) {
+    public void migrateClassNodeForOneStep(Long icmId,int sourceClassNodeListId,int targetClassNodeListId) {
         //这个地方涉及数据库的操作,我必须要非常小心这一点
-        ClassNode sourceClassNode=classNodeRepository.findOne(sourceClassNodeId);
-        ClassNode targetClassNode=classNodeRepository.findOne(targetClassNodeId);
+        ClassNode sourceClassNode=classNodeList.get(sourceClassNodeListId);
+        ClassNode targetClassNode=classNodeList.get(targetClassNodeListId);
 
-        sourceClassNode.getIcmList().remove(icmId);
-        targetClassNode.getIcmList().add(icmId);
+        sourceClassNode.getIcmSet().remove(icmId);
+        targetClassNode.getIcmSet().add(icmId);
 
         //对于sourceClassNode的classToValue部分
         for(ClassToValueEdge ctvEdge : sourceClassNode.getCtvEdges()) {
@@ -383,10 +420,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 Set<Long> tTmpSet=new HashSet<>();
                 tTmpSet.add(icmId);
                 ClassToValueEdge tmpCtvEdge=new ClassToValueEdge(edgeName,targetClassNode,valueNode);
-                targetClassNode.getCtvEdges().add(tmpCtvEdge);//我觉得这句话可以去掉的
-                valueNode.getCtvEdges().add(tmpCtvEdge);//这句应该也可以去掉的
-                classToVEdgeRepository.save(tmpCtvEdge);//classToVEdgeRepository这个
+                targetClassNode.getCtvEdges().add(tmpCtvEdge);
+                valueNode.getCtvEdges().add(tmpCtvEdge);
+//                classToVEdgeRepository.save(tmpCtvEdge);//classToVEdgeRepository这个
             }
+            changedValueNodeIdSet.add(valueNode);//无论有没有找到这条边,我们都需要保存该边
         }
 
         //对于sourceClassNode的relationToClass部分
@@ -412,49 +450,52 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 RelationToCEdge tmpRtcEdge=new RelationToCEdge(port,edgeName,relationNode,targetClassNode);
                 targetClassNode.getRtcEdges().add(tmpRtcEdge);
                 relationNode.getRtcEdges().add(tmpRtcEdge);
-                relationToCEdgeRepository.save(tmpRtcEdge);
+//                relationToCEdgeRepository.save(tmpRtcEdge);
             }
+            changedRelationNodeIdSet.add(relationNode);
         }
-        classNodeRepository.save(sourceClassNode);
-        classNodeRepository.save(targetClassNode);
+        changedClassNodeIdSet.add(sourceClassNode);
+        changedClassNodeIdSet.add(sourceClassNode);
     }
 
     /**
      * 目标是返回当前sourceClass上的用户迁移到targetClass上系统熵值减小/增加幅度
      * @param icmId
-     * @param sourceClassNodeId
-     * @param targetClassNodeId
+     * @param sourceClassNodeListId
+     * @param targetClassNodeListId
      */
-    public Double migrateClassNodeNeedTwoStep(Long icmId,Long sourceClassNodeId,Long targetClassNodeId) {
+    public Double migrateClassNodeNeedTwoStep(Long icmId,int sourceClassNodeListId,int targetClassNodeListId) {
         //首先是判断如果targetClass没有当前icmId用户,将sourceClass上的icmId迁移到targetClass上是否会减小熵值,如果会则执行该步骤,否则不执行
         //为targetClass上的icmId用户找寻适合其迁移的最佳位置,判断这个迁移会造成多少熵值增加
         //如果增加的比迁移过来的减少的少,则进行迁移操作,否则不迁移
-        ClassNode sourceClassNode=classNodeRepository.findOne(sourceClassNodeId);
-        ClassNode targetClassNode=classNodeRepository.findOne(targetClassNodeId);
+        ClassNode sourceClassNode=classNodeList.get(sourceClassNodeListId);
+        ClassNode targetClassNode=classNodeList.get(targetClassNodeListId);
 
         //由于在模拟迁移之后若系统总熵值不能减小,我们则需要将这些节点还原
-        Set<ClassNode> protectedClassNodes = new HashSet<>();
-        Set<RelationNode> protectedRelationNodes = new HashSet<>();
-        Set<ValueNode> protectedValueNodes = new HashSet<>();
-        Set<ClassToValueEdge> protectedClassToVEdges = new HashSet<>();
-        Set<RelationToCEdge> protectedRelationToCEdges = new HashSet<>();
-
-        //这是我们需要废弃的边的集合
-        Map<String,Set<Long>> unNecessaryValueNodeMap = new HashMap<>();
-        Map<String,Set<Long>> unNecessaryRelationNodeMap = new HashMap<>();
-
+        List<ClassNode> protectedClassNodes = new ArrayList<>();
+        List<Integer> protectedClassNodeIds =new ArrayList<>();
+        List<RelationNode> protectedRelationNodes = new ArrayList<>(relationNodeList);
+        List<ValueNode> protectedValueNodes = new ArrayList<>(valueNodeList);
+        List<ClassToValueEdge> protectedClassToVEdges = new ArrayList<>(ctvEdgeList);
+        List<RelationToCEdge> protectedRelationToCEdges = new ArrayList<>(rtcEdgeList);
 
         double minEntropyDown=0x7FFFFFFF;
-        long minVarCNodeId=-1;  //我们希望找到的是引起targetClass节点迁移到的目标节点熵值上升度最小的节点
+        Integer minVarCNodeListId=-1;  //我们希望找到的是引起targetClass节点迁移到的目标节点熵值上升度最小的节点
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
+        protectedClassNodes.add(new ClassNode(sourceClassNode));
+        protectedClassNodes.add(new ClassNode(targetClassNode));
+        protectedClassNodeIds.add(sourceClassNodeListId);
+        protectedClassNodeIds.add(targetClassNodeListId);
         //这里的目标是把target上的class节点迁移到otherClassNode上去,看看是否有效果
-        for(ClassNode otherClassNode : classNodeList) {
-            if(otherClassNode.getIcmList().contains(icmId)) continue;
+        for(int i=0;i<classNodeList.size();i++) {
+            if(i==targetClassNodeListId||i==sourceClassNodeListId) continue;
+            ClassNode otherClassNode = classNodeList.get(i);
+            if(otherClassNode.getIcmSet().contains(icmId)) continue;
             double var=simulateMigrateForClass(icmId,targetClassNode,otherClassNode);
-            if(otherClassNode.getIcmList().size()==0) isTravseNUllNode=true;
+            if(otherClassNode.getIcmSet().size()==0) isTravseNUllNode=true;
             if(Double.compare(minEntropyDown,var)>0) {
                 minEntropyDown=var;
-                minVarCNodeId=otherClassNode.getId();
+                minVarCNodeListId=i;
             }
         }
 
@@ -463,38 +504,17 @@ public class MigrateHandlerImpl implements MigrateHandler {
             double var=simulateMigrateForClass(icmId,targetClassNode,tClassNode);
             if(Double.compare(minEntropyDown,var)>0) {
                 minEntropyDown=var;
-                minVarCNodeId=tClassNode.getId();
+                classNodeList.add(tClassNode);
+                minVarCNodeListId=classNodeList.size()-1;
             }else tClassNode=null;
         }
 
-        if(minVarCNodeId!=-1) {//说明确实找到了可以让该节点熵值下降的通道
-            //先把所有节点保护起来
-            protectedClassNodes.add(new ClassNode(targetClassNode));
-            protectedClassNodes.add(new ClassNode(classNodeRepository.findOne(minVarCNodeId)));//首先保存两个classNode
-
-            //统计因迁移而产生的边,将其放入到集合unNecessary中
-            ClassNode newMinVarCNode=new ClassNode(classNodeRepository.findOne(minVarCNodeId));
-
-            for(ClassToValueEdge protectedCtvEdge : targetClassNode.getCtvEdges()) {//把所有targetClassNode到valueNode的边全部获取
-                protectedClassToVEdges.add(new ClassToValueEdge(protectedCtvEdge));
-                protectedValueNodes.add(new ValueNode(protectedCtvEdge.getEnder()));
-            }
-            for(ClassToValueEdge protectedCtvEdge : newMinVarCNode.getCtvEdges()) {
-                protectedClassToVEdges.add(new ClassToValueEdge(protectedCtvEdge));
-            }
-            for(RelationToCEdge protectedRtcEdge : targetClassNode.getRtcEdges()) {//把所有relationNode到targetClassNode的边全部获取到
-                protectedRelationToCEdges.add(new RelationToCEdge(protectedRtcEdge));
-                protectedRelationNodes.add(new RelationNode(protectedRtcEdge.getStarter()));
-            }
-            for(RelationToCEdge protectedRtcEdge : newMinVarCNode.getRtcEdges()) {//把所有relationNode到targetClassNode的边全部获取到
-                protectedRelationToCEdges.add(new RelationToCEdge(protectedRtcEdge));
-            }
-
-            //获取迁移造成的副产品(边的增多)
-            findUnNecessaryClassNodeEdge(icmId,targetClassNode,newMinVarCNode,unNecessaryValueNodeMap,unNecessaryRelationNodeMap);
+        if(minVarCNodeListId!=-1) {//说明确实找到了可以让该节点熵值下降的通道
+            protectedClassNodes.add(new ClassNode(classNodeList.get(minVarCNodeListId)));
+            protectedClassNodeIds.add(minVarCNodeListId);
 
             //将targetClass上的icmId正式迁移到minVarCNodeId节点上去
-            migrateClassNodeForOneStep(icmId, targetClassNodeId, minVarCNodeId);//我现在想做的一个原则就是,在这步不进行save
+            migrateClassNodeForOneStep(icmId, targetClassNodeListId, minVarCNodeListId);
             //如果需要恢复到迁移前,则在下面启动恢复过程
         }
         //上面这个migrateClassNodeForOneStep实实在在的把targetClassNode上的icmId迁移到了minVarCNodeId对应节点上
@@ -504,9 +524,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
             //说明这步迁移是没有意义的,我们接下来判断刚才的迁移是否需要复原
             if(Double.compare(minEntropyDown,0.0)>0) {
                 //需要复原之前的迁移
-                recoverMigrateStateForClassNode(minVarCNodeId,protectedClassNodes,protectedRelationNodes,
-                        protectedValueNodes,protectedClassToVEdges,protectedRelationToCEdges,
-                        unNecessaryValueNodeMap,unNecessaryRelationNodeMap);//还原原有的节点格局
+                recoverMigrateStateForClassNode(protectedClassNodes,protectedClassNodeIds,protectedRelationNodes,
+                        protectedValueNodes,protectedClassToVEdges,protectedRelationToCEdges);//还原原有的节点格局
             }else ;//不需要复原
         }else {
             //说明当前的迁移是有意义的,但是我们还是需要判断这次两步迁移是否会造成系统熵值上升
@@ -514,15 +533,14 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(Double.compare(minEntropyDown,0.0)>0) {
                 double resSimVar=tmpSimVar-minEntropyDown;
                 if(Double.compare(resSimVar,0.0)>0) {//说明迁移后系统熵值减小,这是成功的
-                    migrateClassNodeForOneStep(icmId,sourceClassNodeId,targetClassNodeId);
+                    migrateClassNodeForOneStep(icmId,sourceClassNodeListId,targetClassNodeListId);
                 }else {//resSimVar<0.0说明系统熵值总体上升了,因此必须回复全部初始数据
-                    recoverMigrateStateForClassNode(minVarCNodeId,protectedClassNodes,protectedRelationNodes,
-                            protectedValueNodes,protectedClassToVEdges,protectedRelationToCEdges,
-                            unNecessaryValueNodeMap,unNecessaryRelationNodeMap);//还原原有的节点格局
+                    recoverMigrateStateForClassNode(protectedClassNodes,protectedClassNodeIds,protectedRelationNodes,
+                            protectedValueNodes,protectedClassToVEdges,protectedRelationToCEdges);//还原原有的节点格局
                 }
             }else {
                 //成功,我们需要将souceClass上的icmId用户迁移到targetClass上去
-                migrateClassNodeForOneStep(icmId,sourceClassNodeId,targetClassNodeId);
+                migrateClassNodeForOneStep(icmId,sourceClassNodeListId,targetClassNodeListId);
             }
         }
         return simVar+minEntropyDown;
@@ -537,7 +555,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(int i=0;i<relationNodeList.size();i++) {
             RelationNode tmpRNode=relationNodeList.get(i);
             if(tmpRNode.getId()==relationNode.getId()) continue;//本身
-            if(tmpRNode.getIcmList().contains(icmId)) {
+            if(tmpRNode.getIcmSet().contains(icmId)) {
                 alreadyHasCurIcmRelationNode.add(tmpRNode);
                 continue;//如果是同样包含有该用户的节点,则先保存在already中.
             }
@@ -577,7 +595,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
         }
     }
-
 
     private double simulateMigrateForRelation(Long icmId,RelationNode sourceRNode,RelationNode targetRNode) {
         double sumEntropyVar=0.0;
@@ -768,13 +785,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
         return sumEntropyVar;
     }
 
-    public void migrateRelationNodeForOneStep(Long icmId,Long sourceRelationNodeId,Long targetRelationNodeId) {
+    public void migrateRelationNodeForOneStep(Long icmId,Integer sourceRelationNodeListId,Integer targetRelationNodeListId) {
         //这个地方涉及数据库的操作,我必须要非常小心这一点
-        RelationNode sourceRelationNode=relationNodeRepository.findOne(sourceRelationNodeId);
-        RelationNode targetRelationNode=relationNodeRepository.findOne(targetRelationNodeId);
+        RelationNode sourceRelationNode=relationNodeList.get(sourceRelationNodeListId);
+        RelationNode targetRelationNode=relationNodeList.get(targetRelationNodeListId);
 
-        sourceRelationNode.getIcmList().remove(icmId);
-        targetRelationNode.getIcmList().add(icmId);
+        sourceRelationNode.getIcmSet().remove(icmId);
+        targetRelationNode.getIcmSet().add(icmId);
 
         //对于sourceRelationNode的RelationToValue部分
         for(RelationToValueEdge rtvEdge : sourceRelationNode.getRtvEdges()) {
@@ -799,8 +816,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 RelationToValueEdge tmpRtvEdge=new RelationToValueEdge(port,edgeName,targetRelationNode,valueNode);
                 targetRelationNode.getRtvEdges().add(tmpRtvEdge);//我觉得这句话可以去掉的
                 valueNode.getRtvEdges().add(tmpRtvEdge);//这句应该也可以去掉的
-                relationToVEdgeRepository.save(tmpRtvEdge);//relationToVEdgeRepository这个
+//                relationToVEdgeRepository.save(tmpRtvEdge);//relationToVEdgeRepository这个
             }
+            changedValueNodeIdSet.add(valueNode);
         }
 
         //对于sourceRelationNode的relationToClass部分
@@ -826,42 +844,41 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 RelationToCEdge tmpRtcEdge=new RelationToCEdge(port,edgeName,targetRelationNode,classNode);
                 targetRelationNode.getRtcEdges().add(tmpRtcEdge);
                 classNode.getRtcEdges().add(tmpRtcEdge);
-                relationToCEdgeRepository.save(tmpRtcEdge);
             }
+            changedClassNodeIdSet.add(classNode);
         }
-        relationNodeRepository.save(sourceRelationNode);
-        relationNodeRepository.save(targetRelationNode);
+        changedRelationNodeIdSet.add(sourceRelationNode);
+        changedRelationNodeIdSet.add(targetRelationNode);
     }
 
-    public Double migrateRelationNodeNeedTwoStep(Long icmId,Long sourceRelationNodeId,Long targetRelationNodeId) {
+    public Double migrateRelationNodeNeedTwoStep(Long icmId,Integer sourceRelationNodeListId,Integer targetRelationNodeListId) {
         //首先是判断如果targetRelation没有当前icmId用户,将sourceRelation上的icmId迁移到targetClass上是否会减小熵值,如果会则执行该步骤,否则不执行
         //为targetRelation上的icmId用户找寻适合其迁移的最佳位置,判断这个迁移会造成多少熵值增加
         //如果增加的比迁移过来的减少的少,则进行迁移操作,否则不迁移
-        RelationNode sourceRelationNode=relationNodeRepository.findOne(sourceRelationNodeId);
-        RelationNode targetRelationNode=relationNodeRepository.findOne(targetRelationNodeId);
+        RelationNode sourceRelationNode=relationNodeList.get(sourceRelationNodeListId);
+        RelationNode targetRelationNode=relationNodeList.get(targetRelationNodeListId);
 
         //由于在模拟迁移之后若系统总熵值不能减小,我们则需要将这些节点还原
-        Set<ClassNode> protectedClassNodes = new HashSet<>();
-        Set<RelationNode> protectedRelationNodes = new HashSet<>();
-        Set<ValueNode> protectedValueNodes = new HashSet<>();
-        Set<RelationToValueEdge> protectedRelationToVEdges = new HashSet<>();
-        Set<RelationToCEdge> protectedRelationToCEdges = new HashSet<>();
-
-        //这是我们需要废弃的边的集合
-        Map<String,Set<Long>> unNecessaryClassNodeMap = new HashMap<>();
-        Map<String,Set<Long>> unNecessaryValueNodeMap = new HashMap<>();
+        List<ClassNode> protectedClassNodes = new ArrayList<>(classNodeList);
+        List<RelationNode> protectedRelationNodes = new ArrayList<>();
+        List<Integer> protectedRelationNodeIds = new ArrayList<>();
+        List<ValueNode> protectedValueNodes = new ArrayList<>(valueNodeList);
+        List<RelationToValueEdge> protectedRelationToVEdges = new ArrayList<>(rtvEdgeList);
+        List<RelationToCEdge> protectedRelationToCEdges = new ArrayList<>(rtcEdgeList);
 
         double minEntropyDown=0x7FFFFFFF;
-        long minVarRNodeId=-1;  //我们希望找到的是引起targetRelation节点迁移到的目标节点熵值上升度最小的节点
+        Integer minVarRNodeId=-1;  //我们希望找到的是引起targetRelation节点迁移到的目标节点熵值上升度最小的节点
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
         //这里的目标是把target上的relation节点迁移到otherRelationNode上去,看看是否有效果
-        for(RelationNode otherRelationNode : relationNodeList) {
-            if(otherRelationNode.getIcmList().contains(icmId)) continue;
+        for(int i=0;i<relationNodeList.size();i++) {
+            if(i==sourceRelationNodeListId||i==targetRelationNodeListId) continue;
+            RelationNode otherRelationNode = relationNodeList.get(i);
+            if(otherRelationNode.getIcmSet().contains(icmId)) continue;
             double var=simulateMigrateForRelation(icmId,targetRelationNode,otherRelationNode);
-            if(otherRelationNode.getIcmList().size()==0) isTravseNUllNode=true;
+            if(otherRelationNode.getIcmSet().size()==0) isTravseNUllNode=true;
             if(Double.compare(minEntropyDown,var)>0) {
                 minEntropyDown=var;
-                minVarRNodeId=otherRelationNode.getId();
+                minVarRNodeId=i;
             }
         }
         if(!isTravseNUllNode) {
@@ -869,39 +886,20 @@ public class MigrateHandlerImpl implements MigrateHandler {
             double var=simulateMigrateForRelation(icmId,targetRelationNode,tRelationNode);
             if(Double.compare(minEntropyDown,var)>0) {
                 minEntropyDown=var;
-                minVarRNodeId=tRelationNode.getId();
+                relationNodeList.add(tRelationNode);
+                minVarRNodeId=relationNodeList.size()-1;
             }else tRelationNode=null;
         }
 
         if(minVarRNodeId!=-1) {//说明确实找到了可以让该节点熵值下降的通道
-            //先把所有节点保护起来
-            protectedRelationNodes.add(new RelationNode(targetRelationNode));
-            protectedRelationNodes.add(new RelationNode(relationNodeRepository.findOne(minVarRNodeId)));//首先保存两个classNode
 
             //统计因迁移而产生的边,将其放入到集合unNecessary中
-            RelationNode newMinVarRNode=new RelationNode(relationNodeRepository.findOne(minVarRNodeId));
-
-            for(RelationToValueEdge protectedRtvEdge : targetRelationNode.getRtvEdges()) {//把所有targetRelationNode到valueNode的边全部获取
-                protectedRelationToVEdges.add(new RelationToValueEdge(protectedRtvEdge));
-                protectedValueNodes.add(new ValueNode(protectedRtvEdge.getEnder()));
-            }
-            for(RelationToValueEdge protectedRtvEdge : newMinVarRNode.getRtvEdges()) {
-                protectedRelationToVEdges.add(new RelationToValueEdge(protectedRtvEdge));
-            }
-
-            for(RelationToCEdge protectedRtcEdge : targetRelationNode.getRtcEdges()) {//把所有targetRelationNode到classNode的边全部获取到
-                protectedRelationToCEdges.add(new RelationToCEdge(protectedRtcEdge));
-                protectedClassNodes.add(new ClassNode(protectedRtcEdge.getEnder()));
-            }
-            for(RelationToCEdge protectedRtcEdge : newMinVarRNode.getRtcEdges()) {//把所有newMinRNode到classNode的边全部获取到
-                protectedRelationToCEdges.add(new RelationToCEdge(protectedRtcEdge));
-            }
-
-            //获取迁移造成的副产品(边的增多)
-            findUnNecessaryRelationNodeEdge(icmId, targetRelationNode, newMinVarRNode, unNecessaryValueNodeMap, unNecessaryClassNodeMap);
+//            RelationNode newMinVarRNode=new RelationNode(relationNodeRepository.findOne(minVarRNodeId));
+//            //获取迁移造成的副产品(边的增多)
+//            findUnNecessaryRelationNodeEdge(icmId, targetRelationNode, newMinVarRNode, unNecessaryValueNodeMap, unNecessaryClassNodeMap);
 
             //将targetRelation上的icmId正式迁移到minVarRNodeId节点上去
-            migrateRelationNodeForOneStep(icmId, targetRelationNodeId, minVarRNodeId);
+            migrateRelationNodeForOneStep(icmId, targetRelationNodeListId, minVarRNodeId);
             //如果需要恢复到迁移前,则在下面启动恢复过程
         }
         //上面这个migrateRelationNodeForOneStep实实在在的把targetRelationNode上的icmId迁移到了minVarRNodeId对应节点上
@@ -911,9 +909,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
             //说明这步迁移是没有意义的,我们接下来判断刚才的迁移是否需要复原
             if(Double.compare(minEntropyDown,0.0)>0) {
                 //需要复原之前的迁移
-                recoverMigrateStateForRelationNode(minVarRNodeId , protectedClassNodes , protectedRelationNodes ,
-                        protectedValueNodes , protectedRelationToCEdges , protectedRelationToVEdges ,
-                        unNecessaryValueNodeMap , unNecessaryClassNodeMap);//还原原有的节点格局
+                recoverMigrateStateForRelationNode(protectedClassNodes , protectedRelationNodes ,
+                        protectedRelationNodeIds , protectedValueNodes , protectedRelationToVEdges ,
+                        protectedRelationToCEdges);//还原原有的节点格局
             }else ;//不需要复原
         }else {
             //说明当前的迁移是有意义的,但是我们还是需要判断这次两步迁移是否会造成系统熵值上升
@@ -921,15 +919,15 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(Double.compare(minEntropyDown,0.0)>0) {
                 double resSimVar=tmpSimVar-minEntropyDown;
                 if(Double.compare(resSimVar,0.0)>0) {//说明迁移后系统熵值减小,这是成功的
-                    migrateRelationNodeForOneStep(icmId, sourceRelationNodeId, targetRelationNodeId);
+                    migrateRelationNodeForOneStep(icmId, sourceRelationNodeListId, targetRelationNodeListId);
                 }else {//resSimVar<0.0说明系统熵值总体上升了,因此必须回复全部初始数据
-                    recoverMigrateStateForRelationNode(minVarRNodeId , protectedClassNodes , protectedRelationNodes ,
-                            protectedValueNodes , protectedRelationToCEdges , protectedRelationToVEdges ,
-                            unNecessaryValueNodeMap , unNecessaryClassNodeMap);//还原原有的节点格局
+                    recoverMigrateStateForRelationNode(protectedClassNodes , protectedRelationNodes ,
+                            protectedRelationNodeIds , protectedValueNodes , protectedRelationToVEdges ,
+                            protectedRelationToCEdges);//还原原有的节点格局
                 }
             }else {
                 //成功,我们需要将souceRelation上的icmId用户迁移到targetRelation上去
-                migrateClassNodeForOneStep(icmId,sourceRelationNodeId,targetRelationNodeId);
+                migrateClassNodeForOneStep(icmId,sourceRelationNodeListId,targetRelationNodeListId);
             }
         }
         return simVar+minEntropyDown;
@@ -981,143 +979,47 @@ public class MigrateHandlerImpl implements MigrateHandler {
      * @param protectedClassToVEdges
      * @param protectedRelationToCEdges
      */
-    private void recoverMigrateStateForClassNode(Long targetCNodeId ,
-            Set<ClassNode> protectedClassNodes , Set<RelationNode> protectedRelationNodes ,
-            Set<ValueNode> protectedValueNodes ,Set<ClassToValueEdge> protectedClassToVEdges ,
-            Set<RelationToCEdge> protectedRelationToCEdges , Map<String,Set<Long>> unNecessaryValueNodeMap ,
-            Map<String,Set<Long>> unNecessaryRelationNodeMap) {
+    private void recoverMigrateStateForClassNode(
+            List<ClassNode> protectedClassNodes , List<Integer> protectedClassNodeIds ,
+            List<RelationNode> protectedRelationNodes , List<ValueNode> protectedValueNodes ,
+            List<ClassToValueEdge> protectedClassToVEdges , List<RelationToCEdge> protectedRelationToCEdges) {
 
-        //首先把targetCNode因为迁移产生的多余节点去掉
-        ClassNode targetCNode=classNodeRepository.findOne(targetCNodeId);
-//        Set<ClassToValueEdge> needDiscardCTVEdge = new HashSet<>();
-//        Set<RelationToCEdge> needDiscardRTCEdge = new HashSet<>();
-        for(ClassToValueEdge ctvEdge : targetCNode.getCtvEdges()) {
-            String edgeName=ctvEdge.getEdgeName();
-            Long vid=ctvEdge.getEnder().getId();
-            if(unNecessaryValueNodeMap.containsKey(edgeName)&&unNecessaryValueNodeMap.get(edgeName).contains(vid)) {
-                //说明这个是新建的边
-//                needDiscardCTVEdge.add(ctvEdge);
-//                targetCNode.getCtvEdges().remove(ctvEdge);
-                classToVEdgeRepository.delete(ctvEdge);
-            }
-        }
-        for(RelationToCEdge rtcEdge : targetCNode.getRtcEdges()) {
-            String name=rtcEdge.getEdgeName();
-            String port=rtcEdge.getPort();
-            String fullName=port+"."+name;
-            Long rid=rtcEdge.getStarter().getId();
-            if(unNecessaryRelationNodeMap.containsKey(fullName)&&unNecessaryRelationNodeMap.get(fullName).contains(rid)) {
-//                needDiscardRTCEdge.add(rtcEdge);
-//                targetCNode.getRtcEdges().remove(rtcEdge);
-                relationToCEdgeRepository.delete(rtcEdge);
-            }
+        for(int i=0;i<protectedClassNodeIds.size();i++) {
+            int id=protectedClassNodeIds.get(i);
+            classNodeList.set(id , protectedClassNodes.get(i));
         }
 
-        for(ClassNode classNode : protectedClassNodes) {
-            Long nid=classNode.getId();
-            ClassNode waitUpdateClassNode=classNodeRepository.findOne(nid);//这个就是我们要还原的节点
-            waitUpdateClassNode.UpdateClassNode(classNode);//更新class node节点
-            classNodeRepository.save(waitUpdateClassNode);
-        }
-
-        for(RelationNode relationNode : protectedRelationNodes) {
-            Long nid=relationNode.getId();
-            RelationNode waitUpdateRelationNode=relationNodeRepository.findOne(nid);
-            waitUpdateRelationNode.UpdateRelationNode(relationNode);//更新relation node节点
-            relationNodeRepository.save(waitUpdateRelationNode);
-        }
-
-        //valueNode也需要修改,因为有边
-        for(ValueNode valueNode : protectedValueNodes) {
-            Long nid=valueNode.getId();
-            ValueNode waitUpdateRelationNode=valueNodeRepository.findOne(nid);
-            waitUpdateRelationNode.UpdateValueNode(valueNode);
-            valueNodeRepository.save(waitUpdateRelationNode);
-        }
-
-        for(ClassToValueEdge classToValueEdge : protectedClassToVEdges) {
-            Long nid=classToValueEdge.getId();
-            ClassToValueEdge waitUpdateClassToVENode=classToVEdgeRepository.findOne(nid);
-            waitUpdateClassToVENode.UpdateClassToVEdge(classToValueEdge);
-            classToVEdgeRepository.save(waitUpdateClassToVENode);
-        }
-
-        for(RelationToCEdge relationToCEdge : protectedRelationToCEdges) {
-            Long nid=relationToCEdge.getId();
-            RelationToCEdge waitUpdateRelationToCENode=relationToCEdgeRepository.findOne(nid);
-            waitUpdateRelationToCENode.UpdateRelationToCEdge(relationToCEdge);
-            relationToCEdgeRepository.save(waitUpdateRelationToCENode);
-        }
+        relationNodeList=null;
+        valueNodeList=null;
+        ctvEdgeList=null;
+        rtcEdgeList=null;
+        relationNodeList=protectedRelationNodes;
+        valueNodeList=protectedValueNodes;
+        ctvEdgeList=protectedClassToVEdges;
+        rtcEdgeList=protectedRelationToCEdges;//恢复
     }
 
 
     private void recoverMigrateStateForRelationNode(
-            Long targetRNodeId , Set<ClassNode> protectedClassNodes , Set<RelationNode> protectedRelationNodes ,
-            Set<ValueNode> protectedValueNodes ,Set<RelationToCEdge> protectedRelationToCEdges ,
-            Set<RelationToValueEdge> protectedRelationToVEdges , Map<String,Set<Long>> unNecessaryClassNodeMap ,
-            Map<String,Set<Long>> unNecessaryValueNodeMap) {
+            List<ClassNode> protectedClassNodes , List<RelationNode> protectedRelationNodes ,
+            List<Integer> protectedRelationNodeIds , List<ValueNode> protectedValueNodes ,
+            List<RelationToValueEdge> protectedRelationToVEdges , List<RelationToCEdge> protectedRelationToCEdges) {
 
-        //首先把targetCNode因为迁移产生的多余节点去掉
-        RelationNode targetRNode=relationNodeRepository.findOne(targetRNodeId);
-        for(RelationToCEdge rtcEdge : targetRNode.getRtcEdges()) {
-            String port=rtcEdge.getPort();
-            String name=rtcEdge.getEdgeName();
-            String fullName=port+"."+name;
-            Long cid=rtcEdge.getEnder().getId();
-            if(unNecessaryClassNodeMap.containsKey(fullName)&&unNecessaryValueNodeMap.get(fullName).contains(cid)) {
-                //说明这个是新建的边
-//                targetRNode.getCtvEdges().remove(ctvEdge);
-                relationToCEdgeRepository.delete(rtcEdge);
-            }
-        }
-        for(RelationToValueEdge rtvEdge : targetRNode.getRtvEdges()) {
-            String port=rtvEdge.getPort();
-            String name=rtvEdge.getEdgeName();
-            String fullName=port+"."+name;
-            Long vid=rtvEdge.getEnder().getId();
-            if(unNecessaryValueNodeMap.containsKey(fullName)&&unNecessaryValueNodeMap.get(fullName).contains(vid)) {
-                relationToVEdgeRepository.delete(rtvEdge);
-            }
+        classNodeList=null;
+
+        for(int i=0;i<protectedRelationNodeIds.size();i++) {
+            int id=protectedRelationNodeIds.get(i);
+            relationNodeList.set(id , protectedRelationNodes.get(i));
         }
 
-        //下面这部分是正常的恢复流程
-        for(ClassNode classNode : protectedClassNodes) {
-            Long nid=classNode.getId();
-            ClassNode waitUpdateClassNode=classNodeRepository.findOne(nid);//这个就是我们要还原的节点
-            waitUpdateClassNode.UpdateClassNode(classNode);//更新class node节点
-            classNodeRepository.save(waitUpdateClassNode);
-        }
-
-        for(RelationNode relationNode : protectedRelationNodes) {
-            Long nid=relationNode.getId();
-            RelationNode waitUpdateRelationNode=relationNodeRepository.findOne(nid);
-            waitUpdateRelationNode.UpdateRelationNode(relationNode);//更新relation node节点
-            relationNodeRepository.save(waitUpdateRelationNode);
-        }
-
-        //valueNode也需要修改,因为有边
-        for(ValueNode valueNode : protectedValueNodes) {
-            Long nid=valueNode.getId();
-            ValueNode waitUpdateRelationNode=valueNodeRepository.findOne(nid);
-            waitUpdateRelationNode.UpdateValueNode(valueNode);
-            valueNodeRepository.save(waitUpdateRelationNode);
-        }
-
-        for(RelationToValueEdge relationToValueEdge : protectedRelationToVEdges) {
-            Long nid=relationToValueEdge.getId();
-            RelationToValueEdge waitUpdateRelationToVENode=relationToVEdgeRepository.findOne(nid);
-            waitUpdateRelationToVENode.UpdateRelationToVEdge(relationToValueEdge);
-            relationToVEdgeRepository.save(waitUpdateRelationToVENode);
-        }
-
-        for(RelationToCEdge relationToCEdge : protectedRelationToCEdges) {
-            Long nid=relationToCEdge.getId();
-            RelationToCEdge waitUpdateRelationToCENode=relationToCEdgeRepository.findOne(nid);
-            waitUpdateRelationToCENode.UpdateRelationToCEdge(relationToCEdge);
-            relationToCEdgeRepository.save(waitUpdateRelationToCENode);
-        }
+        valueNodeList=null;
+        ctvEdgeList=null;
+        rtcEdgeList=null;
+        classNodeList=protectedClassNodes;
+        valueNodeList=protectedValueNodes;å
+        rtvEdgeList=protectedRelationToVEdges;
+        rtcEdgeList=protectedRelationToCEdges;//恢复
     }
-
 
     private void findUnNecessaryClassNodeEdge(Long curIcmId,ClassNode sourceCNode,ClassNode targetCNode,
                                               Map<String,Set<Long>> unNecessaryValueNodeMap,

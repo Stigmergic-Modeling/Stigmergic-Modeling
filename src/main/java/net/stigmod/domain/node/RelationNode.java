@@ -17,7 +17,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,7 +32,7 @@ public class RelationNode {
     private Long id;
 
     @Property(name="icm_list")
-    private Set<Long> icmList=new HashSet<>();
+    private Set<Long> icmSet = new HashSet<>();
 
     @Property
     private double entropyValue;
@@ -42,12 +41,12 @@ public class RelationNode {
     private Long modelId;
 
     public RelationNode() {
-        this.entropyValue=0;
+        this.entropyValue = 0;
     }
 
     public RelationNode(RelationNode relationNode) {
         this.id=relationNode.getId();
-        this.icmList=new HashSet<>(relationNode.getIcmList());
+        this.icmSet =new HashSet<>(relationNode.getIcmSet());
         this.entropyValue=relationNode.getEntropyValue();
         this.modelId=relationNode.getModelId();
         this.rtcEdges=new HashSet<>(relationNode.getRtcEdges());
@@ -65,7 +64,7 @@ public class RelationNode {
     }
 
     public void UpdateRelationNode(RelationNode relationNode) {
-        this.icmList=relationNode.getIcmList();
+        this.icmSet =relationNode.getIcmSet();
         this.entropyValue=relationNode.getEntropyValue();
         this.rtcEdges=relationNode.getRtcEdges();
         this.rtvEdges=relationNode.getRtvEdges();
@@ -75,12 +74,12 @@ public class RelationNode {
         return rtcEdges;
     }
 
-    public Set<Long> getIcmList() {
-        return icmList;
+    public Set<Long> getIcmSet() {
+        return icmSet;
     }
 
-    public void setIcmList(Set<Long> icmList) {
-        this.icmList = icmList;
+    public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet = icmSet;
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {

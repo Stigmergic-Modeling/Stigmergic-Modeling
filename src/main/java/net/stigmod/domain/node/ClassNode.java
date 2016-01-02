@@ -16,7 +16,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ public class ClassNode {
     private Long id;
 
     @Property(name="icm_list")
-    private Set<Long> icmList=new HashSet<>();
+    private Set<Long> icmSet = new HashSet<>();
 
     @Property
     private Long modelId;
@@ -40,20 +39,20 @@ public class ClassNode {
 
     //连接关系与类的关系
     @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
-    private Set<RelationToCEdge> rtcEdges =new HashSet<RelationToCEdge>();
+    private Set<RelationToCEdge> rtcEdges = new HashSet<RelationToCEdge>();
 
     //连接类与name值的关系
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
-    private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
+    private Set<ClassToValueEdge> ctvEdges = new HashSet<ClassToValueEdge>();
 
 
     public ClassNode(){
-        this.entropyValue=0;
+        this.entropyValue = 0;
     }
 
     public ClassNode(ClassNode classNode) {
         this.id=classNode.getId();
-        this.icmList=new HashSet<>(classNode.getIcmList());
+        this.icmSet =new HashSet<>(classNode.getIcmSet());
         this.modelId=classNode.getModelId();
         this.entropyValue=classNode.getEntropyValue();
         this.rtcEdges=new HashSet<>(classNode.getRtcEdges());
@@ -61,18 +60,18 @@ public class ClassNode {
     }
 
     public void UpdateClassNode(ClassNode classNode) {
-        this.icmList= classNode.icmList;
+        this.icmSet = classNode.icmSet;
         this.entropyValue=classNode.getEntropyValue();
         this.rtcEdges=classNode.getRtcEdges();
         this.ctvEdges=classNode.getCtvEdges();
     }
 
-    public Set<Long> getIcmList() {
-        return icmList;
+    public Set<Long> getIcmSet() {
+        return icmSet;
     }
 
-    public void setIcmList(Set<Long> icmList) {
-        this.icmList = icmList;
+    public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet = icmSet;
     }
 
     public Set<RelationToCEdge> getRtcEdges() {

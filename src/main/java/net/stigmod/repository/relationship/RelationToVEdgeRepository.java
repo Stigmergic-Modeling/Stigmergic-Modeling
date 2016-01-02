@@ -13,10 +13,13 @@ import net.stigmod.domain.relationship.RelationToValueEdge;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author Kai Fu
  * @version 2015/11/10
  */
 @Repository
 public interface RelationToVEdgeRepository extends GraphRepository<RelationToValueEdge> {
+    List<RelationToValueEdge> findByModelId(Long modelId);
 }

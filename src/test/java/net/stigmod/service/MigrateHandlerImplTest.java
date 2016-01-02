@@ -7,18 +7,11 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.service.migrateService;
-
-import org.springframework.stereotype.Service;
+package net.stigmod.service;
 
 /**
- * 
- *
- * @version     2015/11/11
- * @author 	    Kai Fu
+ * @author Kai Fu
+ * @version 2015/12/28
  */
-public interface MigrateHandler {
-
-    public void migrateHandler(Long id);
-
+public class MigrateHandlerImplTest {
 }
