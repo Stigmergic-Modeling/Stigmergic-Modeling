@@ -63,6 +63,10 @@ public class RelationNode {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void UpdateRelationNode(RelationNode relationNode) {
         this.icmSet =relationNode.getIcmSet();
         this.entropyValue=relationNode.getEntropyValue();

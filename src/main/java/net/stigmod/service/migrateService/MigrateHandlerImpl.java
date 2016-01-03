@@ -56,11 +56,15 @@ public class MigrateHandlerImpl implements MigrateHandler {
     @Autowired
     private RelationToVEdgeRepository relationToVEdgeRepository;
 
-    @Autowired
-    private MigrateUtil migrateUtil;
+//    @Autowired
+//    private MigrateUtil migrateUtil;
 
-    @Autowired
-    private EntropyHandler entropyHandler;
+//    @Autowired
+//    private EntropyHandler entropyHandler;
+
+    private MigrateUtil migrateUtil=new MigrateUtil();
+
+    private EntropyHandler entropyHandler=new EntropyHandlerImpl();
 
     private List<ClassNode> classNodeList;
 
@@ -101,9 +105,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
         modelId=ccm.getModelId();
 
         //获取ccm种各种edge的数据
-        this.ctvEdgeList=classToVEdgeRepository.findByModelId(modelId);
-        this.rtcEdgeList=relationToCEdgeRepository.findByModelId(modelId);
-        this.rtvEdgeList=relationToVEdgeRepository.findByModelId(modelId);//之所以预先全部获取的原因在于不想在融合的过程中发生数据库存取操作
+//        this.ctvEdgeList=classToVEdgeRepository.findByModelId(modelId);
+//        this.rtcEdgeList=relationToCEdgeRepository.findByModelId(modelId);
+//        this.rtvEdgeList=relationToVEdgeRepository.findByModelId(modelId);//之所以预先全部获取的原因在于不想在融合的过程中发生数据库存取操作
 
         //初始化标记数组
         changedClassNodeIdSet = new HashSet<>();
@@ -114,9 +118,22 @@ public class MigrateHandlerImpl implements MigrateHandler {
         this.isStable=false;
     }
 
+    public void migrateInitForTest(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
+                                    List<ValueNode> valueNodeList , List<ClassToValueEdge> ctvEdgeList ,
+                                    List<RelationToCEdge> rtcEdgeList , List<RelationToValueEdge> rtvEdgeList) {
+        modelId=0l;
+        this.classNodeList = classNodeList;
+        this.relationNodeList = relationNodeList;
+        this.valueNodeList = valueNodeList;
+        this.ctvEdgeList = ctvEdgeList;
+        this.rtcEdgeList = rtcEdgeList;
+        this.rtvEdgeList = rtvEdgeList;
+        this.isStable=false;
+    }
+
     @Override
     public void migrateHandler(Long id) {//初始化各变量
-        migrateInit(id);
+//        migrateInit(id);
         int cNum=classNodeList.size();
         int rNum=relationNodeList.size();
         int iterNum=cNum+rNum;
@@ -1054,7 +1071,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //
 //        //然后看sourceCNode的所有边,是否有和targetCNode指向相同的节点
 //        for(ClassToValueEdge ctvEdge : sourceCNode.getCtvEdges()) {
-//            if(!ctvEdge.getIcmList().contains(curIcmId)) continue;
+//            if(!ctvEdge.getIcmSet().contains(curIcmId)) continue;
 //            String edgeName=ctvEdge.getEdgeName();
 //            Long vid=ctvEdge.getEnder().getId();
 //            if(targetCToVNodeMap.containsKey(edgeName)&&targetCToVNodeMap.get(edgeName).contains(vid)) {//说明targetNode原本就存在对应的边
@@ -1072,7 +1089,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        }
 //
 //        for(RelationToCEdge rtcEdge : sourceCNode.getRtcEdges()) {
-//            if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
+//            if(!rtcEdge.getIcmSet().contains(curIcmId)) continue;
 //            String port=rtcEdge.getPort();
 //            String name=rtcEdge.getEdgeName();
 //            String fullName=port+"."+name;
@@ -1124,7 +1141,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //
 //        //然后看sourceRNode的所有边,是否有和targetRNode指向相同的节点
 //        for(RelationToCEdge rtcEdge : sourceRNode.getRtcEdges()) {
-//            if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
+//            if(!rtcEdge.getIcmSet().contains(curIcmId)) continue;
 //            String port=rtcEdge.getPort();
 //            String name=rtcEdge.getEdgeName();
 //            String fullName=port+"."+name;
@@ -1144,7 +1161,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        }
 //
 //        for(RelationToValueEdge rtvEdge : sourceRNode.getRtvEdges()) {
-//            if(!rtvEdge.getIcmList().contains(curIcmId)) continue;
+//            if(!rtvEdge.getIcmSet().contains(curIcmId)) continue;
 //            String port=rtvEdge.getPort();
 //            String name=rtvEdge.getEdgeName();
 //            String fullName =port+"."+name;

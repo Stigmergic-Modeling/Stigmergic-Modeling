@@ -101,4 +101,8 @@ public class ClassNode {
     public void setModelId(Long modelId) {
         this.modelId = modelId;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
