@@ -35,7 +35,6 @@ public class Application extends Neo4jConfiguration {
         return new SessionFactory("net.stigmod.domain");
     }
 
-    @Override
     @Bean
     public Neo4jServer neo4jServer() {
         return new RemoteServer("http://" + host + ":" + port, username, password);

@@ -10,7 +10,6 @@
 package net.stigmod.controller;
 
 import net.stigmod.domain.node.User;
-import net.stigmod.service.StigmodUserDetailsService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -25,6 +24,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import net.stigmod.repository.node.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +45,7 @@ public class StigModController {
     private String port = config.getPort();
 
     @Autowired
-    StigmodUserDetailsService stigmodUserDetailsService;
+    UserRepository userRepository;
 
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -60,7 +61,7 @@ public class StigModController {
     // about this web app
     @RequestMapping(value="/about", method = RequestMethod.GET)
     public String about(ModelMap model) {
-        final User user = stigmodUserDetailsService.getUserFromSession();
+        final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
@@ -92,7 +93,7 @@ public class StigModController {
             @RequestParam(value = "password-repeat") String passwordRepeat,
             ModelMap model, HttpServletRequest request) {
         try {
-            stigmodUserDetailsService.register(mail, password, passwordRepeat);
+            userRepository.register(mail, password, passwordRepeat);
             return "redirect:/user";
         } catch(Exception e) {
             model.addAttribute("host", host);

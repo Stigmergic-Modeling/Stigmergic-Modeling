@@ -9,8 +9,6 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <!--<mvc:import resource="applicationContext-security.xml" />-->
-    <!--<mvc:import resource="applicationContext.xml" />-->
     <context:component-scan base-package="net.stigmod.controller"/>
 
     <mvc:resources mapping="/static/**" location="/WEB-INF/static/"/>

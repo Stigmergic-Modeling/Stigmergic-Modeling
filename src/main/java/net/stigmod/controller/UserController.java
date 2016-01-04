@@ -11,7 +11,7 @@ package net.stigmod.controller;
 
 import net.stigmod.domain.node.User;
 //import net.stigmod.repository.MovieRepository;
-import net.stigmod.service.StigmodUserDetailsService;
+import net.stigmod.repository.node.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.stigmod.util.config.Config;
@@ -37,8 +37,7 @@ public class UserController {
     private String port = config.getPort();
 
     @Autowired
-//    StigmodUserDetailsService stigmodUserDetailsService = new StigmodUserDetailsService();
-    StigmodUserDetailsService stigmodUserDetailsService;
+    UserRepository userRepository;
 //    @Autowired
 //    MovieRepository movieRepository;
 
@@ -46,7 +45,7 @@ public class UserController {
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
     public String profile(Model model) {
-        final User user = stigmodUserDetailsService.getUserFromSession();
+        final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
@@ -54,17 +53,17 @@ public class UserController {
 //        if (user!=null) {
 //            model.addAttribute("recommendations", movieRepository.getRecommendations(user));
 //        }
-        return "user";
+        return "/user";
     }
 
     @RequestMapping(value = "/newmodel", method = RequestMethod.GET)
     public String newModel(Model model) {
-        final User user = stigmodUserDetailsService.getUserFromSession();
+        final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "New Model");
-        return "new_model";
+        return "/new_model";
     }
 
 //    @RequestMapping(value = "/user/{login}/friends", method = RequestMethod.POST)

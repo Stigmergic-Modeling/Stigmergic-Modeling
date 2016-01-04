@@ -8,12 +8,7 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <!--<context:annotation-config/>-->
-    <!--<context:annotation-config/>-->
-    <!--<context:spring-configured/>-->
-    <context:component-scan base-package="net.stigmod">
-        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-    </context:component-scan>
+    <context:annotation-config/>
     <security:global-method-security secured-annotations="enabled">
     </security:global-method-security>
 
@@ -54,7 +49,7 @@
     </security:http>
 
     <security:authentication-manager>
-        <security:authentication-provider user-service-ref="stigmodUserDetailsService">
+        <security:authentication-provider user-service-ref="userRepository">
             <security:password-encoder hash="md5">
                 <security:salt-source system-wide="cewuiqwzie"/>
             </security:password-encoder>
