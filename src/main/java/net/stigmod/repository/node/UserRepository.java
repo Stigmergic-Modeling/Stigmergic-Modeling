@@ -1,13 +1,29 @@
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project
+ * SEIDR, Peking University
+ * All rights reserved
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
+
 package net.stigmod.repository.node;
 
 //import net.stigmod.domain.Rating;
 import net.stigmod.domain.node.User;
 //import org.springframework.data.neo4j.annotation.Query;
-import net.stigmod.service.StigmodUserDetailsService;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.stereotype.Repository;
 
-
-public interface UserRepository extends GraphRepository<User>, StigmodUserDetailsService {
+/**
+ * UserRepository
+ *
+ * @version     2015/11/11
+ * @author      mh
+ * @author 	    Shijun Wang
+ */
+//@Repository
+public interface UserRepository extends GraphRepository<User> {
 
     User findByMail(String mail);
 
