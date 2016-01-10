@@ -27,9 +27,10 @@ import java.util.*;
  */
 public class MigrateUtil {
 
-    @Autowired
-    private EntropyHandler entropyHandler;
+//    @Autowired
+//    private EntropyHandler entropyHandler;
 
+    private EntropyHandler entropyHandler=new EntropyHandlerImpl();
 
     /**
      * 类节点上的icmId用户从sourceCNode迁移到targetCNode时,其指向的valueNode的熵值变化

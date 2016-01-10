@@ -17,6 +17,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -24,7 +25,7 @@ import java.util.Set;
  * @version 2015/11/10
  */
 @NodeEntity
-public class ClassNode {
+public class ClassNode{
     @GraphId
     private Long id;
 
@@ -45,18 +46,17 @@ public class ClassNode {
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
     private Set<ClassToValueEdge> ctvEdges = new HashSet<ClassToValueEdge>();
 
-
     public ClassNode(){
         this.entropyValue = 0;
     }
 
     public ClassNode(ClassNode classNode) {
         this.id=classNode.getId();
-        this.icmSet =new HashSet<>(classNode.getIcmSet());
+        this.icmSet = new HashSet<>(classNode.getIcmSet());
         this.modelId=classNode.getModelId();
         this.entropyValue=classNode.getEntropyValue();
-        this.rtcEdges=new HashSet<>(classNode.getRtcEdges());
-        this.ctvEdges=new HashSet<>(classNode.getCtvEdges());
+        this.ctvEdges = new HashSet<>(classNode.getCtvEdges());
+        this.rtcEdges = new HashSet<>(classNode.getRtcEdges());
     }
 
     public void UpdateClassNode(ClassNode classNode) {

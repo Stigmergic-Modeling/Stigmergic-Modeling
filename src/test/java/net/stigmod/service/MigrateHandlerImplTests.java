@@ -280,7 +280,7 @@ public class MigrateHandlerImplTests {
     public void testMigrate() {
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
-        migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList,ctvEdgeList,rtcEdgeList,rtvEdgeList);
+        migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);
         migrateHandler.migrateHandler(0l);
     }
 }

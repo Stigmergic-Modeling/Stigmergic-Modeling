@@ -62,6 +62,7 @@ public class ValueNode {
         this.icmSet =new HashSet<>(valueNode.getIcmSet());
         this.entropyValue=valueNode.getEntropyValue();
         this.modelId=valueNode.getModelId();
+        this.setName(valueNode.getName());
         this.ctvEdges=new HashSet<>(valueNode.getCtvEdges());
         this.rtvEdges=new HashSet<>(valueNode.getRtvEdges());
     }

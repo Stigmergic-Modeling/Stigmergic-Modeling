@@ -46,14 +46,18 @@ public class RelationToCEdge {
     @Property
     private Long modelId;
 
+    private Set<Long> icmListPreCopy=new HashSet<>();
+
+    private boolean isChanged=false;
+
     public RelationToCEdge() {
         this.port=null;
     }
 
     public RelationToCEdge(RelationToCEdge rtcEdge) {
         this.id=rtcEdge.getId();
-        this.starter=rtcEdge.getStarter();
-        this.ender=rtcEdge.getEnder();
+        this.starter=new RelationNode(rtcEdge.getStarter());
+        this.ender=new ClassNode(rtcEdge.getEnder());
         this.port=rtcEdge.port;
         this.edgeName=rtcEdge.getEdgeName();
         this.icmList=new HashSet<>(rtcEdge.getIcmList());
@@ -113,5 +117,21 @@ public class RelationToCEdge {
 
     public void setModelId(Long modelId) {
         this.modelId = modelId;
+    }
+
+    public Set<Long> getIcmListPreCopy() {
+        return icmListPreCopy;
+    }
+
+    public void setIcmListPreCopy(Set<Long> icmListPreCopy) {
+        this.icmListPreCopy = icmListPreCopy;
+    }
+
+    public boolean isChanged() {
+        return isChanged;
+    }
+
+    public void setIsChanged(boolean isChanged) {
+        this.isChanged = isChanged;
     }
 }

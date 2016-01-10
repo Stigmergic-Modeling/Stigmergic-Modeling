@@ -45,14 +45,18 @@ public class ClassToValueEdge {
     @Property
     private Long modelId;
 
+    private Set<Long> icmListPreCopy=new HashSet<>();
+
+    private boolean isChanged=false;
+
     public ClassToValueEdge() {
         this.port="";
     }
 
     public ClassToValueEdge(ClassToValueEdge ctvEdge) {
         this.id=ctvEdge.getId();
-        this.starter=ctvEdge.getStarter();
-        this.ender=ctvEdge.getEnder();
+        this.starter=new ClassNode(ctvEdge.getStarter());
+        this.ender=new ValueNode(ctvEdge.getEnder());
         this.port=ctvEdge.port;
         this.edgeName=ctvEdge.getEdgeName();
         this.icmList=new HashSet<>(ctvEdge.getIcmList());
@@ -127,5 +131,21 @@ public class ClassToValueEdge {
 
     public void setModelId(Long modelId) {
         this.modelId = modelId;
+    }
+
+    public Set<Long> getIcmListPreCopy() {
+        return icmListPreCopy;
+    }
+
+    public void setIcmListPreCopy(Set<Long> icmListPreCopy) {
+        this.icmListPreCopy = icmListPreCopy;
+    }
+
+    public boolean isChanged() {
+        return isChanged;
+    }
+
+    public void setIsChanged(boolean isChanged) {
+        this.isChanged = isChanged;
     }
 }
