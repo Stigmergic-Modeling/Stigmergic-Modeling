@@ -117,13 +117,17 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int rNum=relationNodeList.size();
         int iterNum=(cNum+rNum)*2;
         int curIterNum=0;
-//        int[] randArr={1,3,0,3,3,4,3,1,5,4,0,5};
-//        int t=0;
+//        int[] randArr={3,21,16,3,12,0,7,3,25,25,3,4,10,8,14,22,3,10,3,9,21,20,1,18,19,13,20,21,17,18,19,17,18,19,20,21,22,23,16};
+//        int[] randArr={2,3,4,5,6,7,8,9,10,11,12,13};
+        int t=0;
         while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int randValue=randomValue();
 //            randValue=randArr[t];
-//            t++; //测试用
+            t++; //测试用
+            if(t==500) {
+                System.out.println("123!");
+            }
             System.out.println("随机值: " + randValue);
             cNum=classNodeList.size();//要不断更新cNum的值
             if(randValue<cNum) migrateClassNode(randValue);
@@ -138,7 +142,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void migrateClassNode(int classNodeListId) {
         ClassNode classNode = classNodeList.get(classNodeListId);
         if(classNode.getIcmSet().size()==0) return ;
-        Set<Long> icmIdSet = classNode.getIcmSet();
+        Set<Long> icmIdSet = new HashSet<>(classNode.getIcmSet());
         for(Long icmId : icmIdSet) {
             findLowerEntropyLocForClass(icmId , classNodeListId);
         }
@@ -147,7 +151,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void migrateRelationNode(int relationNodeListId) {
         RelationNode relationNode = relationNodeList.get(relationNodeListId);
         if(relationNode.getIcmSet().size()==0) return ;
-        Set<Long> icmIdSet=relationNode.getIcmSet();
+        Set<Long> icmIdSet=new HashSet<>(relationNode.getIcmSet());
         for(Long icmId:icmIdSet) {
             findLowerEntropyLocForRelation(icmId , relationNodeListId);
         }
@@ -585,6 +589,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(int i=0;i<relationNodeList.size();i++) {
             if(i==sourceRelationNodeListId) continue;
             RelationNode tmpRNode=relationNodeList.get(i);
+            if(isNullNode&&tmpRNode.getIcmSet().size()==0) continue;
+            if(tmpRNode.getIcmSet().size()==0) isNullNode=true;
             if(tmpRNode.getIcmSet().contains(icmId)) {
                 alreadyHasCurIcmRelationNodeListId.add(i);
                 continue;//如果是同样包含有该用户的节点,则先保存在already中.
@@ -1024,39 +1030,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
         return valueNodeList;
     }
 
-    private void storeMigrateStateForCommonNode(
-            List<ClassNode> protectedClassNodes , List<RelationNode> protectedRelationNodes ,
-            List<ValueNode> protectedValueNodes ) {
-
-        for(ClassNode classNode : classNodeList) {
-            protectedClassNodes.add(new ClassNode(classNode));
-        }
-
-        for(RelationNode relationNode : relationNodeList) {
-            protectedRelationNodes.add(new RelationNode(relationNode));
-        }
-
-        for(ValueNode valueNode : valueNodeList) {
-            protectedValueNodes.add(new ValueNode(valueNode));
-        }
-
-//        for(RelationToCEdge rtcEdge : rtcEdgeList) {
-//            protectedRelationToCEdges.add(new RelationToCEdge(rtcEdge));
-//        }
-    }
-
-//    private void storeMigrateStateForCTVEdge(List<ClassToValueEdge> protectedClassToVEdges) {
-//        for(ClassToValueEdge ctvEdge : ctvEdgeList) {
-//            protectedClassToVEdges.add(new ClassToValueEdge(ctvEdge));
-//        }
-//    }
-
-//    private void storeMigrateStateForRTVEdge(List<RelationToValueEdge> protectedRelationToVEdge) {
-//        for(RelationToValueEdge rtvEdge : rtvEdgeList) {
-//            protectedRelationToVEdge.add(new RelationToValueEdge(rtvEdge));
-//        }
-//    }
-
     /**
      *这是用于两步迁移时的回复
      * @param icmId
@@ -1130,7 +1103,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
             if(!rtcEdge.isChanged()) continue;
             else {
-                rtcEdge.setIcmList(new HashSet<Long>(rtcEdge.getIcmList()));
+                rtcEdge.setIcmList(new HashSet<Long>(rtcEdge.getIcmListPreCopy()));
                 rtcEdge.setIsChanged(false);
             }
         }
@@ -1138,7 +1111,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
             if(!rtvEdge.isChanged()) continue;
             else {
-                rtvEdge.setIcmList(new HashSet<Long>(rtvEdge.getIcmList()));
+                rtvEdge.setIcmList(new HashSet<Long>(rtvEdge.getIcmListPreCopy()));
                 rtvEdge.setIsChanged(false);
             }
         }

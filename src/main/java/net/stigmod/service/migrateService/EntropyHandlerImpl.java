@@ -201,16 +201,69 @@ public class EntropyHandlerImpl implements EntropyHandler{
                     resMap.put(str_edge,ulist);
                 }
             }
-
+            //resMap中包含有边的分布
             int u_num=userSet.size();
             double tagE=0.0;
-            for(String str:resMap.keySet()) {
+
+            List<List<Long>> ulists=new ArrayList<>();
+            List<List<Integer>> edgeIdLists=new ArrayList<>();
+            for(String str : resMap.keySet()) {
                 List<Long> ulist=resMap.get(str);
-                if(ulist.size()==0) System.out.println("Error...EntropyHandler class...!!!");
-                double p=(double) ulist.size()/u_num;
-                double logp=Math.log(p)/Math.log(2);
-                tagE+=p*logp;
+                if(ulist.size()==0) continue;
+                String[] edgeIdStrs=str.split("-");
+                List<Integer> edgeIds=new ArrayList<>();
+                for(String s : edgeIdStrs) {
+                    if(s.equals("")) continue;
+                    edgeIds.add(Integer.parseInt(s));
+                }
+                edgeIdLists.add(edgeIds);
+                ulists.add(ulist);
             }
+
+            List<List<Double>> simList=new ArrayList<>();
+            for(int i=0;i<edgeIdLists.size();i++) {
+                List<Integer> cur=edgeIdLists.get(i);
+                List<Double> sims=new ArrayList<>();
+                simList.add(sims);
+                for(int j=0;j<edgeIdLists.size();j++) {
+                    if(i==j) {
+                        simList.get(i).add(0.0);
+                        continue;
+                    }
+                    List<Integer> other =edgeIdLists.get(j);
+                    Set<Integer> con = new HashSet<>(cur);
+                    con.retainAll(new HashSet<>(other));
+                    Set<Integer> union = new HashSet<>(cur);
+                    union.addAll(new HashSet<>(other));
+                    double similarity=(double)con.size()/union.size();
+                    simList.get(i).add(similarity);
+                }
+            }
+
+            List<Double> prob=new ArrayList<>();
+            for(int i=0;i<ulists.size();i++) {
+                List<Long> tmpList=ulists.get(i);
+                double p=(double) tmpList.size()/u_num;
+                prob.add(p);
+            }
+
+            for(int i=0;i<ulists.size();i++) {
+                double sum=0.0;
+                for(int j=0;j<ulists.size();j++) {
+                    if(i==j) continue;
+                    sum+=prob.get(j)*simList.get(i).get(j);
+                }
+                sum+=prob.get(i);
+                double logp=Math.log(sum)/Math.log(2);
+                tagE+=prob.get(i)*logp;
+            }
+//            for(String str:resMap.keySet()) {
+//                List<Long> ulist=resMap.get(str);
+//                if(ulist.size()==0) System.out.println("Error...EntropyHandler class...!!!");
+//                double p=(double) ulist.size()/u_num;
+//                double logp=Math.log(p)/Math.log(2);
+//                tagE+=p*logp;
+//            }
             tagE=-tagE;
             entropy+=tagE;
         }
