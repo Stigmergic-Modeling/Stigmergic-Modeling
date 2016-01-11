@@ -42,7 +42,6 @@ public class EntropyHandlerImpl implements EntropyHandler{
     @Autowired
     private ValueNodeRepository valueNodeRepository;
 
-
     /**
      * 计算类节点的熵值
      * @param id
@@ -265,6 +264,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
 //                tagE+=p*logp;
 //            }
             tagE=-tagE;
+            tagE=tagE*((double)userSet.size()/4);
             entropy+=tagE;
         }
         return entropy;

@@ -392,7 +392,7 @@ public class MigrateHandlerImplTests {
     public void testMigrate() {
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
-        migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);
+        migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList,PersonNum);
         migrateHandler.migrateHandler(0l);
     }
 

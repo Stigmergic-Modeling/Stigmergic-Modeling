@@ -76,6 +76,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private Long modelId;
 
+    private int userNum;
+
     /**
      * 初始化
      * @param id (the id is ccm id)
@@ -102,12 +104,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
     }
 
     public void migrateInitForTest(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
-                                    List<ValueNode> valueNodeList) {
+                                    List<ValueNode> valueNodeList , int userNum) {
         modelId=0l;
         this.classNodeList = classNodeList;
         this.relationNodeList = relationNodeList;
         this.valueNodeList = valueNodeList;
         this.isStable=false;
+        this.userNum=userNum;
     }
 
     @Override
@@ -118,12 +121,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int iterNum=(cNum+rNum)*2;
         int curIterNum=0;
 //        int[] randArr={3,21,16,3,12,0,7,3,25,25,3,4,10,8,14,22,3,10,3,9,21,20,1,18,19,13,20,21,17,18,19,17,18,19,20,21,22,23,16};
-//        int[] randArr={2,3,4,5,6,7,8,9,10,11,12,13};
+        int[] randArr={2,3,4,5,6,7,8,9,10,11,12,13};
         int t=0;
         while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int randValue=randomValue();
-//            randValue=randArr[t];
+            randValue=randArr[t];
             t++; //测试用
             if(t==500) {
                 System.out.println("123!");
