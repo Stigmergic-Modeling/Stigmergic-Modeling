@@ -24,6 +24,7 @@
         <property name="prefix" value=""/>
         <property name="suffix" value=".vm"/>
         <property name="contentType" value="text/html;charset=UTF-8"/>
+        <property name="toolboxConfigLocation" value="/WEB-INF/velocityToolbox.xml"/>
     </bean>
 
     <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
