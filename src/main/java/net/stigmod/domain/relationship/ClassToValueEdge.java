@@ -148,4 +148,8 @@ public class ClassToValueEdge {
     public void setIsChanged(boolean isChanged) {
         this.isChanged = isChanged;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

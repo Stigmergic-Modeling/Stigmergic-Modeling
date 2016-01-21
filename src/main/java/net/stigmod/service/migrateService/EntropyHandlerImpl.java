@@ -47,14 +47,14 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param id
      * @return 熵值
      */
-    public Double computeClassEntropy(Long id) {
+    public Double computeClassEntropy(Long id , int nodeSum) {
         double res=0.0;
         ClassNode classNode=classNodeRepository.findOne(id);
         if(classNode!=null) {
             Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();//所有的出边
             Set<RelationToCEdge> rtcEdges=classNode.getRtcEdges();//所有的入边
             Map<String,List<Set<Long>>> myMap=getMapForClassNode(ctvEdges,rtcEdges);
-            res=compueteMapEntropy(myMap);
+            res=compueteMapEntropy(myMap,nodeSum);
         }
         return res;
     }
@@ -64,14 +64,14 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param id
      * @return 熵值
      */
-    public Double computeRelationEntropy(Long id) {
+    public Double computeRelationEntropy(Long id , int nodeSum) {
         double res=0.0;
         RelationNode relationNode=relationNodeRepository.findOne(id);
         if(relationNode!=null) {
             Set<RelationToCEdge> rtcEdges=relationNode.getRtcEdges();
             Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
             Map<String,List<Set<Long>>> myMap=getMapForRelationNode(rtcEdges,rtvEdges);
-            res=compueteMapEntropy(myMap);
+            res=compueteMapEntropy(myMap,nodeSum);
         }
         return res;
     }
@@ -81,14 +81,14 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param id
      * @return 熵值
      */
-    public Double computeValueEntropy(Long id) {
+    public Double computeValueEntropy(Long id , int nodeSum) {
         double res=0.0;
         ValueNode valueNode=valueNodeRepository.findOne(id);
         if(valueNode!=null) {
             Set<ClassToValueEdge> ctvEdges=valueNode.getCtvEdges();
             Set<RelationToValueEdge> rtvEdges=valueNode.getRtvEdges();
             Map<String,List<Set<Long>>> myMap=getMapForValueNode(ctvEdges,rtvEdges);
-            res=compueteMapEntropy(myMap);
+            res=compueteMapEntropy(myMap,nodeSum);
         }
         return res;
     }
@@ -173,7 +173,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param myMap:以某个节点的边名为key,value是对应边的用户集合
      * @return 熵值
      */
-    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap) {
+    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap , int nodeSum) {
         double entropy=0.0;
         for(String key : myMap.keySet()) {//这里的每一个key是种类型的边(比如name)
             List<Set<Long>> valuelist=myMap.get(key);
@@ -264,9 +264,10 @@ public class EntropyHandlerImpl implements EntropyHandler{
 //                tagE+=p*logp;
 //            }
             tagE=-tagE;
-            tagE=tagE*((double)userSet.size()/4);
+            tagE=tagE*userSet.size();
             entropy+=tagE;
         }
+        entropy*=nodeSum;
         return entropy;
     }
 

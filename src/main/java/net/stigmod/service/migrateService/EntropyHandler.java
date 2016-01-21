@@ -24,9 +24,9 @@ import java.util.Set;
  * @author 	    Kai Fu
  */
 public interface EntropyHandler {
-    public Double computeClassEntropy(Long id);
-    public Double computeRelationEntropy(Long id);
-    public Double computeValueEntropy(Long id);
+    public Double computeClassEntropy(Long id , int nodeSum);
+    public Double computeRelationEntropy(Long id , int nodeSum);
+    public Double computeValueEntropy(Long id , int nodeSum);
 
     public Double computeSystemEntropy();
 
@@ -34,5 +34,5 @@ public interface EntropyHandler {
     public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges);
     public Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges);
 
-    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap);
+    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap , int nodeSum);
 }

@@ -40,7 +40,8 @@ public class MigrateUtil {
      * @param targetCNode
      * @return 熵值变化
      */
-    public double MigrateFromClassToClassForValueNode(Long icmId,ValueNode valueNode,ClassNode sourceCNode,ClassNode targetCNode) {
+    public double MigrateFromClassToClassForValueNode(Long icmId , ValueNode valueNode , ClassNode sourceCNode ,
+                                                      ClassNode targetCNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
         Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
@@ -113,8 +114,8 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的连接
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap);
+        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -128,7 +129,8 @@ public class MigrateUtil {
      * @param targetCNode
      * @return relation节点的熵值变化情况
      */
-    public double MigrateFromClassToClassForRelationNode(Long icmId,RelationNode relationNode,ClassNode sourceCNode,ClassNode targetCNode) {
+    public double MigrateFromClassToClassForRelationNode(Long icmId , RelationNode relationNode , ClassNode sourceCNode
+            , ClassNode targetCNode , int oldNodeNum ,int newNodeNum) {
         double res=0.0;
         Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
@@ -261,8 +263,8 @@ public class MigrateUtil {
 
         //两部分都完成
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap);
+        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -277,7 +279,8 @@ public class MigrateUtil {
      * @param targetRNode
      * @return 熵值变化
      */
-    public double MigrateFromRelationToRelationForValueNode(Long icmId,ValueNode valueNode,RelationNode sourceRNode,RelationNode targetRNode) {
+    public double MigrateFromRelationToRelationForValueNode(Long icmId , ValueNode valueNode , RelationNode sourceRNode
+            , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
         Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
@@ -367,8 +370,8 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap);
+        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -382,7 +385,8 @@ public class MigrateUtil {
      * @param targetRNode
      * @return classNode的熵值变化
      */
-    public double MigrateFromRelationToRelationForClassNode(Long icmId,ClassNode classNode,RelationNode sourceRNode,RelationNode targetRNode) {
+    public double MigrateFromRelationToRelationForClassNode(Long icmId , ClassNode classNode , RelationNode sourceRNode
+            , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
         Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
@@ -472,8 +476,8 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap);
+        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
