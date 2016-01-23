@@ -16,6 +16,7 @@ import net.stigmod.domain.relationship.RelationToValueEdge;
 import net.stigmod.service.migrateService.EntropyHandler;
 import net.stigmod.service.migrateService.EntropyHandlerImpl;
 import net.stigmod.service.migrateService.MigrateHandlerImpl;
+import net.stigmod.service.migrateService.MigrateUtil;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -34,7 +35,7 @@ public class MigrateHandlerImplTests {
     List<ValueNode> valueNodeList=new ArrayList<>();
 
     long c=0;
-    int PersonNum=10;
+    int PersonNum=30;
 
     private void cNodeInit() {
 
@@ -436,6 +437,42 @@ public class MigrateHandlerImplTests {
         migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);
         migrateHandler.migrateHandler(0l);
     }
+
+//    @Test
+//    public void testGetTheUserSetForClassNode() {
+//        initTest();
+//        ClassNode cNode = cLassNodeList.get(0);
+//        for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+//            ctvEdge.getIcmList().add(2l);
+//            ctvEdge.getIcmList().add(3l);
+//            ctvEdge.getIcmList().add(5l);
+//        }
+//        for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
+//            rtcEdge.getIcmList().add(4l);
+//            rtcEdge.getIcmList().add(6l);
+//        }
+//
+//
+//        RelationNode rNode = relationNodeList.get(0);
+//        int t=0;
+//        for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
+//            rtcEdge.getIcmList().add(2l);
+//            rtcEdge.getIcmList().add(3l);
+//            rtcEdge.getIcmList().add(4l);
+//            t++;
+//            if(t==1) rtcEdge.getIcmList().add(6l);
+//        }
+//
+//        for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
+//            rtvEdge.getIcmList().add(5l);
+//            rtvEdge.getIcmList().add(6l);
+//            rtvEdge.getIcmList().add(7l);
+//        }
+//
+//        MigrateUtil migrateUtil = new MigrateUtil();
+//        migrateUtil.getTheUserSetForRelationNode(relationNodeList.get(0));
+//    }
+
 
 //    @Test
 //    public void testMap() {

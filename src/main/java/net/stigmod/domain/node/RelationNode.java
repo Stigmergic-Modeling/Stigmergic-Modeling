@@ -40,6 +40,8 @@ public class RelationNode {
     @Property
     private Long modelId;
 
+    private int loc;
+
     public RelationNode() {
         this.entropyValue = 0;
     }
@@ -104,5 +106,13 @@ public class RelationNode {
 
     public void setModelId(Long modelId) {
         this.modelId = modelId;
+    }
+
+    public int getLoc() {
+        return loc;
+    }
+
+    public void setLoc(int loc) {
+        this.loc = loc;
     }
 }

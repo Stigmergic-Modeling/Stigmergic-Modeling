@@ -46,6 +46,8 @@ public class ClassNode{
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
     private Set<ClassToValueEdge> ctvEdges = new HashSet<ClassToValueEdge>();
 
+    private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
+
     public ClassNode(){
         this.entropyValue = 0;
     }
@@ -104,5 +106,13 @@ public class ClassNode{
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public int getLoc() {
+        return loc;
+    }
+
+    public void setLoc(int loc) {
+        this.loc = loc;
     }
 }
