@@ -939,19 +939,22 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Integer minVarCNodeListId=-1;  //我们希望找到的是引起targetClass节点迁移到的目标节点熵值上升度最小的节点
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
 
+        Set<ClassNode> thirdPartCNodeSet = migrateUtil.findConClassNodes(targetClassNode);
+
         //这里的目标是把target上的class节点迁移到otherClassNode上去,看看是否有效果
-        for(int i=0;i<classNodeList.size();i++) {
-            if(i==targetClassNodeListId||i==sourceClassNodeListId) continue;
-            ClassNode otherClassNode = classNodeList.get(i);
+        for(ClassNode otherClassNode : thirdPartCNodeSet) {
             boolean targetIsNullFlag = false;
-            if(otherClassNode.getIcmSet().size() == 0) targetIsNullFlag=true;
+            if(isTravseNUllNode && otherClassNode.getIcmSet().size()==0) continue;
+            if(otherClassNode.getIcmSet().size() == 0) {
+                targetIsNullFlag=true;
+                isTravseNUllNode=true;
+            }
             if(otherClassNode.getIcmSet().contains(icmId)) continue;
             double var=simulateMigrateForClass(icmId,targetClassNode,otherClassNode,targetIsNullFlag);
-            if(otherClassNode.getIcmSet().size()==0) isTravseNUllNode=true;
             if(Double.compare(minEntropyDown,var)>0 || (Double.compare(var,minEntropyDown)==0 &&
                     targetClassNode.getIcmSet().size() == 1 && otherClassNode.getIcmSet().size() != 0)) {
                 minEntropyDown=var;
-                minVarCNodeListId=i;
+                minVarCNodeListId=otherClassNode.getLoc();
             }
         }
 
@@ -1738,12 +1741,14 @@ public class MigrateHandlerImpl implements MigrateHandler {
         double minEntropyDown=0x7FFFFFFF;
         Integer minVarRNodeId=-1;  //我们希望找到的是引起targetRelation节点迁移到的目标节点熵值上升度最小的节点
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
+
         //这里的目标是把target上的relation节点迁移到otherRelationNode上去,看看是否有效果
-        for(int i=0;i<relationNodeList.size();i++) {
-            if(i==sourceRelationNodeListId||i==targetRelationNodeListId) continue;
-            RelationNode otherRelationNode = relationNodeList.get(i);
+        Set<RelationNode> thirdPartRNodeSet = migrateUtil.findConRelationNodes(targetRelationNode);
+
+        for(RelationNode otherRelationNode : thirdPartRNodeSet) {
             if(otherRelationNode.getIcmSet().contains(icmId)) continue;
             boolean targetIsNullFlag = false;
+            if(isTravseNUllNode && otherRelationNode.getIcmSet().size() == 0) continue;
             if(otherRelationNode.getIcmSet().size() == 0) {
                 targetIsNullFlag=true;
                 isTravseNUllNode=true;
@@ -1752,9 +1757,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(Double.compare(minEntropyDown,var)>0 || (Double.compare(var,minEntropyDown)==0
                     && targetRelationNode.getIcmSet().size()==1 && otherRelationNode.getIcmSet().size() != 0)) {
                 minEntropyDown=var;
-                minVarRNodeId=i;
+                minVarRNodeId=otherRelationNode.getLoc();
             }
         }
+
         boolean isUsedNullNode = false;
         if(!isTravseNUllNode) {
             RelationNode tRelationNode=new RelationNode();

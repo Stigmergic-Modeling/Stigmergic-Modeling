@@ -35,7 +35,7 @@ public class MigrateHandlerImplTests {
     List<ValueNode> valueNodeList=new ArrayList<>();
 
     long c=0;
-    int PersonNum=30;
+    int PersonNum;
 
     private void cNodeInit() {
 
@@ -432,6 +432,7 @@ public class MigrateHandlerImplTests {
 
     @Test
     public void testMigrate() {
+        this.PersonNum=100;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
         migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);
