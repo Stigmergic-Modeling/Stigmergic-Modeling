@@ -54,6 +54,79 @@ public class MigrateHandlerImplTests {
         }
     }
 
+    private void rNodeInit() {
+
+        for(long t=0;t<PersonNum;t++) {
+            for(int i=0;i<7;i++) {
+                c++;
+                Set<Long> s1=new HashSet<>();
+                s1.add(t);
+//                RelationNode rNode = relationNodeList.get(7*(int)t+i);
+                RelationNode rNode = new RelationNode();
+                rNode.setIcmSet(s1);
+                rNode.setModelId(0l);
+                rNode.setId(c);
+                relationNodeList.add(rNode);
+            }
+        }
+    }
+
+    private void vNodeInit() {
+        Set<Long> s1=new HashSet<>();
+        for(long i=0;i<(long)PersonNum;i++) {
+            s1.add(i);
+        }
+
+        int vNodeNum = 36;
+        c++;
+        for(int i=0;i < vNodeNum;i++) {
+            ValueNode vNode = new ValueNode();
+            vNode.setIcmSet(new HashSet<Long>(s1));
+            vNode.setModelId(0l);
+            vNode.setId(c++);
+            valueNodeList.add(vNode);
+        }
+
+        valueNodeList.get(0).setName("Student");
+        valueNodeList.get(1).setName("Teacher");
+        valueNodeList.get(2).setName("Person");
+        valueNodeList.get(3).setName("Integer");
+        valueNodeList.get(4).setName("student");
+        valueNodeList.get(5).setName("teacher");
+        valueNodeList.get(6).setName("person");
+        valueNodeList.get(7).setName("int");
+        valueNodeList.get(8).setName("Boolean");
+        valueNodeList.get(9).setName("boolean");
+        valueNodeList.get(10).setName("Course");
+        valueNodeList.get(11).setName("course");
+        valueNodeList.get(12).setName("sid");
+        valueNodeList.get(13).setName("grade");
+        valueNodeList.get(14).setName("major");
+        valueNodeList.get(15).setName("cid");
+        valueNodeList.get(16).setName("name");
+        valueNodeList.get(17).setName("credit");
+        valueNodeList.get(18).setName("teacherId");
+        valueNodeList.get(19).setName("tid");
+        valueNodeList.get(20).setName("title");
+        valueNodeList.get(21).setName("hightestEducation");
+        valueNodeList.get(22).setName("department");
+        valueNodeList.get(23).setName("uid");
+        valueNodeList.get(24).setName("age");
+        valueNodeList.get(25).setName("gender");
+        valueNodeList.get(26).setName("email");
+        valueNodeList.get(27).setName("tel");
+        valueNodeList.get(28).setName("CourseSchedul");
+        valueNodeList.get(29).setName("locate");
+        valueNodeList.get(30).setName("date");
+        valueNodeList.get(31).setName("String");
+
+        valueNodeList.get(32).setName("choose");
+        valueNodeList.get(33).setName("teaching");
+        valueNodeList.get(34).setName("with");
+
+        valueNodeList.get(35).setName("true");
+    }
+
     private void edgeInit() {
         for(long i=0;i<PersonNum;i++) {
             c++;
@@ -313,116 +386,6 @@ public class MigrateHandlerImplTests {
 
     }
 
-    private void rNodeInit() {
-
-        for(long t=0;t<PersonNum;t++) {
-            for(int i=0;i<7;i++) {
-                c++;
-                Set<Long> s1=new HashSet<>();
-                s1.add(t);
-//                RelationNode rNode = relationNodeList.get(7*(int)t+i);
-                RelationNode rNode = new RelationNode();
-                rNode.setIcmSet(s1);
-                rNode.setModelId(0l);
-                rNode.setId(c);
-                relationNodeList.add(rNode);
-            }
-        }
-    }
-
-    private void vNodeInit() {
-        Set<Long> s1=new HashSet<>();
-        for(long i=0;i<(long)PersonNum;i++) {
-            s1.add(i);
-        }
-
-        c++;
-        ValueNode vNode1 = new ValueNode();
-        vNode1.setIcmSet(new HashSet<Long>(s1));
-        vNode1.setModelId(0l);
-        vNode1.setId(c++);
-        vNode1.setName("Student");
-
-        ValueNode vNode2 = new ValueNode();
-        vNode2.setIcmSet(new HashSet<Long>(s1));
-        vNode2.setModelId(0l);
-        vNode2.setId(c++);
-        vNode2.setName("Teacher");
-
-        ValueNode vNode3 = new ValueNode();
-        vNode3.setIcmSet(new HashSet<Long>(s1));
-        vNode3.setModelId(0l);
-        vNode3.setId(c++);
-        vNode3.setName("Person");
-
-        ValueNode vNode4 = new ValueNode();
-        vNode4.setIcmSet(new HashSet<Long>(s1));
-        vNode4.setModelId(0l);
-        vNode4.setId(c++);
-        vNode4.setName("Integer");
-
-        ValueNode vNode5 = new ValueNode();
-        vNode5.setIcmSet(new HashSet<Long>(s1));
-        vNode5.setModelId(0l);
-        vNode5.setId(c++);
-        vNode5.setName("student");
-
-        ValueNode vNode6 = new ValueNode();
-        vNode6.setIcmSet(new HashSet<Long>(s1));
-        vNode6.setModelId(0l);
-        vNode6.setId(c++);
-        vNode6.setName("teacher");
-
-        ValueNode vNode7 = new ValueNode();
-        vNode7.setIcmSet(new HashSet<Long>(s1));
-        vNode7.setModelId(0l);
-        vNode7.setId(c++);
-        vNode7.setName("person");
-
-        ValueNode vNode8 = new ValueNode();
-        vNode8.setIcmSet(new HashSet<Long>(s1));
-        vNode8.setModelId(0l);
-        vNode8.setId(c++);
-        vNode8.setName("int");
-
-        ValueNode vNode9 = new ValueNode();
-        vNode9.setIcmSet(new HashSet<Long>(s1));
-        vNode9.setModelId(0l);
-        vNode9.setId(c++);
-        vNode9.setName("Boolean");
-
-        ValueNode vNode10 = new ValueNode();
-        vNode10.setIcmSet(new HashSet<Long>(s1));
-        vNode10.setModelId(0l);
-        vNode10.setId(c++);
-        vNode10.setName("boolean");
-
-        ValueNode vNode11 = new ValueNode();
-        vNode11.setIcmSet(new HashSet<Long>(s1));
-        vNode11.setModelId(0l);
-        vNode11.setId(c++);
-        vNode11.setName("Course");
-
-        ValueNode vNode12 = new ValueNode();
-        vNode12.setIcmSet(new HashSet<Long>(s1));
-        vNode12.setModelId(0l);
-        vNode12.setId(c);
-        vNode12.setName("course");
-
-        valueNodeList.add(vNode1);
-        valueNodeList.add(vNode2);
-        valueNodeList.add(vNode3);
-        valueNodeList.add(vNode4);
-        valueNodeList.add(vNode5);
-        valueNodeList.add(vNode6);
-        valueNodeList.add(vNode7);
-        valueNodeList.add(vNode8);
-        valueNodeList.add(vNode9);
-        valueNodeList.add(vNode10);
-        valueNodeList.add(vNode11);
-        valueNodeList.add(vNode12);
-    }
-
     private void initTest() {
         cNodeInit();
         rNodeInit();
@@ -432,12 +395,25 @@ public class MigrateHandlerImplTests {
 
     @Test
     public void testMigrate() {
-        this.PersonNum=100;
+        this.PersonNum=50;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
         migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);
         migrateHandler.migrateHandler(0l);
     }
+
+//    @Test
+//    public void testRandomValue() {
+//        this.PersonNum=2;
+//        initTest();
+//        MigrateHandlerImpl migrateHandler = new MigrateHandlerImpl();
+//        migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);
+//        int[] randList=migrateHandler.randomValue();
+//        for(int i=0;i<randList.length;i++) {
+//            System.out.print(randList[i]+" ,");
+//        }
+//        System.out.println();
+//    }
 
 //    @Test
 //    public void testGetTheUserSetForClassNode() {

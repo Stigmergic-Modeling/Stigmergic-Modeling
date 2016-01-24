@@ -126,60 +126,27 @@ public class MigrateHandlerImpl implements MigrateHandler {
     @Override
     public void migrateHandler(Long id) {//初始化各变量
 //        migrateInit(id);
+//        int rNum=relationNodeList.size();
         int cNum=classNodeList.size();
-        int rNum=relationNodeList.size();
-        int iterNum=(cNum+rNum)*3;
         int curIterNum=0;
-//        int[] randArr={81,55,75,13,59,90,128,39,98,77,57};
-//        int[] randArr =
-//                {134,166,36,76,152,143,69,200,230,130,135,119,250,248,141,24,129,52,132,29,248,92,209,66,18,140,59,201,
-//                        249,234,99,135,4,14,39,232,154,122,24,164,173,242,156,180,253,150,143,12,137,52,145,183,72,119,
-//                        8,189,114,148,138,75,79,140,0,235,170,213,104,122,241,204,116,242,212,114,137,90,254,191,229,
-//                        259,20,76,112,50,173,206,156,217,155,106,203,95,221,109,0,17,159,194,110,210,182,25,15,116,166,
-//                        46,98,28,38,248,153,63,232,6,204,68,42,176,226,231,222,119,48,250,34,39,9,71,31,177,51,95,39,
-//                        159,108,231,221,72,35,102,201,150,77,194,27,60,179,196,101,196,158,212,92,124,110,78,24,70,85,
-//                        78,51,211,108,155,191,183,176,47,169,102,117,151,39,46,93,74,71,161,137,199,46,92,8,146,202,
-//                        244,81,86,0,113,259,186,101,259,237,188,61,200,10,79,124,250,50,90,91,197,108,134,153,29,72,59,
-//                        26,111,106,135,93,79,236,227,24,151,259,143,42,144,16,116,105,247,225,144,76,182,30,78,249};
-        int t=0;
-        List<Integer> randomNumList = new ArrayList<>();
+
         while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
-            int randValue=randomValue();
-            randomNumList.add(randValue);
-//            randValue=randArr[t];
-            t++; //测试用
-//            if(t==randArr.length) {
-//                System.out.println("123!");
-//            }
-//            if(t==36) {
-//                System.out.println("12");
-//            }
-            System.out.println("随机值: " + randValue);
-            cNum=classNodeList.size();//要不断更新cNum的值
-            if(randValue<cNum) migrateClassNode(randValue);
-            else migrateRelationNode(randValue - cNum);
+            int[] randomList=randomValue();
+            int curSum=randomList.length;
+            for(int i=0;i<curSum;i++) {
+                int randValue = randomList[i];
+                System.out.println("随机值: " + randValue);
+                cNum=classNodeList.size();//要不断更新cNum的值
+                if(randValue<cNum) migrateClassNode(randValue);
+                else migrateRelationNode(randValue - cNum);
+            }
 
-//            if(classNodeList.get(49).getIcmSet().contains(4l)||classNodeList.get(49).getIcmSet().contains(7l)) {
-//                System.out.println("12345");
-//                System.out.println("t: "+t);
-//            }
-            if(isStable&&curIterNum>iterNum) break;
+            if(isStable&&curIterNum>2) break;
             else if(isStable) curIterNum++;
             else curIterNum=0;
             scanToFindBug();
         }
-
-        int lastRandom=0;
-        for(int i=0;i<2;i++) {
-            for(;lastRandom<(classNodeList.size()+relationNodeList.size());lastRandom++) {
-                if(lastRandom<cNum) migrateClassNode(lastRandom);
-                else migrateRelationNode(lastRandom - cNum);
-            }
-        }
-//        for(int i=1;i<=2;i++) {
-//            migrateRelationNode(i);
-//        }
 
         scanToValidateData();
         System.out.println("迭代结束啦~");
@@ -1343,7 +1310,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
         return sumEntropyVar;
     }
 
-
     private double simulateMigrateForRelation(Set<Long> icmSet,RelationNode sourceRNode,RelationNode targetRNode,boolean targetIsNullFlag) {
         double sumEntropyVar=0.0;
         double var=0.0;//其他熵值变化
@@ -1842,14 +1808,26 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
 
     /**
-     * 获取一个随机数
+     * 获取一组不重复的随机序列,长度为总长,元素范围为0~(class+relation)-1
      * @return 随机数(范围在0~class和relation节点总数-1)
      */
-    private int randomValue() {
+    public int[] randomValue() {
         int sum=classNodeList.size()+relationNodeList.size();
+        int[] randList = new int[sum];
+        for(int i=0;i<sum;i++) {
+            randList[i]=i;
+        }//填充了初始的randList列表
+
         Random random=new Random();
-        int target=Math.abs(random.nextInt())%sum;
-        return target;
+        int x=0,tmp=0;
+
+        for(int i=sum-1;i>0;i--) {
+            int curTarget=Math.abs(random.nextInt()%sum);
+            tmp=randList[i];
+            randList[i]=randList[curTarget];
+            randList[curTarget]=tmp;
+        }
+        return randList;
     }
 
     private List<ClassNode> convertClassIdToObj(Set<Long> classNodeIdSet) {
@@ -1977,7 +1955,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
-////////////////下面这段代码主要是用于测试 验证程序是否有bug和检测结果的
+/******************************************华丽分界线**********************************************/
+// /////////////下面这段代码主要是用于测试 验证程序是否有bug和检测结果的
 
     private void scanToFindBug() {
         for(int i=0;i<classNodeList.size();i++) {
