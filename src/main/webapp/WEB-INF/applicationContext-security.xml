@@ -15,6 +15,9 @@
     <security:http> <!-- use-expressions="true" -->
         <security:intercept-url pattern="/" access="isAnonymous()"/>
         <security:intercept-url pattern="/static/**" access="permitAll"/>
+        <security:intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <security:intercept-url pattern="/apple-touch-icon-precomposed.png" access="permitAll"/>  <!-- for Safari -->
+        <security:intercept-url pattern="/apple-touch-icon.png" access="permitAll"/>  <!-- for Safari -->
         <security:intercept-url pattern="/about" access="permitAll"/>
         <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
         <security:intercept-url pattern="/signup*" access="isAnonymous()"/>

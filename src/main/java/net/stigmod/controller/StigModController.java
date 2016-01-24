@@ -15,20 +15,12 @@ import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.csrf.CsrfToken;  // 用于向vm模板中传递csrf token
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import net.stigmod.repository.node.UserRepository;
-
-import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Handle StigMod base requests
@@ -69,81 +61,10 @@ public class StigModController {
         return "about";
     }
 
-    // sign up page GET
-    @RequestMapping(value="/signup", method = RequestMethod.GET)
-    public String reg(ModelMap model, HttpServletRequest request) {
-        model.addAttribute("host", host);
-        model.addAttribute("port", port);
-        model.addAttribute("title", "Sign Up");
-
-        // CSRF token
-        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        if (csrfToken != null) {
-            model.addAttribute("_csrf", csrfToken);
-        }
-
-        return "signup";
+    // favicon
+    @RequestMapping("/favicon.ico")
+    public String favicon() {
+        return "forward:/static/dist/img/favicon.ico";
     }
 
-    // sign up page POST
-    @RequestMapping(value="/signup", method = RequestMethod.POST)
-    public String regPost(
-            @RequestParam(value = "mail") String mail,
-            @RequestParam(value = "password") String password,
-            @RequestParam(value = "password-repeat") String passwordRepeat,
-            ModelMap model, HttpServletRequest request) {
-        try {
-            userRepository.register(mail, password, passwordRepeat);
-            return "redirect:/user";
-        } catch(Exception e) {
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Sign Up");
-            // CSRF token
-            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-            if (csrfToken != null) {
-                model.addAttribute("_csrf", csrfToken);
-            }
-
-            model.addAttribute("mail", mail);
-            model.addAttribute("error", e.getMessage());
-            return "signup";
-        }
-    }
-
-    // sign in page GET  (POST route is taken care of by Spring-Security)
-    @RequestMapping(value="/signin", method = RequestMethod.GET)
-    public String login(ModelMap model, HttpServletRequest request) {
-        model.addAttribute("host", host);
-        model.addAttribute("port", port);
-        model.addAttribute("title", "Sign In");
-
-        // CSRF token
-        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        if (csrfToken != null) {
-            model.addAttribute("_csrf", csrfToken);
-        }
-
-        return "signin";
-    }
-
-    // sign out
-    @RequestMapping(value="/signout", method = RequestMethod.GET)
-    public String logout (HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null){
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-        return "redirect:/signin";
-    }
-
-    // Denied page GET
-    @RequestMapping(value="/denied", method = RequestMethod.GET)
-    public String reg(ModelMap model) {
-        model.addAttribute("host", host);
-        model.addAttribute("port", port);
-        model.addAttribute("title", "Denied");
-
-        return "denied";
-    }
 }
