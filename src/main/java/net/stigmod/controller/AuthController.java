@@ -1,63 +1,128 @@
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project
+ * SEIDR, Peking University
+ * All rights reserved
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
+
 package net.stigmod.controller;
 
-
 import net.stigmod.repository.node.UserRepository;
+import net.stigmod.util.config.Config;
+import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.csrf.CsrfToken;  // 用于向vm模板中传递csrf token
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
+import javax.servlet.http.HttpServletResponse;
+
 /**
- * Handles and retrieves the login or denied page depending on the URI template
+ * Handle StigMod base requests
+ *
+ * @version     2016/01/23
+ * @author 	    Shijun Wang
  */
 @Controller
-@RequestMapping("/auth")
 public class AuthController {
 
-    private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
+    // Common settings
+    private Config config = ConfigLoader.load();
+    private String host = config.getHost();
+    private String port = config.getPort();
 
     @Autowired
     UserRepository userRepository;
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String login(@RequestParam(value = "login_error", required = false) boolean error, Model model) {
-        logger.debug("Received request to show login page, error "+error);
-        if (error) {
-            model.addAttribute("error", "You have entered an invalid username or password!");
+
+    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    // sign up page GET
+    @RequestMapping(value="/signup", method = RequestMethod.GET)
+    public String reg(ModelMap model, HttpServletRequest request) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Sign Up");
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
         }
-        return "/auth/loginpage";
+
+        return "signup";
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public String register(
-            @RequestParam(value = "j_username") String login,
-            @RequestParam(value = "j_displayname") String name,
-            @RequestParam(value = "j_password") String password,
-            Model model) {
-
+    // sign up page POST
+    @RequestMapping(value="/signup", method = RequestMethod.POST)
+    public String regPost(
+            @RequestParam(value = "mail") String mail,
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "password-repeat") String passwordRepeat,
+            ModelMap model, HttpServletRequest request) {
         try {
-            userRepository.register(login,name,password);
-            return "forward:/user/"+login;
+            userRepository.register(mail, password, passwordRepeat);
+            return "redirect:/user";
         } catch(Exception e) {
-            model.addAttribute("j_username",login);
-            model.addAttribute("j_displayname",name);
-            model.addAttribute("error",e.getMessage());
-            return "/auth/registerpage";
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Sign Up");
+            // CSRF token
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                model.addAttribute("_csrf", csrfToken);
+            }
+
+            model.addAttribute("mail", mail);
+            model.addAttribute("error", e.getMessage());
+            return "signup";
         }
     }
 
-    @RequestMapping(value = "/denied", method = RequestMethod.GET)
-    public String denied() {
-        logger.debug("Received request to show denied page");
-        return "/auth/deniedpage";
+    // sign in page GET  (POST route is taken care of by Spring-Security)
+    @RequestMapping(value="/signin", method = RequestMethod.GET)
+    public String login(ModelMap model, HttpServletRequest request) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Sign In");
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        return "signin";
     }
 
-    @RequestMapping(value = "/registerpage", method = RequestMethod.GET)
-    public String registerPage() {
-        logger.debug("Received request to show register page");
-        return "/auth/registerpage";
+    // sign out
+    @RequestMapping(value="/signout", method = RequestMethod.GET)
+    public String logout (HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null){
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        return "redirect:/signin";
     }
+
+    // Denied page GET
+    @RequestMapping(value="/denied", method = RequestMethod.GET)
+    public String reg(ModelMap model) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Denied");
+
+        return "denied";
+    }
+
 }
