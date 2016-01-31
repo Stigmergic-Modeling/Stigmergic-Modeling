@@ -10,7 +10,6 @@
 package net.stigmod.domain.node;
 
 import net.stigmod.converter.UserRolesConverter;
-import net.stigmod.domain.relationship.UserToIcmEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -36,7 +35,7 @@ public class User {
 
     // A user owns many ICMs
     @Relationship(type = "OWNS", direction = Relationship.INCOMING)
-    private Set<UserToIcmEdge> u2iEdges =new HashSet<>();
+    private Set<IndividualConceptualModel> icms = new HashSet<>();
 
     private String mail;
     private String password;
@@ -96,6 +95,10 @@ public class User {
         this.password = encode(newPass1);
     }
 
+    public void addIcm(IndividualConceptualModel icm) {
+        icms.add(icm);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -135,12 +138,12 @@ public class User {
         this.id = id;
     }
 
-    public Set<UserToIcmEdge> getU2iEdges() {
-        return u2iEdges;
+    public Set<IndividualConceptualModel> getIcms() {
+        return icms;
     }
 
-    public void setU2iEdges(Set<UserToIcmEdge> u2iEdges) {
-        this.u2iEdges = u2iEdges;
+    public void setIcms(Set<IndividualConceptualModel> icms) {
+        this.icms = icms;
     }
 
     public String getMail() {

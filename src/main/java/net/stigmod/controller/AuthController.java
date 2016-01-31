@@ -45,7 +45,7 @@ public class AuthController {
     @Autowired
     UserRepository userRepository;
 
-    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     // sign up page GET
     @RequestMapping(value="/signup", method = RequestMethod.GET)

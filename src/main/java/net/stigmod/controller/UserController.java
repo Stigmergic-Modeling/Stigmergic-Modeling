@@ -12,15 +12,20 @@ package net.stigmod.controller;
 import net.stigmod.domain.node.User;
 //import net.stigmod.repository.MovieRepository;
 import net.stigmod.repository.node.UserRepository;
+import net.stigmod.service.ModelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Handle user related page requests
@@ -38,33 +43,88 @@ public class UserController {
 
     @Autowired
     UserRepository userRepository;
-//    @Autowired
-//    MovieRepository movieRepository;
+
+    @Autowired
+    ModelService modelService;
 
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    // GET 用户主页面（模型列表）
     @RequestMapping(value = "/user", method = RequestMethod.GET)
-    public String profile(Model model) {
+    public String profile(ModelMap model, HttpServletRequest request) {
         final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "user");
-//        if (user!=null) {
-//            model.addAttribute("recommendations", movieRepository.getRecommendations(user));
-//        }
         return "/user";
     }
 
+    // GET 新建模型的页面
     @RequestMapping(value = "/newmodel", method = RequestMethod.GET)
-    public String newModel(Model model) {
+    public String newModel(ModelMap model, HttpServletRequest request) {
         final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "New Model");
         return "/new_model";
     }
+
+    // POST 新建模型（全新新建方式）
+    @RequestMapping(value = "/newmodel/clean", method = RequestMethod.POST)
+    public String doNewModelInherited(@RequestParam(value = "name") String name,
+                                      @RequestParam(value = "description") String description,
+                                      ModelMap model) {
+        final User user = userRepository.getUserFromSession();
+
+        try {
+            modelService.createNewIcm(user, name, description);
+            model.addAttribute("user", user);
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "New Model");
+            return "/new_model";
+        } catch(Exception e) {
+            logger.debug("createNewIcm fail");
+            model.addAttribute("user", user);
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "createNewIcm fail");
+            return "/new_model";
+        }
+
+//        model.addAttribute("user", user);
+//        model.addAttribute("host", host);
+//        model.addAttribute("port", port);
+//        model.addAttribute("title", "New Model");
+//        return "/new_model";
+    }
+
+//    // POST 新建模型（继承新建方式）
+//    @RequestMapping(value = "/newmodel/inherited", method = RequestMethod.POST)
+//    public String doNewModelInherited(Model model) {
+//        final User user = userRepository.getUserFromSession();
+//        model.addAttribute("user", user);
+//        model.addAttribute("host", host);
+//        model.addAttribute("port", port);
+//        model.addAttribute("title", "New Model");
+//        return "/new_model";
+//    }
 
 //    @RequestMapping(value = "/user/{login}/friends", method = RequestMethod.POST)
 //    public String addFriend(Model model, @PathVariable("login") String login) {

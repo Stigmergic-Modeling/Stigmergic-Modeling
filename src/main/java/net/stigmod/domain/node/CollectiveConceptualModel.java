@@ -9,7 +9,6 @@
 
 package net.stigmod.domain.node;
 
-import net.stigmod.domain.relationship.IcmToCcmEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
@@ -35,17 +34,17 @@ public class CollectiveConceptualModel {
     private Long modelId;
 
     @Property
-    Set<Long> classNodesId =new HashSet<>();
+    Set<Long> classNodesId = new HashSet<>();
 
     @Property
-    Set<Long> relationNodesId =new HashSet<>();
+    Set<Long> relationNodesId = new HashSet<>();
 
     @Property
-    Set<Long> valueNodesId =new HashSet<>();
+    Set<Long> valueNodesId = new HashSet<>();
 
     // An ICM is in a CCM
     @Relationship(type = "IN", direction = Relationship.INCOMING)
-    private Set<IcmToCcmEdge> i2cEdges =new HashSet<>();
+    private Set<IndividualConceptualModel> icms =new HashSet<>();
 
     private String name;
     private String description;

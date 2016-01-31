@@ -12,6 +12,7 @@
                     <div id="stigmod-newmodel-left-inner">
                         <hr />
                         <form action="/newmodel/inherited" method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <dl>
                                 <dt>Collective Concept Model</dt>
                                 <dd>
@@ -45,6 +46,7 @@
                     <div id="stigmod-newmodel-right-inner">
                         <hr />
                         <form action="/newmodel/clean" method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <dl>
                                 <dt>Name</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>

@@ -39,7 +39,7 @@ public class StigModController {
     @Autowired
     UserRepository userRepository;
 
-    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final static Logger logger = LoggerFactory.getLogger(StigModController.class);
 
     // front page
     @RequestMapping(value="/", method = RequestMethod.GET)

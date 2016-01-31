@@ -34,6 +34,8 @@ public class UserToIcmEdge {
     @EndNode
     private IndividualConceptualModel icm;
 
+    public UserToIcmEdge() {}
+
     public Long getId() {
         return id;
     }

@@ -35,17 +35,47 @@ public class IndividualConceptualModel {
 
     // A user owns many ICMs
     @Relationship(type = "OWNS", direction = Relationship.INCOMING)
-    private Set<UserToIcmEdge> u2iEdges =new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
     // An ICM is in a CCM
     @Relationship(type = "IN", direction = Relationship.OUTGOING)
-    private Set<IcmToCcmEdge> i2cEdges =new HashSet<>();
+    private Set<CollectiveConceptualModel> ccms = new HashSet<>();
 
     private String name;
     private String description;
     private Date updateDate;
     private int classNum;
     private int relationshipNum;
+
+    public IndividualConceptualModel() {}
+
+    public IndividualConceptualModel(String name, String description) {
+        this.name = name;
+        this.description = description;
+        this.updateDate = new Date();
+        this.classNum = 0;
+        this.relationshipNum = 0;
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
+    public Set<CollectiveConceptualModel> getCcms() {
+        return ccms;
+    }
+
+    public void setCcms(Set<CollectiveConceptualModel> ccms) {
+        this.ccms = ccms;
+    }
 
     public String getName() {
         return name;
