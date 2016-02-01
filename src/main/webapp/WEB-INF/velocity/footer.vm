@@ -1,11 +1,10 @@
 <script src="/static/dist/js/sea/sea.js"></script>
 <script>
-##    if ('user' === '${jsFile}') {
-##//        var dataPassedIn = <%-JSON.stringify(data) %>;  // 获取后端模板传来的参数 data
-##        var dataPassedIn = {};
-##    }
+    #if ("new_model" == ${jsFile})
+        var dataPassedIn = ${data};  // 获取后端模板传来的参数 data
+    #end
 
-    var dataPassedIn = {};
+//    var dataPassedIn = {};
 
     seajs.config({
         paths: {

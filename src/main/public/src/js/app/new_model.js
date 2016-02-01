@@ -19,7 +19,7 @@ define(function (require, exports, module) {
      *  初始化变量
      *  ---------  */
 
-    var ccmInfo = dataPassedIn.ccmInfo;  // dataPassedIn 通过后端的 .ejs 模板传入
+    var ccmInfo = dataPassedIn.ccmInfo;  // dataPassedIn 通过后端的 .vm 模板传入
     //console.log(ccmInfo);
 
     /*  ---------  *

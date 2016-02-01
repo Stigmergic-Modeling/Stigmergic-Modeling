@@ -7,7 +7,7 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.page;
 
 import net.stigmod.domain.node.IndividualConceptualModel;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,6 @@ import java.util.List;
  * @version     2015/11/11
  * @author 	    Shijun Wang
  */
-@Component
 public class UserPageData {
 
     private String mail;
@@ -29,22 +28,5 @@ public class UserPageData {
 
     public UserPageData() {
         icms = new ArrayList<>();
-    }
-
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public List<IndividualConceptualModel> getIcms() {
-        return icms;
-    }
-
-    public void setIcms(List<IndividualConceptualModel> icms) {
-        this.icms = icms;
     }
 }
