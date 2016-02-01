@@ -50,9 +50,13 @@ public class IndividualConceptualModel {
     public IndividualConceptualModel() {}
 
     public IndividualConceptualModel(String name, String description) {
+        this(name, description, new Date());
+    }
+
+    public IndividualConceptualModel(String name, String description, Date updateDate) {
         this.name = name;
         this.description = description;
-        this.updateDate = new Date();
+        this.updateDate = updateDate;
         this.classNum = 0;
         this.relationshipNum = 0;
     }

@@ -9,6 +9,7 @@
 
 package net.stigmod.service;
 
+import net.stigmod.domain.node.CollectiveConceptualModel;
 import net.stigmod.domain.node.IndividualConceptualModel;
 import net.stigmod.domain.node.User;
 import org.neo4j.ogm.session.Session;
@@ -30,30 +31,17 @@ public class ModelService {
 
     // 新建 ICM
     @Transactional
-    public void createNewIcm(User user, String name, String description) {
+    public void createIcmClean(User user, String name, String description) {
 
         // 新建 ICM
         IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
-//        user.addIcm(icm);
         icm.addUser(user);
-//        session.save(icm);
-//        u2iEdge.setUser(user);
-//        u2iEdge.setIcm(icm);
-//        u2iEdgeRepo.save(u2iEdge);
 
-//        Set<UserToIcmEdge> u2iEdgesInIcm = icm.getU2iEdges();
-//        u2iEdgesInIcm.add(u2iEdge);
-//        icm.setU2iEdges(u2iEdgesInIcm);
-
-//        Set<UserToIcmEdge> u2iEdgesInUser = user.getU2iEdges();
-//        u2iEdgesInUser.add(u2iEdge);
-//        user.setU2iEdges(u2iEdgesInUser);
-
-//        userRepo.setUserInSession(user);
-//        userRepo.save(user);
-//        icmRepo.save(icm);
-//        u2iEdgeRepo.save(u2iEdge);
-
-        session.save(icm);
+        // 新建 CCM
+        CollectiveConceptualModel ccm = new CollectiveConceptualModel(name, description);
+        ccm.addIcm(icm);
+        session.save(ccm);
     }
+
+
 }

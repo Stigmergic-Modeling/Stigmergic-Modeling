@@ -64,7 +64,7 @@ public class UserController {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "user");
-        return "/user";
+        return "user";
     }
 
     // GET 新建模型的页面
@@ -82,7 +82,7 @@ public class UserController {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "New Model");
-        return "/new_model";
+        return "new_model";
     }
 
     // POST 新建模型（全新新建方式）
@@ -93,26 +93,20 @@ public class UserController {
         final User user = userRepository.getUserFromSession();
 
         try {
-            modelService.createNewIcm(user, name, description);
-            model.addAttribute("user", user);
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "New Model");
-            return "/new_model";
+            modelService.createIcmClean(user, name, description);
+            model.addAttribute("success", "Create new model successfully.");
+
         } catch(Exception e) {
-            logger.debug("createNewIcm fail");
-            model.addAttribute("user", user);
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "createNewIcm fail");
-            return "/new_model";
+            logger.info("createIcmClean fail");
+            model.addAttribute("error", e.getMessage());
         }
 
-//        model.addAttribute("user", user);
-//        model.addAttribute("host", host);
-//        model.addAttribute("port", port);
-//        model.addAttribute("title", "New Model");
-//        return "/new_model";
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "New Model");
+
+        return "new_model";
     }
 
 //    // POST 新建模型（继承新建方式）

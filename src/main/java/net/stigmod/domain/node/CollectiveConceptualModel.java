@@ -44,13 +44,31 @@ public class CollectiveConceptualModel {
 
     // An ICM is in a CCM
     @Relationship(type = "IN", direction = Relationship.INCOMING)
-    private Set<IndividualConceptualModel> icms =new HashSet<>();
+    private Set<IndividualConceptualModel> icms = new HashSet<>();
 
     private String name;
     private String description;
     private Date updateDate;
     private int classNum;
     private int relationshipNum;
+
+    public CollectiveConceptualModel() {}
+
+    public CollectiveConceptualModel(String name, String description) {
+        this(name, description, new Date());
+    }
+
+    public CollectiveConceptualModel(String name, String description, Date updateDate) {
+        this.name = name;
+        this.description = description;
+        this.updateDate = updateDate;
+        this.classNum = 0;
+        this.relationshipNum = 0;
+    }
+
+    public void addIcm(IndividualConceptualModel icm) {
+        this.icms.add(icm);
+    }
 
     public String getName() {
         return name;
