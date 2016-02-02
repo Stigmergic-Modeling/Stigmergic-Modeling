@@ -36,4 +36,9 @@ public interface IndividualConceptualModelRepository extends GraphRepository<Ind
             "WHERE ID(user) = {userId}" +
             "RETURN icm")
     Set<IndividualConceptualModel> getAllIcmsOfUser(@Param("userId") Long userId);
+
+    @Query( "MATCH (user:User)-[:OWNS]->(icm:ICM)" +
+            "WHERE ID(user) = {userId} AND icm.name = {icmName}" +
+            "RETURN icm")
+    IndividualConceptualModel getIcmOfUserByName(@Param("userId") Long userId, @Param("icmName") String icmName);
 }

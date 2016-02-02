@@ -77,4 +77,10 @@ public class ModelService {
         return icmRepo.getAllIcmsOfUser(user.getId());
     }
 
+    // 获取某用户的某 ICM （根据 icm 名字）
+    @Transactional
+    public IndividualConceptualModel getIcmOfUserByName(User user, String icmName) {
+        return icmRepo.getIcmOfUserByName(user.getId(), icmName);
+    }
+
 }
