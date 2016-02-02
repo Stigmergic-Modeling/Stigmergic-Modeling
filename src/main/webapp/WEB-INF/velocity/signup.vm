@@ -17,6 +17,14 @@
                 #end
             </div>
             <div class="form-group">
+                <label for="name">Your Name</label>
+                #if (${name})
+                    <input type="text" class="form-control" required autofocus id="name" name="name" value="${name}"/>
+                #else
+                    <input type="text" class="form-control" required autofocus id="name" name="name" />
+                #end
+            </div>
+            <div class="form-group">
                 <label for="password">Your Password</label>
                 <input type="password" class="form-control" required id="password" name="password" />
             </div>

@@ -66,12 +66,13 @@ public class AuthController {
     // sign up page POST
     @RequestMapping(value="/signup", method = RequestMethod.POST)
     public String regPost(
+            @RequestParam(value = "name") String name,
             @RequestParam(value = "mail") String mail,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
             ModelMap model, HttpServletRequest request) {
         try {
-            userRepository.register(mail, password, passwordRepeat);
+            userRepository.register(name, mail, password, passwordRepeat);
             return "redirect:/user";
         } catch(Exception e) {
             model.addAttribute("host", host);
@@ -83,6 +84,7 @@ public class AuthController {
                 model.addAttribute("_csrf", csrfToken);
             }
 
+            model.addAttribute("name", name);
             model.addAttribute("mail", mail);
             model.addAttribute("error", e.getMessage());
             return "signup";

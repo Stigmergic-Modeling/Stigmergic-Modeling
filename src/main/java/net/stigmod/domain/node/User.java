@@ -17,13 +17,14 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * User object
  *
- * @version     2015/11/11
+ * @version     2016/02/03
  * @author 	    Shijun Wang
  */
 @NodeEntity(label = "User")
@@ -39,21 +40,29 @@ public class User {
 
     private String mail;
     private String password;
+    private String name;
+    private String url;
+    private String location;
+    private Date signUpDate;
 
     @Convert(UserRolesConverter.class)
     private SecurityRole[] roles;
 
     public User() {}
 
-    public User(String mail, String password) {
+    public User(String name, String mail, String password) {
+        this.name = name;
         this.mail = mail;
         this.password = password;
+        this.signUpDate = new Date();
     }
 
-    public User(String mail, String password, SecurityRole... roles) {
+    public User(String name, String mail, String password, SecurityRole... roles) {
+        this.name = name;
         this.mail = mail;
         this.password = encode(password);
         this.roles = roles;
+        this.signUpDate = new Date();
     }
 
     private String encode(String password) {
@@ -64,26 +73,10 @@ public class User {
     public String toString() {
         return String.format("%s", mail);
     }
-//
-//    public String getName() {
-//        return mail;
-//    }
-//
-//    public void setName(String mail) {
-//        this.mail = mail;
-//    }
 
     public SecurityRole[] getRole() {
         return roles;
     }
-
-//    public String getLogin() {
-//        return mail;
-//    }
-//
-//    public String getPassword() {
-//        return password;
-//    }
 
     public void updatePassword(String old, String newPass1, String newPass2) {
         if (!password.equals(encode(old))) {
@@ -160,5 +153,37 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Date getSignUpDate() {
+        return signUpDate;
+    }
+
+    public void setSignUpDate(Date signUpDate) {
+        this.signUpDate = signUpDate;
     }
 }

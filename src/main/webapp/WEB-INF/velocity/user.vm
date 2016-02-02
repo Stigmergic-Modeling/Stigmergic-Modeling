@@ -13,22 +13,22 @@
                 </a>
             #end
             <br />
-##            <div id="stigmod-username"><%= userInfo.name %></div>
-            <div id="stigmod-username">${user}</div>
+            <div id="stigmod-username">${user.getName()}</div>
+##            <div id="stigmod-username">${user.getMail()}</div>
             <hr />
             <div id="stigmod-info-left">
-##                <% if (undefined !== userInfo.location && '' !== userInfo.location) { %>
-##                <p><span class="glyphicon glyphicon-map-marker stigmod-detailinfo-icon"></span>&nbsp;<%= userInfo.location %></p>
-##                <% } %>
-##                <% if (undefined !== userInfo.mail && '' !== userInfo.mail) { %>
-##                <p><span class="glyphicon glyphicon-envelope stigmod-detailinfo-icon"></span>&nbsp;<%= userInfo.mail %></p>
-##                <% } %>
-##                <% if (undefined !== userInfo.url && '' !== userInfo.url) { %>
-##                <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span>&nbsp;<%= userInfo.url %></p>
-##                <% } %>
-##                <% if (undefined !== userSignUpDate && '' !== userSignUpDate) { %>
-##                <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span>&nbsp;Joined&nbsp;on&nbsp;<%= userSignUpDate %></div>
-##                <% } %>
+                #if (${user.getLocation()})
+                    <p><span class="glyphicon glyphicon-map-marker stigmod-detailinfo-icon"></span>&nbsp;${user.getLocation()}</p>
+                #end
+                #if (${user.getMail()})
+                    <p><span class="glyphicon glyphicon-envelope stigmod-detailinfo-icon"></span>&nbsp;${user.getMail()}</p>
+                #end
+                #if (${user.getUrl()})
+                    <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span>&nbsp;${user.getUrl()}</p>
+                #end
+                #if (${user.getSignUpDate()})
+                    <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span>&nbsp;Joined&nbsp;on&nbsp;${user.getSignUpDate()}</div>
+                #end
             </div>
             <hr />
             <div class="row"> <!-- 三个坑待填 -->

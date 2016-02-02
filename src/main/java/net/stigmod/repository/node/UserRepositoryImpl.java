@@ -51,7 +51,7 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
 
     @Override
     @Transactional
-    public User register(String mail, String password, String passwordRepeat) {
+    public User register(String name, String mail, String password, String passwordRepeat) {
         User found = findByLogin(mail);
         if (found != null) {
             throw new RuntimeException("Email already taken: " + mail);
@@ -65,7 +65,7 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
         if (!password.equals(passwordRepeat)) {  // 判断两次输入的密码是否一致
             throw new RuntimeException("Passwords provided do not equal.");
         }
-        User user = userRepository.save(new User(mail, password, User.SecurityRole.ROLE_USER));
+        User user = userRepository.save(new User(name, mail, password, User.SecurityRole.ROLE_USER));
         setUserInSession(user);
         return user;
     }
