@@ -14,6 +14,7 @@ import net.stigmod.domain.node.User;
 //import net.stigmod.repository.MovieRepository;
 import net.stigmod.domain.page.NewModelPageData;
 import net.stigmod.domain.page.PageData;
+import net.stigmod.domain.page.UserPageData;
 import net.stigmod.repository.node.UserRepository;
 import net.stigmod.service.ModelService;
 import org.slf4j.Logger;
@@ -63,9 +64,12 @@ public class UserController {
             model.addAttribute("_csrf", csrfToken);
         }
 
+        PageData pageData = new UserPageData(modelService.getAllIcmsOfUser(user));
+
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
+        model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "user");
         return "user";
     }
@@ -82,7 +86,6 @@ public class UserController {
         }
 
         PageData pageData = new NewModelPageData(modelService.getAllCcms());
-//        logger.debug(pageData.toString());
 
         model.addAttribute("user", user);
         model.addAttribute("host", host);

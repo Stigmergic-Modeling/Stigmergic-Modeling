@@ -61,6 +61,14 @@ public class IndividualConceptualModel {
         this.relationshipNum = 0;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void addUser(User user) {
         users.add(user);
     }

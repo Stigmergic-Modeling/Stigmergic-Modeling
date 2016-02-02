@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Set;
 
 /**
- * 
+ * CCM Repository
  *
  * @version     2016/02/02
  * @author 	    Kai Fu

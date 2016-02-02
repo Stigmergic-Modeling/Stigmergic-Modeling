@@ -13,6 +13,7 @@ import net.stigmod.domain.node.CollectiveConceptualModel;
 import net.stigmod.domain.node.IndividualConceptualModel;
 import net.stigmod.domain.node.User;
 import net.stigmod.repository.node.CollectiveConceptualModelRepository;
+import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class ModelService {
 
     @Autowired
     private CollectiveConceptualModelRepository ccmRepo;
+
+    @Autowired
+    private IndividualConceptualModelRepository icmRepo;
 
     // 全新新建 Model
     @Transactional
@@ -67,5 +71,10 @@ public class ModelService {
         return ccmRepo.getAllCcms();
     }
 
+    // 获取某用户的所有 ICM
+    @Transactional
+    public Set<IndividualConceptualModel> getAllIcmsOfUser(User user) {
+        return icmRepo.getAllIcmsOfUser(user.getId());
+    }
 
 }
