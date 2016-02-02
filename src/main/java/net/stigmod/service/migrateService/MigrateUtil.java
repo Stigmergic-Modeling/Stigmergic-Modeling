@@ -981,15 +981,19 @@ public class MigrateUtil {
         return sameIcmMap;
     }
 
-    protected Set<ClassNode> findConClassNodes(ClassNode cNode) {
-        Set<ClassNode> classNodeSet = new HashSet<>();
+    //返回与cNode有相交节点的所有classNode的ListId编号
+    protected Set<Integer> findConClassNodes(ClassNode cNode) {
+        Set<Integer> classNodeListIdSet = new HashSet<>();
+
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
             ValueNode vNode = ctvEdge.getEnder();
             //获得了当前cNode连接的一个vNode,接下来获取到该vNode连接的所有cNode
             for(ClassToValueEdge ctvEdge2 : vNode.getCtvEdges()) {
                 ClassNode otherCNode = ctvEdge2.getStarter();
-                if(otherCNode.getId()==cNode.getId()) continue;
-                else classNodeSet.add(otherCNode);
+                if(otherCNode.getId()==cNode.getId() || classNodeListIdSet.contains(otherCNode.getLoc())) continue;
+                else {
+                    classNodeListIdSet.add(otherCNode.getLoc());
+                }
             }
         }
 
@@ -997,21 +1001,26 @@ public class MigrateUtil {
             RelationNode rNode = rtcEdge.getStarter();
             for(RelationToCEdge rtcEdge2 : rNode.getRtcEdges()) {
                 ClassNode otherCNode = rtcEdge2.getEnder();
-                if(otherCNode.getId()==cNode.getId()) continue;
-                else classNodeSet.add(otherCNode);
+                if(otherCNode.getId()==cNode.getId() || classNodeListIdSet.contains(otherCNode.getLoc())) continue;
+                else {
+                    classNodeListIdSet.add(otherCNode.getLoc());
+                }
             }
         }
-        return classNodeSet;
+        return classNodeListIdSet;
     }
 
-    protected Set<RelationNode> findConRelationNodes(RelationNode rNode) {
-        Set<RelationNode> relationNodeSet = new HashSet<>();
+    protected Set<Integer> findConRelationNodes(RelationNode rNode) {
+        Set<Integer> relationNodeListIdSet = new HashSet<>();
+
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
             ValueNode vNode = rtvEdge.getEnder();
             for(RelationToValueEdge rtvEdge2 : vNode.getRtvEdges()) {
                 RelationNode otherRNode = rtvEdge2.getStarter();
-                if(otherRNode.getId()==rNode.getId()) continue;
-                else relationNodeSet.add(otherRNode);
+                if(otherRNode.getId()==rNode.getId() || relationNodeListIdSet.contains(otherRNode.getLoc())) continue;
+                else {
+                    relationNodeListIdSet.add(otherRNode.getLoc());
+                }
             }
         }
 
@@ -1019,11 +1028,13 @@ public class MigrateUtil {
             ClassNode cNode = rtcEdge.getEnder();
             for(RelationToCEdge rtcEdge2 : cNode.getRtcEdges()) {
                 RelationNode otherRNode = rtcEdge2.getStarter();
-                if(otherRNode.getId()==rNode.getId()) continue;
-                else relationNodeSet.add(otherRNode);
+                if(otherRNode.getId()==rNode.getId() || relationNodeListIdSet.contains(otherRNode.getLoc())) continue;
+                else {
+                    relationNodeListIdSet.add(otherRNode.getLoc());
+                }
             }
         }
-        return relationNodeSet;
+        return relationNodeListIdSet;
     }
 
 }
