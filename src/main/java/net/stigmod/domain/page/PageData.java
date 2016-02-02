@@ -14,4 +14,5 @@ package net.stigmod.domain.page;
  * @version 2016/2/2
  */
 public interface PageData {
+    String toJsonString();
 }

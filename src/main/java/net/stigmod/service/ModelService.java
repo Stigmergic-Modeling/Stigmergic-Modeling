@@ -47,19 +47,19 @@ public class ModelService {
         session.save(ccm);
     }
 
-//    // 继承新建 Model
-//    @Transactional
-//    public void createIcmInherited(User user, String name, String description, Long ccmId) {
-//
-//        // 新建 ICM
-//        IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
-//        icm.addUser(user);
-//
-//        // 获取 CCM
-//
-//        ccm.addIcm(icm);
-//        session.save(ccm);
-//    }
+    // 继承新建 Model
+    @Transactional
+    public void createIcmInherited(User user, String name, String description, Long ccmId) {
+
+        // 新建 ICM
+        IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
+        icm.addUser(user);
+
+        // 获取 CCM
+        CollectiveConceptualModel ccm = ccmRepo.getCcmById(ccmId);
+        ccm.addIcm(icm);
+        session.save(ccm);
+    }
 
     // 获取所有 CCM (不包含用户已经参与的 CCM)
     @Transactional

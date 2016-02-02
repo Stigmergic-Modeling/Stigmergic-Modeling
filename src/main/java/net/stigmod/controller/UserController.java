@@ -29,9 +29,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Handle user related page requests
@@ -84,17 +81,13 @@ public class UserController {
             model.addAttribute("_csrf", csrfToken);
         }
 
-//        Set<CollectiveConceptualModel> ccms = modelService.getAllCcms();
-//        Map<String, Set<CollectiveConceptualModel>> data = new HashMap<>();
-//        data.put("ccm", ccms);
-
         PageData pageData = new NewModelPageData(modelService.getAllCcms());
-        logger.debug(pageData.toString());
+//        logger.debug(pageData.toString());
 
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
-        model.addAttribute("data", pageData.toString());
+        model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "New Model");
         return "new_model";
     }
@@ -123,30 +116,30 @@ public class UserController {
         return "new_model";
     }
 
-//    // POST 新建模型（全新新建方式）
-//    @RequestMapping(value = "/newmodel/clean", method = RequestMethod.POST)
-//    public String doNewModelInherited(@RequestParam(value = "name") String name,
-//                                      @RequestParam(value = "description") String description,
-//                                      @RequestParam(value = "ccmId") Long ccmId,
-//                                      ModelMap model) {
-//        final User user = userRepository.getUserFromSession();
-//
-//        try {
-//            modelService.createIcmInherited(user, name, description, ccmId);
-//            model.addAttribute("success", "Create new model successfully.");
-//
-//        } catch(Exception e) {
-//            logger.info("createIcmClean fail");
-//            model.addAttribute("error", e.getMessage());
-//        }
-//
-//        model.addAttribute("user", user);
-//        model.addAttribute("host", host);
-//        model.addAttribute("port", port);
-//        model.addAttribute("title", "New Model");
-//
-//        return "new_model";
-//    }
+    // POST 新建模型（继承新建方式）
+    @RequestMapping(value = "/newmodel/inherited", method = RequestMethod.POST)
+    public String doNewModelInherited(@RequestParam(value = "name") String name,
+                                      @RequestParam(value = "description") String description,
+                                      @RequestParam(value = "id") Long ccmId,
+                                      ModelMap model) {
+        final User user = userRepository.getUserFromSession();
+
+        try {
+            modelService.createIcmInherited(user, name, description, ccmId);
+            model.addAttribute("success", "Create new model successfully.");
+
+        } catch(Exception e) {
+            logger.info("createIcmInherited fail");
+            model.addAttribute("error", e.getMessage());
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "New Model");
+
+        return "new_model";
+    }
 
 
     private String cvtObj2Json (Object obj) {

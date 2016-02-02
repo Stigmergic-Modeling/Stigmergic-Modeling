@@ -23,20 +23,29 @@ import java.util.Set;
  */
 public class NewModelPageData extends AbstractPageData {
 
-    private Map<String, String> ccmInfo;
+    private Map<String, Ccm> ccmInfo;
 
     public NewModelPageData() {}
 
     public NewModelPageData(Set<CollectiveConceptualModel> ccms) {
         this.ccmInfo = new HashMap<>();
         for (CollectiveConceptualModel ccm : ccms) {
+            Long id = ccm.getId();
             String key = ccm.getName();
             String description = ccm.getDescription();
-            this.ccmInfo.put(key, description);
+            this.ccmInfo.put(key, new Ccm(id, description));
         }
     }
 
-//    class CCM {
-//
-//    }
+    class Ccm {
+        private Long id;
+        private String description;
+
+        public Ccm() {}
+
+        public Ccm(Long id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+    }
 }

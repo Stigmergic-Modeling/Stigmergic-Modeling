@@ -46,7 +46,7 @@ define(function (require, exports, module) {
         // 将ccm的名称填入select组件
         for (var name in ccmInfo) {
             //console.log(name);
-            $('select[name=ccm]').append('<option>' + name + '</option>');
+            $('#ccm-name').append('<option>' + name + '</option>');
         }
 
 
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
         $(document).on('click', '#sigmod-newmodel-right', handleClkRight);
 
         // 选择右侧栏
-        $(document).on('change', 'select[name=ccm]', handleChangeSelect);
+        $(document).on('change', '#ccm-name', handleChangeSelect);
 
     }
 
@@ -94,9 +94,11 @@ define(function (require, exports, module) {
     // 处理：选择框内容变化
     function handleChangeSelect() {
         var name = $(this).val();
-        var description = ccmInfo[name];
+        var id = ccmInfo[name]['id'];
+        var description = ccmInfo[name]['description'];
 
         // 在 icm 信息栏中填入 ccm 的信息
+        $(this).closest('form').find('input[name=id]').val(id);
         $(this).closest('form').find('input[name=name]').val(name);
         $(this).closest('form').find('textarea[name=description]').text(description);
     }

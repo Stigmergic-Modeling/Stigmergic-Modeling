@@ -12,6 +12,7 @@ package net.stigmod.repository.node;
 import net.stigmod.domain.node.CollectiveConceptualModel;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Set;
@@ -28,4 +29,7 @@ public interface CollectiveConceptualModelRepository extends GraphRepository<Col
 
     @Query("MATCH (ccm:CCM) RETURN ccm")
     Set<CollectiveConceptualModel> getAllCcms();
+
+    @Query("MATCH (ccm:CCM) WHERE ID(ccm) = {ccmId} RETURN ccm")
+    CollectiveConceptualModel getCcmById(@Param("ccmId") Long ccmId);
 }

@@ -12,15 +12,14 @@ package net.stigmod.domain.page;
 import com.google.gson.Gson;
 
 /**
- * 抽象页面模板数据类，其 toString() 方法可将自身转换为 JSON 字符串格式
+ * 抽象页面模板数据类，其 toJsonString() 方法可将自身转换为 JSON 字符串格式
  *
  * @author Shijun Wang
  * @version 2016/2/2
  */
 public abstract class AbstractPageData implements PageData {
 
-    @Override
-    public String toString() {
+    public String toJsonString() {
         Gson gson = new Gson();
         return gson.toJson(this);
     }

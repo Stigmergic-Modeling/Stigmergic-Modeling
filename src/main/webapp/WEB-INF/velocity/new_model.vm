@@ -13,10 +13,11 @@
                         <hr />
                         <form action="/newmodel/inherited" method="post">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <input type="hidden" name="id"/>
                             <dl>
                                 <dt>Collective Concept Model</dt>
                                 <dd>
-                                    <select type="text" class="stigmod-input stigmod-input-lg" name="ccm" >
+                                    <select type="text" class="stigmod-input stigmod-input-lg" id="ccm-name">
                                         <option disabled selected> -- Select a CCM -- </option> <!-- 巧妙的设计 -->
                                     </select>
                                 </dd>
