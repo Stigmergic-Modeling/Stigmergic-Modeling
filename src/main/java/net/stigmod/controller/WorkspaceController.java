@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 //import net.stigmod.repository.MovieRepository;
 
@@ -66,12 +67,14 @@ public class WorkspaceController {
         }
 
         IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
-        PageData pageData = new WorkspacePageData(currentIcm, modelService.getAllIcmsOfUser(user));
+        Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+        PageData pageData = new WorkspacePageData(currentIcm, icms);
 
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("currentIcm", currentIcm);
+        model.addAttribute("icms", icms);
         model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "user");
         return "workspace";

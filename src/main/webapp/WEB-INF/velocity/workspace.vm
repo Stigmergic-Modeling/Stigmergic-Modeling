@@ -31,28 +31,27 @@
                 <span class="fa fa-cube" id="stigmod-model-title-icon"></span>
                 <a href="/user"><span id="stigmod-model-title-username"> ${user.getName()}</span></a>
                 <span>&nbsp;/&nbsp;</span>
-        <span class="dropdown">
-          <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
-##            <%= model %>
-              ${currentIcm.getName()}
-          </span>
-          <% if (modelInfo.length > 1) { %>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
-              <% modelInfo.forEach(function(info) {
-              if (model !== info.name) { %>
-              <li role="presentation"><a href="/<%= info.name %>/workspace" role="menuitem" tabindex="-1" href="#"><%= info.name %></a></li>
-              <% } %>
-              <% }); %>
-          </ul>
-          <% } %>
-        </span>&nbsp;
+                <span class="dropdown">
+                    <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
+                        ${currentIcm.getName()}
+                    </span>
+                    #if (${icms.size()} > 1)
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
+                            #foreach (${icm} in ${icms})
+                                #if (${currentIcm.getName()} != ${icm.getName()})
+                                    <li role="presentation"><a href="/${icm.getName()}/workspace" role="menuitem" tabindex="-1" href="#">${icm.getName()}</a></li>
+                                #end
+                            #end
+                        </ul>
+                    #end
+                </span>&nbsp;
                 <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><span class="glyphicon glyphicon-upload"></span></span>
                 <span class="stigmod-model-saved"><span class="glyphicon glyphicon-upload"></span></span>
             </h1>
         </div>
         <div class="col-xs-4">
       <span class="pull-right stigmod-btn-left" id="stigmod-model-info">
-        <a href="/<%= model %>/info" class="stigmod-a-nounderline">
+        <a href="/${currentIcm.getName()}/info" class="stigmod-a-nounderline">
             <span class="glyphicon glyphicon-stats"></span>&nbsp;
             Model Info
         </a>
