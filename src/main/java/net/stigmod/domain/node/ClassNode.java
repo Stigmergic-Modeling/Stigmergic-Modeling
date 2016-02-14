@@ -35,8 +35,15 @@ public class ClassNode{
     @Property
     private Long modelId;
 
+//    @Property
+//    private double orgEntropyValue;//这个表示没有乘上用户数前的节点熵值
+
     @Property
-    private double entropyValue;
+    private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值(这是orgE*num后的结果)
+
+    private double postBiEntropyValue;//这个表示bi的前值
+
+    private boolean isInitEntropy;
 
     //连接关系与类的关系
     @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
@@ -49,24 +56,31 @@ public class ClassNode{
     private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
 
     public ClassNode(){
-        this.entropyValue = 0;
+//        this.orgEntropyValue = 0;
+        this.biEntropyValue = 0;
+        this.postBiEntropyValue = 0;
+        this.isInitEntropy = true;
     }
 
     public ClassNode(ClassNode classNode) {
         this.id=classNode.getId();
         this.icmSet = new HashSet<>(classNode.getIcmSet());
         this.modelId=classNode.getModelId();
-        this.entropyValue=classNode.getEntropyValue();
+        this.biEntropyValue=classNode.getBiEntropyValue();
+        this.postBiEntropyValue = classNode.getPostBiEntropyValue();
+//        this.orgEntropyValue = classNode.getOrgEntropyValue();
         this.ctvEdges = new HashSet<>(classNode.getCtvEdges());
         this.rtcEdges = new HashSet<>(classNode.getRtcEdges());
+        this.setIsInitEntropy(classNode.isInitEntropy());
     }
 
-    public void UpdateClassNode(ClassNode classNode) {
-        this.icmSet = classNode.icmSet;
-        this.entropyValue=classNode.getEntropyValue();
-        this.rtcEdges=classNode.getRtcEdges();
-        this.ctvEdges=classNode.getCtvEdges();
-    }
+//    public void UpdateClassNode(ClassNode classNode) {
+//        this.icmSet = classNode.icmSet;
+//        this.entropyValue = classNode.getEntropyValue();
+//        this.rtcEdges = classNode.getRtcEdges();
+//        this.ctvEdges = classNode.getCtvEdges();
+//        this.isInitEntropy = classNode.isInitEntropy;
+//    }
 
     public Set<Long> getIcmSet() {
         return icmSet;
@@ -88,12 +102,12 @@ public class ClassNode{
         return id;
     }
 
-    public double getEntropyValue() {
-        return entropyValue;
+    public double getBiEntropyValue() {
+        return biEntropyValue;
     }
 
-    public void setEntropyValue(double entropyValue) {
-        this.entropyValue = entropyValue;
+    public void setBiEntropyValue(double biEntropyValue) {
+        this.biEntropyValue = biEntropyValue;
     }
 
     public Long getModelId() {
@@ -115,4 +129,28 @@ public class ClassNode{
     public void setLoc(int loc) {
         this.loc = loc;
     }
+
+    public boolean isInitEntropy() {
+        return isInitEntropy;
+    }
+
+    public void setIsInitEntropy(boolean isInitEntropy) {
+        this.isInitEntropy = isInitEntropy;
+    }
+
+    public double getPostBiEntropyValue() {
+        return postBiEntropyValue;
+    }
+
+    public void setPostBiEntropyValue(double postBiEntropyValue) {
+        this.postBiEntropyValue = postBiEntropyValue;
+    }
+
+    //    public double getOrgEntropyValue() {
+//        return orgEntropyValue;
+//    }
+//
+//    public void setOrgEntropyValue(double orgEntropyValue) {
+//        this.orgEntropyValue = orgEntropyValue;
+//    }
 }

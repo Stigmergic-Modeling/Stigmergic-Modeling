@@ -33,8 +33,15 @@ public class ValueNode {
     @Property(name="name")
     private String name;
 
+//    @Property
+//    private double orgEntropyValue;
+
     @Property
-    private double entropyValue;
+    private double biEntropyValue;
+
+    private double postBiEntropyValue;
+
+    private boolean isInitEntropy;
 
     @Property
     private Long modelId;
@@ -49,30 +56,39 @@ public class ValueNode {
     private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
 
     public ValueNode(){
-        this.entropyValue=0;
+//        this.orgEntropyValue = 0;
+        this.biEntropyValue = 0;
+        this.postBiEntropyValue = 0;
+        this.isInitEntropy = true;
     }
 
     public ValueNode(String name) {
         this.name = name;
-        this.entropyValue=0;
+        this.biEntropyValue=0;
+        this.isInitEntropy = true;
+        this.postBiEntropyValue =0;
+//        this.orgEntropyValue = 0;
     }
 
     public ValueNode(ValueNode valueNode) {
-        this.id=valueNode.getId();
-        this.icmSet =new HashSet<>(valueNode.getIcmSet());
-        this.entropyValue=valueNode.getEntropyValue();
-        this.modelId=valueNode.getModelId();
+        this.id = valueNode.getId();
+        this.icmSet = new HashSet<>(valueNode.getIcmSet());
+        this.biEntropyValue = valueNode.getBiEntropyValue();
+        this.modelId = valueNode.getModelId();
         this.setName(valueNode.getName());
-        this.ctvEdges=new HashSet<>(valueNode.getCtvEdges());
-        this.rtvEdges=new HashSet<>(valueNode.getRtvEdges());
+        this.ctvEdges = new HashSet<>(valueNode.getCtvEdges());
+        this.rtvEdges = new HashSet<>(valueNode.getRtvEdges());
+        this.setIsInitEntropy(valueNode.isInitEntropy());
+        this.postBiEntropyValue = valueNode.getPostBiEntropyValue();
+//        this.orgEntropyValue = valueNode.getOrgEntropyValue();
     }
 
-    public void UpdateValueNode(ValueNode valueNode) {
-        this.icmSet =valueNode.getIcmSet();
-        this.entropyValue=valueNode.getEntropyValue();
-        this.ctvEdges=valueNode.getCtvEdges();
-        this.rtvEdges=valueNode.getRtvEdges();
-    }
+//    public void UpdateValueNode(ValueNode valueNode) {
+//        this.icmSet =valueNode.getIcmSet();
+//        this.entropyValue=valueNode.getEntropyValue();
+//        this.ctvEdges=valueNode.getCtvEdges();
+//        this.rtvEdges=valueNode.getRtvEdges();
+//    }
 
     public Long getId() {
         return id;
@@ -106,12 +122,12 @@ public class ValueNode {
         this.icmSet = icmSet;
     }
 
-    public double getEntropyValue() {
-        return entropyValue;
+    public double getBiEntropyValue() {
+        return biEntropyValue;
     }
 
-    public void setEntropyValue(double entropyValue) {
-        this.entropyValue = entropyValue;
+    public void setBiEntropyValue(double biEntropyValue) {
+        this.biEntropyValue = biEntropyValue;
     }
 
     public Long getModelId() {
@@ -121,4 +137,28 @@ public class ValueNode {
     public void setModelId(Long modelId) {
         this.modelId = modelId;
     }
+
+    public boolean isInitEntropy() {
+        return isInitEntropy;
+    }
+
+    public void setIsInitEntropy(boolean isInitEntropy) {
+        this.isInitEntropy = isInitEntropy;
+    }
+
+    public double getPostBiEntropyValue() {
+        return postBiEntropyValue;
+    }
+
+    public void setPostBiEntropyValue(double postBiEntropyValue) {
+        this.postBiEntropyValue = postBiEntropyValue;
+    }
+
+    //    public double getOrgEntropyValue() {
+//        return orgEntropyValue;
+//    }
+//
+//    public void setOrgEntropyValue(double orgEntropyValue) {
+//        this.orgEntropyValue = orgEntropyValue;
+//    }
 }

@@ -401,7 +401,7 @@ public class MigrateHandlerImplTests {
             rtcEdge23.setIcmList(new HashSet<Long>(s1));
             rtcEdge23.setId(c++);
             relationNodeList.get(curI*rNodeNum+4).getRtcEdges().add(rtcEdge23);
-            cLassNodeList.get(curI*cNodeNum+4).getRtcEdges().add(rtcEdge23);
+            cLassNodeList.get(curI*cNodeNum+3).getRtcEdges().add(rtcEdge23);
 
             RelationToValueEdge rtvEdge24 =
                     new RelationToValueEdge("e0","role",relationNodeList.get(curI*rNodeNum+4),valueNodeList.get(11));

@@ -93,35 +93,35 @@ public class EntropyHandlerImpl implements EntropyHandler{
         return res;
     }
 
-    /**
-     * 计算整个ccm的熵值...实际上目前这个有问题,因为没有区分不同的ccm,现在相当于假设系统只有一个ccm
-     * @return 熵值
-     */
-    public Double computeSystemEntropy() {
-        double res=0.0;
-        //class node entropy
-        Iterable<ClassNode> iClass=classNodeRepository.findAll();
-        Iterator<ClassNode> iterClass=iClass.iterator();
-        while(iterClass.hasNext()) {
-            res+=iterClass.next().getEntropyValue();
-        }
-
-        //relation node entropy
-        Iterable<RelationNode> iRelation=relationNodeRepository.findAll();
-        Iterator<RelationNode> iterRelation=iRelation.iterator();
-        while(iterRelation.hasNext()) {
-            res+=iterRelation.next().getEntropyValue();
-        }
-
-        //value node entropy
-        Iterable<ValueNode> iValue=valueNodeRepository.findAll();
-        Iterator<ValueNode> iterValue=iValue.iterator();
-        while(iterValue.hasNext()) {
-            res+=iterValue.next().getEntropyValue();
-        }
-
-        return res;
-    }
+//    /**
+//     * 计算整个ccm的熵值...实际上目前这个有问题,因为没有区分不同的ccm,现在相当于假设系统只有一个ccm
+//     * @return 熵值
+//     */
+//    public Double computeSystemEntropy() {
+//        double res=0.0;
+//        //class node entropy
+//        Iterable<ClassNode> iClass=classNodeRepository.findAll();
+//        Iterator<ClassNode> iterClass=iClass.iterator();
+//        while(iterClass.hasNext()) {
+//            res+=iterClass.next().getEntropyValue();
+//        }
+//
+//        //relation node entropy
+//        Iterable<RelationNode> iRelation=relationNodeRepository.findAll();
+//        Iterator<RelationNode> iterRelation=iRelation.iterator();
+//        while(iterRelation.hasNext()) {
+//            res+=iterRelation.next().getEntropyValue();
+//        }
+//
+//        //value node entropy
+//        Iterable<ValueNode> iValue=valueNodeRepository.findAll();
+//        Iterator<ValueNode> iterValue=iValue.iterator();
+//        while(iterValue.hasNext()) {
+//            res+=iterValue.next().getEntropyValue();
+//        }
+//
+//        return res;
+//    }
 
 
     /**
@@ -308,5 +308,63 @@ public class EntropyHandlerImpl implements EntropyHandler{
                 myMap.put(edgeName , list);
             }
         }
+    }
+
+    //起到初始化node节点的熵值的作用
+    public Double initNodeListEntropy(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
+                                     List<ValueNode> valueNodeList , int nodeSum) {
+        double systemEntropy = 0.0;
+        double systemBiEntropy = 0.0; //表示没有乘上nodeSum之前的系统熵值
+
+        int csize = classNodeList.size();
+        for(int i=0 ; i<csize ; i++) {
+            ClassNode classNode = classNodeList.get(i);
+            if(classNode.isInitEntropy()) {//如果他是刚被初始化的节点,那么这个节点的熵值必须重新算出,否则不用再计算了
+                classNode.setIsInitEntropy(false);//标注这个节点已经被初始化过了,不再是初始节点了
+                double cNodeBiEntropy =
+                        compueteMapEntropy(getMapForClassNode(classNode.getCtvEdges(),classNode.getRtcEdges()),nodeSum)/nodeSum;
+                if(Double.compare(0.0,cNodeBiEntropy) != 0) {
+                    System.out.println("Its a Error for classNode in function initCNodeListEntropy , EntropyHandlerImpl class");
+                }
+//                classNode.setOrgEntropyValue(cNodeBiEntropy/classNode.getIcmSet().size());
+                classNode.setBiEntropyValue(cNodeBiEntropy);//设置节点的熵值
+            }else;
+
+            systemBiEntropy += classNode.getBiEntropyValue();
+        }
+
+        int rsize = relationNodeList.size();
+        for(int i=0 ; i<rsize ; i++) {
+            RelationNode relationNode = relationNodeList.get(i);
+            if(relationNode.isInitEntropy()) {
+                relationNode.setIsInitEntropy(false);
+                double rNodeBiEntropy =
+                        compueteMapEntropy(getMapForRelationNode(relationNode.getRtcEdges(),relationNode.getRtvEdges()),nodeSum)/nodeSum;
+                if(Double.compare(0.0,rNodeBiEntropy) != 0) {
+                    System.out.println("Its a Error for relationNode in function initRNodeListEntropy , EntropyHandlerImpl class");
+                }
+//                relationNode.setOrgEntropyValue(rNodeBiEntropy/relationNode.getIcmSet().size());
+                relationNode.setBiEntropyValue(rNodeBiEntropy);
+            }else;
+
+            systemBiEntropy += relationNode.getBiEntropyValue();
+        }
+
+        int vsize = valueNodeList.size();
+        for(int i=0;i<vsize;i++) {
+            ValueNode valueNode = valueNodeList.get(i);
+            if(valueNode.isInitEntropy()) {
+                valueNode.setIsInitEntropy(false);
+                double vNodeBiEntropy =
+                        compueteMapEntropy(getMapForValueNode(valueNode.getCtvEdges(),valueNode.getRtvEdges()),nodeSum)/nodeSum;
+//                valueNode.setOrgEntropyValue(vNodeBiEntropy/valueNode.getIcmSet().size());
+                valueNode.setBiEntropyValue(vNodeBiEntropy);
+            }else ;
+
+            systemBiEntropy += valueNode.getBiEntropyValue();
+        }
+
+        systemEntropy = systemBiEntropy * nodeSum;
+        return systemEntropy;//524233.47265417513
     }
 }

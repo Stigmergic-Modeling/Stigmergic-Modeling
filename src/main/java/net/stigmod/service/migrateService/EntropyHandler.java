@@ -9,6 +9,9 @@
 
 package net.stigmod.service.migrateService;
 
+import net.stigmod.domain.node.ClassNode;
+import net.stigmod.domain.node.RelationNode;
+import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
 import net.stigmod.domain.relationship.RelationToCEdge;
 import net.stigmod.domain.relationship.RelationToValueEdge;
@@ -28,11 +31,15 @@ public interface EntropyHandler {
     public Double computeRelationEntropy(Long id , int nodeSum);
     public Double computeValueEntropy(Long id , int nodeSum);
 
-    public Double computeSystemEntropy();
+//    public Double computeSystemEntropy();
 
     public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToCEdge> rtcEdges);
     public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges);
     public Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges);
 
     public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap , int nodeSum);
+
+    public Double initNodeListEntropy(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
+                                    List<ValueNode> valueNodeList , int nodeSum);
+
 }

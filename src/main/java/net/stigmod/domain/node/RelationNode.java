@@ -34,8 +34,15 @@ public class RelationNode {
     @Property(name="icm_list")
     private Set<Long> icmSet = new HashSet<>();
 
+//    @Property
+//    private double orgEntropyValue;//表示没有乘用户数之前的节点熵值
+
     @Property
-    private double entropyValue;
+    private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值
+
+    private double postBiEntropyValue;
+
+    private boolean isInitEntropy;//起到判断当前熵值是否是初始熵值得作用
 
     @Property
     private Long modelId;
@@ -43,16 +50,22 @@ public class RelationNode {
     private int loc;
 
     public RelationNode() {
-        this.entropyValue = 0;
+//        this.orgEntropyValue = 0;
+        this.biEntropyValue = 0;
+        this.postBiEntropyValue = 0;
+        this.isInitEntropy = true;
     }
 
     public RelationNode(RelationNode relationNode) {
         this.id=relationNode.getId();
         this.icmSet =new HashSet<>(relationNode.getIcmSet());
-        this.entropyValue=relationNode.getEntropyValue();
+        this.biEntropyValue=relationNode.getBiEntropyValue();
+        this.postBiEntropyValue = relationNode.getPostBiEntropyValue();
+//        this.orgEntropyValue = relationNode.getOrgEntropyValue();
         this.modelId=relationNode.getModelId();
         this.rtcEdges=new HashSet<>(relationNode.getRtcEdges());
         this.rtvEdges=new HashSet<>(relationNode.getRtvEdges());
+        this.setIsInitEntropy(relationNode.isInitEntropy());
     }
 
     @Relationship(type="E_CLASSS",direction = Relationship.OUTGOING)
@@ -69,12 +82,13 @@ public class RelationNode {
         this.id = id;
     }
 
-    public void UpdateRelationNode(RelationNode relationNode) {
-        this.icmSet =relationNode.getIcmSet();
-        this.entropyValue=relationNode.getEntropyValue();
-        this.rtcEdges=relationNode.getRtcEdges();
-        this.rtvEdges=relationNode.getRtvEdges();
-    }
+//    public void UpdateRelationNode(RelationNode relationNode) {
+//        this.icmSet =relationNode.getIcmSet();
+//        this.biEntropyValue=relationNode.getBiEntropyValue();
+//        this.orgEntropyValue = relationNode.getOrgEntropyValue();
+//        this.rtcEdges=relationNode.getRtcEdges();
+//        this.rtvEdges=relationNode.getRtvEdges();
+//    }
 
     public Set<RelationToCEdge> getRtcEdges() {
         return rtcEdges;
@@ -92,12 +106,12 @@ public class RelationNode {
         return rtvEdges;
     }
 
-    public double getEntropyValue() {
-        return entropyValue;
+    public double getBiEntropyValue() {
+        return biEntropyValue;
     }
 
-    public void setEntropyValue(double entropyValue) {
-        this.entropyValue = entropyValue;
+    public void setBiEntropyValue(double biEntropyValue) {
+        this.biEntropyValue = biEntropyValue;
     }
 
     public Long getModelId() {
@@ -115,4 +129,28 @@ public class RelationNode {
     public void setLoc(int loc) {
         this.loc = loc;
     }
+
+    public boolean isInitEntropy() {
+        return isInitEntropy;
+    }
+
+    public void setIsInitEntropy(boolean isInitEntropy) {
+        this.isInitEntropy = isInitEntropy;
+    }
+
+    public double getPostBiEntropyValue() {
+        return postBiEntropyValue;
+    }
+
+    public void setPostBiEntropyValue(double postBiEntropyValue) {
+        this.postBiEntropyValue = postBiEntropyValue;
+    }
+
+    //    public double getOrgEntropyValue() {
+//        return orgEntropyValue;
+//    }
+//
+//    public void setOrgEntropyValue(double orgEntropyValue) {
+//        this.orgEntropyValue = orgEntropyValue;
+//    }
 }
