@@ -986,6 +986,7 @@ public class MigrateUtil {
         Set<Integer> classNodeListIdSet = new HashSet<>();
 
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+            if(ctvEdge.getIcmList().size() == 0) continue;
             ValueNode vNode = ctvEdge.getEnder();
             //获得了当前cNode连接的一个vNode,接下来获取到该vNode连接的所有cNode
             for(ClassToValueEdge ctvEdge2 : vNode.getCtvEdges()) {
@@ -998,6 +999,7 @@ public class MigrateUtil {
         }
 
         for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
+            if(rtcEdge.getIcmList().size() == 0) continue;
             RelationNode rNode = rtcEdge.getStarter();
             for(RelationToCEdge rtcEdge2 : rNode.getRtcEdges()) {
                 ClassNode otherCNode = rtcEdge2.getEnder();
@@ -1014,6 +1016,7 @@ public class MigrateUtil {
         Set<Integer> relationNodeListIdSet = new HashSet<>();
 
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
+            if(rtvEdge.getIcmList().size() == 0) continue;
             ValueNode vNode = rtvEdge.getEnder();
             for(RelationToValueEdge rtvEdge2 : vNode.getRtvEdges()) {
                 RelationNode otherRNode = rtvEdge2.getStarter();
@@ -1025,6 +1028,7 @@ public class MigrateUtil {
         }
 
         for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
+            if(rtcEdge.getIcmList().size() == 0) continue;
             ClassNode cNode = rtcEdge.getEnder();
             for(RelationToCEdge rtcEdge2 : cNode.getRtcEdges()) {
                 RelationNode otherRNode = rtcEdge2.getStarter();

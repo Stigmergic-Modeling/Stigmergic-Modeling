@@ -129,33 +129,33 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         systemEntropy = entropyHandler.initNodeListEntropy(classNodeList,relationNodeList,valueNodeList,nodeSum);
         System.out.println("系统初始熵值为: "+systemEntropy);
+        int iterNum = 0;
 
         while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
+            iterNum++;
+            System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int[] randomList=randomValue();
 //            int[] randomList = {0,70,74,8,19,40,37,67,71,47,77,81,36,36,53,65,4,89,94,25,45,15,14,84,12,48,59,97,95,30,66,6,31,16,7,51,9,75,73,80,18,23,60,69,54,29};
             int curSum=randomList.length;
 
             for(int i=0;i<curSum;i++) {
+                if(i==curSum/4||i==curSum/3||i==curSum/2||i==(curSum*3)/4) {
+                    System.out.println("完成第"+iterNum+"轮迭代的部分循环");
+                }
                 int randValue = randomList[i];
                 System.out.println("随机值: " + randValue);
                 cNum=classNodeList.size();//要不断更新cNum的值
-
-//                if(i==curSum-2) {
-//                    System.out.println("123");
-//                }
-
-                double testE = scanToComputeSystemEntropy();
-
+//                double testE = scanToComputeSystemEntropy();
                 if(randValue<cNum) migrateClassNode(randValue);
                 else migrateRelationNode(randValue - cNum);
             }
             if(isStable&&curIterNum>2) break;
             else if(isStable) curIterNum++;
             else curIterNum=0;
-            scanToFindBug();
         }
 
+        scanToFindBug();
         scanToValidateData();
         System.out.println("算法运行结束,系统熵值为: "+systemEntropy);
         System.out.println("迭代结束啦~");
@@ -253,10 +253,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
             reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
             systemEntropy += maxEntropyDecrease;
 
-            double testE = scanToComputeSystemEntropy();
-            if(Math.abs(systemEntropy - testE) > 0.1) {
-                System.out.println("发生熵值不等错误0001: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+",初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+targetClassNodeListId);
-            }
+//            double testE = scanToComputeSystemEntropy();
+//            if(Math.abs(systemEntropy - testE) > 0.1) {
+//                System.out.println("发生熵值不等错误0001: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+",初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+targetClassNodeListId);
+//            }
 //            System.out.println("发生迁移操作,用户集合为:"+icmSet+" ,sourceClassNodeListId为:"+sourceClassNodeListId+
 //                    " ,targetClassNodeListId为:"+targetClassNodeListId);
             isStable=false;//记录当前程序是否发生过迁移
@@ -623,11 +623,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
             reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
 
             systemEntropy += maxEntropyDecrease;
-            double testE = scanToComputeSystemEntropy();
-            if(Math.abs(systemEntropy - testE) > 0.1) {
-                System.out.println("发生熵值不等错误0002: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
-                        "初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+targetClassNodeListId);
-            }
+//            double testE = scanToComputeSystemEntropy();
+//            if(Math.abs(systemEntropy - testE) > 0.1) {
+//                System.out.println("发生熵值不等错误0002: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
+//                        "初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+targetClassNodeListId);
+//            }
 //            System.out.println("发生迁移操作,用户编号:"+icmId+" ,sourceClassNodeListId为:"+sourceClassNodeListId+
 //                    " ,targetClassNodeListId为:"+targetClassNodeListId);
             isStable=false;//记录当前程序是否发生过迁移
@@ -638,11 +638,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(targetClassNodeListId==-1) {
             for(Integer listId : alreadyHasCurIcmClassNodeListId) {
                 double twoStepVar=migrateClassNodeNeedTwoStep(icmId , sourceClassNodeListId ,listId);
-                double testE = scanToComputeSystemEntropy();
-                if(Math.abs(systemEntropy - testE) > 0.1) {
-                    System.out.println("发生熵值不等错误0003: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
-                            "初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+listId);
-                }
+//                double testE = scanToComputeSystemEntropy();
+//                if(Math.abs(systemEntropy - testE) > 0.1) {
+//                    System.out.println("发生熵值不等错误0003: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
+//                            "初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+listId);
+//                }
 
                 if(Double.compare(twoStepVar,0.0)<0) {
                     isStable=false;
@@ -1133,11 +1133,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
             reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,targetRelationNodeId);
 
             systemEntropy += maxEntropyDecrease;
-            double testE = scanToComputeSystemEntropy();
-            if(Math.abs(systemEntropy - testE) > 0.1) {
-                System.out.println("发生熵值不等错误0004: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
-                        "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+targetRelationNodeId);
-            }
+//            double testE = scanToComputeSystemEntropy();
+//            if(Math.abs(systemEntropy - testE) > 0.1) {
+//                System.out.println("发生熵值不等错误0004: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
+//                        "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+targetRelationNodeId);
+//            }
 //            System.out.println("发生迁移操作,用户编号:"+icmId+" ,sourceRelationNodeListId为:"+
 //                    sourceRelationNodeListId+ " ,targetRelationNodeId为:"+targetRelationNodeId);
             isStable=false;//记录当前程序是否发生过迁移
@@ -1148,11 +1148,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(targetRelationNodeId==-1) {
             for(Integer listId : alreadyHasCurIcmRelationNodeListId) {
                 double twoStepVar=migrateRelationNodeNeedTwoStep(icmId , sourceRelationNodeListId ,listId);
-                double testE = scanToComputeSystemEntropy();
-                if(Math.abs(systemEntropy - testE) > 0.1) {
-                    System.out.println("发生熵值不等错误0005: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
-                            "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+listId);
-                }
+//                double testE = scanToComputeSystemEntropy();
+//                if(Math.abs(systemEntropy - testE) > 0.1) {
+//                    System.out.println("发生熵值不等错误0005: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
+//                            "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+listId);
+//                }
                 if(Double.compare(twoStepVar,0.0)<0) {
                     isStable=false;
                     return;//这部分搞定就可以直接结束了
@@ -1207,11 +1207,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
             reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,targetRelationNodeId);
 
             systemEntropy += maxEntropyDecrease;
-            double testE = scanToComputeSystemEntropy();
-            if(Math.abs(systemEntropy - testE) > 0.1) {
-                System.out.println("发生熵值不等错误0006: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
-                        "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+targetRelationNodeId);
-            }
+//            double testE = scanToComputeSystemEntropy();
+//            if(Math.abs(systemEntropy - testE) > 0.1) {
+//                System.out.println("发生熵值不等错误0006: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
+//                        "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+targetRelationNodeId);
+//            }
 //            System.out.println("发生迁移操作,用户集合:"+icmSet+" ,sourceRelationNodeListId为:"+
 //                    sourceRelationNodeListId+ " ,targetRelationNodeId为:"+targetRelationNodeId);
             isStable=false;//记录当前程序是否发生过迁移
