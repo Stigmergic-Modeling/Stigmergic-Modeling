@@ -136,19 +136,31 @@ public class MigrateHandlerImpl implements MigrateHandler {
             System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int[] randomList=randomValue();
-//            int[] randomList = {0,70,74,8,19,40,37,67,71,47,77,81,36,36,53,65,4,89,94,25,45,15,14,84,12,48,59,97,95,30,66,6,31,16,7,51,9,75,73,80,18,23,60,69,54,29};
+//            int[] randomList = {0,81,147,55,80,28,150,119,15,79,92,95,35,33,10,121,157,144,40,34,66,4,87,41,61,47,97,
+//                    51,8,125,137,12,98,77,96,161,118,127,159,116,146,71,53,23,24,149,156,114,143,110,122,86,13,113,
+//                    132,133,11,44,82,148,152,135,38,9,138,158,52,1,70,50,107,60,67,27,45,91,19,31,29,6,65,123,142,17,
+//                    93,14,126,3,2,58,68,73,90,59,84,134,162,160,69,76,100,131,20,78,74,25,18,36,128,5,140,49,7,153,108,
+//                    48,85,120,111,46,32,145,16,104,115,89,164,22,64,88,102,62,42,101,39,43,72,57,83,151,37,54,141,129};
             int curSum=randomList.length;
 
             for(int i=0;i<curSum;i++) {
-                if(i==curSum/4||i==curSum/3||i==curSum/2||i==(curSum*3)/4) {
+
+//                if(i==curSum/4||i==curSum/3||i==curSum/2||i==(curSum*3)/4) {
+//                    System.out.println("完成第"+iterNum+"轮迭代的部分循环");
+//                }
+                if(i == curSum - 10) {
                     System.out.println("完成第"+iterNum+"轮迭代的部分循环");
                 }
+                if(i == curSum -1) break;
                 int randValue = randomList[i];
                 System.out.println("随机值: " + randValue);
                 cNum=classNodeList.size();//要不断更新cNum的值
-//                double testE = scanToComputeSystemEntropy();
+
                 if(randValue<cNum) migrateClassNode(randValue);
                 else migrateRelationNode(randValue - cNum);
+
+//                double testE = scanToComputeSystemEntropy();
+//                System.out.println("当前系统的熵值为: "+ testE);
             }
             if(isStable&&curIterNum>2) break;
             else if(isStable) curIterNum++;
@@ -225,7 +237,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 targetIsNullFlag = true;
             }
             double var = simulateMigrateForClass(icmSet , sourceClassNode , tmpCNode , targetIsNullFlag);
-            if(Double.compare(maxEntropyDecrease , var) > 0 || (Double.compare(var,maxEntropyDecrease) == 0
+            if((Double.compare(maxEntropyDecrease , var) > 0 && Math.abs(maxEntropyDecrease - var) > 0.00001)
+                    || (Double.compare(var,maxEntropyDecrease) == 0
                     && sourceClassNode.getIcmSet().size() - icmSet.size() == 0 && tmpCNode.getIcmSet().size() != 0)) {
                 maxEntropyDecrease = var;
                 targetClassNodeListId = tmpCNode.getLoc();
@@ -237,7 +250,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isTravseNullNode) {
             ClassNode classNode2 = new ClassNode();
             double var2 = simulateMigrateForClass(icmSet,sourceClassNode,classNode2,true);
-            if(Double.compare(maxEntropyDecrease , var2) > 0) {
+            if(Double.compare(maxEntropyDecrease , var2) > 0 && Math.abs(maxEntropyDecrease - var2) > 0.00001) {
 //              classNodeRepository.save(classNode2);//在数据库中保存该节点
                 classNodeList.add(classNode2);//在classNodeList中添加节点classNode2
                 classNode2.setLoc(classNodeList.size()-1);
@@ -594,7 +607,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 continue;//如果是同样包含有该用户的节点,则先保存在already中,保存的是在classNodeList中该节点的ListId号.
             }
             double var = simulateMigrateForClass(icmId , sourceClassNode , tmpCNode , targetIsNullFlag);
-            if(Double.compare(maxEntropyDecrease , var) > 0 || (Double.compare(var,maxEntropyDecrease) == 0
+            if((Double.compare(maxEntropyDecrease , var) > 0 && Math.abs(maxEntropyDecrease - var) > 0.00001)||
+                    (Double.compare(var,maxEntropyDecrease) == 0
                     && sourceClassNode.getIcmSet().size() == 1 && tmpCNode.getIcmSet().size() != 0)) {
                 maxEntropyDecrease = var;
                 targetClassNodeListId = tmpCNode.getLoc();
@@ -606,7 +620,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isTravseNullNode) {
             ClassNode classNode2 = new ClassNode();
             double var2 = simulateMigrateForClass(icmId,sourceClassNode,classNode2,true);
-            if(Double.compare(maxEntropyDecrease , var2) > 0) {
+            if(Double.compare(maxEntropyDecrease , var2) > 0 && Math.abs(maxEntropyDecrease - var2) > 0.00001) {
 //              classNodeRepository.save(classNode2);//在数据库中保存该节点
                 classNodeList.add(classNode2);//在classNodeList中添加节点classNode2
                 classNode2.setLoc(classNodeList.size()-1);
@@ -629,7 +643,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                        "初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+targetClassNodeListId);
 //            }
 //            System.out.println("发生迁移操作,用户编号:"+icmId+" ,sourceClassNodeListId为:"+sourceClassNodeListId+
-//                    " ,targetClassNodeListId为:"+targetClassNodeListId);
+//                    " ,targetClassNodeListId为:"+targetClassNodeListId+"熵值减小幅度: "+maxEntropyDecrease);
             isStable=false;//记录当前程序是否发生过迁移
             return;
         }
@@ -644,10 +658,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                            "初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+listId);
 //                }
 
-                if(Double.compare(twoStepVar,0.0)<0) {
-                    isStable=false;
-                    return;//这部分搞定就可以直接结束了
-                }
+//                if(Double.compare(twoStepVar,0.0)<0) {
+//                    isStable=false;
+//                    return;//这部分搞定就可以直接结束了
+//                }
             }
         }
     }
@@ -986,7 +1000,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
             if(otherClassNode.getIcmSet().contains(icmId)) continue;
             double var=simulateMigrateForClass(icmId,targetClassNode,otherClassNode,targetIsNullFlag);
-            if(Double.compare(minEntropyDown,var)>0 || (Double.compare(var,minEntropyDown)==0 &&
+            if((Double.compare(minEntropyDown,var)>0 && Math.abs(minEntropyDown - var) > 0.00001 )
+                    || (Double.compare(var,minEntropyDown)==0 &&
                     targetClassNode.getIcmSet().size() == 1 && otherClassNode.getIcmSet().size() != 0)) {
                 minEntropyDown=var;
                 minVarCNodeListId=otherClassNode.getLoc();
@@ -997,11 +1012,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isTravseNUllNode) {
             ClassNode tClassNode=new ClassNode();
             double var=simulateMigrateForClass(icmId,targetClassNode,tClassNode,true);
-            if(Double.compare(minEntropyDown,var)>0) {
+            if(Double.compare(minEntropyDown,var)>0 && Math.abs(minEntropyDown - var) > 0.00001) {
                 isUsedNullNode=true;
                 minEntropyDown=var;
-                tClassNode.setLoc(classNodeList.size()-1);
                 classNodeList.add(tClassNode);
+                tClassNode.setLoc(classNodeList.size()-1);
                 minVarCNodeListId=tClassNode.getLoc();
             }else tClassNode=null;
         }
@@ -1025,7 +1040,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         boolean secondStepFlag=false;
         if(targetClassNode.getIcmSet().size()==0) secondStepFlag=true;
         double simVar=simulateMigrateForClass(icmId,sourceClassNode,targetClassNode,secondStepFlag);
-        if(Double.compare(simVar,0.0)>=0) {
+        if(Double.compare(simVar,0.0)>=0 && Math.abs(simVar-0.0)>0.00001) {
             //说明这步迁移是没有意义的,我们接下来判断刚才的迁移是否需要复原
             if(Double.compare(minEntropyDown,0.0) > 0 ||
                     (Double.compare(minEntropyDown,0.0) == 0 && !(targetClassNode.getIcmSet().size() == 0 &&
@@ -1038,8 +1053,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 systemEntropy = recoverSystemEntropy;
                 this.nodeSum=recoverNodeSum;
             }else {
-//                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
-//                        " ,minVarCNodeListId为:"+minVarCNodeListId);
+                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
+                        " ,minVarCNodeListId为:"+minVarCNodeListId);
                 isStable=false;
             }//不需要复原
         }else {
@@ -1056,10 +1071,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     reComputeMigrateClassNodeEntropy(sourceClassNodeListId, targetClassNodeListId);
                     systemEntropy += simVar;
                     isStable=false;
-//                    System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
-//                            targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
-//                    System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
-//                            sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
+                    System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
+                            targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
+                    System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
+                            sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
                 }else {//resSimVar<0.0说明系统熵值总体上升了,因此必须回复全部初始数据
                     recoverMigrateStateForClassNode(icmId,targetClassNodeListId,minVarCNodeListId,isUsedNullNode);//还原节点的原有格局
                     recoverEdgeStateForClassNode(targetClassNodeListId);
@@ -1076,10 +1091,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
                 systemEntropy += simVar;
                 isStable=false;
-//                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
-//                        targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
-//                System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
-//                        sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
+                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
+                        targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
+                System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
+                        sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
             }
         }
         return simVar+minEntropyDown;
@@ -1105,7 +1120,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 continue;//如果是同样包含有该用户的节点,则先保存在already中.
             }
             double var=simulateMigrateForRelation(icmId , sourceRelationNode , tmpRNode , targetIsNullFlag);
-            if(Double.compare(maxEntropyDecrease,var)>0 || (Double.compare(var , maxEntropyDecrease) == 0 &&
+            if((Double.compare(maxEntropyDecrease,var)>0 && Math.abs(maxEntropyDecrease - var) > 0.00001)
+                    || (Double.compare(var , maxEntropyDecrease) == 0 &&
                     sourceRelationNode.getIcmSet().size() == 1 && tmpRNode.getIcmSet().size() != 0)) {
                 maxEntropyDecrease=var;
                 targetRelationNodeId=tmpRNode.getLoc();
@@ -1117,7 +1133,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isNullNode) {
             RelationNode relationNode2=new RelationNode();
             double var2=simulateMigrateForRelation(icmId , sourceRelationNode , relationNode2 , true);
-            if(Double.compare(maxEntropyDecrease,var2)>0) {
+            if(Double.compare(maxEntropyDecrease,var2)>0 && Math.abs(maxEntropyDecrease - var2) > 0.00001) {
                 relationNodeList.add(relationNode2);
                 maxEntropyDecrease=var2;
                 relationNode2.setLoc(relationNodeList.size()-1);
@@ -1153,10 +1169,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                    System.out.println("发生熵值不等错误0005: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
 //                            "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+listId);
 //                }
-                if(Double.compare(twoStepVar,0.0)<0) {
-                    isStable=false;
-                    return;//这部分搞定就可以直接结束了
-                }
+//                if(Double.compare(twoStepVar,0.0)<0) {
+//                    isStable=false;
+//                    return;//这部分搞定就可以直接结束了
+//                }
             }
         }
     }
@@ -1180,7 +1196,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 targetIsNullFlag=true;
             }
             double var=simulateMigrateForRelation(icmSet , sourceRelationNode , tmpRNode , targetIsNullFlag);
-            if(Double.compare(maxEntropyDecrease,var)>0 || (Double.compare(var , maxEntropyDecrease) == 0 &&
+            if((Double.compare(maxEntropyDecrease,var)>0 && Math.abs(maxEntropyDecrease - var) > 0.00001)
+                    || (Double.compare(var , maxEntropyDecrease) == 0 &&
                     sourceRelationNode.getIcmSet().size()-icmSet.size() == 0 && tmpRNode.getIcmSet().size() != 0)) {
                 maxEntropyDecrease=var;
                 targetRelationNodeId=tmpRNode.getLoc();
@@ -1192,7 +1209,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isNullNode) {
             RelationNode relationNode2=new RelationNode();
             double var2=simulateMigrateForRelation(icmSet , sourceRelationNode , relationNode2 , true);
-            if(Double.compare(maxEntropyDecrease,var2)>0) {
+            if(Double.compare(maxEntropyDecrease,var2)>0 && Math.abs(maxEntropyDecrease - var2) > 0.00001) {
                 relationNodeList.add(relationNode2);
                 relationNode2.setLoc(relationNodeList.size()-1);
                 maxEntropyDecrease=var2;
@@ -1854,7 +1871,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 isTravseNUllNode=true;
             }
             double var=simulateMigrateForRelation(icmId,targetRelationNode,otherRelationNode,targetIsNullFlag);
-            if(Double.compare(minEntropyDown,var)>0 || (Double.compare(var,minEntropyDown)==0
+            if((Double.compare(minEntropyDown,var)>0 && Math.abs(minEntropyDown - var) > 0.00001 )
+                    || (Double.compare(var,minEntropyDown)==0
                     && targetRelationNode.getIcmSet().size()==1 && otherRelationNode.getIcmSet().size() != 0)) {
                 minEntropyDown=var;
                 minVarRNodeId=otherRelationNode.getLoc();
@@ -1865,7 +1883,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isTravseNUllNode) {
             RelationNode tRelationNode=new RelationNode();
             double var=simulateMigrateForRelation(icmId,targetRelationNode,tRelationNode,true);
-            if(Double.compare(minEntropyDown,var)>0) {
+            if(Double.compare(minEntropyDown,var)>0 && Math.abs(minEntropyDown - var) > 0.00001) {
                 isUsedNullNode=true;
                 minEntropyDown=var;
                 relationNodeList.add(tRelationNode);
@@ -1893,7 +1911,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         boolean secondStepFlag=false;
         if(targetRelationNode.getIcmSet().size()==0) secondStepFlag=true;
         double simVar=simulateMigrateForRelation(icmId, sourceRelationNode, targetRelationNode , secondStepFlag);
-        if(Double.compare(simVar,0.0)>=0) {
+        if(Double.compare(simVar,0.0)>=0 && Math.abs(simVar - 0.0) > 0.00001) {
             //说明这步迁移是没有意义的,我们接下来判断刚才的迁移是否需要复原
             if(Double.compare(minEntropyDown,0.0)>0 ||
                     (Double.compare(minEntropyDown,0.0)==0 && !(targetRelationNode.getIcmSet().size()==0
@@ -2079,7 +2097,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private void recoverMigrateClassNode(int sourceClassNodeListId,int targetClassNodeListId) {
         ClassNode sourceClassNode = classNodeList.get(sourceClassNodeListId);
-        ClassNode targetClassNode = classNodeList.get(targetClassNodeListId);
 
         Set<Long> relationNodeIdSet = new HashSet<>();//防止relationNode节点重复set
         Set<Long> valueNodeIdSet = new HashSet<>();//防止valueNode节点重复set
@@ -2101,12 +2118,14 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
 
         sourceClassNode.setBiEntropyValue(sourceClassNode.getPostBiEntropyValue());
-        targetClassNode.setBiEntropyValue(targetClassNode.getPostBiEntropyValue());
+        if(targetClassNodeListId<classNodeList.size()) {
+            ClassNode targetClassNode = classNodeList.get(targetClassNodeListId);
+            targetClassNode.setBiEntropyValue(targetClassNode.getPostBiEntropyValue());
+        }
     }
 
     private void recoverMigrateRelationNode(int sourceRelationNodeListId,int targetRelationNodeListId) {
         RelationNode sourceRelationNode = relationNodeList.get(sourceRelationNodeListId);
-        RelationNode targetRelationNode = relationNodeList.get(targetRelationNodeListId);
 
         Set<Long> classNodeIdSet = new HashSet<>();//防止classNode节点重复set
         Set<Long> valueNodeIdSet = new HashSet<>();//防止valueNode节点重复set
@@ -2128,7 +2147,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
 
         sourceRelationNode.setBiEntropyValue(sourceRelationNode.getPostBiEntropyValue());
-        targetRelationNode.setBiEntropyValue(targetRelationNode.getPostBiEntropyValue());
+
+        if(targetRelationNodeListId<relationNodeList.size()) {
+            RelationNode targetRelationNode = relationNodeList.get(targetRelationNodeListId);
+            targetRelationNode.setBiEntropyValue(targetRelationNode.getPostBiEntropyValue());
+        }
     }
 
     /**
