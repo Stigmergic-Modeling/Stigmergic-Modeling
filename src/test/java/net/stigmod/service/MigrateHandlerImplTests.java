@@ -1470,7 +1470,7 @@ public class MigrateHandlerImplTests {
 
 //    @Test
 //    public void testRandomValue() {
-//        this.PersonNum=2;
+//        this.personNum=2;
 //        initTest();
 //        MigrateHandlerImpl migrateHandler = new MigrateHandlerImpl();
 //        migrateHandler.migrateInitForTest(classNodeList,relationNodeList,valueNodeList);

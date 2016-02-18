@@ -145,15 +145,14 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             for(int i=0;i<curSum;i++) {
 
-//                if(i==curSum/4||i==curSum/3||i==curSum/2||i==(curSum*3)/4) {
-//                    System.out.println("完成第"+iterNum+"轮迭代的部分循环");
-//                }
-                if(i == curSum - 10) {
-                    System.out.println("完成第"+iterNum+"轮迭代的部分循环");
+                if(i != 0 && i % 10 == 0) {
+                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择");
+                    System.out.println("当前系统熵值为: "+systemEntropy);
+                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
                 }
                 if(i == curSum -1) break;
                 int randValue = randomList[i];
-                System.out.println("随机值: " + randValue);
+//                System.out.println("随机值: " + randValue);
                 cNum=classNodeList.size();//要不断更新cNum的值
 
                 if(randValue<cNum) migrateClassNode(randValue);
@@ -1053,8 +1052,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 systemEntropy = recoverSystemEntropy;
                 this.nodeSum=recoverNodeSum;
             }else {
-                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
-                        " ,minVarCNodeListId为:"+minVarCNodeListId);
+//                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
+//                        " ,minVarCNodeListId为:"+minVarCNodeListId);
                 isStable=false;
             }//不需要复原
         }else {
@@ -1071,10 +1070,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     reComputeMigrateClassNodeEntropy(sourceClassNodeListId, targetClassNodeListId);
                     systemEntropy += simVar;
                     isStable=false;
-                    System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
-                            targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
-                    System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
-                            sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
+//                    System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
+//                            targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
+//                    System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
+//                            sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
                 }else {//resSimVar<0.0说明系统熵值总体上升了,因此必须回复全部初始数据
                     recoverMigrateStateForClassNode(icmId,targetClassNodeListId,minVarCNodeListId,isUsedNullNode);//还原节点的原有格局
                     recoverEdgeStateForClassNode(targetClassNodeListId);
@@ -1091,10 +1090,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
                 systemEntropy += simVar;
                 isStable=false;
-                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
-                        targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
-                System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
-                        sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
+//                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
+//                        targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId);
+//                System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
+//                        sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
             }
         }
         return simVar+minEntropyDown;
@@ -2310,7 +2309,18 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void scanToValidateData() {
         for(int i=0;i<classNodeList.size();i++) {
             ClassNode cNode = classNodeList.get(i);
-            if(cNode.getIcmSet().size()>0) System.out.println("class节点编号: "+i+" ,用户数: "+cNode.getIcmSet().size());
+            if(cNode.getIcmSet().size()>0) {
+                System.out.println("class节点编号: "+i+" ,用户数: "+cNode.getIcmSet().size());
+                ValueNode vNode = null;
+                int max=0;
+                for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+                    if(ctvEdge.getIcmList().size() > max) {
+                        max= ctvEdge.getIcmList().size();
+                        vNode = ctvEdge.getEnder();
+                    }
+                }
+                System.out.println("指向的value节点为: "+ vNode.getName() +" ,其对应用户数为: "+max);
+            }
         }
         for(int i=0;i<relationNodeList.size();i++) {
             RelationNode rNode = relationNodeList.get(i);

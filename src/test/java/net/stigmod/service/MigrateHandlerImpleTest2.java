@@ -36,11 +36,12 @@ public class MigrateHandlerImpleTest2 {
     int rNodeNum=25;//暂定
 
     long c=0;
-    int PersonNum;
+    int personNum;
+    int deleteNum;
 
     private void cNodeInit() {
 
-        for(long t=0;t<PersonNum;t++) {
+        for(long t=0;t< personNum;t++) {
             for(int i=0;i<cNodeNum;i++) {
                 c++;
                 Set<Long> s1=new HashSet<>();
@@ -57,7 +58,7 @@ public class MigrateHandlerImpleTest2 {
 
     private void rNodeInit() {
 
-        for(long t=0;t<PersonNum;t++) {
+        for(long t=0;t< personNum;t++) {
             for(int i=0;i<rNodeNum;i++) {
                 c++;
                 Set<Long> s1=new HashSet<>();
@@ -74,7 +75,7 @@ public class MigrateHandlerImpleTest2 {
 
     private void vNodeInit() {
         Set<Long> s1=new HashSet<>();
-        for(long i=0;i<(long)PersonNum;i++) {
+        for(long i=0;i<(long) personNum;i++) {
             s1.add(i);
         }
 
@@ -147,7 +148,7 @@ public class MigrateHandlerImpleTest2 {
     }
 
     private void edgeInit() {
-        for(long i=0;i<PersonNum;i++) {
+        for(long i=0;i< personNum;i++) {
             c++;
 
             Set<Long> s1=new HashSet<>();
@@ -1462,8 +1463,14 @@ public class MigrateHandlerImpleTest2 {
             int[] randList = randValueList(uNodeSum);
             for(int j=0;j<deleteNum;j++) {
                 int curRandValue = randList[j];
-                if(curRandValue<cNodeNum) deleteClassNode(curUId,curRandValue,i*cNodeNum,(i+1)*cNodeNum-1);
-                else deleteRelationNode(curUId,curRandValue-cNodeNum,i*rNodeNum,(i+1)*rNodeNum-1);
+                if(curRandValue<cNodeNum) {
+                    deleteClassNode(curUId, curRandValue, i * cNodeNum, (i + 1) * cNodeNum - 1);
+                    System.out.println("删除第"+i+"个用户第"+(i*cNodeNum+curRandValue)+"个Class节点");
+                }
+                else {
+                    deleteRelationNode(curUId,curRandValue-cNodeNum,i*rNodeNum,(i+1)*rNodeNum-1);
+                    System.out.println("删除第"+i+"个用户第"+(i*rNodeNum+curRandValue-cNodeNum)+"个Relation节点");
+                }
             }
         }
     }
@@ -1541,11 +1548,13 @@ public class MigrateHandlerImpleTest2 {
         rNodeInit();
         vNodeInit();
         edgeInit();
+        deleteNodesForUser(deleteNum , personNum);
     }
 
     @Test
     public void testMigrate() {
-        this.PersonNum=8;
+        this.personNum = 10;
+        this.deleteNum = 3;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
         migrateHandler.migrateInitForTest(classNodeList,relationNodeList,valueNodeList);
