@@ -154,6 +154,8 @@ public class MigrateHandlerImplTests {
         for(long i=0;i<PersonNum;i++) {
             c++;
 
+//            System.out.println("c的值为: "+c);
+
             Set<Long> s1=new HashSet<>();
             s1.add(i);
 
@@ -1448,6 +1450,8 @@ public class MigrateHandlerImplTests {
             relationNodeList.get(curI*rNodeNum+24).getRtvEdges().add(rtvEdge169);
             valueNodeList.get(33).getRtvEdges().add(rtvEdge169);
 
+
+//            System.out.println("当前c值: "+c);
         }
 
     }
@@ -1461,7 +1465,7 @@ public class MigrateHandlerImplTests {
 
     @Test
     public void testMigrate() {
-        this.PersonNum=20;
+        this.PersonNum=10;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
         migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList);

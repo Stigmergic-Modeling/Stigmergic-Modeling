@@ -116,6 +116,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         this.isStable=false;
         this.nodeSum=(classNodeList.size()+relationNodeList.size()+valueNodeList.size());
         this.systemEntropy = 0.0;
+        this.curIdLoc=((long)(classNodeList.size()+relationNodeList.size()+valueNodeList.size())*1000);
 
         setLocForList();
     }
@@ -136,23 +137,24 @@ public class MigrateHandlerImpl implements MigrateHandler {
             System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int[] randomList=randomValue();
-//            int[] randomList = {0,81,147,55,80,28,150,119,15,79,92,95,35,33,10,121,157,144,40,34,66,4,87,41,61,47,97,
-//                    51,8,125,137,12,98,77,96,161,118,127,159,116,146,71,53,23,24,149,156,114,143,110,122,86,13,113,
-//                    132,133,11,44,82,148,152,135,38,9,138,158,52,1,70,50,107,60,67,27,45,91,19,31,29,6,65,123,142,17,
-//                    93,14,126,3,2,58,68,73,90,59,84,134,162,160,69,76,100,131,20,78,74,25,18,36,128,5,140,49,7,153,108,
-//                    48,85,120,111,46,32,145,16,104,115,89,164,22,64,88,102,62,42,101,39,43,72,57,83,151,37,54,141,129};
+//            int[] randomList = {328,271,290,131,89,12,314,8,101,67,7,62,27,145,159,196,261,309,307,75,237,32,117,137,162,204,96,43,295,100,2,269,18,87,280,166,320,232,213,327,216,233,238,317,243,217,173,160,282,138,33,241,93,255,259,3,148,109,321,212,0,281,86,73,197,207,270,50,205,324,74,5,229,155,114,84,292,103,267,136,150,202,316,70,303,79,35,53,92,257,106,164,19,25,308,299,142,4,26,185,126,172,318,279,167,156,95,294,260,64,9,247,312,88,200,306,37,132,186,15,253,181,28,301,315,268,49,47,242,188,297,239,310,34,121,285,65,220,97,264,61,251,122,29,224,225,124,289,183,322,36,180,85,80,20,170,209,201,30,140,230,252,157,113,184,304,59,55,272,263,283,98,287,128,300,161,258,199,323,284,146,17,46,45,168,31,11,94,296,23,63,44,165,179,273,325,187,174,250,111,60,16,177,286,329,115,249,66,81,169,254,76,313,193,191,72,112,91,149,82,54,57,192,24,198,141,228,78,276,127,38,208,266,178,153,105,291,221,139,90,144,171,125,248,234,143,39,120,246,10,235,41,147,102,182,40,71,1,311,190,210,326,302,135,118,134,22,21,240,175,42,151,14,130,203,275,123,104,244,222,154,274,107,13,218,110,195,48,77,277,214,256,99,158,227,69,215,119,116,194,206,176,265,219,6,189,305,51,163,133,226,293,319,288,262,298,211,56,68,245,83,108,231,58,236,223,52,129,278};
             int curSum=randomList.length;
 
             for(int i=0;i<curSum;i++) {
 
-                if(i != 0 && i % 10 == 0) {
-                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择");
-                    System.out.println("当前系统熵值为: "+systemEntropy);
-                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
-                }
-                if(i == curSum -1) break;
+//                if(i != 0 && i % 10 == 0) {
+//                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择");
+//                    System.out.println("当前系统熵值为: "+systemEntropy);
+//                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
+//                }
+
                 int randValue = randomList[i];
-//                System.out.println("随机值: " + randValue);
+                System.out.println("随机值: " + randValue);
+
+//                if(randValue == 267) {
+//                    System.out.println("123");
+//                }
+
                 cNum=classNodeList.size();//要不断更新cNum的值
 
                 if(randValue<cNum) migrateClassNode(randValue);
@@ -160,6 +162,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
 //                double testE = scanToComputeSystemEntropy();
 //                System.out.println("当前系统的熵值为: "+ testE);
+
+                scanToFindBug();
             }
             if(isStable&&curIterNum>2) break;
             else if(isStable) curIterNum++;
@@ -636,6 +640,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
 
             systemEntropy += maxEntropyDecrease;
+
 //            double testE = scanToComputeSystemEntropy();
 //            if(Math.abs(systemEntropy - testE) > 0.1) {
 //                System.out.println("发生熵值不等错误0002: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
@@ -1163,6 +1168,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(targetRelationNodeId==-1) {
             for(Integer listId : alreadyHasCurIcmRelationNodeListId) {
                 double twoStepVar=migrateRelationNodeNeedTwoStep(icmId , sourceRelationNodeListId ,listId);
+
 //                double testE = scanToComputeSystemEntropy();
 //                if(Math.abs(systemEntropy - testE) > 0.1) {
 //                    System.out.println("发生熵值不等错误0005: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
@@ -1223,6 +1229,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,targetRelationNodeId);
 
             systemEntropy += maxEntropyDecrease;
+
 //            double testE = scanToComputeSystemEntropy();
 //            if(Math.abs(systemEntropy - testE) > 0.1) {
 //                System.out.println("发生熵值不等错误0006: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
@@ -2285,6 +2292,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
                 if(rtcEdge.getIcmList().size()>icmSum) {
                     System.out.println("222222222");
+                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
                 }
             }
         }
@@ -2301,6 +2309,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
                 if(rtcEdge.getIcmList().size()>icmSum) {
                     System.out.println("44444444444");
+                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
                 }
             }
         }
