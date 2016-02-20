@@ -1020,6 +1020,8 @@ public class MigrateUtil {
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
             if(rtvEdge.getIcmList().size() == 0) continue;
             ValueNode vNode = rtvEdge.getEnder();
+            if(vNode.getName().equals("1")||vNode.getName().equals("2")||vNode.getName().equals("*")
+                    ||vNode.getName().equals("1..*")||vNode.getName().equals("true")) continue;
             for(RelationToValueEdge rtvEdge2 : vNode.getRtvEdges()) {
                 if(rtvEdge2.getIcmList().size() == 0) continue;
                 RelationNode otherRNode = rtvEdge2.getStarter();

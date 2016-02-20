@@ -148,8 +148,10 @@ public class MigrateHandlerImpleTest2 {
     }
 
     private void edgeInit() {
-        for(long i=0;i< personNum;i++) {
+        for(long i=0;i<personNum;i++) {
             c++;
+
+//            System.out.println("c的值为: "+c);
 
             Set<Long> s1=new HashSet<>();
             s1.add(i);
@@ -159,56 +161,56 @@ public class MigrateHandlerImpleTest2 {
             //先把所有classNode的指向valueNode的边确定下来
             //第一个是Person
             ClassToValueEdge ctvEdge1 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum),valueNodeList.get(0));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum),valueNodeList.get(0));
             ctvEdge1.setIcmList(new HashSet<Long>(s1));
             ctvEdge1.setId(c++);
             classNodeList.get(curI*cNodeNum).getCtvEdges().add(ctvEdge1);
             valueNodeList.get(0).getCtvEdges().add(ctvEdge1);
             //第二个是Student
             ClassToValueEdge ctvEdge2 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+1),valueNodeList.get(1));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+1),valueNodeList.get(1));
             ctvEdge2.setIcmList(new HashSet<Long>(s1));
             ctvEdge2.setId(c++);
             classNodeList.get(curI*cNodeNum+1).getCtvEdges().add(ctvEdge2);
             valueNodeList.get(1).getCtvEdges().add(ctvEdge2);
             //第三个是Teacher
             ClassToValueEdge ctvEdge3 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+2),valueNodeList.get(2));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+2),valueNodeList.get(2));
             ctvEdge3.setIcmList(new HashSet<Long>(s1));
             ctvEdge3.setId(c++);
             classNodeList.get(curI*cNodeNum+2).getCtvEdges().add(ctvEdge3);
             valueNodeList.get(2).getCtvEdges().add(ctvEdge3);
             //第四个是Course
             ClassToValueEdge ctvEdge4 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+3),valueNodeList.get(3));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+3),valueNodeList.get(3));
             ctvEdge4.setIcmList(new HashSet<Long>(s1));
             ctvEdge4.setId(c++);
             classNodeList.get(curI*cNodeNum+3).getCtvEdges().add(ctvEdge4);
             valueNodeList.get(3).getCtvEdges().add(ctvEdge4);
             //第五个是CourseSchedule
             ClassToValueEdge ctvEdge5 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+4),valueNodeList.get(4));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+4),valueNodeList.get(4));
             ctvEdge5.setIcmList(new HashSet<Long>(s1));
             ctvEdge5.setId(c++);
             classNodeList.get(curI*cNodeNum+4).getCtvEdges().add(ctvEdge5);
             valueNodeList.get(4).getCtvEdges().add(ctvEdge5);
             //第六个是Integer
             ClassToValueEdge ctvEdge6 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+5),valueNodeList.get(5));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+5),valueNodeList.get(5));
             ctvEdge6.setIcmList(new HashSet<Long>(s1));
             ctvEdge6.setId(c++);
             classNodeList.get(curI*cNodeNum+5).getCtvEdges().add(ctvEdge6);
             valueNodeList.get(5).getCtvEdges().add(ctvEdge6);
             //第七个是String
             ClassToValueEdge ctvEdge7 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+6),valueNodeList.get(6));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+6),valueNodeList.get(6));
             ctvEdge7.setIcmList(new HashSet<Long>(s1));
             ctvEdge7.setId(c++);
             classNodeList.get(curI*cNodeNum+6).getCtvEdges().add(ctvEdge7);
             valueNodeList.get(6).getCtvEdges().add(ctvEdge7);
             //第八个是Boolean
             ClassToValueEdge ctvEdge8 =
-                    new ClassToValueEdge("name", classNodeList.get(curI*cNodeNum+7),valueNodeList.get(7));
+                    new ClassToValueEdge("name",classNodeList.get(curI*cNodeNum+7),valueNodeList.get(7));
             ctvEdge8.setIcmList(new HashSet<Long>(s1));
             ctvEdge8.setId(c++);
             classNodeList.get(curI*cNodeNum+7).getCtvEdges().add(ctvEdge8);
@@ -218,7 +220,7 @@ public class MigrateHandlerImpleTest2 {
             //下面设置Rtv与Rtc节点
             //第一个是关系是Person与Student的关系,泛化关系,以e0为父端,e1为子端
             RelationToCEdge rtcEdge1 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum),classNodeList.get(curI*cNodeNum));
             rtcEdge1.setIcmList(new HashSet<Long>(s1));
             rtcEdge1.setId(c++);
             relationNodeList.get(curI*rNodeNum).getRtcEdges().add(rtcEdge1);
@@ -232,7 +234,7 @@ public class MigrateHandlerImpleTest2 {
             valueNodeList.get(8).getRtvEdges().add(rtvEdge1);
 
             RelationToCEdge rtcEdge2 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum), classNodeList.get(curI*cNodeNum+1));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum),classNodeList.get(curI*cNodeNum+1));
             rtcEdge2.setIcmList(new HashSet<Long>(s1));
             rtcEdge2.setId(c++);
             relationNodeList.get(curI*rNodeNum).getRtcEdges().add(rtcEdge2);
@@ -256,7 +258,7 @@ public class MigrateHandlerImpleTest2 {
             //第一个关系结束,第二个关系是Person与Teacher的关系
 
             RelationToCEdge rtcEdge4 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+1), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+1),classNodeList.get(curI*cNodeNum));
             rtcEdge4.setIcmList(new HashSet<Long>(s1));
             rtcEdge4.setId(c++);
             relationNodeList.get(curI*rNodeNum+1).getRtcEdges().add(rtcEdge4);
@@ -270,7 +272,7 @@ public class MigrateHandlerImpleTest2 {
             valueNodeList.get(8).getRtvEdges().add(rtvEdge5);
 
             RelationToCEdge rtcEdge6 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+1), classNodeList.get(curI*cNodeNum+2));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+1),classNodeList.get(curI*cNodeNum+2));
             rtcEdge6.setIcmList(new HashSet<Long>(s1));
             rtcEdge6.setId(c++);
             relationNodeList.get(curI*rNodeNum+1).getRtcEdges().add(rtcEdge6);
@@ -294,7 +296,7 @@ public class MigrateHandlerImpleTest2 {
 
             //第三个关系是Student与Course的关系,1对*,关系名为choose
             RelationToCEdge rtcEdge9 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+2), classNodeList.get(curI*cNodeNum+1));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+2),classNodeList.get(curI*cNodeNum+1));
             rtcEdge9.setIcmList(new HashSet<Long>(s1));
             rtcEdge9.setId(c++);
             relationNodeList.get(curI*rNodeNum+2).getRtcEdges().add(rtcEdge9);
@@ -315,7 +317,7 @@ public class MigrateHandlerImpleTest2 {
             valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge12 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+2), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+2),classNodeList.get(curI*cNodeNum+3));
             rtcEdge12.setIcmList(new HashSet<Long>(s1));
             rtcEdge12.setId(c++);
             relationNodeList.get(curI*rNodeNum+2).getRtcEdges().add(rtcEdge12);
@@ -344,7 +346,7 @@ public class MigrateHandlerImpleTest2 {
 
             //下面是第四个关系Course与Teacher,*对1的多重性,边名为teaching
             RelationToCEdge rtcEdge16 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+3), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+3),classNodeList.get(curI*cNodeNum+3));
             rtcEdge16.setIcmList(new HashSet<Long>(s1));
             rtcEdge16.setId(c++);
             relationNodeList.get(curI*rNodeNum+3).getRtcEdges().add(rtcEdge16);
@@ -365,7 +367,7 @@ public class MigrateHandlerImpleTest2 {
             valueNodeList.get(36).getRtvEdges().add(rtvEdge18);
 
             RelationToCEdge rtcEdge19 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+3), classNodeList.get(curI*cNodeNum+2));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+3),classNodeList.get(curI*cNodeNum+2));
             rtcEdge19.setIcmList(new HashSet<Long>(s1));
             rtcEdge19.setId(c++);
             relationNodeList.get(curI*rNodeNum+3).getRtcEdges().add(rtcEdge19);
@@ -394,7 +396,7 @@ public class MigrateHandlerImpleTest2 {
 
             //下面建立第5个关系 Course与CourseSchedule
             RelationToCEdge rtcEdge23 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+4), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+4),classNodeList.get(curI*cNodeNum+3));
             rtcEdge23.setIcmList(new HashSet<Long>(s1));
             rtcEdge23.setId(c++);
             relationNodeList.get(curI*rNodeNum+4).getRtcEdges().add(rtcEdge23);
@@ -415,7 +417,7 @@ public class MigrateHandlerImpleTest2 {
             valueNodeList.get(35).getRtvEdges().add(rtvEdge25);
 
             RelationToCEdge rtcEdge26 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+4), classNodeList.get(curI*cNodeNum+4));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+4),classNodeList.get(curI*cNodeNum+4));
             rtcEdge26.setIcmList(new HashSet<Long>(s1));
             rtcEdge26.setId(c++);
             relationNodeList.get(curI*rNodeNum+4).getRtcEdges().add(rtcEdge26);
@@ -445,7 +447,7 @@ public class MigrateHandlerImpleTest2 {
             //完成了基本的五个关系的建立,剩下20个关系则是属性关系了
             //第一个是Person与uid的
             RelationToCEdge rtcEdge30 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+5), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+5),classNodeList.get(curI*cNodeNum));
             rtcEdge30.setIcmList(new HashSet<Long>(s1));
             rtcEdge30.setId(c++);
             relationNodeList.get(curI*rNodeNum+5).getRtcEdges().add(rtcEdge30);
@@ -466,7 +468,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge33 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+5), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+5),classNodeList.get(curI*cNodeNum+6));
             rtcEdge33.setIcmList(new HashSet<Long>(s1));
             rtcEdge33.setId(c++);
             relationNodeList.get(curI*rNodeNum+5).getRtcEdges().add(rtcEdge33);
@@ -487,15 +489,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge36 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+5), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+5), valueNodeList.get(34));
             rtvEdge36.setIcmList(new HashSet<Long>(s1));
             rtvEdge36.setId(c++);
             relationNodeList.get(curI*rNodeNum+5).getRtvEdges().add(rtvEdge36);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge36);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge36);
 
             //Person与name的属性
             RelationToCEdge rtcEdge37 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+6), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+6),classNodeList.get(curI*cNodeNum));
             rtcEdge37.setIcmList(new HashSet<Long>(s1));
             rtcEdge37.setId(c++);
             relationNodeList.get(curI*rNodeNum+6).getRtcEdges().add(rtcEdge37);
@@ -516,7 +518,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge40 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+6), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+6),classNodeList.get(curI*cNodeNum+6));
             rtcEdge40.setIcmList(new HashSet<Long>(s1));
             rtcEdge40.setId(c++);
             relationNodeList.get(curI*rNodeNum+6).getRtcEdges().add(rtcEdge40);
@@ -537,15 +539,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge43 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+6), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+6), valueNodeList.get(34));
             rtvEdge43.setIcmList(new HashSet<Long>(s1));
             rtvEdge43.setId(c++);
             relationNodeList.get(curI*rNodeNum+6).getRtvEdges().add(rtvEdge43);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge43);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge43);
 
             //下一个Person与age
             RelationToCEdge rtcEdge44 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+7), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+7),classNodeList.get(curI*cNodeNum));
             rtcEdge44.setIcmList(new HashSet<Long>(s1));
             rtcEdge44.setId(c++);
             relationNodeList.get(curI*rNodeNum+7).getRtcEdges().add(rtcEdge44);
@@ -566,7 +568,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge47 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+7), classNodeList.get(curI*cNodeNum+5));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+7),classNodeList.get(curI*cNodeNum+5));
             rtcEdge47.setIcmList(new HashSet<Long>(s1));
             rtcEdge47.setId(c++);
             relationNodeList.get(curI*rNodeNum+7).getRtcEdges().add(rtcEdge47);
@@ -587,15 +589,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge50 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+7), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+7), valueNodeList.get(34));
             rtvEdge50.setIcmList(new HashSet<Long>(s1));
             rtvEdge50.setId(c++);
             relationNodeList.get(curI*rNodeNum+7).getRtvEdges().add(rtvEdge50);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge50);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge50);
 
             //下一个是Perosn与gender
             RelationToCEdge rtcEdge51 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+8), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+8),classNodeList.get(curI*cNodeNum));
             rtcEdge51.setIcmList(new HashSet<Long>(s1));
             rtcEdge51.setId(c++);
             relationNodeList.get(curI*rNodeNum+8).getRtcEdges().add(rtcEdge51);
@@ -616,7 +618,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge54 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+8), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+8),classNodeList.get(curI*cNodeNum+6));
             rtcEdge54.setIcmList(new HashSet<Long>(s1));
             rtcEdge54.setId(c++);
             relationNodeList.get(curI*rNodeNum+8).getRtcEdges().add(rtcEdge54);
@@ -637,15 +639,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge57 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+8), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+8), valueNodeList.get(34));
             rtvEdge57.setIcmList(new HashSet<Long>(s1));
             rtvEdge57.setId(c++);
             relationNodeList.get(curI*rNodeNum+8).getRtvEdges().add(rtvEdge57);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge57);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge57);
 
             //Person与email的关系
             RelationToCEdge rtcEdge58 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+9), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+9),classNodeList.get(curI*cNodeNum));
             rtcEdge58.setIcmList(new HashSet<Long>(s1));
             rtcEdge58.setId(c++);
             relationNodeList.get(curI*rNodeNum+9).getRtcEdges().add(rtcEdge58);
@@ -666,7 +668,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge61 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+9), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+9),classNodeList.get(curI*cNodeNum+6));
             rtcEdge61.setIcmList(new HashSet<Long>(s1));
             rtcEdge61.setId(c++);
             relationNodeList.get(curI*rNodeNum+9).getRtcEdges().add(rtcEdge61);
@@ -687,15 +689,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge64 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+9), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+9), valueNodeList.get(34));
             rtvEdge64.setIcmList(new HashSet<Long>(s1));
             rtvEdge64.setId(c++);
             relationNodeList.get(curI*rNodeNum+9).getRtvEdges().add(rtvEdge64);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge64);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge64);
 
             //下一个是Person与tel的关系
             RelationToCEdge rtcEdge65 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+10), classNodeList.get(curI*cNodeNum));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+10),classNodeList.get(curI*cNodeNum));
             rtcEdge65.setIcmList(new HashSet<Long>(s1));
             rtcEdge65.setId(c++);
             relationNodeList.get(curI*rNodeNum+10).getRtcEdges().add(rtcEdge65);
@@ -716,7 +718,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge68 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+10), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+10),classNodeList.get(curI*cNodeNum+6));
             rtcEdge68.setIcmList(new HashSet<Long>(s1));
             rtcEdge68.setId(c++);
             relationNodeList.get(curI*rNodeNum+10).getRtcEdges().add(rtcEdge68);
@@ -737,15 +739,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge71 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+10), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+10), valueNodeList.get(34));
             rtvEdge71.setIcmList(new HashSet<Long>(s1));
             rtvEdge71.setId(c++);
             relationNodeList.get(curI*rNodeNum+10).getRtvEdges().add(rtvEdge71);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge71);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge71);
 
             //Student与sid的属性关系
             RelationToCEdge rtcEdge72 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+11), classNodeList.get(curI*cNodeNum+1));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+11),classNodeList.get(curI*cNodeNum+1));
             rtcEdge72.setIcmList(new HashSet<Long>(s1));
             rtcEdge72.setId(c++);
             relationNodeList.get(curI*rNodeNum+11).getRtcEdges().add(rtcEdge72);
@@ -766,7 +768,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge75 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+11), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+11),classNodeList.get(curI*cNodeNum+6));
             rtcEdge75.setIcmList(new HashSet<Long>(s1));
             rtcEdge75.setId(c++);
             relationNodeList.get(curI*rNodeNum+11).getRtcEdges().add(rtcEdge75);
@@ -787,15 +789,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge78 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+11), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+11), valueNodeList.get(34));
             rtvEdge78.setIcmList(new HashSet<Long>(s1));
             rtvEdge78.setId(c++);
             relationNodeList.get(curI*rNodeNum+11).getRtvEdges().add(rtvEdge78);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge78);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge78);
 
             //下一个是Student与grade
             RelationToCEdge rtcEdge79 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+12), classNodeList.get(curI*cNodeNum+1));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+12),classNodeList.get(curI*cNodeNum+1));
             rtcEdge79.setIcmList(new HashSet<Long>(s1));
             rtcEdge79.setId(c++);
             relationNodeList.get(curI*rNodeNum+12).getRtcEdges().add(rtcEdge79);
@@ -816,7 +818,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge82 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+12), classNodeList.get(curI*cNodeNum+5));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+12),classNodeList.get(curI*cNodeNum+5));
             rtcEdge82.setIcmList(new HashSet<Long>(s1));
             rtcEdge82.setId(c++);
             relationNodeList.get(curI*rNodeNum+12).getRtcEdges().add(rtcEdge82);
@@ -837,15 +839,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge85 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+12), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+12), valueNodeList.get(34));
             rtvEdge85.setIcmList(new HashSet<Long>(s1));
             rtvEdge85.setId(c++);
             relationNodeList.get(curI*rNodeNum+12).getRtvEdges().add(rtvEdge85);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge85);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge85);
 
             //Student与major的属性关系
             RelationToCEdge rtcEdge86 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+13), classNodeList.get(curI*cNodeNum+1));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+13),classNodeList.get(curI*cNodeNum+1));
             rtcEdge86.setIcmList(new HashSet<Long>(s1));
             rtcEdge86.setId(c++);
             relationNodeList.get(curI*rNodeNum+13).getRtcEdges().add(rtcEdge86);
@@ -866,7 +868,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge89 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+13), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+13),classNodeList.get(curI*cNodeNum+6));
             rtcEdge89.setIcmList(new HashSet<Long>(s1));
             rtcEdge89.setId(c++);
             relationNodeList.get(curI*rNodeNum+13).getRtcEdges().add(rtcEdge89);
@@ -887,16 +889,16 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge92 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+13), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+13), valueNodeList.get(34));
             rtvEdge92.setIcmList(new HashSet<Long>(s1));
             rtvEdge92.setId(c++);
             relationNodeList.get(curI*rNodeNum+13).getRtvEdges().add(rtvEdge92);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge92);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge92);
 
             //下面是Course的相关属性
             //首先是Course和cid的
             RelationToCEdge rtcEdge93 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+14), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+14),classNodeList.get(curI*cNodeNum+3));
             rtcEdge93.setIcmList(new HashSet<Long>(s1));
             rtcEdge93.setId(c++);
             relationNodeList.get(curI*rNodeNum+14).getRtcEdges().add(rtcEdge93);
@@ -917,7 +919,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge96 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+14), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+14),classNodeList.get(curI*cNodeNum+6));
             rtcEdge96.setIcmList(new HashSet<Long>(s1));
             rtcEdge96.setId(c++);
             relationNodeList.get(curI*rNodeNum+14).getRtcEdges().add(rtcEdge96);
@@ -938,15 +940,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge99 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+14), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+14), valueNodeList.get(34));
             rtvEdge99.setIcmList(new HashSet<Long>(s1));
             rtvEdge99.setId(c++);
             relationNodeList.get(curI*rNodeNum+14).getRtvEdges().add(rtvEdge99);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge99);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge99);
 
             //其次是Course和name的
             RelationToCEdge rtcEdge100 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+15), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+15),classNodeList.get(curI*cNodeNum+3));
             rtcEdge100.setIcmList(new HashSet<Long>(s1));
             rtcEdge100.setId(c++);
             relationNodeList.get(curI*rNodeNum+15).getRtcEdges().add(rtcEdge100);
@@ -967,7 +969,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge103 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+15), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+15),classNodeList.get(curI*cNodeNum+6));
             rtcEdge103.setIcmList(new HashSet<Long>(s1));
             rtcEdge103.setId(c++);
             relationNodeList.get(curI*rNodeNum+15).getRtcEdges().add(rtcEdge103);
@@ -988,15 +990,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge106 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+15), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+15), valueNodeList.get(34));
             rtvEdge106.setIcmList(new HashSet<Long>(s1));
             rtvEdge106.setId(c++);
             relationNodeList.get(curI*rNodeNum+15).getRtvEdges().add(rtvEdge106);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge106);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge106);
 
             //Course和credit
             RelationToCEdge rtcEdge107 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+16), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+16),classNodeList.get(curI*cNodeNum+3));
             rtcEdge107.setIcmList(new HashSet<Long>(s1));
             rtcEdge107.setId(c++);
             relationNodeList.get(curI*rNodeNum+16).getRtcEdges().add(rtcEdge107);
@@ -1017,7 +1019,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge110 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+16), classNodeList.get(curI*cNodeNum+5));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+16),classNodeList.get(curI*cNodeNum+5));
             rtcEdge110.setIcmList(new HashSet<Long>(s1));
             rtcEdge110.setId(c++);
             relationNodeList.get(curI*rNodeNum+16).getRtcEdges().add(rtcEdge110);
@@ -1038,15 +1040,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge113 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+16), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+16), valueNodeList.get(34));
             rtvEdge113.setIcmList(new HashSet<Long>(s1));
             rtvEdge113.setId(c++);
             relationNodeList.get(curI*rNodeNum+16).getRtvEdges().add(rtvEdge113);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge113);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge113);
 
             //Course与teacherId
             RelationToCEdge rtcEdge114 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+17), classNodeList.get(curI*cNodeNum+3));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+17),classNodeList.get(curI*cNodeNum+3));
             rtcEdge114.setIcmList(new HashSet<Long>(s1));
             rtcEdge114.setId(c++);
             relationNodeList.get(curI*rNodeNum+17).getRtcEdges().add(rtcEdge114);
@@ -1067,7 +1069,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge117 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+17), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+17),classNodeList.get(curI*cNodeNum+6));
             rtcEdge117.setIcmList(new HashSet<Long>(s1));
             rtcEdge117.setId(c++);
             relationNodeList.get(curI*rNodeNum+17).getRtcEdges().add(rtcEdge117);
@@ -1088,16 +1090,16 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge120 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+17), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+17), valueNodeList.get(34));
             rtvEdge120.setIcmList(new HashSet<Long>(s1));
             rtvEdge120.setId(c++);
             relationNodeList.get(curI*rNodeNum+17).getRtvEdges().add(rtvEdge120);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge120);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge120);
 
             //接下来是Teacher的属性关系
             //首先是Teacher与tid
             RelationToCEdge rtcEdge121 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+18), classNodeList.get(curI*cNodeNum+2));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+18),classNodeList.get(curI*cNodeNum+2));
             rtcEdge121.setIcmList(new HashSet<Long>(s1));
             rtcEdge121.setId(c++);
             relationNodeList.get(curI*rNodeNum+18).getRtcEdges().add(rtcEdge121);
@@ -1118,7 +1120,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge124 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+18), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+18),classNodeList.get(curI*cNodeNum+6));
             rtcEdge124.setIcmList(new HashSet<Long>(s1));
             rtcEdge124.setId(c++);
             relationNodeList.get(curI*rNodeNum+18).getRtcEdges().add(rtcEdge124);
@@ -1139,15 +1141,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge127 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+18), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+18), valueNodeList.get(34));
             rtvEdge127.setIcmList(new HashSet<Long>(s1));
             rtvEdge127.setId(c++);
             relationNodeList.get(curI*rNodeNum+18).getRtvEdges().add(rtvEdge127);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge127);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge127);
 
             //Teacher与title的关系
             RelationToCEdge rtcEdge128 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+19), classNodeList.get(curI*cNodeNum+2));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+19),classNodeList.get(curI*cNodeNum+2));
             rtcEdge128.setIcmList(new HashSet<Long>(s1));
             rtcEdge128.setId(c++);
             relationNodeList.get(curI*rNodeNum+19).getRtcEdges().add(rtcEdge128);
@@ -1168,7 +1170,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge131 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+19), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+19),classNodeList.get(curI*cNodeNum+6));
             rtcEdge131.setIcmList(new HashSet<Long>(s1));
             rtcEdge131.setId(c++);
             relationNodeList.get(curI*rNodeNum+19).getRtcEdges().add(rtcEdge131);
@@ -1189,15 +1191,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge134 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+19), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+19), valueNodeList.get(34));
             rtvEdge134.setIcmList(new HashSet<Long>(s1));
             rtvEdge134.setId(c++);
             relationNodeList.get(curI*rNodeNum+19).getRtvEdges().add(rtvEdge134);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge134);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge134);
 
             //下面是Teacher与hightestEducation
             RelationToCEdge rtcEdge135 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+20), classNodeList.get(curI*cNodeNum+2));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+20),classNodeList.get(curI*cNodeNum+2));
             rtcEdge135.setIcmList(new HashSet<Long>(s1));
             rtcEdge135.setId(c++);
             relationNodeList.get(curI*rNodeNum+20).getRtcEdges().add(rtcEdge135);
@@ -1218,7 +1220,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge138 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+20), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+20),classNodeList.get(curI*cNodeNum+6));
             rtcEdge138.setIcmList(new HashSet<Long>(s1));
             rtcEdge138.setId(c++);
             relationNodeList.get(curI*rNodeNum+20).getRtcEdges().add(rtcEdge138);
@@ -1239,15 +1241,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge141 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+20), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+20), valueNodeList.get(34));
             rtvEdge141.setIcmList(new HashSet<Long>(s1));
             rtvEdge141.setId(c++);
             relationNodeList.get(curI*rNodeNum+20).getRtvEdges().add(rtvEdge141);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge141);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge141);
 
             //下面是Teacher与department
             RelationToCEdge rtcEdge142 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+21), classNodeList.get(curI*cNodeNum+2));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+21),classNodeList.get(curI*cNodeNum+2));
             rtcEdge142.setIcmList(new HashSet<Long>(s1));
             rtcEdge142.setId(c++);
             relationNodeList.get(curI*rNodeNum+21).getRtcEdges().add(rtcEdge142);
@@ -1268,7 +1270,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge145 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+21), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+21),classNodeList.get(curI*cNodeNum+6));
             rtcEdge145.setIcmList(new HashSet<Long>(s1));
             rtcEdge145.setId(c++);
             relationNodeList.get(curI*rNodeNum+21).getRtcEdges().add(rtcEdge145);
@@ -1289,15 +1291,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge148 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+21), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+21), valueNodeList.get(34));
             rtvEdge148.setIcmList(new HashSet<Long>(s1));
             rtvEdge148.setId(c++);
             relationNodeList.get(curI*rNodeNum+21).getRtvEdges().add(rtvEdge148);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge148);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge148);
 
             //接下来是CourseSchedule的属性关系
             RelationToCEdge rtcEdge149 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+22), classNodeList.get(curI*cNodeNum+4));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+22),classNodeList.get(curI*cNodeNum+4));
             rtcEdge149.setIcmList(new HashSet<Long>(s1));
             rtcEdge149.setId(c++);
             relationNodeList.get(curI*rNodeNum+22).getRtcEdges().add(rtcEdge149);
@@ -1318,7 +1320,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge152 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+22), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+22),classNodeList.get(curI*cNodeNum+6));
             rtcEdge152.setIcmList(new HashSet<Long>(s1));
             rtcEdge152.setId(c++);
             relationNodeList.get(curI*rNodeNum+22).getRtcEdges().add(rtcEdge152);
@@ -1339,15 +1341,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge155 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+22), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+22), valueNodeList.get(34));
             rtvEdge155.setIcmList(new HashSet<Long>(s1));
             rtvEdge155.setId(c++);
             relationNodeList.get(curI*rNodeNum+22).getRtvEdges().add(rtvEdge155);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge155);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge155);
 
             //下面是CourseSchedule与locate
             RelationToCEdge rtcEdge156 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+23), classNodeList.get(curI*cNodeNum+4));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+23),classNodeList.get(curI*cNodeNum+4));
             rtcEdge156.setIcmList(new HashSet<Long>(s1));
             rtcEdge156.setId(c++);
             relationNodeList.get(curI*rNodeNum+23).getRtcEdges().add(rtcEdge156);
@@ -1368,7 +1370,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge159 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+23), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+23),classNodeList.get(curI*cNodeNum+6));
             rtcEdge159.setIcmList(new HashSet<Long>(s1));
             rtcEdge159.setId(c++);
             relationNodeList.get(curI*rNodeNum+23).getRtcEdges().add(rtcEdge159);
@@ -1389,15 +1391,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge162 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+23), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+23), valueNodeList.get(34));
             rtvEdge162.setIcmList(new HashSet<Long>(s1));
             rtvEdge162.setId(c++);
             relationNodeList.get(curI*rNodeNum+23).getRtvEdges().add(rtvEdge162);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge162);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge162);
 
             //下面是CourseSchedule与date
             RelationToCEdge rtcEdge163 =
-                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+24), classNodeList.get(curI*cNodeNum+4));
+                    new RelationToCEdge("e0","class",relationNodeList.get(curI*rNodeNum+24),classNodeList.get(curI*cNodeNum+4));
             rtcEdge163.setIcmList(new HashSet<Long>(s1));
             rtcEdge163.setId(c++);
             relationNodeList.get(curI*rNodeNum+24).getRtcEdges().add(rtcEdge163);
@@ -1418,7 +1420,7 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(35).getRtvEdges().add(rtvEdge11);
 
             RelationToCEdge rtcEdge166 =
-                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+24), classNodeList.get(curI*cNodeNum+6));
+                    new RelationToCEdge("e1","class",relationNodeList.get(curI*rNodeNum+24),classNodeList.get(curI*cNodeNum+6));
             rtcEdge166.setIcmList(new HashSet<Long>(s1));
             rtcEdge166.setId(c++);
             relationNodeList.get(curI*rNodeNum+24).getRtcEdges().add(rtcEdge166);
@@ -1439,14 +1441,15 @@ public class MigrateHandlerImpleTest2 {
 //            valueNodeList.get(36).getRtvEdges().add(rtvEdge14);
 
             RelationToValueEdge rtvEdge169 =
-                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+24), valueNodeList.get(33));
+                    new RelationToValueEdge("","isAttribute",relationNodeList.get(curI*rNodeNum+24), valueNodeList.get(34));
             rtvEdge169.setIcmList(new HashSet<Long>(s1));
             rtvEdge169.setId(c++);
             relationNodeList.get(curI*rNodeNum+24).getRtvEdges().add(rtvEdge169);
-            valueNodeList.get(33).getRtvEdges().add(rtvEdge169);
+            valueNodeList.get(34).getRtvEdges().add(rtvEdge169);
 
+
+//            System.out.println("当前c值: "+c);
         }
-
     }
 
     /**
@@ -1553,7 +1556,7 @@ public class MigrateHandlerImpleTest2 {
 
     @Test
     public void testMigrate() {
-        this.personNum = 10;
+        this.personNum = 30;
         this.deleteNum = 3;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
