@@ -1557,7 +1557,7 @@ public class MigrateHandlerImpleTest2 {
         this.deleteNum = 3;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
-        migrateHandler.migrateInitForTest(classNodeList,relationNodeList,valueNodeList);
+        migrateHandler.migrateInitForTest(classNodeList,relationNodeList,valueNodeList,++c);
         migrateHandler.migrateHandler(0l);
     }
 
