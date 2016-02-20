@@ -1465,7 +1465,7 @@ public class MigrateHandlerImplTests {
 
     @Test
     public void testMigrate() {
-        this.PersonNum=20;
+        this.PersonNum=30;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
         migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList,++c);
