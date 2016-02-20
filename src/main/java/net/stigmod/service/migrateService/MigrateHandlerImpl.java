@@ -17,6 +17,7 @@ import net.stigmod.repository.relationship.RelationToCEdgeRepository;
 import net.stigmod.repository.relationship.RelationToVEdgeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -127,10 +128,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        int rNum=relationNodeList.size();
         int cNum=classNodeList.size();
         int curIterNum=0;
+        int iterNum = 0;
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("算法运行启动时间为: " + df.format(new Date()));
 
         systemEntropy = entropyHandler.initNodeListEntropy(classNodeList,relationNodeList,valueNodeList,nodeSum);
         System.out.println("系统初始熵值为: "+systemEntropy);
-        int iterNum = 0;
 
         while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
             iterNum++;
@@ -162,17 +166,20 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
 //                double testE = scanToComputeSystemEntropy();
 //                System.out.println("当前系统的熵值为: "+ testE);
-
-                scanToFindBug();
+//                scanToFindBug();
             }
             if(isStable&&curIterNum>2) break;
             else if(isStable) curIterNum++;
             else curIterNum=0;
         }
 
+        System.out.println("算法运行结束时间为: " + df.format(new Date()));
+        System.out.println("算法运行结束,系统熵值为: "+systemEntropy);
+
         scanToFindBug();
         scanToValidateData();
         System.out.println("算法运行结束,系统熵值为: "+systemEntropy);
+        System.out.println("验证熵值为: " + scanToComputeSystemEntropy());
         System.out.println("迭代结束啦~");
     }
 
@@ -2267,14 +2274,23 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(int i=0;i<classNodeList.size();i++) {
             ClassNode classNode = classNodeList.get(i);
             testBiEntropy += classNode.getBiEntropyValue();
+            if(Math.abs(classNode.getBiEntropyValue()-0.0)>0.00001) {
+                System.out.println("classNode的Listid为: "+classNode.getLoc());
+            }
         }
         for(int i=0;i<relationNodeList.size();i++) {
             RelationNode relationNode = relationNodeList.get(i);
-            testBiEntropy +=relationNode.getBiEntropyValue();
+            testBiEntropy += relationNode.getBiEntropyValue();
+            if (Math.abs(relationNode.getBiEntropyValue() - 0.0) > 0.00001) {
+                System.out.println("relationNode的Listid为: " + relationNode.getLoc());
+            }
         }
         for(int i=0;i<valueNodeList.size();i++) {
             ValueNode valueNode = valueNodeList.get(i);
             testBiEntropy +=valueNode.getBiEntropyValue();
+            if (Math.abs(valueNode.getBiEntropyValue() - 0.0) > 0.00001) {
+                System.out.println("valueNode的名字为: " + valueNode.getName());
+            }
         }
         return testBiEntropy * nodeSum;
     }
@@ -2336,36 +2352,5 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(rNode.getIcmSet().size()>0) System.out.println("relation节点编号: "+i+" ,用户数: "+rNode.getIcmSet().size());
         }
     }
-//    private void findLowerEntropyWithThreeKeyNode(int classNodeListId) {//该函数暂时用不到
-//        //使用以三个节点为一个子结构的方式去寻找是否有另一个子结构让该节点的用户融合进去
-//        ClassNode sourceCNode = classNodeList.get(classNodeListId);
-//        Set<Long> icmSet=new HashSet<>(sourceCNode.getIcmSet());
-//        for(Long curIcmId : icmSet) {
-//            ValueNode vSourceNode,vTargetNode;
-//            for(ClassToValueEdge ctvEdge : sourceCNode.getCtvEdges()) {
-//                if(!ctvEdge.getIcmList().contains(curIcmId)) continue;
-//                else {
-//                    vSourceNode = ctvEdge.getEnder();
-//                    break;
-//                }
-//            }
-//
-//            //下面开始找子系统
-//            for(RelationToCEdge rtcEdge : sourceCNode.getRtcEdges()) {
-//                if(!rtcEdge.getIcmList().contains(curIcmId)) continue;
-//                RelationNode midRNode = rtcEdge.getStarter();
-//                for(RelationToCEdge rtcEdge2 : midRNode.getRtcEdges()) {
-//                    if(rtcEdge==rtcEdge2||!rtcEdge2.getIcmList().contains(curIcmId)) continue;//我们要确保找到的这三个节点都包含该用户
-//                    ClassNode targetCNode = rtcEdge2.getEnder();
-//                    //这样的话,我们找到了一个关系: 从sourceCNode --> midRNode --> targetCNode
-//                    //这里再做一个验证
-//                    if(!midRNode.getIcmSet().contains(curIcmId)&&!targetCNode.getIcmSet().contains(curIcmId)) {
-//                        System.out.println("Error!!! location is findLowerEntropyWithThreeKeyNode function 1136 line");
-//                    }
-//
-//                }
-//            }
-//        }
-//
-//    }
+
 }
