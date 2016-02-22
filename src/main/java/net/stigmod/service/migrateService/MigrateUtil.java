@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 /**
- * 
+ *
  *
  * @version     2015/11/12
  * @author 	    Kai Fu
@@ -41,9 +41,9 @@ public class MigrateUtil {
      * @return 熵值变化
      */
     protected double MigrateFromClassToClassForValueNode(Long icmId , ValueNode valueNode , ClassNode sourceCNode ,
-                                                      ClassNode targetCNode , int oldNodeNum , int newNodeNum) {
+                                                         ClassNode targetCNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceCNode.getId();
         Long targetId=targetCNode.getId();
@@ -61,13 +61,13 @@ public class MigrateUtil {
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmList());
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }//上面这部分获得了valueNode的oldNodeMap
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }//上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmList().contains(icmId)) {
                 newTmpUserSet.remove(icmId);//是一条由sourceClass指向ValueNode的边
@@ -96,14 +96,14 @@ public class MigrateUtil {
         //下面我们完成relation to value部分
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String edgeName=rtvEdge.getEdgeName();
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(rtvEdge.getIcmList());
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(rtvEdge.getIcmList());
-                oldNodeMap.put(edgeName,list);
-            }
-            //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(rtvEdge.getIcmList());
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(rtvEdge.getIcmList());
+//                oldNodeMap.put(edgeName,list);
+//            }
+        //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(rtvEdge.getIcmList());
             }else {
@@ -114,8 +114,8 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的连接
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+        double oldEntropy=valueNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -124,7 +124,7 @@ public class MigrateUtil {
     protected double MigrateFromClassToClassForValueNode(Set<Long> icmSet , ValueNode valueNode , ClassNode sourceCNode ,
                                                          ClassNode targetCNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceCNode.getId();
         Long targetId=targetCNode.getId();
@@ -144,13 +144,13 @@ public class MigrateUtil {
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmList());
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }//上面这部分获得了valueNode的oldNodeMap
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }//上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmList().contains(oneIcmId)) {
                 newTmpUserSet.removeAll(icmSet);//是一条由sourceClass指向ValueNode的边
@@ -178,13 +178,13 @@ public class MigrateUtil {
         //下面我们完成relation to value部分
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String edgeName=rtvEdge.getEdgeName();
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(rtvEdge.getIcmList());
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(rtvEdge.getIcmList());
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(rtvEdge.getIcmList());
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(rtvEdge.getIcmList());
+//                oldNodeMap.put(edgeName,list);
+//            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(rtvEdge.getIcmList());
@@ -196,8 +196,8 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的连接
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+        double oldEntropy=valueNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -214,7 +214,7 @@ public class MigrateUtil {
     protected double MigrateFromClassToClassForRelationNode(Long icmId , RelationNode relationNode , ClassNode sourceCNode
             , ClassNode targetCNode , int oldNodeNum ,int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceCNode.getId();
         Long targetId=targetCNode.getId();
@@ -259,13 +259,13 @@ public class MigrateUtil {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmList().contains(icmId)) {
@@ -304,13 +304,13 @@ public class MigrateUtil {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(icmId)) {
@@ -345,8 +345,9 @@ public class MigrateUtil {
 
         //两部分都完成
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+//        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double oldEntropy=relationNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -355,7 +356,7 @@ public class MigrateUtil {
     protected double MigrateFromClassToClassForRelationNode(Set<Long> icmSet , RelationNode relationNode , ClassNode sourceCNode
             , ClassNode targetCNode , int oldNodeNum ,int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceCNode.getId();
         Long targetId=targetCNode.getId();
@@ -402,13 +403,13 @@ public class MigrateUtil {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmList().contains(oneIcmId)) {
@@ -446,13 +447,13 @@ public class MigrateUtil {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(oneIcmId)) {
@@ -486,8 +487,9 @@ public class MigrateUtil {
 
         //两部分都完成
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+//        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double oldEntropy=relationNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -505,7 +507,7 @@ public class MigrateUtil {
     protected double MigrateFromRelationToRelationForValueNode(Long icmId , ValueNode valueNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceRNode.getId();
         Long targetId=targetRNode.getId();
@@ -532,13 +534,13 @@ public class MigrateUtil {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(icmId)) {
@@ -575,13 +577,13 @@ public class MigrateUtil {
         //下面我们完成class to value部分
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(ctvEdge.getIcmList());
+//                oldNodeMap.put(edgeName,list);
+//            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
@@ -593,8 +595,9 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+//        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double oldEntropy=valueNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -603,7 +606,7 @@ public class MigrateUtil {
     protected double MigrateFromRelationToRelationForValueNode(Set<Long> icmSet , ValueNode valueNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceRNode.getId();
         Long targetId=targetRNode.getId();
@@ -632,13 +635,13 @@ public class MigrateUtil {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(oneIcmId)) {
@@ -674,13 +677,13 @@ public class MigrateUtil {
         //下面我们完成class to value部分
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(ctvEdge.getIcmList());
+//                oldNodeMap.put(edgeName,list);
+//            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
@@ -692,8 +695,9 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+//        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double oldEntropy=valueNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -710,7 +714,7 @@ public class MigrateUtil {
     protected double MigrateFromRelationToRelationForClassNode(Long icmId , ClassNode classNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceRNode.getId();
         Long targetId=targetRNode.getId();
@@ -737,13 +741,13 @@ public class MigrateUtil {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了classNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmList().contains(icmId)) {
@@ -780,13 +784,13 @@ public class MigrateUtil {
         //下面我们完成class to value部分
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(ctvEdge.getIcmList());
+//                oldNodeMap.put(edgeName,list);
+//            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
@@ -798,8 +802,9 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+//        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double oldEntropy=classNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -808,7 +813,7 @@ public class MigrateUtil {
     protected double MigrateFromRelationToRelationForClassNode(Set<Long> icmSet , ClassNode classNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
-        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
+//        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
         Map<String,List<Set<Long>>> newNodeMap=new HashMap<>();
         Long sourceId=sourceRNode.getId();
         Long targetId=targetRNode.getId();
@@ -837,13 +842,13 @@ public class MigrateUtil {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
             Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
-            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
-                oldNodeMap.get(edgeName).add(tmpUserSet);
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(tmpUserSet);
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
+//                oldNodeMap.get(edgeName).add(tmpUserSet);
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(tmpUserSet);
+//                oldNodeMap.put(edgeName,list);
+//            }
             //上面这部分获得了classNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmList().contains(oneIcmId)) {
@@ -879,13 +884,13 @@ public class MigrateUtil {
         //下面我们完成class to value部分
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
-            if(oldNodeMap.containsKey(edgeName)) {
-                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
-            }else {
-                List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
-                oldNodeMap.put(edgeName,list);
-            }
+//            if(oldNodeMap.containsKey(edgeName)) {
+//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//            }else {
+//                List<Set<Long>> list=new ArrayList<>();
+//                list.add(ctvEdge.getIcmList());
+//                oldNodeMap.put(edgeName,list);
+//            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
@@ -897,8 +902,9 @@ public class MigrateUtil {
         }
 
         //完成了oldNodeMap和newNodeMap的建立
-        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
-        double newEntropy=entropyHandler.compueteMapEntropy(newNodeMap , newNodeNum);
+//        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
+        double oldEntropy=classNode.getBiEntropyValue()*oldNodeNum;
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;

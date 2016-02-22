@@ -54,7 +54,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();//所有的出边
             Set<RelationToCEdge> rtcEdges=classNode.getRtcEdges();//所有的入边
             Map<String,List<Set<Long>>> myMap=getMapForClassNode(ctvEdges,rtcEdges);
-            res=compueteMapEntropy(myMap,nodeSum);
+            res= computeMapEntropy(myMap, nodeSum);
         }
         return res;
     }
@@ -71,7 +71,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             Set<RelationToCEdge> rtcEdges=relationNode.getRtcEdges();
             Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
             Map<String,List<Set<Long>>> myMap=getMapForRelationNode(rtcEdges,rtvEdges);
-            res=compueteMapEntropy(myMap,nodeSum);
+            res= computeMapEntropy(myMap, nodeSum);
         }
         return res;
     }
@@ -88,7 +88,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             Set<ClassToValueEdge> ctvEdges=valueNode.getCtvEdges();
             Set<RelationToValueEdge> rtvEdges=valueNode.getRtvEdges();
             Map<String,List<Set<Long>>> myMap=getMapForValueNode(ctvEdges,rtvEdges);
-            res=compueteMapEntropy(myMap,nodeSum);
+            res= computeMapEntropy(myMap, nodeSum);
         }
         return res;
     }
@@ -173,23 +173,34 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param myMap:以某个节点的边名为key,value是对应边的用户集合
      * @return 熵值
      */
-    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap , int nodeSum) {
+    public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap, int nodeSum) {
+        double entropy = computeMapBiEntropy(myMap);
+        entropy *= nodeSum;
+        return entropy;
+    }
+
+    public Double computeMapBiEntropy(Map<String,List<Set<Long>>> myMap) {
         double entropy=0.0;
         for(String key : myMap.keySet()) {//这里的每一个key是种类型的边(比如name)
             List<Set<Long>> valuelist=myMap.get(key);
+            int valueListSize = valuelist.size();
             Set<Long> userSet=new HashSet<Long>();//所有用户的集合
-            for(int i=0;i<valuelist.size();i++) {
+            for(int i=0;i<valueListSize;i++) {
                 userSet.addAll(valuelist.get(i));
             }
             if(userSet.size()==0) continue;
             Iterator<Long> uIter=userSet.iterator();
             Map<String,List<Long>> resMap=new HashMap<>();
+            Map<String,List<Integer>> resEdgeMap = new HashMap<>();//这个value值是边集合
             while(uIter.hasNext()) {
                 Long uid=uIter.next();
                 StringBuffer stringBuffer=new StringBuffer();
-                for(int i=0;i<valuelist.size();i++) {
-                    if(valuelist.get(i).contains(uid)) stringBuffer.append(i);
-                    if(i!=valuelist.size()-1) stringBuffer.append("-");
+                List<Integer> edgeList = new ArrayList<>();
+                for(int i=0;i<valueListSize;i++) {
+                    if(valuelist.get(i).contains(uid)) {
+                        stringBuffer.append(i);
+                        edgeList.add(i);
+                    }
                 }
                 String str_edge=stringBuffer.toString();//边分布名
                 if(resMap.containsKey(str_edge)) {
@@ -198,6 +209,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
                     List<Long> ulist=new ArrayList<>();
                     ulist.add(uid);
                     resMap.put(str_edge,ulist);
+                    resEdgeMap.put(str_edge,edgeList);
                 }
             }
             //resMap中包含有边的分布
@@ -209,23 +221,18 @@ public class EntropyHandlerImpl implements EntropyHandler{
             for(String str : resMap.keySet()) {
                 List<Long> ulist=resMap.get(str);
                 if(ulist.size()==0) continue;
-                String[] edgeIdStrs=str.split("-");
-                List<Integer> edgeIds=new ArrayList<>();
-                for(String s : edgeIdStrs) {
-                    if(s.equals("")) continue;
-                    edgeIds.add(Integer.parseInt(s));
-                }
-                edgeIdLists.add(edgeIds);
+                edgeIdLists.add(resEdgeMap.get(str));
                 ulists.add(ulist);
             }
 
+            int edgeIdListSize = edgeIdLists.size();
             List<List<Double>> simList=new ArrayList<>();
-            for(int i=0;i<edgeIdLists.size();i++) {
+            for(int i=0;i<edgeIdListSize;i++) {
                 List<Integer> cur=edgeIdLists.get(i);
                 List<Double> sims=new ArrayList<>();
                 simList.add(sims);
-                for(int j=0;j<edgeIdLists.size();j++) {
-                    if(i==j) {
+                for(int j=0;j<edgeIdListSize;j++) {
+                    if(i>=j) {
                         simList.get(i).add(0.0);
                         continue;
                     }
@@ -240,34 +247,27 @@ public class EntropyHandlerImpl implements EntropyHandler{
             }
 
             List<Double> prob=new ArrayList<>();
-            for(int i=0;i<ulists.size();i++) {
-                List<Long> tmpList=ulists.get(i);
-                double p=(double) tmpList.size()/u_num;
+            int ulistsSize = ulists.size();
+            for(int i=0;i<ulistsSize;i++) {
+                int tmpListSize = ulists.get(i).size();
+                double p=(double) tmpListSize / u_num;
                 prob.add(p);
             }
 
-            for(int i=0;i<ulists.size();i++) {
-                double sum=0.0;
-                for(int j=0;j<ulists.size();j++) {
+            for(int i=0;i<ulistsSize;i++) {
+                double sum=prob.get(i);
+                for(int j=0;j<ulistsSize;j++) {
                     if(i==j) continue;
-                    sum+=prob.get(j)*simList.get(i).get(j);
+                    if(j>i) sum+=prob.get(j)*simList.get(i).get(j);
+                    else sum+=prob.get(j)*simList.get(j).get(i);
                 }
-                sum+=prob.get(i);
                 double logp=Math.log(sum)/Math.log(2);
                 tagE+=prob.get(i)*logp;
             }
-//            for(String str:resMap.keySet()) {
-//                List<Long> ulist=resMap.get(str);
-//                if(ulist.size()==0) System.out.println("Error...EntropyHandler class...!!!");
-//                double p=(double) ulist.size()/u_num;
-//                double logp=Math.log(p)/Math.log(2);
-//                tagE+=p*logp;
-//            }
             tagE=-tagE;
             tagE=tagE*userSet.size();
             entropy+=tagE;
         }
-        entropy*=nodeSum;
         return entropy;
     }
 
@@ -322,7 +322,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             if(classNode.isInitEntropy()) {//如果他是刚被初始化的节点,那么这个节点的熵值必须重新算出,否则不用再计算了
                 classNode.setIsInitEntropy(false);//标注这个节点已经被初始化过了,不再是初始节点了
                 double cNodeBiEntropy =
-                        compueteMapEntropy(getMapForClassNode(classNode.getCtvEdges(),classNode.getRtcEdges()),nodeSum)/nodeSum;
+                        computeMapBiEntropy(getMapForClassNode(classNode.getCtvEdges(), classNode.getRtcEdges()));
                 if(Double.compare(0.0,cNodeBiEntropy) != 0) {
                     System.out.println("Its a Error for classNode in function initCNodeListEntropy , EntropyHandlerImpl class");
                 }
@@ -339,7 +339,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             if(relationNode.isInitEntropy()) {
                 relationNode.setIsInitEntropy(false);
                 double rNodeBiEntropy =
-                        compueteMapEntropy(getMapForRelationNode(relationNode.getRtcEdges(),relationNode.getRtvEdges()),nodeSum)/nodeSum;
+                        computeMapBiEntropy(getMapForRelationNode(relationNode.getRtcEdges(), relationNode.getRtvEdges()));
                 if(Double.compare(0.0,rNodeBiEntropy) != 0) {
                     System.out.println("Its a Error for relationNode in function initRNodeListEntropy , EntropyHandlerImpl class");
                 }
@@ -356,7 +356,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             if(valueNode.isInitEntropy()) {
                 valueNode.setIsInitEntropy(false);
                 double vNodeBiEntropy =
-                        compueteMapEntropy(getMapForValueNode(valueNode.getCtvEdges(),valueNode.getRtvEdges()),nodeSum)/nodeSum;
+                        computeMapBiEntropy(getMapForValueNode(valueNode.getCtvEdges(), valueNode.getRtvEdges()));
 //                valueNode.setOrgEntropyValue(vNodeBiEntropy/valueNode.getIcmSet().size());
                 valueNode.setBiEntropyValue(vNodeBiEntropy);
             }else ;

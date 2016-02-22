@@ -37,7 +37,9 @@ public interface EntropyHandler {
     public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges);
     public Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges);
 
-    public Double compueteMapEntropy(Map<String,List<Set<Long>>> myMap , int nodeSum);
+    public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap, int nodeSum);
+
+    public Double computeMapBiEntropy(Map<String,List<Set<Long>>> myMap);
 
     public Double initNodeListEntropy(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
                                     List<ValueNode> valueNodeList , int nodeSum);
