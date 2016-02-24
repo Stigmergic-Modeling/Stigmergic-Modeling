@@ -1465,7 +1465,7 @@ public class MigrateHandlerImplTests {
 
     @Test
     public void testMigrate() {
-        this.PersonNum=20;
+        this.PersonNum=50;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();
         migrateHandler.migrateInitForTest(cLassNodeList,relationNodeList,valueNodeList,++c);
@@ -1553,6 +1553,6 @@ public class MigrateHandlerImplTests {
 //        myMap.put("name",lists);
 //
 //        EntropyHandler entropyHandler=new EntropyHandlerImpl();
-//        entropyHandler.compueteMapEntropy(myMap,5);
+//        entropyHandler.computeMapEntropy(myMap,5);
 //    }
 }

@@ -1556,7 +1556,7 @@ public class MigrateHandlerImpleTest2 {
 
     @Test
     public void testMigrate() {
-        this.personNum = 30;
+        this.personNum = 35;
         this.deleteNum = 3;
         initTest();
         MigrateHandlerImpl migrateHandler=new MigrateHandlerImpl();

@@ -346,7 +346,6 @@ public class EntropyHandlerImpl implements EntropyHandler{
 //                relationNode.setOrgEntropyValue(rNodeBiEntropy/relationNode.getIcmSet().size());
                 relationNode.setBiEntropyValue(rNodeBiEntropy);
             }else;
-
             systemBiEntropy += relationNode.getBiEntropyValue();
         }
 
