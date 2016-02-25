@@ -1,0 +1,649 @@
+<!-- Modals -->
+
+<!-- 添加 Class -->
+<div class="modal fade" id="stigmod-modal-addclass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+
+        <div class="modal-content modal-normal modal-normal-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'CLASS'</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="stigmod-addclass-name">
+                    <div class="col-xs-3">
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" id="stigmod-addclass-input" class="stigmod-input" stigmod-inputcheck="class-add" placeholder="                      Class Name" />
+                    </div>
+                    <div class="col-xs-3">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary stigmod-btn-modal-bottom" id="stigmod-btn-addclass">Add</button>
+                    <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-content modal-recommendation modal-recommendation-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">
+                    <span class="glyphicon glyphicon-fire"></span>
+                    <span>RECOMMENDATION</span>
+                </h4>
+            </div>
+            <div class="modal-body stigmod-hidden-scroll">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="list-group" id="stigmod-modal-rec-class">
+                            <!--推荐模板-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- 添加 Relation Group -->
+<div class="modal fade" id="stigmod-modal-addrelationgroup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+
+        <div class="modal-content modal-normal modal-normal-no-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'RELATION GROUP'</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-3">
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" id="stigmod-addrelgrp-input-first" class="stigmod-input" stigmod-inputcheck="relationgroup-add" placeholder="                       Class One" />
+                    </div>
+                    <div class="col-xs-3">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3">
+                    </div>
+                    <div class="col-xs-6">
+                        <input type="text" id="stigmod-addrelgrp-input-second" class="stigmod-input" stigmod-inputcheck="relationgroup-add" placeholder="                       Class Two" />
+                    </div>
+                    <div class="col-xs-3">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary stigmod-btn-modal-bottom" id="stigmod-btn-addrelationgroup">Add</button>
+                    <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!--<div class="modal-content modal-recommendation modal-recommendation-animation">-->
+        <!--<div class="modal-header">-->
+        <!--<h4 class="modal-title text-center">-->
+        <!--<span class="glyphicon glyphicon-fire"></span>-->
+        <!--<span>RECOMMENDATION</span>-->
+        <!--</h4>-->
+        <!--</div>-->
+        <!--<div class="modal-body stigmod-hidden-scroll">-->
+        <!--<div class="row">-->
+        <!--<div class="col-xs-12">-->
+        <!--<div class="list-group" id="stigmod-modal-rec-relationgroup">-->
+        <!--&lt;!&ndash; 推荐模板 &ndash;&gt;-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="modal-footer">-->
+        <!--<div class="text-center">-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+
+    </div>
+</div>
+
+<!-- 添加 Attribute -->
+<div class="modal fade" id="stigmod-modal-addattribute" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+
+        <div class="modal-content modal-normal modal-normal-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'ATTRIBUTE'</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p class="stigmod-modal-subtitle"><span class="glyphicon glyphicon-shopping-cart"></span> Choose 'Attribute Properties' you want to add</p>
+                        <div class="stigmod-align-center-8">
+                            <div class="row stigmod-background">
+                                <div class="col-xs-3">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addatt-type-swt"><input type="checkbox" name="checkbox" value="type" checked>type</label>
+                                        <label id="stigmod-addatt-constraint-swt"><input type="checkbox" name="checkbox" value="constraint">constraint</label>
+                                        <label id="stigmod-addatt-union-swt"><input type="checkbox" name="checkbox" value="union">union</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addatt-multiplicity-swt"><input type="checkbox" name="checkbox" value="multiplicity">multiplicity</label>
+                                        <label id="stigmod-addatt-ordering-swt"><input type="checkbox" name="checkbox" value="ordering">ordering</label>
+                                        <label id="stigmod-addatt-subsets-swt"><input type="checkbox" name="checkbox" value="subsets">subsets</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addatt-visibility-swt"><input type="checkbox" name="checkbox" value="visibility">visibility</label>
+                                        <label id="stigmod-addatt-uniqueness-swt"><input type="checkbox" name="checkbox" value="uniqueness">uniqueness</label>
+                                        <label id="stigmod-addatt-redefines-swt"><input type="checkbox" name="checkbox" value="redefines">redefines</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addatt-default-swt"><input type="checkbox" name="checkbox" value="default">default</label>
+                                        <label id="stigmod-addatt-readOnly-swt"><input type="checkbox" name="checkbox" value="readOnly">readOnly</label>
+                                        <label id="stigmod-addatt-composite-swt"><input type="checkbox" name="checkbox" value="composite">composite</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="stigmod-hr-narrow">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="stigmod-align-center-5">
+                            <table class="table stigmod-table-addattribute">
+                                <tbody>
+                                <tr id="stigmod-addatt-name" stigmod-addatt-case="text">
+                                    <td>name</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="attribute-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-type" stigmod-addatt-case="text">
+                                    <td>type</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="type-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-multiplicity" stigmod-addatt-case="text">
+                                    <td>multiplicity</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="multiplicity-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-visibility" stigmod-addatt-case="text">
+                                    <td>visibility</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="visibility-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-default" stigmod-addatt-case="text">
+                                    <td>default</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="default-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-constraint" stigmod-addatt-case="text">
+                                    <td>constraint</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="constraint-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-ordering" stigmod-addatt-case="radio">
+                                    <td>ordering</td>
+                                    <td>
+                  <span class="radio">&nbsp;&nbsp;
+                    <label><input type="radio" name="ordering" value="True">True</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="ordering" value="False">False</label>
+                  </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addatt-uniqueness" stigmod-addatt-case="radio">
+                                    <td>uniqueness</td>
+                                    <td>
+                  <span class="radio">&nbsp;&nbsp;
+                    <label><input type="radio" name="uniqueness" value="True">True</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="uniqueness" value="False">False</label>
+                  </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addatt-readOnly" stigmod-addatt-case="radio">
+                                    <td>readOnly</td>
+                                    <td>
+                  <span class="radio">&nbsp;&nbsp;
+                    <label><input type="radio" name="readOnly" value="True">True</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="readOnly" value="False">False</label>
+                  </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addatt-union" stigmod-addatt-case="radio">
+                                    <td>union</td>
+                                    <td>
+                  <span class="radio">&nbsp;&nbsp;
+                    <label><input type="radio" name="union" value="True">True</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="union" value="False">False</label>
+                  </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addatt-subsets" stigmod-addatt-case="text">
+                                    <td>subsets</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="subsets-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-redefines" stigmod-addatt-case="text">
+                                    <td>redefines</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="redefines-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addatt-composite" stigmod-addatt-case="radio">
+                                    <td>composite</td>
+                                    <td>
+                  <span class="radio">&nbsp;&nbsp;
+                    <label><input type="radio" name="composite" value="True">True</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="composite" value="False">False</label>
+                  </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary stigmod-btn-modal-bottom" id="stigmod-btn-addattribute">Add</button>
+                    <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-content modal-recommendation modal-recommendation-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">
+                    <span class="glyphicon glyphicon-fire"></span>
+                    <span>RECOMMENDATION</span>
+                </h4>
+            </div>
+            <div class="modal-body stigmod-hidden-scroll">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="list-group" id="stigmod-modal-rec-attribute">
+                            <!-- 推荐模板 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- 添加 Relation -->
+<div class="modal fade" id="stigmod-modal-addrelation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+
+        <div class="modal-content modal-normal modal-normal-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'RELATION'</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p class="stigmod-modal-subtitle"><span class="glyphicon glyphicon-shopping-cart"></span> Choose 'Properties' you want to add to the 'Relation'</p>
+                        <div class="stigmod-align-center-8">
+                            <div class="row stigmod-background">
+                                <div class="col-xs-4">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addrel-role-swt"><input type="checkbox" name="checkbox" value="role">role</label>
+                                        <label id="stigmod-addrel-uniqueness-swt"><input type="checkbox" name="checkbox" value="uniqueness">uniqueness</label>
+                                        <label id="stigmod-addrel-subsets-swt"><input type="checkbox" name="checkbox" value="subsets">subsets</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-4">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addrel-multiplicity-swt"><input type="checkbox" name="checkbox" value="multiplicity">multiplicity</label>
+                                        <label id="stigmod-addrel-readOnly-swt"><input type="checkbox" name="checkbox" value="readOnly">readOnly</label>
+                                        <label id="stigmod-addrel-redefines-swt"><input type="checkbox" name="checkbox" value="redefines">redefines</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-4">
+                                    <div class="checkbox">
+                                        <label id="stigmod-addrel-ordering-swt"><input type="checkbox" name="checkbox" value="ordering">ordering</label>
+                                        <label id="stigmod-addrel-union-swt"><input type="checkbox" name="checkbox" value="union">union</label>
+                                        <label id="stigmod-addrel-composite-swt"><input type="checkbox" name="checkbox" value="composite">composite</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="stigmod-hr-narrow">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="stigmod-align-center-8">
+                            <table class="table stigmod-table-addrelation">
+                                <tbody>
+                                <tr id="stigmod-addrel-type">
+                                    <td>type</td>
+                                    <td>
+                                        <div class="dropdown" id="stigmod-dropdown-reltype-modal">
+                                            <button class="btn btn-default" type="button" data-toggle="dropdown"></button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="">Generalization</a></li>
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="">Composition</a></li>
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="">Aggregation</a></li>
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="">Association</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="relation-add" value="" placeholder="name"></td>
+                                </tr>
+                                <tr id="stigmod-addrel-role" stigmod-addrel-case="text">
+                                    <td>role</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="role-add" value=""></td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="role-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addrel-class" class="stigmod-hovershow-trig" stigmod-addrel-case="text">
+                                    <td><span class="glyphicon glyphicon-transfer stigmod-hovershow-cont stigmod-cursor-pointer"></span>class</td>
+                                    <td><input type="text" class="stigmod-input" value="Course" stigmod-inputcheck="end-add" disabled></td>
+                                    <td><input type="text" class="stigmod-input" value="CourseActivity" stigmod-inputcheck="end-add" disabled></td>
+                                </tr>
+                                <tr id="stigmod-addrel-multiplicity" stigmod-addrel-case="text">
+                                    <td>multiplicity</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="multiplicity-add" value=""></td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="multiplicity-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addrel-ordering" stigmod-addrel-case="radio">
+                                    <td>ordering</td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="ordering1" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="ordering1" value="False">False</label>
+                      </span>
+                                    </td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="ordering2" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="ordering2" value="False">False</label>
+                      </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addrel-uniqueness" stigmod-addrel-case="radio">
+                                    <td>uniqueness</td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="uniqueness1" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="uniqueness1" value="False">False</label>
+                      </span>
+                                    </td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="uniqueness2" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="uniqueness2" value="False">False</label>
+                      </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addrel-readOnly" stigmod-addrel-case="radio">
+                                    <td>readOnly</td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="readOnly1" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="readOnly1" value="False">False</label>
+                      </span>
+                                    </td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="readOnly2" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="readOnly2" value="False">False</label>
+                      </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addrel-union" stigmod-addrel-case="radio">
+                                    <td>union</td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="union1" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="union1" value="False">False</label>
+                      </span>
+                                    </td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="union2" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="union2" value="False">False</label>
+                      </span>
+                                    </td>
+                                </tr>
+                                <tr id="stigmod-addrel-subsets" stigmod-addrel-case="text">
+                                    <td>subsets</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="subsets-add" value=""></td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="subsets-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addrel-redefines" stigmod-addrel-case="text">
+                                    <td>redefines</td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="redefines-add" value=""></td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="redefines-add" value=""></td>
+                                </tr>
+                                <tr id="stigmod-addrel-composite" stigmod-addrel-case="radio">
+                                    <td>composite</td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="composite1" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="composite1" value="False">False</label>
+                      </span>
+                                    </td>
+                                    <td>
+                      <span class="radio">&nbsp;&nbsp;
+                        <label><input type="radio" name="composite2" value="True">True</label>&nbsp;&nbsp;&nbsp;
+                        <label><input type="radio" name="composite2" value="False">False</label>
+                      </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary stigmod-btn-modal-bottom" id="stigmod-btn-addrelation">Add</button>
+                    <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-content modal-recommendation modal-recommendation-animation">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">
+                    <span class="glyphicon glyphicon-fire"></span>
+                    <span>RECOMMENDATION</span>
+                </h4>
+            </div>
+            <div class="modal-body stigmod-hidden-scroll">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="list-group" id="stigmod-modal-rec-relation">
+                            <!-- 推荐模板 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Are you sure to remove? -->
+<div class="modal fade" id="stigmod-modal-remove" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="myModalLabel">Remove '<span class="stigmod-modal-remove-type"></span>'</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 text-center">
+                        <span>You are removing '<span class="stigmod-modal-remove-type"></span>' : '<span class="stigmod-modal-remove-name"></span>' permenantly.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-danger stigmod-btn-modal-bottom" id="stigmod-btn-remove">Remove</button>
+                    <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- model可视化组件 -->
+<div class="modal fade" id="stigmod-modal-d3view" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog stigmod-modal-d3">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row search-row">
+                    <div class="col-xs-4">
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="input-group">
+                            <input type="text" id="searchText" class="form-control" placeholder="Class Name">
+              <span class="input-group-btn">
+                <button id="searchButton" class="btn btn-default" type="button">
+                    <span class="glyphicon glyphicon-search"></span>
+                </button>
+              </span>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                    </div>
+                </div>
+                <div id="tooltip" class="hidden">
+                    <div id = "classDetail">
+                    </div>
+                    <div id = "relationDetail">
+                    </div>
+                </div>
+                <!--<div id="relationGroupDetail" class="hidden">-->
+                <!--<div id="singleRelation"></div>-->
+                <!--</div>-->
+
+                <div id = "legend">
+                    <div id = "Class">
+                        <svg width = "130" height = "24">
+                            <circle id = "classLegend" cursor="pointer" cx = "12" cy = "12" r="10" stroke="#46A39E" fill="#30B6AF"/>
+                            <text x="35" y = "19">Class</text>
+                        </svg>
+
+                    </div>
+                    <div id = "Enumeration">
+                        <svg width = "150" height = "24">
+                            <circle id = "enumerationLegend" cursor="pointer" cx = "12" cy = "12" r="10" stroke="#F3BA25" fill="#FCC940"/>
+                            <text x="35" y = "19">Enumeration</text>
+                        </svg>
+                    </div>
+
+                    <div id = "Relation">
+                        <svg width = "150" height = "24">
+                            <line id = "relationLegend" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#DFE1E3" stroke-width="2"/>
+                            <text x="35" y = "19">Relation</text>
+                        </svg>
+                    </div>
+                </div>
+                <!--<div id = "legendOption" class="hidden">-->
+                <!--<svg width = "250" height = "30">-->
+                <!--<circle id = "optionCircle" cx = "17" cy = "18" r="5" stroke="#46A39E" fill="#30B6AF"/>-->
+                <!--<text id="optionText" x="40" y = "23" fill="#DCDEE0">Class</text>-->
+                <!--<circle id = "closeOption" cursor="pointer" cx="240" cy="10" r="3" fill="red"/>-->
+                <!--</svg>-->
+                <!--<hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>-->
+
+                <!--<svg width = "200" height = "30">-->
+                <!--<text x="12" y = "23" fill="#DCDEE0">Caption: </text>-->
+                <!--<text id="optionCaption" x="75" y = "23" fill="white">ClassName</text>-->
+                <!--</svg>-->
+                <!--<hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>-->
+
+                <!--<svg width = "200" height = "30">-->
+                <!--<text x="12" y = "23" fill="#DCDEE0">Color: </text>-->
+                <!--<text id="optionColor" x="75" y = "23" fill="white">Green </text>-->
+                <!--</svg>-->
+                <!--</div>-->
+                <div id = "nodeLegendOption" class = "hidden">
+                    <svg width = "250" height = "35">
+                        <circle id = "optionCircle" cx = "17" cy = "21" r="5" stroke="#46A39E" fill="#30B6AF"/>
+                        <text id="optionText" x="40" y = "26" fill="#DCDEE0">Class</text>
+                    </svg>
+
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 12px">Caption: </span>
+                        <select id = "captionSelect" style="margin-left:10px">
+                            <option value="1">ClassName</option>
+                            <option value="0">None</option>
+                        </select>
+                    </div>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "colorSelect" style="margin-left:10px">
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="grey">Grey</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div id = "linkLegendOption" class = "hidden">
+                    <svg width = "250" height = "35">
+                        <line id = "optionLine" x1="10" y1="20" x2="30" y2="20" stroke="#DFE1E3" stroke-width="2"/>
+                        <text id="relationOptionText" x="40" y = "26" fill="#DCDEE0">Relation</text>
+                    </svg>
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "relationColorSelect" style="margin-left:10px">
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="grey">Grey</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-xs-12" id="view">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
