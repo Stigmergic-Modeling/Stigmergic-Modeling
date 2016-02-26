@@ -76,7 +76,7 @@ public class WorkspaceController {
         model.addAttribute("currentIcm", currentIcm);
         model.addAttribute("icms", icms);
         model.addAttribute("data", pageData.toJsonString());
-        model.addAttribute("title", "user");
+        model.addAttribute("title", "workspace");
         return "workspace";
     }
 

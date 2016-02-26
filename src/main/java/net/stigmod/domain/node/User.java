@@ -35,7 +35,7 @@ public class User {
     private Long id;
 
     // A user owns many ICMs
-    @Relationship(type = "OWNS", direction = Relationship.INCOMING)
+    @Relationship(type = "OWNS", direction = Relationship.OUTGOING)
     private Set<IndividualConceptualModel> icms = new HashSet<>();
 
     private String mail;

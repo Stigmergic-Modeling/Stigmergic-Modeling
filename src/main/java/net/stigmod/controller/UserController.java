@@ -102,21 +102,20 @@ public class UserController {
                                       ModelMap model) {
         final User user = userRepository.getUserFromSession();
 
-        model.addAttribute("user", user);
-        model.addAttribute("host", host);
-        model.addAttribute("port", port);
-
         try {
             modelService.createIcmClean(user, name, description);
-            model.addAttribute("success", "Create new model successfully.");
-            model.addAttribute("title", "Workspace");
+//            model.addAttribute("success", "Create new model successfully.");
+//            model.addAttribute("title", "Workspace");
 
-            return name + "/workspace";
+            return "redirect:/" + name + "/workspace";
 
         } catch(Exception e) {
             logger.info("createIcmClean fail");
             model.addAttribute("error", e.getMessage());
             model.addAttribute("title", "New Model");
+            model.addAttribute("user", user);
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
 
             return "new_model";
         }
@@ -130,21 +129,20 @@ public class UserController {
                                       ModelMap model) {
         final User user = userRepository.getUserFromSession();
 
-        model.addAttribute("user", user);
-        model.addAttribute("host", host);
-        model.addAttribute("port", port);
-
         try {
             modelService.createIcmInherited(user, name, description, ccmId);
-            model.addAttribute("success", "Create new model successfully.");
-            model.addAttribute("title", "Workspace");
+//            model.addAttribute("success", "Create new model successfully.");
+//            model.addAttribute("title", "Workspace");
 
-            return name + "/workspace";
+            return "redirect:/" + name + "/workspace";
 
         } catch(Exception e) {
             logger.info("createIcmInherited fail");
             model.addAttribute("error", e.getMessage());
             model.addAttribute("title", "New Model");
+            model.addAttribute("user", user);
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
 
             return "new_model";
         }
