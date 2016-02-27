@@ -5,6 +5,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!--meta name="viewport" content="width=device-width, initial-scale=1"--><!-- 禁用响应式布局 -->
+
+    <!-- CSRF info for ajax -->
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
     <title>Stigmergic-Modeling - ${title}</title>
     <!-- CSS -->
     <link href="/static/dist/css/bootstrap.min.css" rel="stylesheet">

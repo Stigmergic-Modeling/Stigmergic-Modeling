@@ -129,6 +129,14 @@ define(function (require, exports, module) {
     // 初始化
     Page.prototype.init = function () {
 
+        // set CSRF for ajax
+        // https://docs.spring.io/spring-security/site/docs/current/reference/html/csrf.html#csrf-include-csrf-token-ajax
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
+
         // 左中右栏目高度自适应
         this.resizePanel();
         $(window).on('resize', this.resizePanel.bind(this));  // 需要给resizePanel绑定Page作为context，否则无法获取Page对象中的属性
@@ -1496,14 +1504,22 @@ define(function (require, exports, module) {
             $.ajax({
                 url: '/' + stateOfPage.modelName + '/workspace',
                 type: 'POST',
+                timeout: 10000,  // 10 秒延迟容忍
                 data: JSON.stringify(postData),  // 把数据字符串化以使空数组能正确传递
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
                     hideMask();
+                    console.log('msg : ' + msg);
                 },
-                error: function () {
+                error: function (jqXHR, textStatus) {
                     // TODO：回滚 icm 的 log？
                     hideMask();
+
+                    if (textStatus === "timeout") {
+                        console.log('AJAX: Call has timed out'); // Handle the timeout
+                    } else {
+                        console.log('AJAX: Another error was returned (textStatus: '+ textStatus + ')'); // Handle other error type
+                    }
                 }
             });
 
@@ -2341,9 +2357,9 @@ define(function (require, exports, module) {
      */
     function StateOfPage(stateRawData) {
 
-        this.user = stateRawData.userName;      // dataPassedIn 通过后端的 .ejs 模板传入
-        this.modelID = stateRawData.icmId;      // dataPassedIn 通过后端的 .ejs 模板传入
-        this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的 .ejs 模板传入
+        this.user = stateRawData.userName;      // dataPassedIn 通过后端的模板传入
+        this.modelID = stateRawData.icmId;      // dataPassedIn 通过后端的模板传入
+        this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的模板传入
 
         this.flagCRG = 0;        // 0: class, 1: relationGroup
         this.flagDepth = 0;      // for class: (0: class, 1: attribute, 2: propertyOfA) for relationGroup: (0: relationGroup, 1: relation, 2: propertyOfR)

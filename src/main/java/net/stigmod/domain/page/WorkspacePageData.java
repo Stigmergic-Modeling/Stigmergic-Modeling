@@ -9,7 +9,9 @@
 
 package net.stigmod.domain.page;
 
+import net.stigmod.domain.info.IcmBrief;
 import net.stigmod.domain.node.IndividualConceptualModel;
+import net.stigmod.domain.node.User;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -23,11 +25,19 @@ import java.util.Set;
  */
 public class WorkspacePageData extends AbstractPageData {
 
-    private Set<Icm> models;
+    public String userName;
+    public Long icmId;
+    public String icmName;
 
-    public WorkspacePageData() {}
+//    private IcmDetail model;
 
-    public WorkspacePageData(IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms) {
+    public Set<IcmBrief> models;
+
+    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms) {
+        this.userName = user.getName();
+        this.icmId = currentIcm.getId();
+        this.icmName = currentIcm.getName();
+
         this.models = new HashSet<>();
         for (IndividualConceptualModel icm : icms) {
             Long id = icm.getId();
@@ -37,27 +47,7 @@ public class WorkspacePageData extends AbstractPageData {
             int classNum = icm.getClassNum();
             int relationshipNum = icm.getRelationshipNum();
 
-            models.add(new Icm(id, name, description, updateDate, classNum, relationshipNum));
-        }
-    }
-
-    class Icm {
-        private Long id;
-        private String name;
-        private String description;
-        private Date update;
-        private int classNum;
-        private int relNum;
-
-        public Icm() {}
-
-        public Icm(Long id, String name, String description, Date updateDate, int classNum, int relationshipNum) {
-            this.id = id;
-            this.name = name;
-            this.description = description;
-            this.update = updateDate;
-            this.classNum = classNum;
-            this.relNum = relationshipNum;
+            models.add(new IcmBrief(id, name, description, updateDate, classNum, relationshipNum));
         }
     }
 }

@@ -19,9 +19,9 @@ define(function (require, exports, module) {
 
         // 初始化组件
         var pageInfo = {
-            userName: dataPassedIn.user,
-            icmId: dataPassedIn.modelID,
-            icmName: dataPassedIn.modelName
+            userName: dataPassedIn.userName,
+            icmId: dataPassedIn.icmId,
+            icmName: dataPassedIn.icmName
         };
         var page = new Page(pageInfo, dataPassedIn.model);
         page.init();
