@@ -11,14 +11,14 @@ package net.stigmod.service;
 
 import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.ValueNode;
+import net.stigmod.domain.relationship.ClassToValueEdge;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
 import net.stigmod.repository.relationship.ClassToVEdgeRepository;
-import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
-import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Shijun Wang
@@ -26,9 +26,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WorkspaceService {
-
-    @Autowired
-    private Session session;
 
     @Autowired
     private Neo4jOperations neo4jTemplate;
@@ -42,9 +39,13 @@ public class WorkspaceService {
     @Autowired
     private ClassToVEdgeRepository classToVEdgeRepository;
 
+    @Transactional
     public void testNeo4jSaving(Long icmId, Long ccmId) {
         ClassNode clazz = new ClassNode();
-//        ValueNode value = new ValueNode();
+        ValueNode value = new ValueNode();
+        ClassToValueEdge c2vEdge = new ClassToValueEdge("1", "name", clazz, value);
+        clazz.addC2VEdge(c2vEdge);
+        value.addC2VEdge(c2vEdge);
 
         neo4jTemplate.save(clazz);
     }

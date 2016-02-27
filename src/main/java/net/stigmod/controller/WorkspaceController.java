@@ -86,7 +86,7 @@ public class WorkspaceController {
     @ResponseBody
     public String workspace(@PathVariable String icmName, @RequestBody String requestBody, ModelMap model) {
 
-//        workspaceService.testNeo4jSaving(1L, 2L);
+        workspaceService.testNeo4jSaving(1L, 2L);
 
         return "Good! " + requestBody;
     }

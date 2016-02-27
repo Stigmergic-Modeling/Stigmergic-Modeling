@@ -22,6 +22,7 @@ import java.util.Set;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2015/11/10
  */
 @NodeEntity
@@ -47,11 +48,11 @@ public class ClassNode{
 
     //连接关系与类的关系
     @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
-    private Set<RelationToCEdge> rtcEdges = new HashSet<RelationToCEdge>();
+    private Set<RelationToCEdge> rtcEdges = new HashSet<>();
 
     //连接类与name值的关系
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
-    private Set<ClassToValueEdge> ctvEdges = new HashSet<ClassToValueEdge>();
+    private Set<ClassToValueEdge> ctvEdges = new HashSet<>();
 
     private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
 
@@ -81,6 +82,11 @@ public class ClassNode{
 //        this.ctvEdges = classNode.getCtvEdges();
 //        this.isInitEntropy = classNode.isInitEntropy;
 //    }
+
+    // 添加 class->value 边
+    public void addC2VEdge(ClassToValueEdge c2vEdge) {
+        ctvEdges.add(c2vEdge);
+    }
 
     public Set<Long> getIcmSet() {
         return icmSet;

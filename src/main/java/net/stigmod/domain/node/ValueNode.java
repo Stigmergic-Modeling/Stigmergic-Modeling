@@ -90,6 +90,11 @@ public class ValueNode {
 //        this.rtvEdges=valueNode.getRtvEdges();
 //    }
 
+    // 添加 class->value 边
+    public void addC2VEdge(ClassToValueEdge c2vEdge) {
+        ctvEdges.add(c2vEdge);
+    }
+
     public Long getId() {
         return id;
     }
