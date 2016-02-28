@@ -6,7 +6,7 @@ import net.stigmod.domain.node.CollectiveConceptualModel;
 import net.stigmod.domain.node.RelationNode;
 import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import net.stigmod.domain.relationship.RelationToValueEdge;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.CollectiveConceptualModelRepository;
@@ -356,7 +356,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
     }
 
     private boolean isContainRelationNodeForClass(Integer targetCNodeLocId,RelationNode relationNode) {
-        for(RelationToCEdge rtcEdge : relationNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : relationNode.getRtcEdges()) {
             if(rtcEdge.getEnder().getLoc()==targetCNodeLocId) return true;
         }
         return false;
@@ -384,10 +384,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
         List<String> emergeVNameList=new ArrayList<>();
         Long oneIcmId = icmSet.iterator().next();//取出其中一个用户,作为标杆
         for(ClassToValueEdge ctvEdge : sourceCNode.getCtvEdges()) {
-            int usize=ctvEdge.getIcmList().size();
+            int usize=ctvEdge.getIcmSet().size();
             if(usize==0) continue;
             String edgeName=ctvEdge.getEdgeName();
-            if(ctvEdge.getIcmList().contains(oneIcmId)) {//只要包含标杆用户,则说明当前边包含了当前用户集合
+            if(ctvEdge.getIcmSet().contains(oneIcmId)) {//只要包含标杆用户,则说明当前边包含了当前用户集合
                 usize-=icmSize;
                 ValueNode valueNode=ctvEdge.getEnder();
                 emergeVIdList.add(valueNode.getId());
@@ -405,7 +405,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 }
             }
 
-            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmSet());
             //这步是填充newSourceMap的
             if(usize==0) continue;
             if(usize!=tTmp.size()) {
@@ -424,12 +424,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
         List<Long> emergeRIdList=new ArrayList<>();
         List<String> emergeRNameList=new ArrayList<>();
         List<String> emergeRPortList=new ArrayList<>();
-        for(RelationToCEdge rtcEdge : sourceCNode.getRtcEdges()) {
-            int usize=rtcEdge.getIcmList().size();
+        for(RelationToClassEdge rtcEdge : sourceCNode.getRtcEdges()) {
+            int usize=rtcEdge.getIcmSet().size();
             if(usize==0) continue;
             String edgeName=rtcEdge.getEdgeName();
             String port=rtcEdge.getPort();
-            if(rtcEdge.getIcmList().contains(oneIcmId)) {
+            if(rtcEdge.getIcmSet().contains(oneIcmId)) {
                 usize-=icmSize;
                 RelationNode relationNode=rtcEdge.getStarter();
                 emergeRIdList.add(relationNode.getId());
@@ -450,7 +450,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 }
             }
 
-            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
             //这步是填充newSourceMap的
             if(usize==0) continue;
             if(usize!=tTmp.size()) {
@@ -469,7 +469,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         for(ClassToValueEdge ctvEdge:targetCNode.getCtvEdges()) {
             String edgeName=ctvEdge.getEdgeName();
-            int usize=ctvEdge.getIcmList().size();
+            int usize=ctvEdge.getIcmSet().size();
             Long vId=ctvEdge.getEnder().getId();
             int emVSize=emergeVIdList.size();
             for(int i=0;i<emVSize;i++) {
@@ -483,7 +483,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
 
             if(usize==0) continue;
-            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmSet());
             if(usize!=tTmp.size()) {
                 tTmp.addAll(new HashSet<Long>(icmSet));
             }
@@ -496,10 +496,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
         }
 
-        for(RelationToCEdge rtcEdge:targetCNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge:targetCNode.getRtcEdges()) {
             String edgeName=rtcEdge.getEdgeName();
             String port=rtcEdge.getPort();
-            int usize=rtcEdge.getIcmList().size();
+            int usize=rtcEdge.getIcmSet().size();
             Long rId=rtcEdge.getStarter().getId();
             int emRSize=emergeRIdList.size();
             for(int i=0;i<emRSize;i++) {
@@ -515,7 +515,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
 
             if(usize==0) continue;
-            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
             if(usize!=tTmp.size()) {
                 tTmp.addAll(new HashSet<Long>(icmSet));
             }
@@ -599,14 +599,14 @@ public class MigrateHandlerImpl implements MigrateHandler {
         //对于sourceClassNode的classToValue部分
         for(ClassToValueEdge ctvEdge : sourceClassNode.getCtvEdges()) {
             ctvEdge.setIsChanged(false);
-            if(ctvEdge.getIcmList().size()==0||!ctvEdge.getIcmList().contains(oneIcmId)) {
+            if(ctvEdge.getIcmSet().size()==0||!ctvEdge.getIcmSet().contains(oneIcmId)) {
                 continue;
             }
 
-            ctvEdge.setIcmListPreCopy(new HashSet<>(ctvEdge.getIcmList()));//将这个存储一个备份
+            ctvEdge.setIcmSetPreCopy(new HashSet<>(ctvEdge.getIcmSet()));//将这个存储一个备份
             ctvEdge.setIsChanged(true);//标记这个值被改变了
 
-            ctvEdge.getIcmList().removeAll(icmSet);
+            ctvEdge.getIcmSet().removeAll(icmSet);
             String edgeName=ctvEdge.getEdgeName();
             ValueNode valueNode=ctvEdge.getEnder();
             //下面要把该边上的该用户从sourceClassNode迁移到targetClassNode
@@ -614,10 +614,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
             boolean isContainFlag=false;
             for(ClassToValueEdge ctvEdge2 : targetClassNode.getCtvEdges()) {
                 if (ctvEdge2.getEdgeName().equals(edgeName) && ctvEdge2.getEnder().equals(valueNode)) {
-                    ctvEdge2.setIcmListPreCopy(new HashSet<Long>(ctvEdge2.getIcmList()));//将这个存储一个备份
+                    ctvEdge2.setIcmSetPreCopy(new HashSet<Long>(ctvEdge2.getIcmSet()));//将这个存储一个备份
                     ctvEdge2.setIsChanged(true);
                     isContainFlag=true;
-                    ctvEdge2.getIcmList().addAll(icmSet);
+                    ctvEdge2.getIcmSet().addAll(icmSet);
                     break;
                 }else;
             }
@@ -625,9 +625,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 Set<Long> tTmpSet=new HashSet<>();
                 tTmpSet.addAll(icmSet);
                 ClassToValueEdge tmpCtvEdge=new ClassToValueEdge(edgeName,targetClassNode,valueNode);
-                tmpCtvEdge.setIcmList(tTmpSet);
+                tmpCtvEdge.setIcmSet(tTmpSet);
                 tmpCtvEdge.setIsChanged(true);
-                tmpCtvEdge.setIcmListPreCopy(new HashSet<Long>());
+                tmpCtvEdge.setIcmSetPreCopy(new HashSet<Long>());
                 tmpCtvEdge.setId(curIdLoc++);
                 targetClassNode.getCtvEdges().add(tmpCtvEdge);
                 valueNode.getCtvEdges().add(tmpCtvEdge);
@@ -637,41 +637,41 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         //对于sourceClassNode的relationToClass部分
         //先把targetClassNode的rtc边全部置为false的flag标志
-        for(RelationToCEdge rtcEdge2 : targetClassNode.getRtcEdges())
+        for(RelationToClassEdge rtcEdge2 : targetClassNode.getRtcEdges())
             rtcEdge2.setIsChanged(false);
 
-        for(RelationToCEdge rtcEdge : sourceClassNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : sourceClassNode.getRtcEdges()) {
             rtcEdge.setIsChanged(false);
-            if(rtcEdge.getIcmList().size()==0||!rtcEdge.getIcmList().contains(oneIcmId)) {
+            if(rtcEdge.getIcmSet().size()==0||!rtcEdge.getIcmSet().contains(oneIcmId)) {
                 continue;
             }
-            rtcEdge.setIcmListPreCopy(new HashSet<>(rtcEdge.getIcmList()));//将这个存储一个备份
+            rtcEdge.setIcmSetPreCopy(new HashSet<>(rtcEdge.getIcmSet()));//将这个存储一个备份
             rtcEdge.setIsChanged(true);
-            rtcEdge.getIcmList().removeAll(icmSet);
+            rtcEdge.getIcmSet().removeAll(icmSet);
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
             RelationNode relationNode=rtcEdge.getStarter();
             //下面要把改变上的该用户从sourceClassNode迁移到targetClassNode上去
             boolean isContainFlag=false;
-            for(RelationToCEdge rtcEdge2 : targetClassNode.getRtcEdges()) {
+            for(RelationToClassEdge rtcEdge2 : targetClassNode.getRtcEdges()) {
                 if(rtcEdge2.getPort().equals(port)&&rtcEdge2.getEdgeName().equals(edgeName)
                         &&rtcEdge2.getStarter().equals(relationNode)) {
-                    rtcEdge2.setIcmListPreCopy(new HashSet<Long>(rtcEdge2.getIcmList()));//将这个存储一个备份
+                    rtcEdge2.setIcmSetPreCopy(new HashSet<Long>(rtcEdge2.getIcmSet()));//将这个存储一个备份
                     rtcEdge2.setIsChanged(true);
                     isContainFlag=true;
-                    rtcEdge2.getIcmList().addAll(icmSet);
+                    rtcEdge2.getIcmSet().addAll(icmSet);
                     break;
                 }
             }
             if(!isContainFlag) {//说明在上面的遍历过程中并没有找到这个边
                 Set<Long> tTmpSet=new HashSet<>();
                 tTmpSet.addAll(icmSet);
-                RelationToCEdge tmpRtcEdge=new RelationToCEdge(port,edgeName,relationNode,targetClassNode);
-                tmpRtcEdge.setIcmList(tTmpSet);
+                RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,relationNode,targetClassNode);
+                tmpRtcEdge.setIcmSet(tTmpSet);
                 tmpRtcEdge.setId((long)(curIdLoc++));
                 targetClassNode.getRtcEdges().add(tmpRtcEdge);
                 tmpRtcEdge.setIsChanged(true);
-                tmpRtcEdge.setIcmListPreCopy(new HashSet<Long>());
+                tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
                 relationNode.getRtcEdges().add(tmpRtcEdge);
 //                relationToCEdgeRepository.save(tmpRtcEdge);
             }
@@ -788,9 +788,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        List<String> emergeVNameList=new ArrayList<>();
 //        for(ClassToValueEdge ctvEdge : sourceCNode.getCtvEdges()) {
 //            String edgeName=ctvEdge.getEdgeName();
-//            int usize=ctvEdge.getIcmList().size();
+//            int usize=ctvEdge.getIcmSet().size();
 //            if(usize==0) continue;
-//            if(ctvEdge.getIcmList().contains(icmId)) {//说明当前边包含了当前用户
+//            if(ctvEdge.getIcmSet().contains(icmId)) {//说明当前边包含了当前用户
 //                usize--;
 //                ValueNode valueNode=ctvEdge.getEnder();
 //                emergeVIdList.add(valueNode.getId());
@@ -804,7 +804,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                }
 //            }
 //
-//            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmSet());
 //            //这步是填充newSourceMap的
 //            if(usize==0) continue;
 //            if(usize!=tTmp.size()) tTmp.remove(icmId);
@@ -821,12 +821,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        List<Long> emergeRIdList=new ArrayList<>();
 //        List<String> emergeRNameList=new ArrayList<>();
 //        List<String> emergeRPortList=new ArrayList<>();
-//        for(RelationToCEdge rtcEdge : sourceCNode.getRtcEdges()) {
+//        for(RelationToClassEdge rtcEdge : sourceCNode.getRtcEdges()) {
 //            String edgeName=rtcEdge.getEdgeName();
 //            String port=rtcEdge.getPort();
-//            int usize=rtcEdge.getIcmList().size();
+//            int usize=rtcEdge.getIcmSet().size();
 //            if(usize==0) continue;
-//            if(rtcEdge.getIcmList().contains(icmId)) {
+//            if(rtcEdge.getIcmSet().contains(icmId)) {
 //                usize--;
 //                RelationNode relationNode=rtcEdge.getStarter();
 //                emergeRIdList.add(relationNode.getId());
@@ -841,7 +841,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                }
 //            }
 //
-//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
 //            //这步是填充newSourceMap的
 //            if(usize==0) continue;
 //            if(usize!=tTmp.size()) tTmp.remove(icmId);
@@ -858,7 +858,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //
 //        for(ClassToValueEdge ctvEdge:targetCNode.getCtvEdges()) {
 //            String edgeName=ctvEdge.getEdgeName();
-//            int usize=ctvEdge.getIcmList().size();
+//            int usize=ctvEdge.getIcmSet().size();
 //            Long vId=ctvEdge.getEnder().getId();
 //            int emVSize=emergeVIdList.size();
 //            for(int i=0;i<emVSize;i++) {
@@ -872,7 +872,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            }
 //
 //            if(usize==0) continue;
-//            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(ctvEdge.getIcmSet());
 //            if(usize!=tTmp.size()) tTmp.add(icmId);
 //            if(!newTargetMap.containsKey(edgeName)) {
 //                List<Set<Long>> refU=new ArrayList<>();
@@ -883,10 +883,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            }
 //        }
 //
-//        for(RelationToCEdge rtcEdge:targetCNode.getRtcEdges()) {
+//        for(RelationToClassEdge rtcEdge:targetCNode.getRtcEdges()) {
 //            String edgeName=rtcEdge.getEdgeName();
 //            String port=rtcEdge.getPort();
-//            int usize=rtcEdge.getIcmList().size();
+//            int usize=rtcEdge.getIcmSet().size();
 //            Long rId=rtcEdge.getStarter().getId();
 //            int emRSize=emergeRIdList.size();
 //            for(int i=0;i<emRSize;i++) {
@@ -902,7 +902,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            }
 //
 //            if(usize==0) continue;
-//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
 //            if(usize!=tTmp.size()) tTmp.add(icmId);
 //            if(!newTargetMap.containsKey(edgeName)) {
 //                List<Set<Long>> refU=new ArrayList<>();
@@ -982,14 +982,14 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        //对于sourceClassNode的classToValue部分
 //        for(ClassToValueEdge ctvEdge : sourceClassNode.getCtvEdges()) {
 //            ctvEdge.setIsChanged(false);
-//            if(ctvEdge.getIcmList().size()==0||!ctvEdge.getIcmList().contains(icmId)) {
+//            if(ctvEdge.getIcmSet().size()==0||!ctvEdge.getIcmSet().contains(icmId)) {
 //                continue;
 //            }
 //
-//            ctvEdge.setIcmListPreCopy(new HashSet<>(ctvEdge.getIcmList()));//将这个存储一个备份
+//            ctvEdge.setIcmSetPreCopy(new HashSet<>(ctvEdge.getIcmSet()));//将这个存储一个备份
 //            ctvEdge.setIsChanged(true);//标记这个值被改变了
 //
-//            ctvEdge.getIcmList().remove(icmId);
+//            ctvEdge.getIcmSet().remove(icmId);
 //            String edgeName=ctvEdge.getEdgeName();
 //            ValueNode valueNode=ctvEdge.getEnder();
 //            //下面要把该边上的该用户从sourceClassNode迁移到targetClassNode
@@ -997,10 +997,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            boolean isContainFlag=false;
 //            for(ClassToValueEdge ctvEdge2 : targetClassNode.getCtvEdges()) {
 //                if (ctvEdge2.getEdgeName().equals(edgeName) && ctvEdge2.getEnder().equals(valueNode)) {
-//                    ctvEdge2.setIcmListPreCopy(new HashSet<Long>(ctvEdge2.getIcmList()));//将这个存储一个备份
+//                    ctvEdge2.setIcmSetPreCopy(new HashSet<Long>(ctvEdge2.getIcmSet()));//将这个存储一个备份
 //                    ctvEdge2.setIsChanged(true);
 //                    isContainFlag=true;
-//                    ctvEdge2.getIcmList().add(icmId);
+//                    ctvEdge2.getIcmSet().add(icmId);
 //                    break;
 //                }else;
 //            }
@@ -1008,9 +1008,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                Set<Long> tTmpSet=new HashSet<>();
 //                tTmpSet.add(icmId);
 //                ClassToValueEdge tmpCtvEdge=new ClassToValueEdge(edgeName,targetClassNode,valueNode);
-//                tmpCtvEdge.setIcmList(tTmpSet);
+//                tmpCtvEdge.setIcmSet(tTmpSet);
 //                tmpCtvEdge.setIsChanged(true);
-//                tmpCtvEdge.setIcmListPreCopy(new HashSet<Long>());
+//                tmpCtvEdge.setIcmSetPreCopy(new HashSet<Long>());
 //                tmpCtvEdge.setId(curIdLoc++);
 //                targetClassNode.getCtvEdges().add(tmpCtvEdge);
 //                valueNode.getCtvEdges().add(tmpCtvEdge);
@@ -1020,41 +1020,41 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //
 //        //对于sourceClassNode的relationToClass部分
 //        //先把targetClassNode的rtc边全部置为false的flag标志
-//        for(RelationToCEdge rtcEdge2 : targetClassNode.getRtcEdges())
+//        for(RelationToClassEdge rtcEdge2 : targetClassNode.getRtcEdges())
 //            rtcEdge2.setIsChanged(false);
 //
-//        for(RelationToCEdge rtcEdge : sourceClassNode.getRtcEdges()) {
+//        for(RelationToClassEdge rtcEdge : sourceClassNode.getRtcEdges()) {
 //            rtcEdge.setIsChanged(false);
-//            if(rtcEdge.getIcmList().size()==0||!rtcEdge.getIcmList().contains(icmId)) {
+//            if(rtcEdge.getIcmSet().size()==0||!rtcEdge.getIcmSet().contains(icmId)) {
 //                continue;
 //            }
-//            rtcEdge.setIcmListPreCopy(new HashSet<>(rtcEdge.getIcmList()));//将这个存储一个备份
+//            rtcEdge.setIcmSetPreCopy(new HashSet<>(rtcEdge.getIcmSet()));//将这个存储一个备份
 //            rtcEdge.setIsChanged(true);
-//            rtcEdge.getIcmList().remove(icmId);
+//            rtcEdge.getIcmSet().remove(icmId);
 //            String port=rtcEdge.getPort();
 //            String edgeName=rtcEdge.getEdgeName();
 //            RelationNode relationNode=rtcEdge.getStarter();
 //            //下面要把改变上的该用户从sourceClassNode迁移到targetClassNode上去
 //            boolean isContainFlag=false;
-//            for(RelationToCEdge rtcEdge2 : targetClassNode.getRtcEdges()) {
+//            for(RelationToClassEdge rtcEdge2 : targetClassNode.getRtcEdges()) {
 //                if(rtcEdge2.getPort().equals(port)&&rtcEdge2.getEdgeName().equals(edgeName)
 //                        &&rtcEdge2.getStarter().equals(relationNode)) {
-//                    rtcEdge2.setIcmListPreCopy(new HashSet<Long>(rtcEdge2.getIcmList()));//将这个存储一个备份
+//                    rtcEdge2.setIcmSetPreCopy(new HashSet<Long>(rtcEdge2.getIcmSet()));//将这个存储一个备份
 //                    rtcEdge2.setIsChanged(true);
 //                    isContainFlag=true;
-//                    rtcEdge2.getIcmList().add(icmId);
+//                    rtcEdge2.getIcmSet().add(icmId);
 //                    break;
 //                }
 //            }
 //            if(!isContainFlag) {//说明在上面的遍历过程中并没有找到这个边
 //                Set<Long> tTmpSet=new HashSet<>();
 //                tTmpSet.add(icmId);
-//                RelationToCEdge tmpRtcEdge=new RelationToCEdge(port,edgeName,relationNode,targetClassNode);
-//                tmpRtcEdge.setIcmList(tTmpSet);
+//                RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,relationNode,targetClassNode);
+//                tmpRtcEdge.setIcmSet(tTmpSet);
 //                tmpRtcEdge.setId((long)(curIdLoc++));
 //                targetClassNode.getRtcEdges().add(tmpRtcEdge);
 //                tmpRtcEdge.setIsChanged(true);
-//                tmpRtcEdge.setIcmListPreCopy(new HashSet<Long>());
+//                tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
 //                relationNode.getRtcEdges().add(tmpRtcEdge);
 ////                relationToCEdgeRepository.save(tmpRtcEdge);
 //            }
@@ -1424,9 +1424,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        for(RelationToValueEdge rtvEdge : sourceRNode.getRtvEdges()) {
 //            String port=rtvEdge.getPort();
 //            String edgeName=rtvEdge.getEdgeName();
-//            int usize=rtvEdge.getIcmList().size();
+//            int usize=rtvEdge.getIcmSet().size();
 //            if(usize==0) continue;
-//            if(rtvEdge.getIcmList().contains(icmId)) {//说明当前边包含了当前用户
+//            if(rtvEdge.getIcmSet().contains(icmId)) {//说明当前边包含了当前用户
 //                usize--;
 //                ValueNode valueNode=rtvEdge.getEnder();
 //                emergeVIdList.add(valueNode.getId());
@@ -1441,7 +1441,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                }
 //            }
 //
-//            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmSet());
 //            //这步是填充newSourceMap的
 //            if(usize==0) continue;
 //            if(usize!=tTmp.size()) tTmp.remove(icmId);
@@ -1458,12 +1458,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        List<Long> emergeCIdList=new ArrayList<>();
 //        List<String> emergeCPortList=new ArrayList<>();
 //        List<String> emergeCNameList=new ArrayList<>();
-//        for(RelationToCEdge rtcEdge : sourceRNode.getRtcEdges()) {
+//        for(RelationToClassEdge rtcEdge : sourceRNode.getRtcEdges()) {
 //            String edgeName=rtcEdge.getEdgeName();
 //            String port=rtcEdge.getPort();
-//            int usize=rtcEdge.getIcmList().size();
+//            int usize=rtcEdge.getIcmSet().size();
 //            if(usize==0) continue;
-//            if(rtcEdge.getIcmList().contains(icmId)) {
+//            if(rtcEdge.getIcmSet().contains(icmId)) {
 //                usize--;
 //                ClassNode classNode=rtcEdge.getEnder();
 //                emergeCIdList.add(classNode.getId());
@@ -1478,7 +1478,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                }
 //            }
 //
-//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
 //            //这步是填充newSourceMap的
 //            if(usize==0) continue;
 //            if(usize!=tTmp.size()) tTmp.remove(icmId);
@@ -1495,7 +1495,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        for(RelationToValueEdge rtvEdge:targetRNode.getRtvEdges()) {
 //            String port=rtvEdge.getPort();
 //            String edgeName=rtvEdge.getEdgeName();
-//            int usize=rtvEdge.getIcmList().size();
+//            int usize=rtvEdge.getIcmSet().size();
 //            Long vId=rtvEdge.getEnder().getId();
 //            int emVSize=emergeVIdList.size();//这个是记录了sourceRNode所连接的value节点中包含有curIcmId的个数
 //            for(int i=0;i<emVSize;i++) {
@@ -1511,7 +1511,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            }
 //
 //            if(usize==0) continue;
-//            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmSet());
 //            if(usize!=tTmp.size()) tTmp.add(icmId);
 //            if(!newTargetMap.containsKey(edgeName)) {
 //                List<Set<Long>> refU=new ArrayList<>();
@@ -1522,10 +1522,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            }
 //        }
 //
-//        for(RelationToCEdge rtcEdge:targetRNode.getRtcEdges()) {
+//        for(RelationToClassEdge rtcEdge:targetRNode.getRtcEdges()) {
 //            String port=rtcEdge.getPort();
 //            String edgeName=rtcEdge.getEdgeName();
-//            int usize=rtcEdge.getIcmList().size();
+//            int usize=rtcEdge.getIcmSet().size();
 //            Long cId=rtcEdge.getEnder().getId();//获取class的id
 //            int emCSize=emergeCIdList.size();
 //            for(int i=0;i<emCSize;i++) {
@@ -1541,7 +1541,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            }
 //
 //            if(usize==0) continue;
-//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+//            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
 //            if(usize!=tTmp.size()) tTmp.add(icmId);
 //            if(!newTargetMap.containsKey(edgeName)) {
 //                List<Set<Long>> refU=new ArrayList<>();
@@ -1611,7 +1611,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
     }
 
     private boolean isContainClassNodeForRelation(Integer targetRNodeLocId,ClassNode classNode) {
-        for(RelationToCEdge rtcEdge : classNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : classNode.getRtcEdges()) {
             if(rtcEdge.getStarter().getLoc()==targetRNodeLocId) return true;
         }
         return false;
@@ -1641,11 +1641,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         List<String> emergeVPortList=new ArrayList<>();
         List<String> emergeVNameList=new ArrayList<>();
         for(RelationToValueEdge rtvEdge : sourceRNode.getRtvEdges()) {
-            int usize=rtvEdge.getIcmList().size();
+            int usize=rtvEdge.getIcmSet().size();
             if(usize==0) continue;
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
-            if(rtvEdge.getIcmList().contains(oneIcmId)) {//说明当前边包含了当前用户
+            if(rtvEdge.getIcmSet().contains(oneIcmId)) {//说明当前边包含了当前用户
                 usize-=icmSetSize;
                 ValueNode valueNode=rtvEdge.getEnder();
                 emergeVIdList.add(valueNode.getId());
@@ -1671,7 +1671,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 }
             }
 
-            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmSet());
             //这步是填充newSourceMap的
             if(usize==0) continue;
             if(usize!=tTmp.size()) {
@@ -1690,12 +1690,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
         List<Long> emergeCIdList=new ArrayList<>();
         List<String> emergeCPortList=new ArrayList<>();
         List<String> emergeCNameList=new ArrayList<>();
-        for(RelationToCEdge rtcEdge : sourceRNode.getRtcEdges()) {
-            int usize=rtcEdge.getIcmList().size();
+        for(RelationToClassEdge rtcEdge : sourceRNode.getRtcEdges()) {
+            int usize=rtcEdge.getIcmSet().size();
             if(usize==0) continue;
             String edgeName=rtcEdge.getEdgeName();
             String port=rtcEdge.getPort();
-            if(rtcEdge.getIcmList().contains(oneIcmId)) {
+            if(rtcEdge.getIcmSet().contains(oneIcmId)) {
                 usize--;
                 ClassNode classNode=rtcEdge.getEnder();
                 emergeCIdList.add(classNode.getId());
@@ -1722,7 +1722,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 }
             }
 
-            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
             //这步是填充newSourceMap的
             if(usize==0) continue;
             if(usize!=tTmp.size()) {
@@ -1741,7 +1741,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(RelationToValueEdge rtvEdge:targetRNode.getRtvEdges()) {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
-            int usize=rtvEdge.getIcmList().size();
+            int usize=rtvEdge.getIcmSet().size();
             Long vId=rtvEdge.getEnder().getId();
             int emVSize=emergeVIdList.size();//这个是记录了sourceRNode所连接的value节点中包含有curIcmId的个数
             for(int i=0;i<emVSize;i++) {
@@ -1757,7 +1757,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
 
             if(usize==0) continue;
-            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(rtvEdge.getIcmSet());
             if(usize!=tTmp.size()) {
                 tTmp.addAll(icmSet);
             }
@@ -1770,10 +1770,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
         }
 
-        for(RelationToCEdge rtcEdge:targetRNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge:targetRNode.getRtcEdges()) {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
-            int usize=rtcEdge.getIcmList().size();
+            int usize=rtcEdge.getIcmSet().size();
             Long cId=rtcEdge.getEnder().getId();//获取class的id
             int emCSize=emergeCIdList.size();
             for(int i=0;i<emCSize;i++) {
@@ -1789,7 +1789,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
 
             if(usize==0) continue;
-            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmList());
+            Set<Long> tTmp=new HashSet<>(rtcEdge.getIcmSet());
             if(usize!=tTmp.size()) {
                 tTmp.addAll(icmSet);
             }
@@ -1865,13 +1865,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //
 //        for(RelationToValueEdge rtvEdge : sourceRelationNode.getRtvEdges()) {
 //            rtvEdge.setIsChanged(false);
-//            if(rtvEdge.getIcmList().size()==0||!rtvEdge.getIcmList().contains(icmId)) {
+//            if(rtvEdge.getIcmSet().size()==0||!rtvEdge.getIcmSet().contains(icmId)) {
 //                continue;
 //            }
 //
-//            rtvEdge.setIcmListPreCopy(new HashSet<>(rtvEdge.getIcmList()));//将这个存储一个备份
+//            rtvEdge.setIcmSetPreCopy(new HashSet<>(rtvEdge.getIcmSet()));//将这个存储一个备份
 //            rtvEdge.setIsChanged(true);
-//            rtvEdge.getIcmList().remove(icmId);
+//            rtvEdge.getIcmSet().remove(icmId);
 //            String port=rtvEdge.getPort();
 //            String edgeName=rtvEdge.getEdgeName();
 //            ValueNode valueNode=rtvEdge.getEnder();
@@ -1881,10 +1881,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                if (rtvEdge_target.getPort().equals(port) && rtvEdge_target.getEdgeName().equals(edgeName)
 //                        && rtvEdge_target.getEnder().getId().equals(valueNode.getId())) {
 //
-//                    rtvEdge_target.setIcmListPreCopy(new HashSet<Long>(rtvEdge_target.getIcmList()));//将这个存储一个备份
+//                    rtvEdge_target.setIcmSetPreCopy(new HashSet<Long>(rtvEdge_target.getIcmSet()));//将这个存储一个备份
 //                    rtvEdge_target.setIsChanged(true);
 //                    isContainFlag=true;//targetRelationNode中已经包含了该节点
-//                    rtvEdge_target.getIcmList().add(icmId);
+//                    rtvEdge_target.getIcmSet().add(icmId);
 //                    break;
 //                }else;
 //            }
@@ -1892,10 +1892,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                Set<Long> tTmpSet=new HashSet<>();
 //                tTmpSet.add(icmId);
 //                RelationToValueEdge tmpRtvEdge=new RelationToValueEdge(port,edgeName,targetRelationNode,valueNode);
-//                tmpRtvEdge.setIcmList(tTmpSet);
+//                tmpRtvEdge.setIcmSet(tTmpSet);
 //                tmpRtvEdge.setIsChanged(true);
 //                tmpRtvEdge.setId(curIdLoc++);
-//                tmpRtvEdge.setIcmListPreCopy(new HashSet<Long>());
+//                tmpRtvEdge.setIcmSetPreCopy(new HashSet<Long>());
 //                targetRelationNode.getRtvEdges().add(tmpRtvEdge);//我觉得这句话可以去掉的
 //                valueNode.getRtvEdges().add(tmpRtvEdge);//这句应该也可以去掉的
 ////                relationToVEdgeRepository.save(tmpRtvEdge);//relationToVEdgeRepository这个
@@ -1903,41 +1903,41 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //        }
 //
 //        //对于sourceRelationNode的relationToClass部分
-//        for(RelationToCEdge rtcEdge_target : targetRelationNode.getRtcEdges())
+//        for(RelationToClassEdge rtcEdge_target : targetRelationNode.getRtcEdges())
 //            rtcEdge_target.setIsChanged(false);
 //
-//        for(RelationToCEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
-//            if(rtcEdge.getIcmList().size()==0||!rtcEdge.getIcmList().contains(icmId)) {
+//        for(RelationToClassEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
+//            if(rtcEdge.getIcmSet().size()==0||!rtcEdge.getIcmSet().contains(icmId)) {
 //                rtcEdge.setIsChanged(false);
 //                continue;
 //            }
 //
-//            rtcEdge.setIcmListPreCopy(new HashSet<>(rtcEdge.getIcmList()));//将这个存储一个备份
+//            rtcEdge.setIcmSetPreCopy(new HashSet<>(rtcEdge.getIcmSet()));//将这个存储一个备份
 //            rtcEdge.setIsChanged(true);
-//            rtcEdge.getIcmList().remove(icmId);
+//            rtcEdge.getIcmSet().remove(icmId);
 //            String port=rtcEdge.getPort();
 //            String edgeName=rtcEdge.getEdgeName();
 //            ClassNode classNode=rtcEdge.getEnder();
 //            //下面要把该边上的该用户从sourceRelationNode迁移到targetRelationNode上去
 //            boolean isContainFlag=false;
-//            for(RelationToCEdge rtcEdge_target : targetRelationNode.getRtcEdges()) {
+//            for(RelationToClassEdge rtcEdge_target : targetRelationNode.getRtcEdges()) {
 //                if(rtcEdge_target.getPort().equals(port) && rtcEdge_target.getEdgeName().equals(edgeName)
 //                        && rtcEdge_target.getEnder().getId().equals(classNode.getId())) {
 //                    rtcEdge_target.setIsChanged(true);
-//                    rtcEdge_target.setIcmListPreCopy(new HashSet<>(rtcEdge_target.getIcmList()));//将这个存储一个备份
+//                    rtcEdge_target.setIcmSetPreCopy(new HashSet<>(rtcEdge_target.getIcmSet()));//将这个存储一个备份
 //                    isContainFlag=true;
-//                    rtcEdge_target.getIcmList().add(icmId);
+//                    rtcEdge_target.getIcmSet().add(icmId);
 //                    break;
 //                }else;
 //            }
 //            if(!isContainFlag) {//说明在上面的遍历过程中并没有找到这个边
 //                Set<Long> tTmpSet=new HashSet<>();
 //                tTmpSet.add(icmId);
-//                RelationToCEdge tmpRtcEdge=new RelationToCEdge(port,edgeName,targetRelationNode,classNode);
-//                tmpRtcEdge.setIcmList(tTmpSet);
+//                RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,targetRelationNode,classNode);
+//                tmpRtcEdge.setIcmSet(tTmpSet);
 //                tmpRtcEdge.setIsChanged(true);
 //                tmpRtcEdge.setId(curIdLoc++);
-//                tmpRtcEdge.setIcmListPreCopy(new HashSet<Long>());
+//                tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
 //                targetRelationNode.getRtcEdges().add(tmpRtcEdge);
 //                classNode.getRtcEdges().add(tmpRtcEdge);
 //            }
@@ -1960,13 +1960,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         for(RelationToValueEdge rtvEdge : sourceRelationNode.getRtvEdges()) {
             rtvEdge.setIsChanged(false);
-            if(rtvEdge.getIcmList().size()==0||!rtvEdge.getIcmList().contains(oneIcmId)) {
+            if(rtvEdge.getIcmSet().size()==0||!rtvEdge.getIcmSet().contains(oneIcmId)) {
                 continue;
             }
 
-            rtvEdge.setIcmListPreCopy(new HashSet<>(rtvEdge.getIcmList()));//将这个存储一个备份
+            rtvEdge.setIcmSetPreCopy(new HashSet<>(rtvEdge.getIcmSet()));//将这个存储一个备份
             rtvEdge.setIsChanged(true);
-            rtvEdge.getIcmList().removeAll(icmSet);
+            rtvEdge.getIcmSet().removeAll(icmSet);
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
             ValueNode valueNode=rtvEdge.getEnder();
@@ -1976,20 +1976,20 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 if (rtvEdge_target.getPort().equals(port) && rtvEdge_target.getEdgeName().equals(edgeName)
                         && rtvEdge_target.getEnder().getId().equals(valueNode.getId())) {
 
-                    rtvEdge_target.setIcmListPreCopy(new HashSet<Long>(rtvEdge_target.getIcmList()));//将这个存储一个备份
+                    rtvEdge_target.setIcmSetPreCopy(new HashSet<Long>(rtvEdge_target.getIcmSet()));//将这个存储一个备份
                     rtvEdge_target.setIsChanged(true);
                     isContainFlag=true;//targetRelationNode中已经包含了该节点
-                    rtvEdge_target.getIcmList().addAll(icmSet);
+                    rtvEdge_target.getIcmSet().addAll(icmSet);
                     break;
                 }else;
             }
             if(!isContainFlag) {//说明在上面的遍历过程中并没有找到这个边
                 Set<Long> tTmpSet=new HashSet<>(icmSet);
                 RelationToValueEdge tmpRtvEdge=new RelationToValueEdge(port,edgeName,targetRelationNode,valueNode);
-                tmpRtvEdge.setIcmList(tTmpSet);
+                tmpRtvEdge.setIcmSet(tTmpSet);
                 tmpRtvEdge.setIsChanged(true);
                 tmpRtvEdge.setId(curIdLoc++);
-                tmpRtvEdge.setIcmListPreCopy(new HashSet<Long>());
+                tmpRtvEdge.setIcmSetPreCopy(new HashSet<Long>());
                 targetRelationNode.getRtvEdges().add(tmpRtvEdge);//我觉得这句话可以去掉的
                 valueNode.getRtvEdges().add(tmpRtvEdge);//这句应该也可以去掉的
 //                relationToVEdgeRepository.save(tmpRtvEdge);//relationToVEdgeRepository这个
@@ -1997,40 +1997,40 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
 
         //对于sourceRelationNode的relationToClass部分
-        for(RelationToCEdge rtcEdge_target : targetRelationNode.getRtcEdges())
+        for(RelationToClassEdge rtcEdge_target : targetRelationNode.getRtcEdges())
             rtcEdge_target.setIsChanged(false);
 
-        for(RelationToCEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
-            if(rtcEdge.getIcmList().size()==0||!rtcEdge.getIcmList().contains(oneIcmId)) {
+        for(RelationToClassEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
+            if(rtcEdge.getIcmSet().size()==0||!rtcEdge.getIcmSet().contains(oneIcmId)) {
                 rtcEdge.setIsChanged(false);
                 continue;
             }
 
-            rtcEdge.setIcmListPreCopy(new HashSet<>(rtcEdge.getIcmList()));//将这个存储一个备份
+            rtcEdge.setIcmSetPreCopy(new HashSet<>(rtcEdge.getIcmSet()));//将这个存储一个备份
             rtcEdge.setIsChanged(true);
-            rtcEdge.getIcmList().removeAll(icmSet);
+            rtcEdge.getIcmSet().removeAll(icmSet);
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
             ClassNode classNode=rtcEdge.getEnder();
             //下面要把该边上的该用户从sourceRelationNode迁移到targetRelationNode上去
             boolean isContainFlag=false;
-            for(RelationToCEdge rtcEdge_target : targetRelationNode.getRtcEdges()) {
+            for(RelationToClassEdge rtcEdge_target : targetRelationNode.getRtcEdges()) {
                 if(rtcEdge_target.getPort().equals(port) && rtcEdge_target.getEdgeName().equals(edgeName)
                         && rtcEdge_target.getEnder().getId().equals(classNode.getId())) {
                     rtcEdge_target.setIsChanged(true);
-                    rtcEdge_target.setIcmListPreCopy(new HashSet<>(rtcEdge_target.getIcmList()));//将这个存储一个备份
+                    rtcEdge_target.setIcmSetPreCopy(new HashSet<>(rtcEdge_target.getIcmSet()));//将这个存储一个备份
                     isContainFlag=true;
-                    rtcEdge_target.getIcmList().addAll(icmSet);
+                    rtcEdge_target.getIcmSet().addAll(icmSet);
                     break;
                 }else;
             }
             if(!isContainFlag) {//说明在上面的遍历过程中并没有找到这个边
                 Set<Long> tTmpSet=new HashSet<>(icmSet);
-                RelationToCEdge tmpRtcEdge=new RelationToCEdge(port,edgeName,targetRelationNode,classNode);
-                tmpRtcEdge.setIcmList(tTmpSet);
+                RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,targetRelationNode,classNode);
+                tmpRtcEdge.setIcmSet(tTmpSet);
                 tmpRtcEdge.setIsChanged(true);
                 tmpRtcEdge.setId(curIdLoc++);
-                tmpRtcEdge.setIcmListPreCopy(new HashSet<Long>());
+                tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
                 targetRelationNode.getRtcEdges().add(tmpRtcEdge);
                 classNode.getRtcEdges().add(tmpRtcEdge);
             }
@@ -2228,7 +2228,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Set<Long> relationNodeIdSet = new HashSet<>();//防止relationNode节点重复set
         Set<Long> valueNodeIdSet = new HashSet<>();//防止valueNode节点重复set
 
-        for(RelationToCEdge rtcEdge : sourceClassNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : sourceClassNode.getRtcEdges()) {
             RelationNode relationNode = rtcEdge.getStarter();
             if(!relationNodeIdSet.contains(relationNode.getId())) {
                 relationNode.setPostBiEntropyValue(relationNode.getBiEntropyValue());
@@ -2268,7 +2268,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Set<Long> classNodeIdSet = new HashSet<>();//防止classNode节点重复set
         Set<Long> valueNodeIdSet = new HashSet<>();//防止classNode节点重复set
 
-        for(RelationToCEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
             ClassNode classNode = rtcEdge.getEnder();
             if(!classNodeIdSet.contains(classNode.getId())) {
                 classNode.setPostBiEntropyValue(classNode.getBiEntropyValue());
@@ -2303,7 +2303,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Set<Long> relationNodeIdSet = new HashSet<>();//防止relationNode节点重复set
         Set<Long> valueNodeIdSet = new HashSet<>();//防止valueNode节点重复set
 
-        for(RelationToCEdge rtcEdge : sourceClassNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : sourceClassNode.getRtcEdges()) {
             RelationNode relationNode = rtcEdge.getStarter();
             if(!relationNodeIdSet.contains(relationNode.getId())) {
                 relationNode.setBiEntropyValue(relationNode.getPostBiEntropyValue());
@@ -2332,7 +2332,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Set<Long> classNodeIdSet = new HashSet<>();//防止classNode节点重复set
         Set<Long> valueNodeIdSet = new HashSet<>();//防止valueNode节点重复set
 
-        for(RelationToCEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : sourceRelationNode.getRtcEdges()) {
             ClassNode classNode = rtcEdge.getEnder();
             if(!classNodeIdSet.contains(classNode.getId()))  {
                 classNode.setBiEntropyValue(classNode.getPostBiEntropyValue());
@@ -2376,7 +2376,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(ClassToValueEdge ctvEdge : tmpCNode.getCtvEdges()) {
                 ctvEdge.getEnder().getCtvEdges().remove(ctvEdge);
             }
-            for(RelationToCEdge rtcEdge : tmpCNode.getRtcEdges()) {
+            for(RelationToClassEdge rtcEdge : tmpCNode.getRtcEdges()) {
                 rtcEdge.getStarter().getRtcEdges().remove(rtcEdge);
             }
             classNodeList.remove(classNodeList.size()-1);
@@ -2396,7 +2396,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(RelationToValueEdge rtvEdge : tmpRNode.getRtvEdges()) {
                 rtvEdge.getEnder().getRtvEdges().remove(rtvEdge);
             }
-            for(RelationToCEdge rtcEdge : tmpRNode.getRtcEdges()) {
+            for(RelationToClassEdge rtcEdge : tmpRNode.getRtcEdges()) {
                 rtcEdge.getEnder().getRtcEdges().remove(rtcEdge);
             }
             relationNodeList.remove(relationNodeList.size()-1);
@@ -2406,10 +2406,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void recoverEdgeStateForClassNode(int classNodeListId) {
         if(classNodeListId >= classNodeList.size()) return;
         ClassNode cNode = classNodeList.get(classNodeListId);
-        for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
             if(!rtcEdge.isChanged()) continue;
             else {
-                rtcEdge.setIcmList(new HashSet<Long>(rtcEdge.getIcmListPreCopy()));
+                rtcEdge.setIcmSet(new HashSet<Long>(rtcEdge.getIcmSetPreCopy()));
                 rtcEdge.setIsChanged(false);
             }
         }
@@ -2417,7 +2417,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
             if(!ctvEdge.isChanged()) continue;
             else {
-                ctvEdge.setIcmList(new HashSet<Long>(ctvEdge.getIcmListPreCopy()));
+                ctvEdge.setIcmSet(new HashSet<Long>(ctvEdge.getIcmSetPreCopy()));
                 ctvEdge.setIsChanged(false);
             }
         }
@@ -2426,10 +2426,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void  recoverEdgeStateForRelationNode(int relationNodeListId) {
         if(relationNodeListId >= relationNodeList.size()) return;
         RelationNode rNode = relationNodeList.get(relationNodeListId);
-        for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
+        for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
             if(!rtcEdge.isChanged()) continue;
             else {
-                rtcEdge.setIcmList(new HashSet<Long>(rtcEdge.getIcmListPreCopy()));
+                rtcEdge.setIcmSet(new HashSet<Long>(rtcEdge.getIcmSetPreCopy()));
                 rtcEdge.setIsChanged(false);
             }
         }
@@ -2437,7 +2437,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
             if(!rtvEdge.isChanged()) continue;
             else {
-                rtvEdge.setIcmList(new HashSet<Long>(rtvEdge.getIcmListPreCopy()));
+                rtvEdge.setIcmSet(new HashSet<Long>(rtvEdge.getIcmSetPreCopy()));
                 rtvEdge.setIsChanged(false);
             }
         }
@@ -2458,18 +2458,18 @@ public class MigrateHandlerImpl implements MigrateHandler {
     protected void removeNullEdgeForClassNode(int sourceCNodeListId) {
         ClassNode sourceCNode = classNodeList.get(sourceCNodeListId);
 
-        List<RelationToCEdge> rtcList = new ArrayList<>(sourceCNode.getRtcEdges());
+        List<RelationToClassEdge> rtcList = new ArrayList<>(sourceCNode.getRtcEdges());
         List<ClassToValueEdge> ctvList = new ArrayList<>(sourceCNode.getCtvEdges());
 
-        for(RelationToCEdge rtcEdge : rtcList) {
-            if(rtcEdge.getIcmList().size() == 0) {
+        for(RelationToClassEdge rtcEdge : rtcList) {
+            if(rtcEdge.getIcmSet().size() == 0) {
                 RelationNode relationNode = rtcEdge.getStarter();
                 relationNode.getRtcEdges().remove(rtcEdge);
                 sourceCNode.getRtcEdges().remove(rtcEdge);
             }
         }
         for(ClassToValueEdge ctvEdge : ctvList) {
-            if(ctvEdge.getIcmList().size() == 0) {
+            if(ctvEdge.getIcmSet().size() == 0) {
                 ValueNode valueNode = ctvEdge.getEnder();
                 valueNode.getCtvEdges().remove(ctvEdge);
                 sourceCNode.getCtvEdges().remove(ctvEdge);
@@ -2480,11 +2480,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
     protected void removeNullEdgeForRelationNode(int sourceRNodeListId) {
         RelationNode sourceRNode = relationNodeList.get(sourceRNodeListId);
 
-        List<RelationToCEdge> rtcList = new ArrayList<>(sourceRNode.getRtcEdges());
+        List<RelationToClassEdge> rtcList = new ArrayList<>(sourceRNode.getRtcEdges());
         List<RelationToValueEdge> rtvList = new ArrayList<>(sourceRNode.getRtvEdges());
 
-        for(RelationToCEdge rtcEdge : rtcList) {
-            if(rtcEdge.getIcmList().size() == 0) {
+        for(RelationToClassEdge rtcEdge : rtcList) {
+            if(rtcEdge.getIcmSet().size() == 0) {
                 ClassNode classNode = rtcEdge.getEnder();
                 classNode.getRtcEdges().remove(rtcEdge);
                 sourceRNode.getRtcEdges().remove(rtcEdge);
@@ -2492,7 +2492,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
 
         for(RelationToValueEdge rtvEdge : rtvList) {
-            if(rtvEdge.getIcmList().size() == 0) {
+            if(rtvEdge.getIcmSet().size() == 0) {
                 ValueNode valueNode = rtvEdge.getEnder();
                 valueNode.getRtvEdges().remove(rtvEdge);
                 sourceRNode.getRtvEdges().remove(rtvEdge);
@@ -2534,13 +2534,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
             ClassNode cNode = classNodeList.get(i);
             int icmSum=cNode.getIcmSet().size();
             for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-                if(ctvEdge.getIcmList().size()>icmSum) {
+                if(ctvEdge.getIcmSet().size()>icmSum) {
                     System.out.println("11111111");
                 }
             }
 
-            for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
-                if(rtcEdge.getIcmList().size()>icmSum) {
+            for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
+                if(rtcEdge.getIcmSet().size()>icmSum) {
                     System.out.println("222222222");
                     System.out.println("relation: "+rtcEdge.getStarter().getLoc());
                 }
@@ -2551,13 +2551,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
             RelationNode rNode = relationNodeList.get(i);
             int icmSum=rNode.getIcmSet().size();
             for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-                if(rtvEdge.getIcmList().size()>icmSum) {
+                if(rtvEdge.getIcmSet().size()>icmSum) {
                     System.out.println("3333333333");
                 }
             }
 
-            for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
-                if(rtcEdge.getIcmList().size()>icmSum) {
+            for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
+                if(rtcEdge.getIcmSet().size()>icmSum) {
                     System.out.println("44444444444");
                     System.out.println("relation: "+rtcEdge.getStarter().getLoc());
                 }
@@ -2573,8 +2573,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 ValueNode vNode = null;
                 int max=0;
                 for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-                    if(ctvEdge.getIcmList().size() > max) {
-                        max= ctvEdge.getIcmList().size();
+                    if(ctvEdge.getIcmSet().size() > max) {
+                        max= ctvEdge.getIcmSet().size();
                         vNode = ctvEdge.getEnder();
                     }
                 }

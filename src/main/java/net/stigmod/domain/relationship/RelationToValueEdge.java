@@ -19,6 +19,7 @@ import java.util.Set;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2015/11/10
  */
 @RelationshipEntity(type="PROPERTY")
@@ -39,13 +40,10 @@ public class RelationToValueEdge {
     private String edgeName;
 
     @Property(name="icm_list")
-    private Set<Long> icmList=new HashSet<Long>();
+    private Set<Long> icmSet = new HashSet<>();
 
-    @Property
     private Long modelId;
-
-    private Set<Long> icmListPreCopy=new HashSet<>();
-
+    private Set<Long> icmSetPreCopy = new HashSet<>();
     private boolean isChanged=false;
 
     public RelationToValueEdge() {
@@ -58,7 +56,7 @@ public class RelationToValueEdge {
         this.ender=new ValueNode(rtvEdge.getEnder());
         this.port=rtvEdge.port;
         this.edgeName=rtvEdge.getEdgeName();
-        this.icmList=new HashSet<>(rtvEdge.getIcmList());
+        this.icmSet=new HashSet<>(rtvEdge.getIcmSet());
         this.modelId=rtvEdge.getModelId();
     }
 
@@ -70,7 +68,7 @@ public class RelationToValueEdge {
     }
 
     public void UpdateRelationToVEdge(RelationToValueEdge relationToValueEdge) {
-        this.icmList=relationToValueEdge.getIcmList();
+        this.icmSet=relationToValueEdge.getIcmSet();
     }
 
     public Long getId() {
@@ -97,12 +95,15 @@ public class RelationToValueEdge {
         return edgeName;
     }
 
-    public Set<Long> getIcmList() {
-        return icmList;
+    public void setEdgeName(String edgeName) {
+        this.edgeName = edgeName;
+    }
+    public Set<Long> getIcmSet() {
+        return icmSet;
     }
 
-    public void setIcmList(Set<Long> icmList) {
-        this.icmList = icmList;
+    public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet = icmSet;
     }
 
     public String getPort() {
@@ -121,12 +122,12 @@ public class RelationToValueEdge {
         this.modelId = modelId;
     }
 
-    public Set<Long> getIcmListPreCopy() {
-        return icmListPreCopy;
+    public Set<Long> getIcmSetPreCopy() {
+        return icmSetPreCopy;
     }
 
-    public void setIcmListPreCopy(Set<Long> icmListPreCopy) {
-        this.icmListPreCopy = icmListPreCopy;
+    public void setIcmSetPreCopy(Set<Long> icmSetPreCopy) {
+        this.icmSetPreCopy = icmSetPreCopy;
     }
 
     public boolean isChanged() {
@@ -140,4 +141,5 @@ public class RelationToValueEdge {
     public void setId(Long id) {
         this.id = id;
     }
+
 }

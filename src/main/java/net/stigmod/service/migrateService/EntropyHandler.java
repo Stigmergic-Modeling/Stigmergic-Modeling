@@ -13,7 +13,7 @@ import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.RelationNode;
 import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import net.stigmod.domain.relationship.RelationToValueEdge;
 
 import java.util.List;
@@ -33,8 +33,8 @@ public interface EntropyHandler {
 
 //    public Double computeSystemEntropy();
 
-    public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToCEdge> rtcEdges);
-    public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges);
+    public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToClassEdge> rtcEdges);
+    public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToClassEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges);
     public Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges);
 
     public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap, int nodeSum);

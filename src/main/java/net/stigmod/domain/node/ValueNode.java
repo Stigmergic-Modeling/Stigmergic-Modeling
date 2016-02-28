@@ -21,6 +21,7 @@ import java.util.Set;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2015/11/10
  */
 
@@ -33,21 +34,14 @@ public class ValueNode {
     @Property(name="name")
     private String name;
 
-//    @Property
 //    private double orgEntropyValue;
-
-    @Property
     private double biEntropyValue;
-
     private double postBiEntropyValue;
-
     private boolean isInitEntropy;
-
-    @Property
     private Long modelId;
 
     @Property(name="icm_list")
-    private Set<Long> icmSet =new HashSet<Long>();
+    private Set<Long> icmSet =new HashSet<>();
 
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
@@ -157,6 +151,14 @@ public class ValueNode {
 
     public void setPostBiEntropyValue(double postBiEntropyValue) {
         this.postBiEntropyValue = postBiEntropyValue;
+    }
+
+    public void setCtvEdges(Set<ClassToValueEdge> ctvEdges) {
+        this.ctvEdges = ctvEdges;
+    }
+
+    public void setRtvEdges(Set<RelationToValueEdge> rtvEdges) {
+        this.rtvEdges = rtvEdges;
     }
 
     //    public double getOrgEntropyValue() {

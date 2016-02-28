@@ -9,7 +9,7 @@
 
 package net.stigmod.repository.relationship;
 
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +20,6 @@ import java.util.List;
  * @version 2015/11/10
  */
 @Repository
-public interface RelationToCEdgeRepository extends GraphRepository<RelationToCEdge>{
-    List<RelationToCEdge> findByModelId(Long modelId);
+public interface RelationToCEdgeRepository extends GraphRepository<RelationToClassEdge>{
+    List<RelationToClassEdge> findByModelId(Long modelId);
 }

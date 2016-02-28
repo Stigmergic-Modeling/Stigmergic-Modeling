@@ -13,9 +13,8 @@ import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.RelationNode;
 import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import net.stigmod.domain.relationship.RelationToValueEdge;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -54,13 +53,13 @@ public class MigrateUtil {
 //        Set<String> edgeNameSet=new HashSet<>();
 //        for(ClassToValueEdge ctvEdge:ctvEdges) {
 //            String edgeName=ctvEdge.getEdgeName();
-//            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmList().contains(icmId))
+//            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmSet().contains(icmId))
 //                edgeNameSet.add(edgeName);
 //        }
 //
 //        for(ClassToValueEdge ctvEdge:ctvEdges) {
 //            String edgeName=ctvEdge.getEdgeName();
-//            Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmList());
+//            Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmSet());
 ////            if(oldNodeMap.containsKey(edgeName)) {
 ////                oldNodeMap.get(edgeName).add(tmpUserSet);
 ////            }else {
@@ -69,7 +68,7 @@ public class MigrateUtil {
 ////                oldNodeMap.put(edgeName,list);
 ////            }//上面这部分获得了valueNode的oldNodeMap
 //            Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-//            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmList().contains(icmId)) {
+//            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmSet().contains(icmId)) {
 //                newTmpUserSet.remove(icmId);//是一条由sourceClass指向ValueNode的边
 //            }else if(ctvEdge.getStarter().getId()==targetId&&edgeNameSet.contains(edgeName)){
 //                //起点是目标节点,且原有节点中有一条和该边同名的边
@@ -97,18 +96,18 @@ public class MigrateUtil {
 //        for(RelationToValueEdge rtvEdge:rtvEdges) {
 //            String edgeName=rtvEdge.getEdgeName();
 ////            if(oldNodeMap.containsKey(edgeName)) {
-////                oldNodeMap.get(edgeName).add(rtvEdge.getIcmList());
+////                oldNodeMap.get(edgeName).add(rtvEdge.getIcmSet());
 ////            }else {
 ////                List<Set<Long>> list=new ArrayList<>();
-////                list.add(rtvEdge.getIcmList());
+////                list.add(rtvEdge.getIcmSet());
 ////                oldNodeMap.put(edgeName,list);
 ////            }
 //            //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
 //            if(newNodeMap.containsKey(edgeName)) {
-//                newNodeMap.get(edgeName).add(rtvEdge.getIcmList());
+//                newNodeMap.get(edgeName).add(rtvEdge.getIcmSet());
 //            }else {
 //                List<Set<Long>> list=new ArrayList<>();
-//                list.add(rtvEdge.getIcmList());
+//                list.add(rtvEdge.getIcmSet());
 //                newNodeMap.put(edgeName,list);
 //            }
 //        }
@@ -137,13 +136,13 @@ public class MigrateUtil {
         Set<String> edgeNameSet=new HashSet<>();
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
-            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmList().contains(oneIcmId))
+            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmSet().contains(oneIcmId))
                 edgeNameSet.add(edgeName);
         }
 
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
-            Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmList());
+            Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmSet());
 //            if(oldNodeMap.containsKey(edgeName)) {
 //                oldNodeMap.get(edgeName).add(tmpUserSet);
 //            }else {
@@ -152,7 +151,7 @@ public class MigrateUtil {
 //                oldNodeMap.put(edgeName,list);
 //            }//上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmList().contains(oneIcmId)) {
+            if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmSet().contains(oneIcmId)) {
                 newTmpUserSet.removeAll(icmSet);//是一条由sourceClass指向ValueNode的边
             }else if(ctvEdge.getStarter().getId()==targetId&&edgeNameSet.contains(edgeName)){
                 //起点是目标节点,且原有节点中有一条和该边同名的边
@@ -179,18 +178,18 @@ public class MigrateUtil {
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String edgeName=rtvEdge.getEdgeName();
 //            if(oldNodeMap.containsKey(edgeName)) {
-//                oldNodeMap.get(edgeName).add(rtvEdge.getIcmList());
+//                oldNodeMap.get(edgeName).add(rtvEdge.getIcmSet());
 //            }else {
 //                List<Set<Long>> list=new ArrayList<>();
-//                list.add(rtvEdge.getIcmList());
+//                list.add(rtvEdge.getIcmSet());
 //                oldNodeMap.put(edgeName,list);
 //            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
-                newNodeMap.get(edgeName).add(rtvEdge.getIcmList());
+                newNodeMap.get(edgeName).add(rtvEdge.getIcmSet());
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(rtvEdge.getIcmList());
+                list.add(rtvEdge.getIcmSet());
                 newNodeMap.put(edgeName,list);
             }
         }
@@ -219,14 +218,14 @@ public class MigrateUtil {
 //        Long sourceId=sourceCNode.getId();
 //        Long targetId=targetCNode.getId();
 //
-//        Set<RelationToCEdge> rtcEdges=relationNode.getRtcEdges();
+//        Set<RelationToClassEdge> rtcEdges=relationNode.getRtcEdges();
 //        Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
 //
 //        Map<String,Set<String>> edgeNameAndPortCMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
 //        Map<String,Set<String>> edgeNameAndPortVMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
 //
-//        for(RelationToCEdge rtcEdge:rtcEdges) {
-//            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmList().contains(icmId)) {
+//        for(RelationToClassEdge rtcEdge:rtcEdges) {
+//            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmSet().contains(icmId)) {
 //                String edgeName=rtcEdge.getEdgeName();
 //                String port=rtcEdge.getPort();
 //                if(edgeNameAndPortCMap.containsKey(edgeName)) {
@@ -240,7 +239,7 @@ public class MigrateUtil {
 //        }
 //
 //        for(RelationToValueEdge rtvEdge:rtvEdges) {
-//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(icmId)) {
+//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(icmId)) {
 //                String edgeName=rtvEdge.getEdgeName();
 //                String port=rtvEdge.getPort();
 //                if(edgeNameAndPortVMap.containsKey(edgeName)) {
@@ -255,10 +254,10 @@ public class MigrateUtil {
 //
 //        //完成了edgeNameAndPortMap的初始化工作
 //
-//        for(RelationToCEdge rtcEdge:rtcEdges) {
+//        for(RelationToClassEdge rtcEdge:rtcEdges) {
 //            String port=rtcEdge.getPort();
 //            String edgeName=rtcEdge.getEdgeName();
-//            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
+//            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmSet());//该边的用户数
 ////            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 ////                oldNodeMap.get(edgeName).add(tmpUserSet);
 ////            }else {
@@ -268,7 +267,7 @@ public class MigrateUtil {
 ////            }
 //            //上面这部分获得了valueNode的oldNodeMap
 //            Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-//            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmList().contains(icmId)) {
+//            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmSet().contains(icmId)) {
 //                newTmpUserSet.remove(icmId);//是一条由sourceClass指向ValueNode的边
 //            }else if(rtcEdge.getEnder().getId()==targetId&&edgeNameAndPortCMap.keySet().contains(edgeName)
 //                    &&edgeNameAndPortCMap.get(edgeName).contains(port)){
@@ -303,7 +302,7 @@ public class MigrateUtil {
 //        for(RelationToValueEdge rtvEdge:rtvEdges) {
 //            String port=rtvEdge.getPort();
 //            String edgeName=rtvEdge.getEdgeName();
-//            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
+//            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
 ////            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 ////                oldNodeMap.get(edgeName).add(tmpUserSet);
 ////            }else {
@@ -313,7 +312,7 @@ public class MigrateUtil {
 ////            }
 //            //上面这部分获得了valueNode的oldNodeMap
 //            Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(icmId)) {
+//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(icmId)) {
 //                newTmpUserSet.remove(icmId);//是一条由sourceClass指向ValueNode的边
 //            }else if(rtvEdge.getStarter().getId()==targetId&&edgeNameAndPortVMap.keySet().contains(edgeName)
 //                    &&edgeNameAndPortVMap.get(edgeName).contains(port)){
@@ -361,7 +360,7 @@ public class MigrateUtil {
         Long sourceId=sourceCNode.getId();
         Long targetId=targetCNode.getId();
 
-        Set<RelationToCEdge> rtcEdges=relationNode.getRtcEdges();
+        Set<RelationToClassEdge> rtcEdges=relationNode.getRtcEdges();
         Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
 
         Map<String,Set<String>> edgeNameAndPortCMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
@@ -369,8 +368,8 @@ public class MigrateUtil {
 
         Long oneIcmId = icmSet.iterator().next();
 
-        for(RelationToCEdge rtcEdge:rtcEdges) {
-            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmList().contains(oneIcmId)) {
+        for(RelationToClassEdge rtcEdge:rtcEdges) {
+            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
                 String edgeName=rtcEdge.getEdgeName();
                 String port=rtcEdge.getPort();
                 if(edgeNameAndPortCMap.containsKey(edgeName)) {
@@ -384,7 +383,7 @@ public class MigrateUtil {
         }
 
         for(RelationToValueEdge rtvEdge:rtvEdges) {
-            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(oneIcmId)) {
+            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
                 String edgeName=rtvEdge.getEdgeName();
                 String port=rtvEdge.getPort();
                 if(edgeNameAndPortVMap.containsKey(edgeName)) {
@@ -399,10 +398,10 @@ public class MigrateUtil {
 
         //完成了edgeNameAndPortMap的初始化工作
 
-        for(RelationToCEdge rtcEdge:rtcEdges) {
+        for(RelationToClassEdge rtcEdge:rtcEdges) {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
-            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
+            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmSet());//该边的用户数
 //            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 //                oldNodeMap.get(edgeName).add(tmpUserSet);
 //            }else {
@@ -412,7 +411,7 @@ public class MigrateUtil {
 //            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmList().contains(oneIcmId)) {
+            if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
                 newTmpUserSet.removeAll(icmSet);//是一条由sourceClass指向ValueNode的边
             }else if(rtcEdge.getEnder().getId()==targetId&&edgeNameAndPortCMap.keySet().contains(edgeName)
                     &&edgeNameAndPortCMap.get(edgeName).contains(port)){
@@ -446,7 +445,7 @@ public class MigrateUtil {
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
-            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
+            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
 //            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 //                oldNodeMap.get(edgeName).add(tmpUserSet);
 //            }else {
@@ -456,7 +455,7 @@ public class MigrateUtil {
 //            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(oneIcmId)) {
+            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
                 newTmpUserSet.removeAll(icmSet);//是一条由sourceClass指向ValueNode的边
             }else if(rtvEdge.getStarter().getId()==targetId&&edgeNameAndPortVMap.keySet().contains(edgeName)
                     &&edgeNameAndPortVMap.get(edgeName).contains(port)){
@@ -517,7 +516,7 @@ public class MigrateUtil {
 //
 //        Map<String,Set<String>> edgeNameAndPortMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
 //        for(RelationToValueEdge rtvEdge:rtvEdges) {
-//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(icmId)) {
+//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(icmId)) {
 //                String edgeName=rtvEdge.getEdgeName();
 //                String port=rtvEdge.getPort();
 //                if(edgeNameAndPortMap.containsKey(edgeName)) {
@@ -533,7 +532,7 @@ public class MigrateUtil {
 //        for(RelationToValueEdge rtvEdge:rtvEdges) {
 //            String port=rtvEdge.getPort();
 //            String edgeName=rtvEdge.getEdgeName();
-//            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
+//            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
 ////            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 ////                oldNodeMap.get(edgeName).add(tmpUserSet);
 ////            }else {
@@ -543,7 +542,7 @@ public class MigrateUtil {
 ////            }
 //            //上面这部分获得了valueNode的oldNodeMap
 //            Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(icmId)) {
+//            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(icmId)) {
 //                newTmpUserSet.remove(icmId);//是一条由sourceClass指向ValueNode的边
 //            }else if(rtvEdge.getStarter().getId()==targetId&&edgeNameAndPortMap.keySet().contains(edgeName)
 //                    &&edgeNameAndPortMap.get(edgeName).contains(port)){
@@ -578,18 +577,18 @@ public class MigrateUtil {
 //        for(ClassToValueEdge ctvEdge:ctvEdges) {
 //            String edgeName=ctvEdge.getEdgeName();
 ////            if(oldNodeMap.containsKey(edgeName)) {
-////                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+////                oldNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
 ////            }else {
 ////                List<Set<Long>> list=new ArrayList<>();
-////                list.add(ctvEdge.getIcmList());
+////                list.add(ctvEdge.getIcmSet());
 ////                oldNodeMap.put(edgeName,list);
 ////            }
 //            //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
 //            if(newNodeMap.containsKey(edgeName)) {
-//                newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//                newNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
 //            }else {
 //                List<Set<Long>> list=new ArrayList<>();
-//                list.add(ctvEdge.getIcmList());
+//                list.add(ctvEdge.getIcmSet());
 //                newNodeMap.put(edgeName,list);
 //            }
 //        }
@@ -618,7 +617,7 @@ public class MigrateUtil {
 
         Map<String,Set<String>> edgeNameAndPortMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
         for(RelationToValueEdge rtvEdge:rtvEdges) {
-            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(oneIcmId)) {
+            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
                 String edgeName=rtvEdge.getEdgeName();
                 String port=rtvEdge.getPort();
                 if(edgeNameAndPortMap.containsKey(edgeName)) {
@@ -634,7 +633,7 @@ public class MigrateUtil {
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getEdgeName();
-            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmList());//该边的用户数
+            Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
 //            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 //                oldNodeMap.get(edgeName).add(tmpUserSet);
 //            }else {
@@ -644,7 +643,7 @@ public class MigrateUtil {
 //            }
             //上面这部分获得了valueNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmList().contains(oneIcmId)) {
+            if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
                 newTmpUserSet.removeAll(icmSet);//是一条由sourceClass指向ValueNode的边
             }else if(rtvEdge.getStarter().getId()==targetId&&edgeNameAndPortMap.keySet().contains(edgeName)
                     &&edgeNameAndPortMap.get(edgeName).contains(port)){
@@ -678,18 +677,18 @@ public class MigrateUtil {
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
 //            if(oldNodeMap.containsKey(edgeName)) {
-//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
 //            }else {
 //                List<Set<Long>> list=new ArrayList<>();
-//                list.add(ctvEdge.getIcmList());
+//                list.add(ctvEdge.getIcmSet());
 //                oldNodeMap.put(edgeName,list);
 //            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
-                newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+                newNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
+                list.add(ctvEdge.getIcmSet());
                 newNodeMap.put(edgeName,list);
             }
         }
@@ -719,12 +718,12 @@ public class MigrateUtil {
 //        Long sourceId=sourceRNode.getId();
 //        Long targetId=targetRNode.getId();
 //
-//        Set<RelationToCEdge> rtcEdges=classNode.getRtcEdges();//relation到class的集合
+//        Set<RelationToClassEdge> rtcEdges=classNode.getRtcEdges();//relation到class的集合
 //        Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();
 //
 //        Map<String,Set<String>> edgeNameAndPortMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
-//        for(RelationToCEdge rtcEdge:rtcEdges) {
-//            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmList().contains(icmId)) {
+//        for(RelationToClassEdge rtcEdge:rtcEdges) {
+//            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmSet().contains(icmId)) {
 //                String edgeName=rtcEdge.getEdgeName();
 //                String port=rtcEdge.getPort();
 //                if(edgeNameAndPortMap.containsKey(edgeName)) {
@@ -737,10 +736,10 @@ public class MigrateUtil {
 //            }
 //        }
 //
-//        for(RelationToCEdge rtcEdge:rtcEdges) {
+//        for(RelationToClassEdge rtcEdge:rtcEdges) {
 //            String port=rtcEdge.getPort();
 //            String edgeName=rtcEdge.getEdgeName();
-//            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
+//            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmSet());//该边的用户数
 ////            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 ////                oldNodeMap.get(edgeName).add(tmpUserSet);
 ////            }else {
@@ -750,7 +749,7 @@ public class MigrateUtil {
 ////            }
 //            //上面这部分获得了classNode的oldNodeMap
 //            Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-//            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmList().contains(icmId)) {
+//            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmSet().contains(icmId)) {
 //                newTmpUserSet.remove(icmId);//是一条由sourceNode指向ClassNode的边
 //            }else if(rtcEdge.getStarter().getId()==targetId&&edgeNameAndPortMap.keySet().contains(edgeName)
 //                    &&edgeNameAndPortMap.get(edgeName).contains(port)){
@@ -785,18 +784,18 @@ public class MigrateUtil {
 //        for(ClassToValueEdge ctvEdge:ctvEdges) {
 //            String edgeName=ctvEdge.getEdgeName();
 ////            if(oldNodeMap.containsKey(edgeName)) {
-////                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+////                oldNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
 ////            }else {
 ////                List<Set<Long>> list=new ArrayList<>();
-////                list.add(ctvEdge.getIcmList());
+////                list.add(ctvEdge.getIcmSet());
 ////                oldNodeMap.put(edgeName,list);
 ////            }
 //            //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
 //            if(newNodeMap.containsKey(edgeName)) {
-//                newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//                newNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
 //            }else {
 //                List<Set<Long>> list=new ArrayList<>();
-//                list.add(ctvEdge.getIcmList());
+//                list.add(ctvEdge.getIcmSet());
 //                newNodeMap.put(edgeName,list);
 //            }
 //        }
@@ -818,14 +817,14 @@ public class MigrateUtil {
         Long sourceId=sourceRNode.getId();
         Long targetId=targetRNode.getId();
 
-        Set<RelationToCEdge> rtcEdges=classNode.getRtcEdges();//relation到class的集合
+        Set<RelationToClassEdge> rtcEdges=classNode.getRtcEdges();//relation到class的集合
         Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();
 
         Long oneIcmId = icmSet.iterator().next();
 
         Map<String,Set<String>> edgeNameAndPortMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
-        for(RelationToCEdge rtcEdge:rtcEdges) {
-            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmList().contains(oneIcmId)) {
+        for(RelationToClassEdge rtcEdge:rtcEdges) {
+            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
                 String edgeName=rtcEdge.getEdgeName();
                 String port=rtcEdge.getPort();
                 if(edgeNameAndPortMap.containsKey(edgeName)) {
@@ -838,10 +837,10 @@ public class MigrateUtil {
             }
         }
 
-        for(RelationToCEdge rtcEdge:rtcEdges) {
+        for(RelationToClassEdge rtcEdge:rtcEdges) {
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getEdgeName();
-            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmList());//该边的用户数
+            Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmSet());//该边的用户数
 //            if(oldNodeMap.containsKey(edgeName)) {//由于现在以edgeName作为标示,而不是以port,所以用edgeName来判断
 //                oldNodeMap.get(edgeName).add(tmpUserSet);
 //            }else {
@@ -851,7 +850,7 @@ public class MigrateUtil {
 //            }
             //上面这部分获得了classNode的oldNodeMap
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmList().contains(oneIcmId)) {
+            if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
                 newTmpUserSet.removeAll(icmSet);//是一条由sourceNode指向ClassNode的边
             }else if(rtcEdge.getStarter().getId()==targetId&&edgeNameAndPortMap.keySet().contains(edgeName)
                     &&edgeNameAndPortMap.get(edgeName).contains(port)){
@@ -885,18 +884,18 @@ public class MigrateUtil {
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
 //            if(oldNodeMap.containsKey(edgeName)) {
-//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+//                oldNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
 //            }else {
 //                List<Set<Long>> list=new ArrayList<>();
-//                list.add(ctvEdge.getIcmList());
+//                list.add(ctvEdge.getIcmSet());
 //                oldNodeMap.put(edgeName,list);
 //            }
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
-                newNodeMap.get(edgeName).add(ctvEdge.getIcmList());
+                newNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
+                list.add(ctvEdge.getIcmSet());
                 newNodeMap.put(edgeName,list);
             }
         }
@@ -921,7 +920,7 @@ public class MigrateUtil {
         Map<Long,String> icmMap = new HashMap<>();
         Map<String,Set<Long>> sameIcmMap = new HashMap<>();
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-            for(Long curIcm : ctvEdge.getIcmList()) {
+            for(Long curIcm : ctvEdge.getIcmSet()) {
                 if(icmMap.containsKey(curIcm))
                     icmMap.put(curIcm,icmMap.get(curIcm)+"-"+ctvEdge.getId());
                 else {
@@ -930,8 +929,8 @@ public class MigrateUtil {
             }
         }
 
-        for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
-            for(Long curIcm : rtcEdge.getIcmList()) {
+        for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
+            for(Long curIcm : rtcEdge.getIcmSet()) {
                 if(icmMap.containsKey(curIcm)) icmMap.put(curIcm,icmMap.get(curIcm)+"-"+rtcEdge.getId());
                 else {
                     icmMap.put(curIcm,rtcEdge.getId().toString());
@@ -957,7 +956,7 @@ public class MigrateUtil {
         Map<Long,String> icmMap = new HashMap<>();
         Map<String,Set<Long>> sameIcmMap = new HashMap<>();
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-            for(Long curIcm : rtvEdge.getIcmList()) {
+            for(Long curIcm : rtvEdge.getIcmSet()) {
                 if(icmMap.containsKey(curIcm))
                     icmMap.put(curIcm,icmMap.get(curIcm)+"-"+rtvEdge.getId());
                 else {
@@ -966,8 +965,8 @@ public class MigrateUtil {
             }
         }
 
-        for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
-            for(Long curIcm : rtcEdge.getIcmList()) {
+        for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
+            for(Long curIcm : rtcEdge.getIcmSet()) {
                 if(icmMap.containsKey(curIcm)) icmMap.put(curIcm,icmMap.get(curIcm)+"-"+rtcEdge.getId());
                 else {
                     icmMap.put(curIcm,rtcEdge.getId().toString());
@@ -993,11 +992,11 @@ public class MigrateUtil {
         Set<Integer> classNodeListIdSet = new HashSet<>();
 
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-            if(ctvEdge.getIcmList().size() == 0) continue;
+            if(ctvEdge.getIcmSet().size() == 0) continue;
             ValueNode vNode = ctvEdge.getEnder();
             //获得了当前cNode连接的一个vNode,接下来获取到该vNode连接的所有cNode
             for(ClassToValueEdge ctvEdge2 : vNode.getCtvEdges()) {
-                if(ctvEdge2.getIcmList().size() == 0) continue;
+                if(ctvEdge2.getIcmSet().size() == 0) continue;
                 ClassNode otherCNode = ctvEdge2.getStarter();
                 if(otherCNode.getId()==cNode.getId() || classNodeListIdSet.contains(otherCNode.getLoc())) continue;
                 else {
@@ -1006,11 +1005,11 @@ public class MigrateUtil {
             }
         }
 
-        for(RelationToCEdge rtcEdge : cNode.getRtcEdges()) {
-            if(rtcEdge.getIcmList().size() == 0) continue;
+        for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
+            if(rtcEdge.getIcmSet().size() == 0) continue;
             RelationNode rNode = rtcEdge.getStarter();
-            for(RelationToCEdge rtcEdge2 : rNode.getRtcEdges()) {
-                if(rtcEdge2.getIcmList().size() == 0) continue;
+            for(RelationToClassEdge rtcEdge2 : rNode.getRtcEdges()) {
+                if(rtcEdge2.getIcmSet().size() == 0) continue;
                 ClassNode otherCNode = rtcEdge2.getEnder();
                 if(otherCNode.getId()==cNode.getId() || classNodeListIdSet.contains(otherCNode.getLoc())) continue;
                 else {
@@ -1025,12 +1024,12 @@ public class MigrateUtil {
         Set<Integer> relationNodeListIdSet = new HashSet<>();
 
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-            if(rtvEdge.getIcmList().size() == 0) continue;
+            if(rtvEdge.getIcmSet().size() == 0) continue;
             ValueNode vNode = rtvEdge.getEnder();
             if(vNode.getName().equals("1")||vNode.getName().equals("2")||vNode.getName().equals("*")
                     ||vNode.getName().equals("1..*")||vNode.getName().equals("true")) continue;
             for(RelationToValueEdge rtvEdge2 : vNode.getRtvEdges()) {
-                if(rtvEdge2.getIcmList().size() == 0) continue;
+                if(rtvEdge2.getIcmSet().size() == 0) continue;
                 RelationNode otherRNode = rtvEdge2.getStarter();
                 if(otherRNode.getId()==rNode.getId() || relationNodeListIdSet.contains(otherRNode.getLoc())) continue;
                 else {
@@ -1039,11 +1038,11 @@ public class MigrateUtil {
             }
         }
 
-        for(RelationToCEdge rtcEdge : rNode.getRtcEdges()) {
-            if(rtcEdge.getIcmList().size() == 0) continue;
+        for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
+            if(rtcEdge.getIcmSet().size() == 0) continue;
             ClassNode cNode = rtcEdge.getEnder();
-            for(RelationToCEdge rtcEdge2 : cNode.getRtcEdges()) {
-                if(rtcEdge2.getIcmList().size() == 0) continue;
+            for(RelationToClassEdge rtcEdge2 : cNode.getRtcEdges()) {
+                if(rtcEdge2.getIcmSet().size() == 0) continue;
                 RelationNode otherRNode = rtcEdge2.getStarter();
                 if(otherRNode.getId()==rNode.getId() || relationNodeListIdSet.contains(otherRNode.getLoc())) continue;
                 else {

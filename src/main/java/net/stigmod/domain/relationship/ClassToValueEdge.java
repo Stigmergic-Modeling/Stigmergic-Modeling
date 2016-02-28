@@ -19,6 +19,7 @@ import java.util.Set;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2015/11/10
  */
 @RelationshipEntity(type="PROPERTY")
@@ -40,13 +41,10 @@ public class ClassToValueEdge {
     private String edgeName;
 
     @Property(name="icm_list")
-    private Set<Long> icmList=new HashSet<>();
+    private Set<Long> icmSet = new HashSet<>();
 
-    @Property
     private Long modelId;
-
-    private Set<Long> icmListPreCopy=new HashSet<>();
-
+    private Set<Long> icmSetPreCopy = new HashSet<>();
     private boolean isChanged=false;
 
     public ClassToValueEdge() {
@@ -59,7 +57,7 @@ public class ClassToValueEdge {
         this.ender=new ValueNode(ctvEdge.getEnder());
         this.port=ctvEdge.port;
         this.edgeName=ctvEdge.getEdgeName();
-        this.icmList=new HashSet<>(ctvEdge.getIcmList());
+        this.icmSet=new HashSet<>(ctvEdge.getIcmSet());
         this.modelId=ctvEdge.getModelId();
     }
 
@@ -78,7 +76,7 @@ public class ClassToValueEdge {
     }
 
     public void UpdateClassToVEdge(ClassToValueEdge classToValueEdge) {
-        this.icmList=classToValueEdge.getIcmList();//其他的要保持不变
+        this.icmSet=classToValueEdge.getIcmSet();//其他的要保持不变
     }
 
     public Long getId() {
@@ -105,12 +103,12 @@ public class ClassToValueEdge {
         return edgeName;
     }
 
-    public Set<Long> getIcmList() {
-        return icmList;
+    public Set<Long> getIcmSet() {
+        return icmSet;
     }
 
-    public void setIcmList(Set<Long> icmList) {
-        this.icmList = icmList;
+    public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet = icmSet;
     }
 
     public String getPort() {
@@ -133,12 +131,12 @@ public class ClassToValueEdge {
         this.modelId = modelId;
     }
 
-    public Set<Long> getIcmListPreCopy() {
-        return icmListPreCopy;
+    public Set<Long> getIcmSetPreCopy() {
+        return icmSetPreCopy;
     }
 
-    public void setIcmListPreCopy(Set<Long> icmListPreCopy) {
-        this.icmListPreCopy = icmListPreCopy;
+    public void setIcmSetPreCopy(Set<Long> icmSetPreCopy) {
+        this.icmSetPreCopy = icmSetPreCopy;
     }
 
     public boolean isChanged() {

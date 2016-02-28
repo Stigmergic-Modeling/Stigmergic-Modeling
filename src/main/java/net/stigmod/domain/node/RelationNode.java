@@ -10,7 +10,7 @@
 
 package net.stigmod.domain.node;
 
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import net.stigmod.domain.relationship.RelationToValueEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -22,6 +22,7 @@ import java.util.Set;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2015/11/10
  */
 
@@ -34,20 +35,12 @@ public class RelationNode {
     @Property(name="icm_list")
     private Set<Long> icmSet = new HashSet<>();
 
-//    @Property
 //    private double orgEntropyValue;//表示没有乘用户数之前的节点熵值
-
-    @Property
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值
-
     private double postBiEntropyValue;
-
     private boolean isInitEntropy;//起到判断当前熵值是否是初始熵值得作用
-
-    @Property
-    private Long modelId;
-
     private int loc;
+    private Long modelId;
 
     public RelationNode() {
 //        this.orgEntropyValue = 0;
@@ -69,7 +62,7 @@ public class RelationNode {
     }
 
     @Relationship(type="E_CLASSS",direction = Relationship.OUTGOING)
-    private Set<RelationToCEdge> rtcEdges =new HashSet<RelationToCEdge>();
+    private Set<RelationToClassEdge> rtcEdges =new HashSet<RelationToClassEdge>();
 
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
     private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
@@ -90,7 +83,7 @@ public class RelationNode {
 //        this.rtvEdges=relationNode.getRtvEdges();
 //    }
 
-    public Set<RelationToCEdge> getRtcEdges() {
+    public Set<RelationToClassEdge> getRtcEdges() {
         return rtcEdges;
     }
 
@@ -144,6 +137,14 @@ public class RelationNode {
 
     public void setPostBiEntropyValue(double postBiEntropyValue) {
         this.postBiEntropyValue = postBiEntropyValue;
+    }
+
+    public void setRtcEdges(Set<RelationToClassEdge> rtcEdges) {
+        this.rtcEdges = rtcEdges;
+    }
+
+    public void setRtvEdges(Set<RelationToValueEdge> rtvEdges) {
+        this.rtvEdges = rtvEdges;
     }
 
     //    public double getOrgEntropyValue() {

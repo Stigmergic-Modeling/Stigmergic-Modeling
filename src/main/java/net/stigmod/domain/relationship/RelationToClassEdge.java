@@ -13,17 +13,17 @@ import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.RelationNode;
 import org.neo4j.ogm.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2015/11/10
  */
 
 @RelationshipEntity(type="E_CLASSS")
-public class RelationToCEdge {
+public class RelationToClassEdge {
 
     @GraphId
     private Long id;
@@ -41,38 +41,35 @@ public class RelationToCEdge {
     private String port;
 
     @Property(name="icm_list")
-    private Set<Long> icmList=new HashSet<>();
+    private Set<Long> icmSet = new HashSet<>();
 
-    @Property
     private Long modelId;
-
-    private Set<Long> icmListPreCopy=new HashSet<>();
-
+    private Set<Long> icmSetPreCopy = new HashSet<>();
     private boolean isChanged=false;
 
-    public RelationToCEdge() {
+    public RelationToClassEdge() {
         this.port=null;
     }
 
-    public RelationToCEdge(RelationToCEdge rtcEdge) {
+    public RelationToClassEdge(RelationToClassEdge rtcEdge) {
         this.id=rtcEdge.getId();
         this.starter=new RelationNode(rtcEdge.getStarter());
         this.ender=new ClassNode(rtcEdge.getEnder());
         this.port=rtcEdge.port;
         this.edgeName=rtcEdge.getEdgeName();
-        this.icmList=new HashSet<>(rtcEdge.getIcmList());
+        this.icmSet=new HashSet<>(rtcEdge.getIcmSet());
         this.modelId=rtcEdge.getModelId();
     }
 
-    public RelationToCEdge(String port , String edgeName, RelationNode starter, ClassNode ender) {
+    public RelationToClassEdge(String port, String edgeName, RelationNode starter, ClassNode ender) {
         this.edgeName=edgeName;
         this.starter=starter;
         this.ender=ender;
         this.port=port;
     }
 
-    public void UpdateRelationToCEdge(RelationToCEdge relationToCEdge) {
-        this.icmList=relationToCEdge.getIcmList();
+    public void UpdateRelationToCEdge(RelationToClassEdge relationToClassEdge) {
+        this.icmSet= relationToClassEdge.getIcmSet();
     }
 
     public Long getId() {
@@ -95,12 +92,12 @@ public class RelationToCEdge {
         this.edgeName = edgeName;
     }
 
-    public Set<Long> getIcmList() {
-        return icmList;
+    public Set<Long> getIcmSet() {
+        return icmSet;
     }
 
-    public void setIcmList(Set<Long> icmList) {
-        this.icmList = icmList;
+    public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet = icmSet;
     }
 
     public String getPort() {
@@ -119,12 +116,12 @@ public class RelationToCEdge {
         this.modelId = modelId;
     }
 
-    public Set<Long> getIcmListPreCopy() {
-        return icmListPreCopy;
+    public Set<Long> getIcmSetPreCopy() {
+        return icmSetPreCopy;
     }
 
-    public void setIcmListPreCopy(Set<Long> icmListPreCopy) {
-        this.icmListPreCopy = icmListPreCopy;
+    public void setIcmSetPreCopy(Set<Long> icmSetPreCopy) {
+        this.icmSetPreCopy = icmSetPreCopy;
     }
 
     public boolean isChanged() {
@@ -137,5 +134,13 @@ public class RelationToCEdge {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setStarter(RelationNode starter) {
+        this.starter = starter;
+    }
+
+    public void setEnder(ClassNode ender) {
+        this.ender = ender;
     }
 }

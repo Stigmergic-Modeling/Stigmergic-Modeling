@@ -13,7 +13,7 @@ import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.RelationNode;
 import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import net.stigmod.domain.relationship.RelationToValueEdge;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
@@ -52,7 +52,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
         ClassNode classNode=classNodeRepository.findOne(id);
         if(classNode!=null) {
             Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();//所有的出边
-            Set<RelationToCEdge> rtcEdges=classNode.getRtcEdges();//所有的入边
+            Set<RelationToClassEdge> rtcEdges=classNode.getRtcEdges();//所有的入边
             Map<String,List<Set<Long>>> myMap=getMapForClassNode(ctvEdges,rtcEdges);
             res= computeMapEntropy(myMap, nodeSum);
         }
@@ -68,7 +68,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
         double res=0.0;
         RelationNode relationNode=relationNodeRepository.findOne(id);
         if(relationNode!=null) {
-            Set<RelationToCEdge> rtcEdges=relationNode.getRtcEdges();
+            Set<RelationToClassEdge> rtcEdges=relationNode.getRtcEdges();
             Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
             Map<String,List<Set<Long>>> myMap=getMapForRelationNode(rtcEdges,rtvEdges);
             res= computeMapEntropy(myMap, nodeSum);
@@ -130,7 +130,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param rtcEdges :入边
      * @return map数据结构
      */
-    public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToCEdge> rtcEdges) {
+    public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToClassEdge> rtcEdges) {
         Map<String,List<Set<Long>>> myMap=new HashMap<>();
         if((ctvEdges==null||ctvEdges.size()==0)&&(rtcEdges==null||rtcEdges.size()==0)) return myMap;
         addCTVElementToMap(myMap,ctvEdges);
@@ -145,7 +145,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param rtvEdges :出边
      * @return map数据结构
      */
-    public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToCEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges) {
+    public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToClassEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges) {
         Map<String,List<Set<Long>>> myMap=new HashMap<>();
         if((rtcEdges==null||rtcEdges.size()==0)&&(rtvEdges==null||rtvEdges.size()==0)) return myMap;
         addRTCElementToMap(myMap,rtcEdges);
@@ -275,10 +275,10 @@ public class EntropyHandlerImpl implements EntropyHandler{
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String edgeName = rtvEdge.getEdgeName();
             if(myMap.containsKey(edgeName)) {
-                myMap.get(edgeName).add(rtvEdge.getIcmList());
+                myMap.get(edgeName).add(rtvEdge.getIcmSet());
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(rtvEdge.getIcmList());
+                list.add(rtvEdge.getIcmSet());
                 myMap.put(edgeName,list);
             }
         }
@@ -288,23 +288,23 @@ public class EntropyHandlerImpl implements EntropyHandler{
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getEdgeName();
             if(myMap.containsKey(edgeName)) {
-                myMap.get(edgeName).add(ctvEdge.getIcmList());
+                myMap.get(edgeName).add(ctvEdge.getIcmSet());
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(ctvEdge.getIcmList());
+                list.add(ctvEdge.getIcmSet());
                 myMap.put(edgeName ,list);
             }
         }
     }
 
-    private void addRTCElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToCEdge> rtcEdges) {
-        for(RelationToCEdge rtcEdge:rtcEdges) {
+    private void addRTCElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToClassEdge> rtcEdges) {
+        for(RelationToClassEdge rtcEdge:rtcEdges) {
             String edgeName = rtcEdge.getEdgeName();
             if(myMap.containsKey(edgeName)) {
-                myMap.get(edgeName).add(rtcEdge.getIcmList());
+                myMap.get(edgeName).add(rtcEdge.getIcmSet());
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(rtcEdge.getIcmList());
+                list.add(rtcEdge.getIcmSet());
                 myMap.put(edgeName , list);
             }
         }

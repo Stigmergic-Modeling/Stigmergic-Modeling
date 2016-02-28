@@ -10,14 +10,13 @@
 package net.stigmod.domain.node;
 
 import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToCEdge;
+import net.stigmod.domain.relationship.RelationToClassEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,28 +32,20 @@ public class ClassNode{
     @Property(name="icm_list")
     private Set<Long> icmSet = new HashSet<>();
 
-    @Property
-    private Long modelId;
-
-//    @Property
 //    private double orgEntropyValue;//这个表示没有乘上用户数前的节点熵值
-
-    @Property
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值(这是orgE*num后的结果)
-
     private double postBiEntropyValue;//这个表示bi的前值
-
     private boolean isInitEntropy;
+    private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
+    private Long modelId;
 
     //连接关系与类的关系
     @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
-    private Set<RelationToCEdge> rtcEdges = new HashSet<>();
+    private Set<RelationToClassEdge> rtcEdges = new HashSet<>();
 
     //连接类与name值的关系
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
     private Set<ClassToValueEdge> ctvEdges = new HashSet<>();
-
-    private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
 
     public ClassNode(){
 //        this.orgEntropyValue = 0;
@@ -96,7 +87,7 @@ public class ClassNode{
         this.icmSet = icmSet;
     }
 
-    public Set<RelationToCEdge> getRtcEdges() {
+    public Set<RelationToClassEdge> getRtcEdges() {
         return rtcEdges;
     }
 
@@ -150,6 +141,14 @@ public class ClassNode{
 
     public void setPostBiEntropyValue(double postBiEntropyValue) {
         this.postBiEntropyValue = postBiEntropyValue;
+    }
+
+    public void setRtcEdges(Set<RelationToClassEdge> rtcEdges) {
+        this.rtcEdges = rtcEdges;
+    }
+
+    public void setCtvEdges(Set<ClassToValueEdge> ctvEdges) {
+        this.ctvEdges = ctvEdges;
     }
 
     //    public double getOrgEntropyValue() {
