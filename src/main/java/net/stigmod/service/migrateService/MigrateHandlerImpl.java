@@ -270,6 +270,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //              classNodeRepository.save(classNode2);//在数据库中保存该节点
                 classNodeList.add(classNode2);//在classNodeList中添加节点classNode2
                 classNode2.setLoc(classNodeList.size()-1);
+                classNode2.setId(curIdLoc++);
                 maxEntropyDecrease = var2;
                 targetClassNodeListId = classNode2.getLoc();
             }
@@ -1112,6 +1113,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 minEntropyDown=var;
                 classNodeList.add(tClassNode);
                 tClassNode.setLoc(classNodeList.size()-1);
+                tClassNode.setId(curIdLoc++);
                 minVarCNodeListId=tClassNode.getLoc();
             }else tClassNode=null;
         }
@@ -1318,6 +1320,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(Double.compare(maxEntropyDecrease,var2)>0 && Math.abs(maxEntropyDecrease - var2) > 0.00001) {
                 relationNodeList.add(relationNode2);
                 relationNode2.setLoc(relationNodeList.size()-1);
+                relationNode2.setId(curIdLoc++);
                 maxEntropyDecrease=var2;
                 targetRelationNodeId=relationNode2.getLoc();
             }
@@ -2081,6 +2084,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 minEntropyDown=var;
                 relationNodeList.add(tRelationNode);
                 tRelationNode.setLoc(relationNodeList.size()-1);
+                tRelationNode.setId(curIdLoc++);
                 minVarRNodeId=tRelationNode.getLoc();
             }else tRelationNode=null;
         }
