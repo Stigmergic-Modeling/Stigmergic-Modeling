@@ -1487,8 +1487,8 @@ define(function (require, exports, module) {
 
             postData.date = Date.now();
             postData.user = stateOfPage.user;
-            postData.modelID = stateOfPage.modelID;
-            postData.modelName = stateOfPage.modelName;
+            postData.icmId = stateOfPage.modelID;
+            postData.icmName = stateOfPage.modelName;
 
             postData.log = icm.getLog();  // 获取日志
             postData.orderChanges = icm.getAttRelOrderChanges();  // 获取有变动的顺序数组

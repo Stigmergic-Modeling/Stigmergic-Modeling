@@ -504,7 +504,13 @@ define(function (require, exports, module) {
                             item.push(path[1]);  // class name / relation group name
                             item.push(icm[3][path[3]] || path[3]);  // attribute name / relation icm id
                             item.push(args[0]);
-                            item.push(args[1]);
+
+                            if (0 === path[0]) {
+                                item.push(args[1]);
+                            } else {
+                                item.push(args[1][0].toString() + '-' + args[1][1].toString());  // 将数组转换成字符串
+                            }
+
 
                         } else {
 
@@ -558,7 +564,12 @@ define(function (require, exports, module) {
                             item.push(path[1]);
                             item.push(icm[3][path[3]] || path[3]);
                             item.push(args[0]);
-                            item.push(args[1]);
+
+                            if (0 === path[0]) {
+                                item.push(args[1]);
+                            } else {
+                                item.push(args[1][0].toString() + '-' + args[1][1].toString());  // 将数组转换成字符串
+                            }
 
                         } else {
 

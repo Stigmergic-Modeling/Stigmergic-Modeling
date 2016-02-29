@@ -9,6 +9,8 @@
 
 package net.stigmod.service;
 
+import com.google.gson.Gson;
+import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
@@ -48,5 +50,16 @@ public class WorkspaceService {
         value.addC2VEdge(c2vEdge);
 
         neo4jTemplate.save(clazz);
+    }
+
+//    @Transactional
+    public ModelingOperationLog modelingOperationSync(String molJsonString) {
+        ModelingOperationLog mol = ConstructMOL(molJsonString);
+        return mol;
+    }
+
+    public ModelingOperationLog ConstructMOL(String molJsonString) {
+        Gson gson = new Gson();
+        return gson.fromJson(molJsonString, ModelingOperationLog.class);
     }
 }

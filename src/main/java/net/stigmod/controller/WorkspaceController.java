@@ -66,19 +66,26 @@ public class WorkspaceController {
         if (csrfToken != null) {
             model.addAttribute("_csrf", csrfToken);
         }
-        // TODO: Try-Catch
-        IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
-        Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
-        PageData pageData = new WorkspacePageData(user, currentIcm, icms);
 
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
-        model.addAttribute("currentIcm", currentIcm);
-        model.addAttribute("icms", icms);
-        model.addAttribute("data", pageData.toJsonString());
-        model.addAttribute("title", "workspace");
-        return "workspace";
+
+        try {
+            IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
+            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            PageData pageData = new WorkspacePageData(user, currentIcm, icms);
+
+            model.addAttribute("currentIcm", currentIcm);
+            model.addAttribute("icms", icms);
+            model.addAttribute("data", pageData.toJsonString());
+            model.addAttribute("title", "workspace");
+            return "workspace";
+
+        } catch (Exception e) {
+            model.addAttribute("error", e);
+            return "user";
+        }
     }
 
     // Workspace 页面 Synchronize Ajax POST
@@ -86,7 +93,8 @@ public class WorkspaceController {
     @ResponseBody
     public String workspace(@PathVariable String icmName, @RequestBody String requestBody, ModelMap model) {
 
-        workspaceService.testNeo4jSaving(1L, 2L);
+//        workspaceService.testNeo4jSaving(1L, 2L);
+//        workspaceService.modelingOperationSync(requestBody);
 
         return "Good! " + requestBody;
     }
