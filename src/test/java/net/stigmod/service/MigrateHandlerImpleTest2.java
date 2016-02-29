@@ -49,7 +49,7 @@ public class MigrateHandlerImpleTest2 {
 //                ClassNode cNode = classNodeList.get(6*(int)t+i);
                 ClassNode cNode = new ClassNode();
                 cNode.setIcmSet(s1);
-                cNode.setModelId(0l);
+                cNode.setCcmId(0l);
                 cNode.setId(c);
                 classNodeList.add(cNode);
             }
@@ -66,7 +66,7 @@ public class MigrateHandlerImpleTest2 {
 //                RelationNode rNode = relationNodeList.get(7*(int)t+i);
                 RelationNode rNode = new RelationNode();
                 rNode.setIcmSet(s1);
-                rNode.setModelId(0l);
+                rNode.setCcmId(0l);
                 rNode.setId(c);
                 relationNodeList.add(rNode);
             }
@@ -83,7 +83,7 @@ public class MigrateHandlerImpleTest2 {
         for(int i=0;i < vNodeNum;i++) {
             ValueNode vNode = new ValueNode();
             vNode.setIcmSet(new HashSet<Long>(s1));
-            vNode.setModelId(0l);
+            vNode.setCcmId(0l);
             vNode.setId(c++);
             valueNodeList.add(vNode);
         }

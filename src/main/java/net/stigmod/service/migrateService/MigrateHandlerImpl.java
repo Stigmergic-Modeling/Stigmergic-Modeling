@@ -91,7 +91,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         this.nodeSum=(classNodeList.size()+relationNodeList.size()+valueNodeList.size());
 
-        modelId=ccm.getModelId();
+        modelId=ccm.getId();
 
         curIdLoc=((long)(classNodeList.size()+relationNodeList.size()+valueNodeList.size())*1000);//这个到时候肯定要删除
 

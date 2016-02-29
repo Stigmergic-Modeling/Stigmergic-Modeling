@@ -43,7 +43,7 @@ public class RelationToClassEdge {
     @Property(name="icm_list")
     private Set<Long> icmSet = new HashSet<>();
 
-    private Long modelId;
+    private Long ccmId;
     private Set<Long> icmSetPreCopy = new HashSet<>();
     private boolean isChanged=false;
 
@@ -58,7 +58,7 @@ public class RelationToClassEdge {
         this.port=rtcEdge.port;
         this.edgeName=rtcEdge.getEdgeName();
         this.icmSet=new HashSet<>(rtcEdge.getIcmSet());
-        this.modelId=rtcEdge.getModelId();
+        this.ccmId =rtcEdge.getCcmId();
     }
 
     public RelationToClassEdge(String port, String edgeName, RelationNode starter, ClassNode ender) {
@@ -108,12 +108,12 @@ public class RelationToClassEdge {
         this.port = port;
     }
 
-    public Long getModelId() {
-        return modelId;
+    public Long getCcmId() {
+        return ccmId;
     }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
+    public void setCcmId(Long ccmId) {
+        this.ccmId = ccmId;
     }
 
     public Set<Long> getIcmSetPreCopy() {

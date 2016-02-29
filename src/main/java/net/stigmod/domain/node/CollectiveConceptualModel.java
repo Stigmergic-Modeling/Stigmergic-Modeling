@@ -31,9 +31,6 @@ public class CollectiveConceptualModel {
     private Long id;
 
     @Property
-    private Long modelId;
-
-    @Property
     Set<Long> classNodesId = new HashSet<>();
 
     @Property
@@ -140,14 +137,6 @@ public class CollectiveConceptualModel {
 
     public void setValueNodesId(Set<Long> valueNodesId) {
         this.valueNodesId = valueNodesId;
-    }
-
-    public Long getModelId() {
-        return modelId;
-    }
-
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
     }
 }
 

@@ -21,5 +21,5 @@ import java.util.List;
  */
 @Repository
 public interface ClassToVEdgeRepository extends GraphRepository<ClassToValueEdge> {
-    List<ClassToValueEdge> findByModelId(Long modelId);
+    List<ClassToValueEdge> findByCcmId(Long ccmId);
 }

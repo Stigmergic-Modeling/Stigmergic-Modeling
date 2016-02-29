@@ -37,7 +37,7 @@ public class ClassNode{
     private double postBiEntropyValue;//这个表示bi的前值
     private boolean isInitEntropy;
     private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
-    private Long modelId;
+    private Long ccmId;
 
     //连接关系与类的关系
     @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
@@ -57,7 +57,7 @@ public class ClassNode{
     public ClassNode(ClassNode classNode) {
         this.id=classNode.getId();
         this.icmSet = new HashSet<>(classNode.getIcmSet());
-        this.modelId=classNode.getModelId();
+        this.ccmId =classNode.getCcmId();
         this.biEntropyValue=classNode.getBiEntropyValue();
         this.postBiEntropyValue = classNode.getPostBiEntropyValue();
 //        this.orgEntropyValue = classNode.getOrgEntropyValue();
@@ -107,12 +107,12 @@ public class ClassNode{
         this.biEntropyValue = biEntropyValue;
     }
 
-    public Long getModelId() {
-        return modelId;
+    public Long getCcmId() {
+        return ccmId;
     }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
+    public void setCcmId(Long ccmId) {
+        this.ccmId = ccmId;
     }
 
     public void setId(Long id) {

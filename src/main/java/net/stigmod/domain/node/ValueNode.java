@@ -38,7 +38,7 @@ public class ValueNode {
     private double biEntropyValue;
     private double postBiEntropyValue;
     private boolean isInitEntropy;
-    private Long modelId;
+    private Long ccmId;
 
     @Property(name="icm_list")
     private Set<Long> icmSet =new HashSet<>();
@@ -68,7 +68,7 @@ public class ValueNode {
         this.id = valueNode.getId();
         this.icmSet = new HashSet<>(valueNode.getIcmSet());
         this.biEntropyValue = valueNode.getBiEntropyValue();
-        this.modelId = valueNode.getModelId();
+        this.ccmId = valueNode.getCcmId();
         this.setName(valueNode.getName());
         this.ctvEdges = new HashSet<>(valueNode.getCtvEdges());
         this.rtvEdges = new HashSet<>(valueNode.getRtvEdges());
@@ -129,12 +129,12 @@ public class ValueNode {
         this.biEntropyValue = biEntropyValue;
     }
 
-    public Long getModelId() {
-        return modelId;
+    public Long getCcmId() {
+        return ccmId;
     }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
+    public void setCcmId(Long ccmId) {
+        this.ccmId = ccmId;
     }
 
     public boolean isInitEntropy() {

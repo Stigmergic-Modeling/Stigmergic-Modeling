@@ -13,7 +13,6 @@ import net.stigmod.domain.node.ClassNode;
 import net.stigmod.domain.node.ValueNode;
 import org.neo4j.ogm.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +42,7 @@ public class ClassToValueEdge {
     @Property(name="icm_list")
     private Set<Long> icmSet = new HashSet<>();
 
-    private Long modelId;
+    private Long ccmId;
     private Set<Long> icmSetPreCopy = new HashSet<>();
     private boolean isChanged=false;
 
@@ -58,7 +57,7 @@ public class ClassToValueEdge {
         this.port=ctvEdge.port;
         this.edgeName=ctvEdge.getEdgeName();
         this.icmSet=new HashSet<>(ctvEdge.getIcmSet());
-        this.modelId=ctvEdge.getModelId();
+        this.ccmId =ctvEdge.getCcmId();
     }
 
     public ClassToValueEdge(String edgeName, ClassNode starter, ValueNode ender) {
@@ -123,12 +122,12 @@ public class ClassToValueEdge {
         this.edgeName = edgeName;
     }
 
-    public Long getModelId() {
-        return modelId;
+    public Long getCcmId() {
+        return ccmId;
     }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
+    public void setCcmId(Long ccmId) {
+        this.ccmId = ccmId;
     }
 
     public Set<Long> getIcmSetPreCopy() {

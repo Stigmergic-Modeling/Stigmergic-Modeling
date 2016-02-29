@@ -40,7 +40,7 @@ public class RelationNode {
     private double postBiEntropyValue;
     private boolean isInitEntropy;//起到判断当前熵值是否是初始熵值得作用
     private int loc;
-    private Long modelId;
+    private Long ccmId;
 
     public RelationNode() {
 //        this.orgEntropyValue = 0;
@@ -55,7 +55,7 @@ public class RelationNode {
         this.biEntropyValue=relationNode.getBiEntropyValue();
         this.postBiEntropyValue = relationNode.getPostBiEntropyValue();
 //        this.orgEntropyValue = relationNode.getOrgEntropyValue();
-        this.modelId=relationNode.getModelId();
+        this.ccmId =relationNode.getCcmId();
         this.rtcEdges=new HashSet<>(relationNode.getRtcEdges());
         this.rtvEdges=new HashSet<>(relationNode.getRtvEdges());
         this.setIsInitEntropy(relationNode.isInitEntropy());
@@ -107,12 +107,12 @@ public class RelationNode {
         this.biEntropyValue = biEntropyValue;
     }
 
-    public Long getModelId() {
-        return modelId;
+    public Long getCcmId() {
+        return ccmId;
     }
 
-    public void setModelId(Long modelId) {
-        this.modelId = modelId;
+    public void setCcmId(Long ccmId) {
+        this.ccmId = ccmId;
     }
 
     public int getLoc() {
