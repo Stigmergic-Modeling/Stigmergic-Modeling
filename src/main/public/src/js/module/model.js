@@ -66,56 +66,98 @@ define(function (require, exports, module) {
          *    |                 |
          *    |                  -- { 'order' : [attribute3, attribute4] }
          *    |
-         *     -- 1(relation group)
+         *    |-- 1(relation group)
+         *    |     |
+         *    |     |-- relationGroup1 :
+         *    |     |     |
+         *    |     |     |-- 0(relation)
+         *    |     |     |     |
+         *    |     |     |     |-- relation1 :
+         *    |     |     |     |     |
+         *    |     |     |     |      -- 0(property)
+         *    |     |     |     |           |
+         *    |     |     |     |           |-- { property1 : value1 }
+         *    |     |     |     |            -- { property2 : value2 }
+         *    |     |     |     |
+         *    |     |     |      -- relation2 :
+         *    |     |     |           |
+         *    |     |     |            -- 0(property)
+         *    |     |     |                 |
+         *    |     |     |                 |-- { property3 : value3 }
+         *    |     |     |                  -- { property4 : value4 }
+         *    |     |     |
+         *    |     |      -- 1(order)
+         *    |     |           |
+         *    |     |            -- { 'order' : [relation1, relation2] }
+         *    |     |
+         *    |      -- relationGroup2 :
+         *    |           |
+         *    |           |-- 0(relation)
+         *    |           |     |
+         *    |           |     |-- relation3 :
+         *    |           |     |     |
+         *    |           |     |      -- 0(property)
+         *    |           |     |           |
+         *    |           |     |           |-- { property5 : value5 }
+         *    |           |     |            -- { property6 : value6 }
+         *    |           |     |
+         *    |           |      -- relation4 :
+         *    |           |           |
+         *    |           |            -- 0(property)
+         *    |           |                 |
+         *    |           |                 |-- { property7 : value7 }
+         *    |           |                  -- { property8 : value8 }
+         *    |           |
+         *    |            -- 1(order)
+         *    |                 |
+         *    |                  -- { 'order' : [relation3, relation4] }
+         *    |
+         *    |-- 2 (name to id mapping) :
+         *    |     |
+         *    |     |-- clazz :
+         *    |     |     |
+         *    |     |     |-- class1 :
+         *    |     |     |     |
+         *    |     |     |     |-- id : xxx
+         *    |     |     |     |
+         *    |     |     |      -- attribute :
+         *    |     |     |           |
+         *    |     |     |           |-- attribute1 : xxx
+         *    |     |     |           |
+         *    |     |     |           |-- attribute2 : xxx
+         *    |     |     |           |
+         *    |     |     |            -- attribute3 : xxx
+         *    |     |     |
+         *    |     |      -- class2 :
+         *    |     |           |
+         *    |     |           |-- id : xxx
+         *    |     |           |
+         *    |     |            -- attribute :
+         *    |     |                 |
+         *    |     |                 |-- attribute1 : xxx
+         *    |     |                 |
+         *    |     |                 |-- attribute2 : xxx
+         *    |     |                 |
+         *    |     |                  -- attribute3 : xxx
+         *    |     |
+         *    |      -- relation :
+         *    |
+         *     -- 3 (id to real id mapping)
          *          |
-         *          |-- relationGroup1 :
-         *          |     |
-         *          |     |-- 0(relation)
-         *          |     |     |
-         *          |     |     |-- relation1 :
-         *          |     |     |     |
-         *          |     |     |      -- 0(property)
-         *          |     |     |           |
-         *          |     |     |           |-- { property1 : value1 }
-         *          |     |     |            -- { property2 : value2 }
-         *          |     |     |
-         *          |     |      -- relation2 :
-         *          |     |           |
-         *          |     |            -- 0(property)
-         *          |     |                 |
-         *          |     |                 |-- { property3 : value3 }
-         *          |     |                  -- { property4 : value4 }
-         *          |     |
-         *          |      -- 1(order)
-         *          |           |
-         *          |            -- { 'order' : [relation1, relation2] }
+         *          |-- id1 : realId1
          *          |
-         *           -- relationGroup2 :
-         *                |
-         *                |-- 0(relation)
-         *                |     |
-         *                |     |-- relation3 :
-         *                |     |     |
-         *                |     |      -- 0(property)
-         *                |     |           |
-         *                |     |           |-- { property5 : value5 }
-         *                |     |            -- { property6 : value6 }
-         *                |     |
-         *                |      -- relation4 :
-         *                |           |
-         *                |            -- 0(property)
-         *                |                 |
-         *                |                 |-- { property7 : value7 }
-         *                |                  -- { property8 : value8 }
-         *                |
-         *                 -- 1(order)
-         *                      |
-         *                       -- { 'order' : [relation3, relation4] }
+         *          |-- id2 : realId2
+         *          |
+         *           -- id3 : realId3
+         *
+         *
          *
          *
          *  ---------------------------------------------------------------  */
 
         'use strict';
+
+        var icm = this;
 
         // class
         this[0] = {};
@@ -126,9 +168,32 @@ define(function (require, exports, module) {
         // name to id
         this[2] = {
             clazz: {},
-            attr: {},  // 格式 className-attributeName : attributeId
             relation: {}
         };
+
+        // this[2] 的格式示例：
+        //
+        //this[2] = {
+        //    "clazz": {
+        //        "Course": {
+        //            "id": 1,
+        //            "attribute": {
+        //                "name": 2,
+        //                    "code": 3,
+        //                    "credit": 4
+        //            }
+        //        }
+        //    },
+        //    "relation": {}
+        //};
+
+        // ID to REAL ID mapping （为了解决前端临时ID与后端持久化ID不一致的问题，上一版本中MongoDB没有这个问题，现在Neo4j有这问题）
+        // 每次刷新页面，id 和 real id 都更新（很自然）；每次保存，只有 real id 更新（需要在 ajax 成功后手动更新 mapping）
+        // 在生成 change log 时，要用这个 mapping，使得后端能正确识别 id
+        // 前端生成的临时 id 是不会被后端识别的
+        // 这个映射中永远只保存不一致的 id，若 id 变为一致的，则从此映射中删除
+        this[3] = {};
+
 
         // log
         this.operationLog = [];
@@ -143,6 +208,7 @@ define(function (require, exports, module) {
             this[0] = JSON.parse(JSON.stringify(modelPassIn[0]));
             this[1] = JSON.parse(JSON.stringify(modelPassIn[1]));
             this[2] = JSON.parse(JSON.stringify(modelPassIn[2]));
+            this[3] = JSON.parse(JSON.stringify(modelPassIn[3]));
         }
 
         // 使用动态原型模式，在构造函数内部定义原型方法
@@ -311,6 +377,31 @@ define(function (require, exports, module) {
                 order.splice(index + direction, 0, attrRelName); // 插入
             };
 
+            // 修改 OrderChangeRecord 的 key（由改名引发）
+            Model.prototype.modifyOrderChangeRecord = function (type, oldName, newName) {
+                // type : 0 表示 class，1 表示 relation group
+
+                delete icm.attRelOrderChanged[type][oldName];
+                icm.attRelOrderChanged[type][newName] = 1;
+            };
+
+            // 修改 name 到 id 映射的 key（由改名引发）
+            Model.prototype.modifyNameIdMapping = function (type, oldName, newName, className) {
+
+                var path =[];
+                if ('class' === type) {
+                    path = [2, 'clazz'];
+                } else if ('attribute' === type) {
+                    path = [2, 'clazz', className, 'attribute'];
+                } else {
+                    throw new RangeError('Model.modifyNameIdMapping(): Operation type undefined.');
+                }
+
+                var obj = icm.getSubModel(path);
+                obj[newName] = obj[oldName];
+                delete obj[oldName];
+            };
+
             // 向控制台输出模型
             Model.prototype.print = function () {
 
@@ -381,7 +472,7 @@ define(function (require, exports, module) {
                             if (0 === path[0]) {
                                 item.push('CLS');
                                 item.push(args[0]);  // class name
-                                item.push(args[2]);  // class ccm id
+                                item.push(icm[3][args[2]] || args[2]);  // class ccm id
                                 item.push(args[3]);  // adding type
 
                             } else {
@@ -398,8 +489,8 @@ define(function (require, exports, module) {
                             }
 
                             item.push(path[1]);
-                            item.push(args[0]);  // attribute name / relation icm id
-                            item.push(args[2]);  // attribute ccm id / relation ccm id
+                            item.push(icm[3][args[0]] || args[0]);  // attribute name / relation icm id
+                            item.push(icm[3][args[2]] || args[2]);  // attribute ccm id / relation ccm id
                             item.push(args[3]);  // adding type
 
                         } else if (5 === path.length) {
@@ -410,8 +501,8 @@ define(function (require, exports, module) {
                                 item.push('POR');
                             }
 
-                            item.push(path[1]);
-                            item.push(path[3]);
+                            item.push(path[1]);  // class name / relation group name
+                            item.push(icm[3][path[3]] || path[3]);  // attribute name / relation icm id
                             item.push(args[0]);
                             item.push(args[1]);
 
@@ -465,7 +556,7 @@ define(function (require, exports, module) {
                             }
 
                             item.push(path[1]);
-                            item.push(path[3]);
+                            item.push(icm[3][path[3]] || path[3]);
                             item.push(args[0]);
                             item.push(args[1]);
 
@@ -497,7 +588,7 @@ define(function (require, exports, module) {
                             }
 
                             item.push(path[1]);
-                            item.push(args);
+                            item.push(icm[3][args] || args);  // attribute name / relation icm id
 
                         } else if (5 === path.length) {
 
@@ -508,7 +599,7 @@ define(function (require, exports, module) {
                             }
 
                             item.push(path[1]);
-                            item.push(path[3]);
+                            item.push(icm[3][path[3]] || path[3]);  // attribute name / relation icm id
                             item.push(args);
 
                         } else {
@@ -527,7 +618,7 @@ define(function (require, exports, module) {
                         }
 
                         item.push(path[1]);
-                        item.push(args[0]);
+                        item.push(icm[3][args[0]] || args[0]);  // attribute name / relation icm id
                         item.push(args[1]);
                         item.push(args[2]);
 
@@ -558,7 +649,7 @@ define(function (require, exports, module) {
                         }
 
                         item.push(path[1]);
-                        item.push(args);
+                        item.push(icm[3][args] || args);  // attribute name / relation icm id
 
                         break;
 
@@ -572,7 +663,7 @@ define(function (require, exports, module) {
                         }
 
                         item.push(path[1]);
-                        item.push(args[0]);
+                        item.push(icm[3][args[0]] || args[0]);  // attribute name / relation icm id
                         item.push(args[1]);
 
                         break;
@@ -748,14 +839,17 @@ define(function (require, exports, module) {
             // 修改类名
             Model.prototype.modifyClassName = function (oldName, newName) {
 
-                this.modifyNodeName([0], oldName, newName);
+                this.modifyNodeName([0], oldName, newName);  // 修改 this[0] 中的 key
+                this.modifyOrderChangeRecord(0, oldName, newName);  // 修改 this.attRelOrderChanged 中的 key
+                this.modifyNameIdMapping('class', oldName, newName);  // 修改 name-id mapping （this[2]）中的 key
             };
 
             // 修改类的属性名
             Model.prototype.modifyAttrName = function (className, oldName, newName) {
 
-                this.modifyNodeName([0, className, 0], oldName, newName);  // 修改 attribute 的 key
+                this.modifyNodeName([0, className, 0], oldName, newName);  // 修改 this[0][xxx][0] 中的 key
                 this.modifyOrderElem(0, className, oldName, newName);
+                this.modifyNameIdMapping('attribute', oldName, newName, className);  // 修改 name-id mapping （this[2]）中的 key
             };
 
             // 修改类的属性的特性的 value （没有修改特性 key 的需求）

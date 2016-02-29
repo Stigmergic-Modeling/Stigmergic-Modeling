@@ -200,7 +200,7 @@ define(function (require, exports, module) {
 
         for (cName in classNamesInICM) {
             if (classNamesInICM.hasOwnProperty(cName)) {
-                var id = classInICM[cName];
+                var id = classInICM[cName].id;
                 classIdsInICM[id] = true;  // 构造 classIdsInICM
             }
         }
