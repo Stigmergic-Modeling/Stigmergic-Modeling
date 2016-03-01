@@ -95,13 +95,13 @@ public class WorkspaceController {
     // Workspace 页面 Synchronize Ajax POST
     @RequestMapping(value = "/{icmName}/workspace", method = RequestMethod.POST)
     @ResponseBody
-    public String workspace(@PathVariable String icmName, @RequestBody String requestBody, ModelMap model) {
+    public ModelingResponse workspace(@PathVariable String icmName, @RequestBody String requestBody) {
 
-//        workspaceService.testNeo4jSaving(1L, 2L);
 //        String fakeRequstBody = "{\"date\":1456756617481,\"user\":\"WangShijun\",\"icmId\":118,\"icmName\":\"1111111\",\"log\":[[1456761672324,\"ODM\",\"ATT\",\"Course\",\"name\",1],[1456761680297,\"ADD\",\"ATT\",\"Course\",\"hao\",\"56d46b501ce21cae886fed11\",\"fresh\"],[1456761680298,\"ODI\",\"ATT\",\"Course\",\"hao\",\"@\",0],[1456761680300,\"ADD\",\"POA\",\"Course\",\"hao\",\"name\",\"hao\"],[1456761680302,\"ADD\",\"POA\",\"Course\",\"hao\",\"type\",\"int\"],[1456761698999,\"ADD\",\"POR\",\"Course-Department\",12,\"ordering\",\"True-True\"],[1456761709129,\"MOD\",\"POR\",\"Course-Department\",12,\"multiplicity\",\"*-2\"]],\"orderChanges\":{\"classes\":{\"Course\":[\"code\",\"name\",\"credit\",\"hao\"]},\"relationGroups\":{}}}";
         ModelingResponse modelingResponse = workspaceService.modelingOperationSync(requestBody);
+        System.out.println(modelingResponse);
 
-        return "Good! " + requestBody + modelingResponse.toString();
+        return modelingResponse;
     }
 
 }

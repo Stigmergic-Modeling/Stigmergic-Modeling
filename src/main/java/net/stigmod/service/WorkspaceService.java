@@ -183,7 +183,6 @@ public class WorkspaceService {
                 }
                 modelingResponse.addMessage("Add class [" + className + "] finished.");
 
-
             } else if (op.get(2).equals("RLG")) {  // add relation group
                 // DO NOTHING
 

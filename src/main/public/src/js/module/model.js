@@ -784,6 +784,18 @@ define(function (require, exports, module) {
                 this.attRelOrderChanged = [{}, {}];  // 清空当前 顺序变动记录
             };
 
+            /**
+             * 更新 ID Mappings （从前端临时 ID 映射到后端数据库真正的 ID）
+             * @param idMappings
+             */
+            Model.prototype.updateIdMapping = function (idMappings) {
+                for (var frontId in idMappings) {
+                    if (idMappings.hasOwnProperty(frontId)) {
+                        icm[3][frontId] = idMappings[frontId];
+                    }
+                }
+            };
+
 
             /*  ------- *
              *  高层方法

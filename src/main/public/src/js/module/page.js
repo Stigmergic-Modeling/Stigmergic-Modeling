@@ -1510,7 +1510,11 @@ define(function (require, exports, module) {
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
                     hideMask();
-                    console.log('msg : ' + msg);
+                    console.log('messages :');
+                    for (var i = 0; i < msg.messages.length; i++) {
+                        console.log(msg.messages[i]);
+                    }
+                    icm.updateIdMapping(msg.idMappings);  // 更新 ID Mapping
                 },
                 error: function (jqXHR, textStatus) {
                     // TODO：回滚 icm 的 log？
