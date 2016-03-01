@@ -14,9 +14,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Individual Conceptual Model (ICM) object
@@ -44,8 +42,12 @@ public class IndividualConceptualModel {
     private Date updateDate;
     private int classNum;
     private int relationshipNum;
+    private List<String> frontIdList;  // 与 backIdList 一起记录 id mapping
+    private List<String> backIdList;  // 与 frontIdList 一起记录 id mapping （若为 List<Long> 类型，则会导致bug，原因暂时不明）
 
-    public IndividualConceptualModel() {}
+    public IndividualConceptualModel() {
+        this("", "");
+    }
 
     public IndividualConceptualModel(String name, String description) {
         this(name, description, new Date());
@@ -57,6 +59,32 @@ public class IndividualConceptualModel {
         this.updateDate = updateDate;
         this.classNum = 0;
         this.relationshipNum = 0;
+        this.frontIdList = new ArrayList<>();
+        this.backIdList = new ArrayList<>();
+    }
+
+    /**
+     * 添加映射
+     * @param frontId 前端临时 ID
+     * @param backId 后端数据库 ID
+     */
+    public void addIdMapping(String frontId, Long backId) {
+        this.frontIdList.add(frontId);
+        this.backIdList.add(backId.toString());
+    }
+
+    /**
+     * 得到映射值
+     * @param frontId 前端临时 ID
+     * @return 后端数据库 ID
+     */
+    public Long getBackIdFromFrontId(String frontId) {
+        int index = this.frontIdList.indexOf(frontId);
+        if (-1 != index) {
+            return Long.parseLong(this.backIdList.get(index), 10);
+        } else {
+            return -1L;
+        }
     }
 
     public Long getId() {
@@ -127,4 +155,19 @@ public class IndividualConceptualModel {
         this.relationshipNum = relationshipNum;
     }
 
+    public List<String> getFrontIdList() {
+        return frontIdList;
+    }
+
+    public void setFrontIdList(List<String> frontIdList) {
+        this.frontIdList = frontIdList;
+    }
+
+    public List<String> getBackIdList() {
+        return backIdList;
+    }
+
+    public void setBackIdList(List<String> backIdList) {
+        this.backIdList = backIdList;
+    }
 }

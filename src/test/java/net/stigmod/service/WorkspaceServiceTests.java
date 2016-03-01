@@ -47,16 +47,16 @@ public class WorkspaceServiceTests {
 
     @Test
     public void executeOPTest() {
-        List<String> op = new ArrayList<>();
-        op.add("ADD");
-        op.add("CLS");
-        op.add("Course");
-        op.add("56d457861ce21c393c68f2c3");
-        op.add("fresh");
-        Long ccmId = 117L;
-        Long icmId = 118L;
-        ModelingResponse mr = new ModelingResponse();
-        ws.executeOP(op, ccmId, icmId, mr);
-        System.out.println(mr.toString());
+//        List<String> op = new ArrayList<>();
+//        op.add("ADD");
+//        op.add("CLS");
+//        op.add("Course");
+//        op.add("56d457861ce21c393c68f2c3");
+//        op.add("fresh");
+//        Long ccmId = 117L;
+//        Long icmId = 118L;
+//        ModelingResponse mr = new ModelingResponse();
+//        ws.executeOP(op, ccmId, icmId, mr);
+//        System.out.println(mr.toString());
     }
 }

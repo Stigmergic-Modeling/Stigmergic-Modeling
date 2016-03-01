@@ -13,9 +13,11 @@ import com.google.gson.Gson;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
 import net.stigmod.domain.node.ClassNode;
+import net.stigmod.domain.node.IndividualConceptualModel;
 import net.stigmod.domain.node.ValueNode;
 import net.stigmod.domain.relationship.ClassToValueEdge;
 import net.stigmod.repository.node.ClassNodeRepository;
+import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
 import net.stigmod.repository.relationship.ClassToVEdgeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class WorkspaceService {
 
     @Autowired
     private Neo4jOperations neo4jTemplate;
+
+    @Autowired
+    private IndividualConceptualModelRepository icmRepository;
 
     @Autowired
     private ClassNodeRepository classNodeRepository;
@@ -83,9 +88,10 @@ public class WorkspaceService {
         Long ccmId = mol.ccmId;
         Long icmId = mol.icmId;
         ModelingResponse modelingResponse = new ModelingResponse();
+        IndividualConceptualModel icm = icmRepository.findOne(icmId);
 
         for (List<String> op : ops) {
-            executeOP(op, ccmId, icmId, modelingResponse);
+            executeOP(op, ccmId, icmId, modelingResponse, icm);
         }
 
         return modelingResponse;
@@ -141,7 +147,7 @@ public class WorkspaceService {
      * @param op 一条操作
      */
     @Transactional
-    public void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse) {
+    public void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
 
         // 注意，op 的第一个元素是 Date
         if (op.get(1).equals("ADD")) {
@@ -179,7 +185,8 @@ public class WorkspaceService {
 
                 // 更新 id 映射和返回信息
                 if (!classNodeExists) {
-                    modelingResponse.addIdMapping(op.get(4), classNode.getId());
+                    modelingResponse.addIdMapping(op.get(4), classNode.getId());  // 向返回对象中添加映射
+                    this.addFrontBackIdMapping(icm, op.get(4), classNode.getId());  // 向 ICM 中添加映射
                 }
                 modelingResponse.addMessage("Add class [" + className + "] finished.");
 
@@ -187,6 +194,9 @@ public class WorkspaceService {
                 // DO NOTHING
 
             } else if (op.get(2).equals("ATT")) {  // add attribute
+                // ADD ATT class attribute attributeCCMId addingType (fresh, binding)
+
+
 
             } else if (op.get(2).equals("RLT")) {  // add relationship
 
@@ -200,5 +210,28 @@ public class WorkspaceService {
         } else {
             // DO NOTHING
         }
+    }
+
+    /**
+     * 由前端 ID 获得相应的后端 ID
+     * @param icmId ICM ID
+     * @param frontId 前端临时 ID
+     * @return 后端数据库 ID
+     */
+    @Transactional
+    private Long getBackIdFromFrontId(IndividualConceptualModel icm, String frontId) {
+        return icm.getBackIdFromFrontId(frontId);
+    }
+
+    /**
+     * 向 ICM 中添加 ID 映射
+     * @param icmId ICM ID
+     * @param frontId 前端临时 ID
+     * @param backId 后端数据库 ID
+     */
+    @Transactional
+    private void addFrontBackIdMapping(IndividualConceptualModel icm, String frontId, Long backId) {
+        icm.addIdMapping(frontId, backId);
+        neo4jTemplate.save(icm);
     }
 }

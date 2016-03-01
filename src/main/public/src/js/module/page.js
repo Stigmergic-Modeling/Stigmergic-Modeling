@@ -1684,7 +1684,7 @@ define(function (require, exports, module) {
 
             if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
                 var className = $input.val(),
-                        classId = widget.adoptingRec ? widget.adoptedClassId : new ObjectId().toString(),
+                        classId = widget.adoptingRec ? widget.adoptedClassId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 更新页面状态
@@ -1898,7 +1898,7 @@ define(function (require, exports, module) {
                     .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
 
             if (checkInputs(icm, $visibleInputs, stateOfPage)) {
-                var attrId = widget.adoptingRec ? widget.adoptedAttrId : new ObjectId().toString(),
+                var attrId = widget.adoptingRec ? widget.adoptedAttrId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 添加 attribute 名
@@ -2083,7 +2083,7 @@ define(function (require, exports, module) {
             }
 
             if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {
-                var relationId = widget.adoptingRec ? widget.adoptedRelationId : new ObjectId().toString(),
+                var relationId = widget.adoptingRec ? widget.adoptedRelationId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 添加 relation id 作为该relation在前端的Key
