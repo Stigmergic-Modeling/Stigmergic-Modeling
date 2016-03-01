@@ -21,6 +21,7 @@ import java.util.Map;
 public class ModelingOperationLog {
     public Long date;
     public String user;
+    public Long ccmId;
     public Long icmId;
     public String icmName;
     public List<List<String>> log;

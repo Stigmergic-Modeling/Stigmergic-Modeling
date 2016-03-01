@@ -67,15 +67,28 @@ public class ClassToValueEdge {
         this.ender=ender;
     }
 
-    public ClassToValueEdge(String port , String edgeName, ClassNode starter, ValueNode ender) {
+    public ClassToValueEdge(String port, String edgeName, ClassNode starter, ValueNode ender) {
         this.starter = starter;
         this.ender = ender;
         this.edgeName = edgeName;
-        this.port=port;
+        this.port = port;
+    }
+
+    public ClassToValueEdge(Long ccmId, Long icmId, String edgeName, ClassNode starter, ValueNode ender) {
+        this.ccmId = ccmId;
+        this.icmSet.add(icmId);
+        this.port = "";
+        this.edgeName = edgeName;
+        this.starter = starter;
+        this.ender = ender;
     }
 
     public void UpdateClassToVEdge(ClassToValueEdge classToValueEdge) {
         this.icmSet=classToValueEdge.getIcmSet();//其他的要保持不变
+    }
+
+    public void addIcmId(Long icmId) {
+        this.icmSet.add(icmId);
     }
 
     public Long getId() {

@@ -16,9 +16,12 @@ import net.stigmod.repository.node.CollectiveConceptualModelRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -30,6 +33,9 @@ public class ModelService {
 
     @Autowired
     private Session session;
+
+    @Autowired
+    private Neo4jOperations neo4jTemplate;
 
     @Autowired
     private CollectiveConceptualModelRepository ccmRepo;
@@ -81,6 +87,21 @@ public class ModelService {
     @Transactional
     public IndividualConceptualModel getIcmOfUserByName(User user, String icmName) {
         return icmRepo.getIcmOfUserByName(user.getId(), icmName);
+
+//        String cypher = "MATCH (user:User)-[:OWNS]->(icm:ICM) " +
+//                "WHERE ID(user) = 108 AND icm.name = {icmName} " +
+//                "RETURN icm";
+//        Map<String, String> params = new HashMap<>();
+////        params.put("userId", user.getId().toString());
+//        params.put("icmName", icmName);
+//
+//        return neo4jTemplate.queryForObject(IndividualConceptualModel.class, cypher, params);
+    }
+
+    // 获取某 ICM 所在 CCM 的 ID
+    @Transactional
+    public Long getCcmIdOfIcm(Long icmId) {
+        return ccmRepo.getCcmByIcmId(icmId).getId();
     }
 
 }

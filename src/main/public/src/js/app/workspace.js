@@ -20,6 +20,7 @@ define(function (require, exports, module) {
         // 初始化组件
         var pageInfo = {
             userName: dataPassedIn.userName,
+            ccmId: dataPassedIn.ccmId,
             icmId: dataPassedIn.icmId,
             icmName: dataPassedIn.icmName
         };

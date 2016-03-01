@@ -10,7 +10,9 @@
 package net.stigmod.repository.relationship;
 
 import net.stigmod.domain.relationship.ClassToValueEdge;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,5 +23,9 @@ import java.util.List;
  */
 @Repository
 public interface ClassToVEdgeRepository extends GraphRepository<ClassToValueEdge> {
+
     List<ClassToValueEdge> findByCcmId(Long ccmId);
+
+    @Query("MATCH (class:Class)-[c2v:PROPERTY]->(value:Value) WHERE id(class)={classId} AND id(value)={valueId} RETURN c2v")
+    List<ClassToValueEdge> findByClassIdAndValueId(@Param("classId") Long classId, @Param("valueId") Long valueId);
 }

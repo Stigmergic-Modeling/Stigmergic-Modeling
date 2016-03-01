@@ -25,7 +25,7 @@ import java.util.Set;
  * @version 2015/11/10
  */
 
-@NodeEntity
+@NodeEntity(label = "Value")
 public class ValueNode {
 
     @GraphId
@@ -44,10 +44,10 @@ public class ValueNode {
     private Set<Long> icmSet =new HashSet<>();
 
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
-    private Set<ClassToValueEdge> ctvEdges =new HashSet<ClassToValueEdge>();
+    private Set<ClassToValueEdge> ctvEdges =new HashSet<>();
 
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
-    private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
+    private Set<RelationToValueEdge> rtvEdges =new HashSet<>();
 
     public ValueNode(){
 //        this.orgEntropyValue = 0;
@@ -57,11 +57,8 @@ public class ValueNode {
     }
 
     public ValueNode(String name) {
+        this();
         this.name = name;
-        this.biEntropyValue=0;
-        this.isInitEntropy = true;
-        this.postBiEntropyValue =0;
-//        this.orgEntropyValue = 0;
     }
 
     public ValueNode(ValueNode valueNode) {
@@ -75,6 +72,20 @@ public class ValueNode {
         this.setIsInitEntropy(valueNode.isInitEntropy());
         this.postBiEntropyValue = valueNode.getPostBiEntropyValue();
 //        this.orgEntropyValue = valueNode.getOrgEntropyValue();
+    }
+
+    public ValueNode(Long ccmId, Long icmId, String name) {
+        this();
+        this.ccmId = ccmId;
+        this.icmSet.add(icmId);
+        this.name = name;
+    }
+
+    public ValueNode(Long ccmId, Long icmId, String name, ClassToValueEdge c2vEdge) {
+        this(ccmId, icmId, name);
+        if (null != c2vEdge) {
+            this.ctvEdges.add(c2vEdge);
+        }
     }
 
 //    public void UpdateValueNode(ValueNode valueNode) {

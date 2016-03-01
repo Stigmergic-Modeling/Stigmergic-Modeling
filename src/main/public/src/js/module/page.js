@@ -1487,6 +1487,7 @@ define(function (require, exports, module) {
 
             postData.date = Date.now();
             postData.user = stateOfPage.user;
+            postData.ccmId = stateOfPage.ccmId;
             postData.icmId = stateOfPage.modelID;
             postData.icmName = stateOfPage.modelName;
 
@@ -1504,7 +1505,7 @@ define(function (require, exports, module) {
             $.ajax({
                 url: '/' + stateOfPage.modelName + '/workspace',
                 type: 'POST',
-                timeout: 10000,  // 10 秒延迟容忍
+                //timeout: 10000,  // 10 秒延迟容忍
                 data: JSON.stringify(postData),  // 把数据字符串化以使空数组能正确传递
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
@@ -2358,6 +2359,7 @@ define(function (require, exports, module) {
     function StateOfPage(stateRawData) {
 
         this.user = stateRawData.userName;      // dataPassedIn 通过后端的模板传入
+        this.ccmId = stateRawData.ccmId;        // dataPassedIn 通过后端的模板传入
         this.modelID = stateRawData.icmId;      // dataPassedIn 通过后端的模板传入
         this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的模板传入
 

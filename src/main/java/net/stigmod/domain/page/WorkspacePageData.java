@@ -26,6 +26,7 @@ import java.util.Set;
 public class WorkspacePageData extends AbstractPageData {
 
     public String userName;
+    public Long ccmId;
     public Long icmId;
     public String icmName;
 
@@ -33,8 +34,9 @@ public class WorkspacePageData extends AbstractPageData {
 
     public Set<IcmBrief> models;
 
-    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms) {
+    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms, Long ccmId) {
         this.userName = user.getName();
+        this.ccmId = ccmId;
         this.icmId = currentIcm.getId();
         this.icmName = currentIcm.getName();
 
