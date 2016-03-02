@@ -54,13 +54,13 @@ public class MigrateUtil {
 
         Set<String> edgeNameSet=new HashSet<>();
         for(ClassToValueEdge ctvEdge:ctvEdges) {
-            String edgeName=ctvEdge.getEdgeName();
+            String edgeName=ctvEdge.getName();
             if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmSet().contains(oneIcmId))
                 edgeNameSet.add(edgeName);
         }
 
         for(ClassToValueEdge ctvEdge:ctvEdges) {
-            String edgeName=ctvEdge.getEdgeName();
+            String edgeName=ctvEdge.getName();
             Set<Long> tmpUserSet=new HashSet<>(ctvEdge.getIcmSet());
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(ctvEdge.getStarter().getId()==sourceId&&ctvEdge.getIcmSet().contains(oneIcmId)) {
@@ -88,7 +88,7 @@ public class MigrateUtil {
         //但是上面的oldNodeMap和newNodeMap都只完成了class to value的部分
         //下面我们完成relation to value部分
         for(RelationToValueEdge rtvEdge:rtvEdges) {
-            String edgeName=rtvEdge.getEdgeName();
+            String edgeName=rtvEdge.getName();
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(rtvEdge.getIcmSet());
@@ -133,7 +133,7 @@ public class MigrateUtil {
 
         for(RelationToClassEdge rtcEdge:rtcEdges) {
             if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
-                String edgeName=rtcEdge.getEdgeName();
+                String edgeName=rtcEdge.getName();
                 String port=rtcEdge.getPort();
                 if(edgeNameAndPortCMap.containsKey(edgeName)) {
                     edgeNameAndPortCMap.get(edgeName).add(port);
@@ -147,7 +147,7 @@ public class MigrateUtil {
 
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
-                String edgeName=rtvEdge.getEdgeName();
+                String edgeName=rtvEdge.getName();
                 String port=rtvEdge.getPort();
                 if(edgeNameAndPortVMap.containsKey(edgeName)) {
                     edgeNameAndPortVMap.get(edgeName).add(port);
@@ -163,7 +163,7 @@ public class MigrateUtil {
 
         for(RelationToClassEdge rtcEdge:rtcEdges) {
             String port=rtcEdge.getPort();
-            String edgeName=rtcEdge.getEdgeName();
+            String edgeName=rtcEdge.getName();
             Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmSet());//该边的用户数
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtcEdge.getEnder().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
@@ -199,7 +199,7 @@ public class MigrateUtil {
 
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String port=rtvEdge.getPort();
-            String edgeName=rtvEdge.getEdgeName();
+            String edgeName=rtvEdge.getName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
@@ -266,7 +266,7 @@ public class MigrateUtil {
         Map<String,Set<String>> edgeNameAndPortMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
-                String edgeName=rtvEdge.getEdgeName();
+                String edgeName=rtvEdge.getName();
                 String port=rtvEdge.getPort();
                 if(edgeNameAndPortMap.containsKey(edgeName)) {
                     edgeNameAndPortMap.get(edgeName).add(port);
@@ -280,7 +280,7 @@ public class MigrateUtil {
 
         for(RelationToValueEdge rtvEdge:rtvEdges) {
             String port=rtvEdge.getPort();
-            String edgeName=rtvEdge.getEdgeName();
+            String edgeName=rtvEdge.getName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtvEdge.getStarter().getId()==sourceId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
@@ -315,7 +315,7 @@ public class MigrateUtil {
         //但是上面的oldNodeMap和newNodeMap都只完成了relation to value的部分
         //下面我们完成class to value部分
         for(ClassToValueEdge ctvEdge:ctvEdges) {
-            String edgeName=ctvEdge.getEdgeName();
+            String edgeName=ctvEdge.getName();
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(ctvEdge.getIcmSet());
@@ -359,7 +359,7 @@ public class MigrateUtil {
         Map<String,Set<String>> edgeNameAndPortMap=new HashMap<>();//这里的key是edgeName,value是所有port集合
         for(RelationToClassEdge rtcEdge:rtcEdges) {
             if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
-                String edgeName=rtcEdge.getEdgeName();
+                String edgeName=rtcEdge.getName();
                 String port=rtcEdge.getPort();
                 if(edgeNameAndPortMap.containsKey(edgeName)) {
                     edgeNameAndPortMap.get(edgeName).add(port);
@@ -373,7 +373,7 @@ public class MigrateUtil {
 
         for(RelationToClassEdge rtcEdge:rtcEdges) {
             String port=rtcEdge.getPort();
-            String edgeName=rtcEdge.getEdgeName();
+            String edgeName=rtcEdge.getName();
             Set<Long> tmpUserSet=new HashSet<>(rtcEdge.getIcmSet());//该边的用户数
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
             if(rtcEdge.getStarter().getId()==sourceId&&rtcEdge.getIcmSet().contains(oneIcmId)) {
@@ -408,7 +408,7 @@ public class MigrateUtil {
         //但是上面的oldNodeMap和newNodeMap都只完成了relation to class的部分
         //下面我们完成class to value部分
         for(ClassToValueEdge ctvEdge:ctvEdges) {
-            String edgeName=ctvEdge.getEdgeName();
+            String edgeName=ctvEdge.getName();
             //由于这一部分下oldNodeMap和newNodeMap应该是相同的,因此不做改变
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(ctvEdge.getIcmSet());

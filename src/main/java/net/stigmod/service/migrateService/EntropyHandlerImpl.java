@@ -273,7 +273,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
 
     private void addRTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToValueEdge> rtvEdges) {
         for(RelationToValueEdge rtvEdge:rtvEdges) {
-            String edgeName = rtvEdge.getEdgeName();
+            String edgeName = rtvEdge.getName();
             if(myMap.containsKey(edgeName)) {
                 myMap.get(edgeName).add(rtvEdge.getIcmSet());
             }else {
@@ -286,7 +286,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
 
     private void addCTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<ClassToValueEdge> ctvEdges) {
         for(ClassToValueEdge ctvEdge:ctvEdges) {
-            String edgeName=ctvEdge.getEdgeName();
+            String edgeName=ctvEdge.getName();
             if(myMap.containsKey(edgeName)) {
                 myMap.get(edgeName).add(ctvEdge.getIcmSet());
             }else {
@@ -299,7 +299,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
 
     private void addRTCElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToClassEdge> rtcEdges) {
         for(RelationToClassEdge rtcEdge:rtcEdges) {
-            String edgeName = rtcEdge.getEdgeName();
+            String edgeName = rtcEdge.getName();
             if(myMap.containsKey(edgeName)) {
                 myMap.get(edgeName).add(rtcEdge.getIcmSet());
             }else {

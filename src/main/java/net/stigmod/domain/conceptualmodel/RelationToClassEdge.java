@@ -21,7 +21,7 @@ import java.util.Set;
  */
 
 @RelationshipEntity(type="E_CLASS")
-public class RelationToClassEdge implements Edge {
+public class RelationToClassEdge extends AbstractEdge {
 
     @GraphId
     private Long id;
@@ -32,12 +32,6 @@ public class RelationToClassEdge implements Edge {
     @EndNode
     private ClassNode ender;
 
-    @Property(name="name")
-    private String edgeName;
-
-    @Property(name="port")
-    private String port;
-
     @Property(name="icm_list")
     private Set<String> icmSet = new HashSet<>();
 
@@ -46,7 +40,7 @@ public class RelationToClassEdge implements Edge {
     private boolean isChanged=false;
 
     public RelationToClassEdge() {
-        this.port=null;
+        this.port="";
     }
 
     public RelationToClassEdge(RelationToClassEdge rtcEdge) {
@@ -54,29 +48,32 @@ public class RelationToClassEdge implements Edge {
         this.starter=new RelationNode(rtcEdge.getStarter());
         this.ender=new ClassNode(rtcEdge.getEnder());
         this.port=rtcEdge.port;
-        this.edgeName=rtcEdge.getEdgeName();
+        this.name =rtcEdge.getName();
         this.setIcmSet(rtcEdge.getIcmSet());
         this.ccmId =rtcEdge.getCcmId();
+        this.updateDisplayName();
     }
 
-    public RelationToClassEdge(String port, String edgeName, RelationNode starter, ClassNode ender) {
-        this.edgeName=edgeName;
+    public RelationToClassEdge(String port, String name, RelationNode starter, ClassNode ender) {
+        this.name = name;
         this.starter=starter;
         this.ender=ender;
         this.port=port;
+        this.updateDisplayName();
     }
 
     public RelationToClassEdge(Long ccmId, Long icmId, String port, RelationNode starter, ClassNode ender) {
         this(ccmId, icmId, port, "class", starter, ender);
     }
 
-    public RelationToClassEdge(Long ccmId, Long icmId, String port, String edgeName, RelationNode starter, ClassNode ender) {
+    public RelationToClassEdge(Long ccmId, Long icmId, String port, String name, RelationNode starter, ClassNode ender) {
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
         this.port = port;
-        this.edgeName = edgeName;
+        this.name = name;
         this.starter = starter;
         this.ender = ender;
+        this.updateDisplayName();
     }
 
     public void UpdateRelationToCEdge(RelationToClassEdge relationToClassEdge) {
@@ -100,14 +97,6 @@ public class RelationToClassEdge implements Edge {
         return ender;
     }
 
-    public String getEdgeName() {
-        return edgeName;
-    }
-
-    public void setEdgeName(String edgeName) {
-        this.edgeName = edgeName;
-    }
-
     public Set<Long> getIcmSet() {
         Set<Long> ret = new HashSet<>();
         for (String elem : this.icmSet) {
@@ -120,14 +109,6 @@ public class RelationToClassEdge implements Edge {
         for (Long elem : icmSet) {
             this.icmSet.add(elem.toString());
         }
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
     }
 
     public Long getCcmId() {

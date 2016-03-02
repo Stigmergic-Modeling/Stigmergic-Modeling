@@ -20,7 +20,7 @@ import java.util.Set;
  * @version 2015/11/10
  */
 @RelationshipEntity(type="PROPERTY")
-public class RelationToValueEdge implements Edge {
+public class RelationToValueEdge extends AbstractEdge {
     @GraphId
     private Long id;
 
@@ -29,12 +29,6 @@ public class RelationToValueEdge implements Edge {
 
     @EndNode
     private ValueNode ender;
-
-    @Property
-    private String port;
-
-    @Property(name="name")
-    private String edgeName;
 
     @Property(name="icm_list")
     private Set<String> icmSet = new HashSet<>();
@@ -52,29 +46,32 @@ public class RelationToValueEdge implements Edge {
         this.starter=new RelationNode(rtvEdge.getStarter());
         this.ender=new ValueNode(rtvEdge.getEnder());
         this.port=rtvEdge.port;
-        this.edgeName=rtvEdge.getEdgeName();
+        this.name =rtvEdge.getName();
         this.setIcmSet(rtvEdge.getIcmSet());
         this.ccmId =rtvEdge.getCcmId();
+        this.updateDisplayName();
     }
 
-    public RelationToValueEdge(String port , String edgeName, RelationNode starter, ValueNode ender) {
+    public RelationToValueEdge(String port , String name, RelationNode starter, ValueNode ender) {
         this.port=port;
-        this.edgeName = edgeName;
+        this.name = name;
         this.starter = starter;
         this.ender = ender;
+        this.updateDisplayName();
     }
 
-    public RelationToValueEdge(Long ccmId, Long icmId, String edgeName, RelationNode starter, ValueNode ender) {
-        this(ccmId, icmId, "", edgeName, starter, ender);
+    public RelationToValueEdge(Long ccmId, Long icmId, String name, RelationNode starter, ValueNode ender) {
+        this(ccmId, icmId, "", name, starter, ender);
     }
 
-    public RelationToValueEdge(Long ccmId, Long icmId, String port, String edgeName, RelationNode starter, ValueNode ender) {
+    public RelationToValueEdge(Long ccmId, Long icmId, String port, String name, RelationNode starter, ValueNode ender) {
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
         this.port = port;
-        this.edgeName = edgeName;
+        this.name = name;
         this.starter = starter;
         this.ender = ender;
+        this.updateDisplayName();
     }
 
     public void UpdateRelationToVEdge(RelationToValueEdge relationToValueEdge) {
@@ -106,14 +103,6 @@ public class RelationToValueEdge implements Edge {
         this.ender = ender;
     }
 
-    public String getEdgeName() {
-        return edgeName;
-    }
-
-    public void setEdgeName(String edgeName) {
-        this.edgeName = edgeName;
-    }
-
     public Set<Long> getIcmSet() {
         Set<Long> ret = new HashSet<>();
         for (String elem : this.icmSet) {
@@ -126,14 +115,6 @@ public class RelationToValueEdge implements Edge {
         for (Long elem : icmSet) {
             this.icmSet.add(elem.toString());
         }
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
     }
 
     public Long getCcmId() {

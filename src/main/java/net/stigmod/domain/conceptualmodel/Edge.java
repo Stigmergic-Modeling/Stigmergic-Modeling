@@ -14,4 +14,5 @@ package net.stigmod.domain.conceptualmodel;
  * @version 2016/3/2
  */
 public interface Edge extends ConceptualModelElement {
+    void updateDisplayName();
 }
