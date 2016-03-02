@@ -12,6 +12,7 @@ package net.stigmod.domain.conceptualmodel;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -80,9 +81,29 @@ public class RelationToClassEdge extends AbstractEdge {
         this.setIcmSet(relationToClassEdge.getIcmSet());
     }
 
+    public void removeIcmSetFromSet(Set<Long> otherIcmSet) {
+        Iterator<Long> iter = otherIcmSet.iterator();
+        while(iter.hasNext()) {
+            Long curIcm = iter.next();
+            this.icmSet.remove(curIcm.toString());
+        }
+    }
+
+    public void addIcmSetFromSet(Set<Long> otherIcmSet) {
+        Iterator<Long> iter = otherIcmSet.iterator();
+        while(iter.hasNext()) {
+            Long curIcm = iter.next();
+            this.icmSet.add(curIcm.toString());
+        }
+    }
+
     // 添加 icm id
     public void addIcmId(Long icmId) {
         this.icmSet.add(icmId.toString());
+    }
+
+    public void removeIcmId(Long icmId) {
+        this.icmSet.remove(icmId.toString());
     }
 
     public Long getId() {
@@ -106,6 +127,7 @@ public class RelationToClassEdge extends AbstractEdge {
     }
 
     public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet.clear();
         for (Long elem : icmSet) {
             this.icmSet.add(elem.toString());
         }

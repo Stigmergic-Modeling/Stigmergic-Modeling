@@ -141,7 +141,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
             int[] randomList=randomValue();
-//            int[] randomList={622,21};
+//            int[] randomList={264,41};
 //            int[] randomList = {226,187,203,278,8,18,29,199,74,290,49,251,1,297,295,135,260,305,42,258,116,112,301,117,185,167,175,105,200,82,164,97,171,32,272,255,186,320,106,202,25,95,137,296,23,31,277,47,115,143,26,131,211,87,40,51,266,319,5,129,197,10,122,313,53,274,80,231,16,263,41,195,317,262,216,243,326,269,302,46,153,125,321,328,127,64,30,282,38,322,141,218,9,281,72,233,213,107,253,194,241,109,84,170,165,220,288,268,283,78,3,292,104,15,76,249,310,264,151,286,228,176,24,56,230,221,61,273,259,206,234,86,21,130,157,173,223,93,312,140,314,299,14,12,208,92,192,103,303,4,160,324,121,19,35,248,307,139,33,182,152,219,90,261,13,62,71,209,34,177,224,246,169,323,144,81,298,311,267,149,148,178,100,2,257,180,196,110,240,235,166,11,55,111,287,44,275,271,96,98,22,114,123,289,108,276,247,77,193,293,172,250,270,59,136,327,58,39,239,67,159,133,212,36,181,118,0,48,102,242,120,207,236,229,161,306,210,174,85,294,45,309,238,142,163,158,198,280,132,66,119,304,70,146,191,254,179,227,184,83,113,245,89,188,285,150,316,27,300,75,145,291,325,225,205,190,279,88,79,37,214,284,134,54,318,43,308,124,204,183,28,252,91,73,237,222,63,20,189,147,217,156,232,101,69,265,50,65,6,215,201,128,57,154,168,94,17,60,68,52,7,315,155,99,329,244,126,256,162,138};
             int curSum=randomList.length;
 
@@ -162,7 +162,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
 //                double testE = scanToComputeSystemEntropy();
 //                System.out.println("当前测试的熵值为: "+ testE);
-
+//
 //                if(randValue == 41 || randValue ==255 || randValue ==143) {
 //                    System.out.println("123");
 //                }
@@ -236,6 +236,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int icmSetSize = icmSet.size();
         boolean isTravseNullNode = false;//标注是否遍历过包含0用户的节点(即空节点)
         Set<Integer> haveConNodeIdSet = new HashSet<>();//有公共用户的节点集合
+
+        double testE3 = scanToComputeSystemEntropy();
 
         for(Integer tmpListId : needToFindCNodeListIdSet) {
             ClassNode tmpCNode = classNodeList.get(tmpListId);
@@ -592,8 +594,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         ClassNode sourceClassNode=classNodeList.get(sourceClassNodeListId);
         ClassNode targetClassNode=classNodeList.get(targetClassNodeListId);
 
-        sourceClassNode.getIcmSet().removeAll(icmSet);
-        targetClassNode.getIcmSet().addAll(icmSet);
+//        sourceClassNode.getIcmSet().removeAll(icmSet);
+//        targetClassNode.getIcmSet().addAll(icmSet);
+
+        sourceClassNode.removeIcmSetFromSet(icmSet);
+        targetClassNode.addIcmSetFromSet(icmSet);
 
         Long oneIcmId = icmSet.iterator().next();//获取一个标杆icm
 
@@ -610,7 +615,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
             ctvEdge.setIcmSetPreCopy(new HashSet<>(ctvEdge.getIcmSet()));//将这个存储一个备份
             ctvEdge.setIsChanged(true);//标记这个值被改变了
 
-            ctvEdge.getIcmSet().removeAll(icmSet);
+//            ctvEdge.getIcmSet().removeAll(icmSet);
+            ctvEdge.removeIcmSetFromSet(icmSet);
             String edgeName=ctvEdge.getName();
             ValueNode valueNode=ctvEdge.getEnder();
             //下面要把该边上的该用户从sourceClassNode迁移到targetClassNode
@@ -621,7 +627,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     ctvEdge2.setIcmSetPreCopy(new HashSet<Long>(ctvEdge2.getIcmSet()));//将这个存储一个备份
                     ctvEdge2.setIsChanged(true);
                     isContainFlag=true;
-                    ctvEdge2.getIcmSet().addAll(icmSet);
+//                    ctvEdge2.getIcmSet().addAll(icmSet);
+                    ctvEdge2.addIcmSetFromSet(icmSet);
                     break;
                 }else;
             }
@@ -651,7 +658,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
             rtcEdge.setIcmSetPreCopy(new HashSet<>(rtcEdge.getIcmSet()));//将这个存储一个备份
             rtcEdge.setIsChanged(true);
-            rtcEdge.getIcmSet().removeAll(icmSet);
+//            rtcEdge.getIcmSet().removeAll(icmSet);
+            rtcEdge.removeIcmSetFromSet(icmSet);
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getName();
             RelationNode relationNode=rtcEdge.getStarter();
@@ -663,7 +671,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     rtcEdge2.setIcmSetPreCopy(new HashSet<Long>(rtcEdge2.getIcmSet()));//将这个存储一个备份
                     rtcEdge2.setIsChanged(true);
                     isContainFlag=true;
-                    rtcEdge2.getIcmSet().addAll(icmSet);
+//                    rtcEdge2.getIcmSet().addAll(icmSet);
+                    rtcEdge2.addIcmSetFromSet(icmSet);
                     break;
                 }
             }
@@ -1202,8 +1211,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
         RelationNode sourceRelationNode=relationNodeList.get(sourceRelationNodeListId);
         RelationNode targetRelationNode=relationNodeList.get(targetRelationNodeListId);
 
-        sourceRelationNode.getIcmSet().removeAll(new HashSet<>(icmSet));
-        targetRelationNode.getIcmSet().addAll(new HashSet<>(icmSet));
+//        sourceRelationNode.getIcmSet().removeAll(new HashSet<>(icmSet));
+//        targetRelationNode.getIcmSet().addAll(new HashSet<>(icmSet));
+        sourceRelationNode.removeIcmSetFromSet(icmSet);
+        targetRelationNode.addIcmSetFromSet(icmSet);
 
         Long oneIcmId = icmSet.iterator().next();
 
@@ -1219,7 +1230,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             rtvEdge.setIcmSetPreCopy(new HashSet<>(rtvEdge.getIcmSet()));//将这个存储一个备份
             rtvEdge.setIsChanged(true);
-            rtvEdge.getIcmSet().removeAll(icmSet);
+//            rtvEdge.getIcmSet().removeAll(icmSet);
+            rtvEdge.removeIcmSetFromSet(icmSet);
             String port=rtvEdge.getPort();
             String edgeName=rtvEdge.getName();
             ValueNode valueNode=rtvEdge.getEnder();
@@ -1232,7 +1244,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     rtvEdge_target.setIcmSetPreCopy(new HashSet<Long>(rtvEdge_target.getIcmSet()));//将这个存储一个备份
                     rtvEdge_target.setIsChanged(true);
                     isContainFlag=true;//targetRelationNode中已经包含了该节点
-                    rtvEdge_target.getIcmSet().addAll(icmSet);
+//                    rtvEdge_target.getIcmSet().addAll(icmSet);
+                    rtvEdge_target.addIcmSetFromSet(icmSet);
                     break;
                 }else;
             }
@@ -1261,7 +1274,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             rtcEdge.setIcmSetPreCopy(new HashSet<>(rtcEdge.getIcmSet()));//将这个存储一个备份
             rtcEdge.setIsChanged(true);
-            rtcEdge.getIcmSet().removeAll(icmSet);
+//            rtcEdge.getIcmSet().removeAll(icmSet);
+            rtcEdge.removeIcmSetFromSet(icmSet);
             String port=rtcEdge.getPort();
             String edgeName=rtcEdge.getName();
             ClassNode classNode=rtcEdge.getEnder();
@@ -1273,7 +1287,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     rtcEdge_target.setIsChanged(true);
                     rtcEdge_target.setIcmSetPreCopy(new HashSet<>(rtcEdge_target.getIcmSet()));//将这个存储一个备份
                     isContainFlag=true;
-                    rtcEdge_target.getIcmSet().addAll(icmSet);
+//                    rtcEdge_target.getIcmSet().addAll(icmSet);
+                    rtcEdge_target.addIcmSetFromSet(icmSet);
                     break;
                 }else;
             }
@@ -1620,11 +1635,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void recoverMigrateStateForClassNode(Long icmId,int targetClassNodeListId,
                                                  int minVarCNodeListId,boolean isUsedNullNode) {
         ClassNode sourceCNode = classNodeList.get(targetClassNodeListId);
-        sourceCNode.getIcmSet().add(icmId);
-
+//        sourceCNode.getIcmSet().add(icmId);
+        sourceCNode.addIcmId(icmId);
         if(!isUsedNullNode) {
             ClassNode targetCNode = classNodeList.get(minVarCNodeListId);
-            targetCNode.getIcmSet().remove(icmId);
+//            targetCNode.getIcmSet().remove(icmId);
+            targetCNode.removeIcmId(icmId);
         }else {
             //这个不是仅仅删除节点这么简单,还要删除边,以及边另一端的节点
             ClassNode tmpCNode =classNodeList.get(minVarCNodeListId);
@@ -1641,11 +1657,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void recoverMigrateStateForRelationNode(Long icmId,int targetRelationNodeListId,
                                                     int minVarRNodeListId,boolean isUsedNullNode) {
         RelationNode relationRNode = relationNodeList.get(targetRelationNodeListId);
-        relationRNode.getIcmSet().add(icmId);
+//        relationRNode.getIcmSet().add(icmId);
+        relationRNode.addIcmId(icmId);
 
         if(!isUsedNullNode) {
             RelationNode targetRNode = relationNodeList.get(minVarRNodeListId);
-            targetRNode.getIcmSet().remove(icmId);
+//            targetRNode.getIcmSet().remove(icmId);
+            targetRNode.removeIcmId(icmId);
         }else {
             RelationNode tmpRNode =relationNodeList.get(minVarRNodeListId);
             for(RelationToValueEdge rtvEdge : tmpRNode.getRtvEdges()) {

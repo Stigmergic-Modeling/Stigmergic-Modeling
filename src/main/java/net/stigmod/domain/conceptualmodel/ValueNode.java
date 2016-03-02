@@ -15,6 +15,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -93,6 +94,22 @@ public class ValueNode implements Vertex {
 //        this.rtvEdges=valueNode.getRtvEdges();
 //    }
 
+    public void removeIcmSetFromSet(Set<Long> otherIcmSet) {
+        Iterator<Long> iter = otherIcmSet.iterator();
+        while(iter.hasNext()) {
+            Long curIcm = iter.next();
+            this.icmSet.remove(curIcm.toString());
+        }
+    }
+
+    public void addIcmSetFromSet(Set<Long> otherIcmSet) {
+        Iterator<Long> iter = otherIcmSet.iterator();
+        while(iter.hasNext()) {
+            Long curIcm = iter.next();
+            this.icmSet.add(curIcm.toString());
+        }
+    }
+
     // 添加 class->value 边
     public void addC2VEdge(ClassToValueEdge c2vEdge) {
         ctvEdges.add(c2vEdge);
@@ -106,6 +123,10 @@ public class ValueNode implements Vertex {
     // 添加 icm id
     public void addIcmId(Long icmId) {
         this.icmSet.add(icmId.toString());
+    }
+
+    public void removeIcmId(Long icmId) {
+        this.icmSet.remove(icmId.toString());
     }
 
     public Long getId() {
@@ -141,6 +162,7 @@ public class ValueNode implements Vertex {
     }
 
     public void setIcmSet(Set<Long> icmSet) {
+        this.icmSet.clear();
         for (Long elem : icmSet) {
             this.icmSet.add(elem.toString());
         }
