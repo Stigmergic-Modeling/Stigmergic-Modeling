@@ -15,6 +15,8 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author Kai Fu
  * @author Shijun Wang
@@ -23,6 +25,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClassNodeRepository extends GraphRepository<ClassNode>{
 
-    @Query("MATCH (class:Class)-[:PROPERTY]->(value:Value {name: {className}}) WHERE str({icmId}) IN class.icm_list RETURN class")
-    ClassNode getByName(@Param("className") String className, @Param("icmId") Long icmId);
+    @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
+            "WHERE str({icmId}) IN class.icm_list AND str({icmId}) IN r.icm_list " +
+            "RETURN class")
+    ClassNode getOneByName(@Param("ccmId") Long ccmId,
+                           @Param("icmId") Long icmId,
+                           @Param("className") String className);
+
+    @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
+            "WHERE str({icmId}) IN class.icm_list AND str({icmId}) IN r.icm_list " +
+            "RETURN class")
+    List<ClassNode> getByName(@Param("ccmId") Long ccmId,
+                              @Param("icmId") Long icmId,
+                              @Param("className") String className);
 }
