@@ -32,4 +32,7 @@ public interface CollectiveConceptualModelRepository extends GraphRepository<Col
 
     @Query("MATCH (ccm:CCM) WHERE ID(ccm) = {ccmId} RETURN ccm")
     CollectiveConceptualModel getCcmById(@Param("ccmId") Long ccmId);
+
+    @Query("MATCH (icm:ICM)-[:IN]->(ccm:CCM) WHERE ID(icm) = {icmId} RETURN ccm")
+    CollectiveConceptualModel getCcmByIcmId(@Param("icmId") Long icmId);
 }

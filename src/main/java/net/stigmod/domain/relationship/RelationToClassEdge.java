@@ -22,7 +22,7 @@ import java.util.Set;
  * @version 2015/11/10
  */
 
-@RelationshipEntity(type="E_CLASSS")
+@RelationshipEntity(type="E_CLASS")
 public class RelationToClassEdge {
 
     @GraphId

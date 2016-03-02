@@ -1487,8 +1487,9 @@ define(function (require, exports, module) {
 
             postData.date = Date.now();
             postData.user = stateOfPage.user;
-            postData.modelID = stateOfPage.modelID;
-            postData.modelName = stateOfPage.modelName;
+            postData.ccmId = stateOfPage.ccmId;
+            postData.icmId = stateOfPage.modelID;
+            postData.icmName = stateOfPage.modelName;
 
             postData.log = icm.getLog();  // 获取日志
             postData.orderChanges = icm.getAttRelOrderChanges();  // 获取有变动的顺序数组
@@ -1504,12 +1505,16 @@ define(function (require, exports, module) {
             $.ajax({
                 url: '/' + stateOfPage.modelName + '/workspace',
                 type: 'POST',
-                timeout: 10000,  // 10 秒延迟容忍
+                //timeout: 10000,  // 10 秒延迟容忍
                 data: JSON.stringify(postData),  // 把数据字符串化以使空数组能正确传递
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
                     hideMask();
-                    console.log('msg : ' + msg);
+                    console.log('messages :');
+                    for (var i = 0; i < msg.messages.length; i++) {
+                        console.log(msg.messages[i]);
+                    }
+                    icm.updateIdMapping(msg.idMappings);  // 更新 ID Mapping
                 },
                 error: function (jqXHR, textStatus) {
                     // TODO：回滚 icm 的 log？
@@ -1679,7 +1684,7 @@ define(function (require, exports, module) {
 
             if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
                 var className = $input.val(),
-                        classId = widget.adoptingRec ? widget.adoptedClassId : new ObjectId().toString(),
+                        classId = widget.adoptingRec ? widget.adoptedClassId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 更新页面状态
@@ -1893,7 +1898,7 @@ define(function (require, exports, module) {
                     .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
 
             if (checkInputs(icm, $visibleInputs, stateOfPage)) {
-                var attrId = widget.adoptingRec ? widget.adoptedAttrId : new ObjectId().toString(),
+                var attrId = widget.adoptingRec ? widget.adoptedAttrId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 添加 attribute 名
@@ -2078,7 +2083,7 @@ define(function (require, exports, module) {
             }
 
             if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {
-                var relationId = widget.adoptingRec ? widget.adoptedRelationId : new ObjectId().toString(),
+                var relationId = widget.adoptingRec ? widget.adoptedRelationId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
                 // 添加 relation id 作为该relation在前端的Key
@@ -2358,6 +2363,7 @@ define(function (require, exports, module) {
     function StateOfPage(stateRawData) {
 
         this.user = stateRawData.userName;      // dataPassedIn 通过后端的模板传入
+        this.ccmId = stateRawData.ccmId;        // dataPassedIn 通过后端的模板传入
         this.modelID = stateRawData.icmId;      // dataPassedIn 通过后端的模板传入
         this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的模板传入
 

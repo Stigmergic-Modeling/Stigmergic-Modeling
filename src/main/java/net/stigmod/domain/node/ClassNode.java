@@ -24,7 +24,7 @@ import java.util.Set;
  * @author Shijun Wang
  * @version 2015/11/10
  */
-@NodeEntity
+@NodeEntity(label = "Class")
 public class ClassNode{
     @GraphId
     private Long id;
@@ -64,6 +64,22 @@ public class ClassNode{
         this.ctvEdges = new HashSet<>(classNode.getCtvEdges());
         this.rtcEdges = new HashSet<>(classNode.getRtcEdges());
         this.setIsInitEntropy(classNode.isInitEntropy());
+    }
+
+    public ClassNode(Long ccmId, Long icmId) {
+        this();
+        this.ccmId = ccmId;
+        this.icmSet.add(icmId);
+    }
+
+    public ClassNode(Long ccmId, Long icmId, RelationToClassEdge r2cEdge, ClassToValueEdge c2vEdge) {
+        this(ccmId, icmId);
+        if (null != r2cEdge) {
+            this.rtcEdges.add(r2cEdge);
+        }
+        if (null != c2vEdge) {
+            this.ctvEdges.add(c2vEdge);
+        }
     }
 
 //    public void UpdateClassNode(ClassNode classNode) {

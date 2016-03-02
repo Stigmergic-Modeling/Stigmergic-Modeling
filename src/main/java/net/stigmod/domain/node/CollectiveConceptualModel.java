@@ -49,7 +49,9 @@ public class CollectiveConceptualModel {
     private int classNum;
     private int relationshipNum;
 
-    public CollectiveConceptualModel() {}
+    public CollectiveConceptualModel() {
+        this("","");
+    }
 
     public CollectiveConceptualModel(String name, String description) {
         this(name, description, new Date());

@@ -26,7 +26,7 @@ import java.util.Set;
  * @version 2015/11/10
  */
 
-@NodeEntity
+@NodeEntity(label = "Relationship")
 public class RelationNode {
 
     @GraphId

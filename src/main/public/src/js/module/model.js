@@ -504,7 +504,13 @@ define(function (require, exports, module) {
                             item.push(path[1]);  // class name / relation group name
                             item.push(icm[3][path[3]] || path[3]);  // attribute name / relation icm id
                             item.push(args[0]);
-                            item.push(args[1]);
+
+                            if (0 === path[0]) {
+                                item.push(args[1]);
+                            } else {
+                                item.push(args[1][0].toString() + '-' + args[1][1].toString());  // 将数组转换成字符串
+                            }
+
 
                         } else {
 
@@ -558,7 +564,12 @@ define(function (require, exports, module) {
                             item.push(path[1]);
                             item.push(icm[3][path[3]] || path[3]);
                             item.push(args[0]);
-                            item.push(args[1]);
+
+                            if (0 === path[0]) {
+                                item.push(args[1]);
+                            } else {
+                                item.push(args[1][0].toString() + '-' + args[1][1].toString());  // 将数组转换成字符串
+                            }
 
                         } else {
 
@@ -771,6 +782,18 @@ define(function (require, exports, module) {
 
                 this.attRelOrderChangedHistory.push([Date.now(), this.attRelOrderChanged]); // 保存 顺序变动记录 的历史，便于回滚
                 this.attRelOrderChanged = [{}, {}];  // 清空当前 顺序变动记录
+            };
+
+            /**
+             * 更新 ID Mappings （从前端临时 ID 映射到后端数据库真正的 ID）
+             * @param idMappings
+             */
+            Model.prototype.updateIdMapping = function (idMappings) {
+                for (var frontId in idMappings) {
+                    if (idMappings.hasOwnProperty(frontId)) {
+                        icm[3][frontId] = idMappings[frontId];
+                    }
+                }
             };
 
 
