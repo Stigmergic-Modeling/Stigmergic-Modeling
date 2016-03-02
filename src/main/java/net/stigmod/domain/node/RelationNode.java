@@ -27,13 +27,13 @@ import java.util.Set;
  */
 
 @NodeEntity(label = "Relationship")
-public class RelationNode {
+public class RelationNode implements Vertex {
 
     @GraphId
     private Long id;
 
     @Property(name="icm_list")
-    private Set<Long> icmSet = new HashSet<>();
+    private Set<String> icmSet = new HashSet<>();
 
 //    private double orgEntropyValue;//表示没有乘用户数之前的节点熵值
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值
@@ -49,9 +49,15 @@ public class RelationNode {
         this.isInitEntropy = true;
     }
 
+    public RelationNode(Long ccmId, Long icmId) {
+        this();
+        this.ccmId = ccmId;
+        this.icmSet.add(icmId.toString());
+    }
+
     public RelationNode(RelationNode relationNode) {
         this.id=relationNode.getId();
-        this.icmSet =new HashSet<>(relationNode.getIcmSet());
+        this.setIcmSet(relationNode.getIcmSet());
         this.biEntropyValue=relationNode.getBiEntropyValue();
         this.postBiEntropyValue = relationNode.getPostBiEntropyValue();
 //        this.orgEntropyValue = relationNode.getOrgEntropyValue();
@@ -61,11 +67,26 @@ public class RelationNode {
         this.setIsInitEntropy(relationNode.isInitEntropy());
     }
 
-    @Relationship(type="E_CLASSS",direction = Relationship.OUTGOING)
-    private Set<RelationToClassEdge> rtcEdges =new HashSet<RelationToClassEdge>();
+    @Relationship(type="E_CLASS",direction = Relationship.OUTGOING)
+    private Set<RelationToClassEdge> rtcEdges =new HashSet<>();
 
     @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
-    private Set<RelationToValueEdge> rtvEdges =new HashSet<RelationToValueEdge>();
+    private Set<RelationToValueEdge> rtvEdges =new HashSet<>();
+
+    // 添加 relationship->class 边
+    public void addR2CEdge(RelationToClassEdge r2cEdge) {
+        this.rtcEdges.add(r2cEdge);
+    }
+
+    // 添加 relationship->value 边
+    public void addR2VEdge(RelationToValueEdge r2vEdge) {
+        this.rtvEdges.add(r2vEdge);
+    }
+
+    // 添加 icm id
+    public void addIcmId(Long icmId) {
+        this.icmSet.add(icmId.toString());
+    }
 
     public Long getId() {
         return id;
@@ -88,11 +109,17 @@ public class RelationNode {
     }
 
     public Set<Long> getIcmSet() {
-        return icmSet;
+        Set<Long> ret = new HashSet<>();
+        for (String elem : this.icmSet) {
+            ret.add(Long.parseLong(elem, 10));
+        }
+        return ret;
     }
 
     public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet = icmSet;
+        for (Long elem : icmSet) {
+            this.icmSet.add(elem.toString());
+        }
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {

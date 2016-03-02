@@ -23,7 +23,7 @@ import java.util.Set;
  */
 
 @RelationshipEntity(type="E_CLASS")
-public class RelationToClassEdge {
+public class RelationToClassEdge implements Edge {
 
     @GraphId
     private Long id;
@@ -41,7 +41,7 @@ public class RelationToClassEdge {
     private String port;
 
     @Property(name="icm_list")
-    private Set<Long> icmSet = new HashSet<>();
+    private Set<String> icmSet = new HashSet<>();
 
     private Long ccmId;
     private Set<Long> icmSetPreCopy = new HashSet<>();
@@ -57,7 +57,7 @@ public class RelationToClassEdge {
         this.ender=new ClassNode(rtcEdge.getEnder());
         this.port=rtcEdge.port;
         this.edgeName=rtcEdge.getEdgeName();
-        this.icmSet=new HashSet<>(rtcEdge.getIcmSet());
+        this.setIcmSet(rtcEdge.getIcmSet());
         this.ccmId =rtcEdge.getCcmId();
     }
 
@@ -68,8 +68,26 @@ public class RelationToClassEdge {
         this.port=port;
     }
 
+    public RelationToClassEdge(Long ccmId, Long icmId, String port, RelationNode starter, ClassNode ender) {
+        this(ccmId, icmId, port, "class", starter, ender);
+    }
+
+    public RelationToClassEdge(Long ccmId, Long icmId, String port, String edgeName, RelationNode starter, ClassNode ender) {
+        this.ccmId = ccmId;
+        this.icmSet.add(icmId.toString());
+        this.port = port;
+        this.edgeName = edgeName;
+        this.starter = starter;
+        this.ender = ender;
+    }
+
     public void UpdateRelationToCEdge(RelationToClassEdge relationToClassEdge) {
-        this.icmSet= relationToClassEdge.getIcmSet();
+        this.setIcmSet(relationToClassEdge.getIcmSet());
+    }
+
+    // 添加 icm id
+    public void addIcmId(Long icmId) {
+        this.icmSet.add(icmId.toString());
     }
 
     public Long getId() {
@@ -93,11 +111,17 @@ public class RelationToClassEdge {
     }
 
     public Set<Long> getIcmSet() {
-        return icmSet;
+        Set<Long> ret = new HashSet<>();
+        for (String elem : this.icmSet) {
+            ret.add(Long.parseLong(elem, 10));
+        }
+        return ret;
     }
 
     public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet = icmSet;
+        for (Long elem : icmSet) {
+            this.icmSet.add(elem.toString());
+        }
     }
 
     public String getPort() {

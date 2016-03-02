@@ -25,12 +25,12 @@ import java.util.Set;
  * @version 2015/11/10
  */
 @NodeEntity(label = "Class")
-public class ClassNode{
+public class ClassNode implements Vertex {
     @GraphId
     private Long id;
 
     @Property(name="icm_list")
-    private Set<Long> icmSet = new HashSet<>();
+    private Set<String> icmSet = new HashSet<>();
 
 //    private double orgEntropyValue;//这个表示没有乘上用户数前的节点熵值
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值(这是orgE*num后的结果)
@@ -56,7 +56,7 @@ public class ClassNode{
 
     public ClassNode(ClassNode classNode) {
         this.id=classNode.getId();
-        this.icmSet = new HashSet<>(classNode.getIcmSet());
+        this.setIcmSet(classNode.getIcmSet());
         this.ccmId =classNode.getCcmId();
         this.biEntropyValue=classNode.getBiEntropyValue();
         this.postBiEntropyValue = classNode.getPostBiEntropyValue();
@@ -69,7 +69,7 @@ public class ClassNode{
     public ClassNode(Long ccmId, Long icmId) {
         this();
         this.ccmId = ccmId;
-        this.icmSet.add(icmId);
+        this.icmSet.add(icmId.toString());
     }
 
     public ClassNode(Long ccmId, Long icmId, RelationToClassEdge r2cEdge, ClassToValueEdge c2vEdge) {
@@ -92,15 +92,31 @@ public class ClassNode{
 
     // 添加 class->value 边
     public void addC2VEdge(ClassToValueEdge c2vEdge) {
-        ctvEdges.add(c2vEdge);
+        this.ctvEdges.add(c2vEdge);
+    }
+
+    // 添加 relationship->class 边
+    public void addR2CEdge(RelationToClassEdge r2cEdge) {
+        this.rtcEdges.add(r2cEdge);
+    }
+
+    // 添加 icm id
+    public void addIcmId(Long icmId) {
+        this.icmSet.add(icmId.toString());
     }
 
     public Set<Long> getIcmSet() {
-        return icmSet;
+        Set<Long> ret = new HashSet<>();
+        for (String elem : this.icmSet) {
+            ret.add(Long.parseLong(elem, 10));
+        }
+        return ret;
     }
 
     public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet = icmSet;
+        for (Long elem : icmSet) {
+            this.icmSet.add(elem.toString());
+        }
     }
 
     public Set<RelationToClassEdge> getRtcEdges() {

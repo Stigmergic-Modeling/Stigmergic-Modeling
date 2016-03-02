@@ -808,7 +808,7 @@ define(function (require, exports, module) {
 
                 // 更新name2id映射
                 //console.log('classId', classId);
-                this[2]['clazz'][className] = {id: classCCMId};
+                this[2]['clazz'][className] = {id: classCCMId, attribute: {}};
             };
 
             // 增加类的属性
@@ -820,6 +820,7 @@ define(function (require, exports, module) {
 
                 this.addNode([0, className, 0], [attrName, [{}]], attrCCMId, addingType);  // 空括号很重要
                 this.insertOrderElem(0, className, attrName, pos.position, pos.direction);  // 将 attribute 插入到指定位置
+                this[2]['clazz'][className]['attribute'][attrName] = attrCCMId;  // 更新name2id映射
             };
 
             // 增加类的属性的特性

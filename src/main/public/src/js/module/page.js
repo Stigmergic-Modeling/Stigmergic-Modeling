@@ -1494,6 +1494,8 @@ define(function (require, exports, module) {
             postData.log = icm.getLog();  // 获取日志
             postData.orderChanges = icm.getAttRelOrderChanges();  // 获取有变动的顺序数组
 
+            console.log(JSON.stringify(postData));
+
             // 清空 model 操作日志 & 顺序变动记录
             icm.clearLog();
             icm.clearAttRelOrderChanges();

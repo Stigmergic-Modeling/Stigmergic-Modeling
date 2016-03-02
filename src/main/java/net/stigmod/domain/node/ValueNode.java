@@ -26,7 +26,7 @@ import java.util.Set;
  */
 
 @NodeEntity(label = "Value")
-public class ValueNode {
+public class ValueNode implements Vertex {
 
     @GraphId
     private Long id;
@@ -41,7 +41,7 @@ public class ValueNode {
     private Long ccmId;
 
     @Property(name="icm_list")
-    private Set<Long> icmSet =new HashSet<>();
+    private Set<String> icmSet =new HashSet<>();
 
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<>();
@@ -63,7 +63,7 @@ public class ValueNode {
 
     public ValueNode(ValueNode valueNode) {
         this.id = valueNode.getId();
-        this.icmSet = new HashSet<>(valueNode.getIcmSet());
+        this.setIcmSet(valueNode.getIcmSet());
         this.biEntropyValue = valueNode.getBiEntropyValue();
         this.ccmId = valueNode.getCcmId();
         this.setName(valueNode.getName());
@@ -77,7 +77,7 @@ public class ValueNode {
     public ValueNode(Long ccmId, Long icmId, String name) {
         this();
         this.ccmId = ccmId;
-        this.icmSet.add(icmId);
+        this.icmSet.add(icmId.toString());
         this.name = name;
     }
 
@@ -98,6 +98,16 @@ public class ValueNode {
     // 添加 class->value 边
     public void addC2VEdge(ClassToValueEdge c2vEdge) {
         ctvEdges.add(c2vEdge);
+    }
+
+    // 添加 relationship->value 边
+    public void addR2VEdge(RelationToValueEdge r2vEdge) {
+        this.rtvEdges.add(r2vEdge);
+    }
+
+    // 添加 icm id
+    public void addIcmId(Long icmId) {
+        this.icmSet.add(icmId.toString());
     }
 
     public Long getId() {
@@ -125,11 +135,17 @@ public class ValueNode {
     }
 
     public Set<Long> getIcmSet() {
-        return icmSet;
+        Set<Long> ret = new HashSet<>();
+        for (String elem : this.icmSet) {
+            ret.add(Long.parseLong(elem, 10));
+        }
+        return ret;
     }
 
     public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet = icmSet;
+        for (Long elem : icmSet) {
+            this.icmSet.add(elem.toString());
+        }
     }
 
     public double getBiEntropyValue() {
