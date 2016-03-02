@@ -10,7 +10,7 @@
 package net.stigmod.repository.node;
 
 
-import net.stigmod.domain.node.IndividualConceptualModel;
+import net.stigmod.domain.system.IndividualConceptualModel;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;

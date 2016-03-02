@@ -9,7 +9,7 @@
 
 package net.stigmod.domain.page;
 
-import net.stigmod.domain.node.CollectiveConceptualModel;
+import net.stigmod.domain.system.CollectiveConceptualModel;
 
 import java.util.HashMap;
 import java.util.Map;

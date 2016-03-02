@@ -13,13 +13,13 @@ import com.google.gson.Gson;
 import javafx.util.Pair;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
-import net.stigmod.domain.node.ClassNode;
-import net.stigmod.domain.node.IndividualConceptualModel;
-import net.stigmod.domain.node.RelationNode;
-import net.stigmod.domain.node.ValueNode;
-import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToClassEdge;
-import net.stigmod.domain.relationship.RelationToValueEdge;
+import net.stigmod.domain.conceptualmodel.ClassNode;
+import net.stigmod.domain.system.IndividualConceptualModel;
+import net.stigmod.domain.conceptualmodel.RelationNode;
+import net.stigmod.domain.conceptualmodel.ValueNode;
+import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
+import net.stigmod.domain.conceptualmodel.Edge;
+import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
@@ -28,7 +28,6 @@ import net.stigmod.repository.relationship.ClassToVEdgeRepository;
 import net.stigmod.repository.relationship.EdgeRepository;
 import net.stigmod.repository.relationship.RelationToCEdgeRepository;
 import net.stigmod.repository.relationship.RelationToVEdgeRepository;
-import net.stigmod.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
@@ -196,11 +195,11 @@ public class WorkspaceService {
 
                 // 获取 c2v edge
                 ClassToValueEdge c2vEdge = null;
-                List<ClassToValueEdge> c2vEdges = null;
+                List<Edge> c2vEdges = null;
                 if (classNodeExists && valueNodeExists) {
-                    c2vEdges = c2vEdgeRepository.findByClassIdAndValueId(classNode.getId(), valueNode.getId());
+                    c2vEdges = edgeRepository.getByTwoVertexIdsAndEdgeName(ccmId, classNode.getId(), valueNode.getId(), "name");
                     if (!c2vEdges.isEmpty()) {
-                        c2vEdge = c2vEdges.get(0);  // CCM 中已存在此边
+                        c2vEdge = (ClassToValueEdge) c2vEdges.get(0);  // CCM 中已存在此边
                         c2vEdge.addIcmId(icmId);
                     }
                 }
@@ -252,7 +251,7 @@ public class WorkspaceService {
                 // 获取 r2c edge
                 RelationToClassEdge r2cEdge = isFreshCreation
                         ? new RelationToClassEdge(ccmId, icmId, "E0", relationNode, classNode)                          // 全新创建
-                        : r2cEdgeRepository.getByRelationIdAndClassId(ccmId, relationNode.getId(), classNode.getId());  // 绑定创建
+                        : (RelationToClassEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, relationNode.getId(), classNode.getId(), "class");  // 绑定创建
                 if (!isFreshCreation) {  // 绑定创建
                     r2cEdge.addIcmId(icmId);
                 } else {                 // 全新创建
@@ -281,7 +280,7 @@ public class WorkspaceService {
 //
 ////                // 获取 r2vEdge
 ////                RelationToValueEdge r2trueEdge = vnTrueExists
-////                        ? (RelationToValueEdge) edgeRepository.getByTwoVertexIdsAndEdgeName(ccmId, relationNode.getId(), vnTrue.getId(), "isAttribute")
+////                        ? (RelationToValueEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, relationNode.getId(), vnTrue.getId(), "isAttribute")
 ////                        : new RelationToValueEdge(ccmId, icmId, "isAttribute", relationNode, vnTrue);
 //
 //

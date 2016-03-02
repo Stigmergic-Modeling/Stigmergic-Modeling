@@ -9,10 +9,7 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.node.*;
-import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToClassEdge;
-import net.stigmod.domain.relationship.RelationToValueEdge;
+import net.stigmod.domain.conceptualmodel.*;
 import net.stigmod.service.migrateService.MigrateHandlerImpl;
 import org.junit.Test;
 

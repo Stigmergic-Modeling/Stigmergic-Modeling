@@ -7,7 +7,7 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain;
+package net.stigmod.domain.conceptualmodel;
 
 /**
  * @author Shijun Wang

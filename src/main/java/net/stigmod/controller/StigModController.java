@@ -9,7 +9,7 @@
 
 package net.stigmod.controller;
 
-import net.stigmod.domain.node.User;
+import net.stigmod.domain.system.User;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;

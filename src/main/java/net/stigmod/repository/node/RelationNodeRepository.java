@@ -9,7 +9,7 @@
 
 package net.stigmod.repository.node;
 
-import net.stigmod.domain.node.RelationNode;
+import net.stigmod.domain.conceptualmodel.RelationNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 

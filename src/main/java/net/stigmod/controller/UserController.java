@@ -9,8 +9,7 @@
 
 package net.stigmod.controller;
 
-import net.stigmod.domain.node.CollectiveConceptualModel;
-import net.stigmod.domain.node.User;
+import net.stigmod.domain.system.User;
 //import net.stigmod.repository.MovieRepository;
 import net.stigmod.domain.page.NewModelPageData;
 import net.stigmod.domain.page.PageData;

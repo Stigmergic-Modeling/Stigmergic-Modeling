@@ -7,11 +7,8 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
+package net.stigmod.domain.conceptualmodel;
 
-package net.stigmod.domain.node;
-
-import net.stigmod.domain.relationship.RelationToClassEdge;
-import net.stigmod.domain.relationship.RelationToValueEdge;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
@@ -26,56 +23,79 @@ import java.util.Set;
  * @version 2015/11/10
  */
 
-@NodeEntity(label = "Relationship")
-public class RelationNode implements Vertex {
+@NodeEntity(label = "Value")
+public class ValueNode implements Vertex {
 
     @GraphId
     private Long id;
 
-    @Property(name="icm_list")
-    private Set<String> icmSet = new HashSet<>();
+    @Property(name="name")
+    private String name;
 
-//    private double orgEntropyValue;//表示没有乘用户数之前的节点熵值
-    private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值
+//    private double orgEntropyValue;
+    private double biEntropyValue;
     private double postBiEntropyValue;
-    private boolean isInitEntropy;//起到判断当前熵值是否是初始熵值得作用
-    private int loc;
+    private boolean isInitEntropy;
     private Long ccmId;
 
-    public RelationNode() {
+    @Property(name="icm_list")
+    private Set<String> icmSet =new HashSet<>();
+
+    @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
+    private Set<ClassToValueEdge> ctvEdges =new HashSet<>();
+
+    @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
+    private Set<RelationToValueEdge> rtvEdges =new HashSet<>();
+
+    public ValueNode(){
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;
         this.isInitEntropy = true;
     }
 
-    public RelationNode(Long ccmId, Long icmId) {
+    public ValueNode(String name) {
+        this();
+        this.name = name;
+    }
+
+    public ValueNode(ValueNode valueNode) {
+        this.id = valueNode.getId();
+        this.setIcmSet(valueNode.getIcmSet());
+        this.biEntropyValue = valueNode.getBiEntropyValue();
+        this.ccmId = valueNode.getCcmId();
+        this.setName(valueNode.getName());
+        this.ctvEdges = new HashSet<>(valueNode.getCtvEdges());
+        this.rtvEdges = new HashSet<>(valueNode.getRtvEdges());
+        this.setIsInitEntropy(valueNode.isInitEntropy());
+        this.postBiEntropyValue = valueNode.getPostBiEntropyValue();
+//        this.orgEntropyValue = valueNode.getOrgEntropyValue();
+    }
+
+    public ValueNode(Long ccmId, Long icmId, String name) {
         this();
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
+        this.name = name;
     }
 
-    public RelationNode(RelationNode relationNode) {
-        this.id=relationNode.getId();
-        this.setIcmSet(relationNode.getIcmSet());
-        this.biEntropyValue=relationNode.getBiEntropyValue();
-        this.postBiEntropyValue = relationNode.getPostBiEntropyValue();
-//        this.orgEntropyValue = relationNode.getOrgEntropyValue();
-        this.ccmId =relationNode.getCcmId();
-        this.rtcEdges=new HashSet<>(relationNode.getRtcEdges());
-        this.rtvEdges=new HashSet<>(relationNode.getRtvEdges());
-        this.setIsInitEntropy(relationNode.isInitEntropy());
+    public ValueNode(Long ccmId, Long icmId, String name, ClassToValueEdge c2vEdge) {
+        this(ccmId, icmId, name);
+        if (null != c2vEdge) {
+            this.ctvEdges.add(c2vEdge);
+        }
     }
 
-    @Relationship(type="E_CLASS",direction = Relationship.OUTGOING)
-    private Set<RelationToClassEdge> rtcEdges =new HashSet<>();
+//    public void UpdateValueNode(ValueNode valueNode) {
+//        this.icmSet =valueNode.getIcmSet();
+//        this.entropyValue=valueNode.getEntropyValue();
+//        this.ctvEdges=valueNode.getCtvEdges();
+//        this.rtvEdges=valueNode.getRtvEdges();
+//    }
 
-    @Relationship(type="PROPERTY",direction = Relationship.OUTGOING)
-    private Set<RelationToValueEdge> rtvEdges =new HashSet<>();
-
-    // 添加 relationship->class 边
-    public void addR2CEdge(RelationToClassEdge r2cEdge) {
-        this.rtcEdges.add(r2cEdge);
+    // 添加 class->value 边
+    public void addC2VEdge(ClassToValueEdge c2vEdge) {
+        ctvEdges.add(c2vEdge);
     }
 
     // 添加 relationship->value 边
@@ -96,16 +116,20 @@ public class RelationNode implements Vertex {
         this.id = id;
     }
 
-//    public void UpdateRelationNode(RelationNode relationNode) {
-//        this.icmSet =relationNode.getIcmSet();
-//        this.biEntropyValue=relationNode.getBiEntropyValue();
-//        this.orgEntropyValue = relationNode.getOrgEntropyValue();
-//        this.rtcEdges=relationNode.getRtcEdges();
-//        this.rtvEdges=relationNode.getRtvEdges();
-//    }
+    public String getName() {
+        return name;
+    }
 
-    public Set<RelationToClassEdge> getRtcEdges() {
-        return rtcEdges;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<ClassToValueEdge> getCtvEdges() {
+        return ctvEdges;
+    }
+
+    public Set<RelationToValueEdge> getRtvEdges() {
+        return rtvEdges;
     }
 
     public Set<Long> getIcmSet() {
@@ -120,10 +144,6 @@ public class RelationNode implements Vertex {
         for (Long elem : icmSet) {
             this.icmSet.add(elem.toString());
         }
-    }
-
-    public Set<RelationToValueEdge> getRtvEdges() {
-        return rtvEdges;
     }
 
     public double getBiEntropyValue() {
@@ -142,14 +162,6 @@ public class RelationNode implements Vertex {
         this.ccmId = ccmId;
     }
 
-    public int getLoc() {
-        return loc;
-    }
-
-    public void setLoc(int loc) {
-        this.loc = loc;
-    }
-
     public boolean isInitEntropy() {
         return isInitEntropy;
     }
@@ -166,8 +178,8 @@ public class RelationNode implements Vertex {
         this.postBiEntropyValue = postBiEntropyValue;
     }
 
-    public void setRtcEdges(Set<RelationToClassEdge> rtcEdges) {
-        this.rtcEdges = rtcEdges;
+    public void setCtvEdges(Set<ClassToValueEdge> ctvEdges) {
+        this.ctvEdges = ctvEdges;
     }
 
     public void setRtvEdges(Set<RelationToValueEdge> rtvEdges) {

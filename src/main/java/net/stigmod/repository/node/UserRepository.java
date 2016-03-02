@@ -1,7 +1,7 @@
 package net.stigmod.repository.node;
 
 //import net.stigmod.domain.Rating;
-import net.stigmod.domain.node.User;
+import net.stigmod.domain.system.User;
 //import org.springframework.data.neo4j.annotation.Query;
 import net.stigmod.service.StigmodUserDetailsService;
 import org.springframework.data.neo4j.repository.GraphRepository;

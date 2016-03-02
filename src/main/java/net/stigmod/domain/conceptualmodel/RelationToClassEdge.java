@@ -7,10 +7,8 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain.relationship;
+package net.stigmod.domain.conceptualmodel;
 
-import net.stigmod.domain.node.RelationNode;
-import net.stigmod.domain.node.ValueNode;
 import org.neo4j.ogm.annotation.*;
 
 import java.util.HashSet;
@@ -21,8 +19,10 @@ import java.util.Set;
  * @author Shijun Wang
  * @version 2015/11/10
  */
-@RelationshipEntity(type="PROPERTY")
-public class RelationToValueEdge implements Edge {
+
+@RelationshipEntity(type="E_CLASS")
+public class RelationToClassEdge implements Edge {
+
     @GraphId
     private Long id;
 
@@ -30,13 +30,13 @@ public class RelationToValueEdge implements Edge {
     private RelationNode starter;
 
     @EndNode
-    private ValueNode ender;
-
-    @Property
-    private String port;
+    private ClassNode ender;
 
     @Property(name="name")
     private String edgeName;
+
+    @Property(name="port")
+    private String port;
 
     @Property(name="icm_list")
     private Set<String> icmSet = new HashSet<>();
@@ -45,32 +45,32 @@ public class RelationToValueEdge implements Edge {
     private Set<Long> icmSetPreCopy = new HashSet<>();
     private boolean isChanged=false;
 
-    public RelationToValueEdge() {
-        this.port="";
+    public RelationToClassEdge() {
+        this.port=null;
     }
 
-    public RelationToValueEdge(RelationToValueEdge rtvEdge) {
-        this.id=rtvEdge.getId();
-        this.starter=new RelationNode(rtvEdge.getStarter());
-        this.ender=new ValueNode(rtvEdge.getEnder());
-        this.port=rtvEdge.port;
-        this.edgeName=rtvEdge.getEdgeName();
-        this.setIcmSet(rtvEdge.getIcmSet());
-        this.ccmId =rtvEdge.getCcmId();
+    public RelationToClassEdge(RelationToClassEdge rtcEdge) {
+        this.id=rtcEdge.getId();
+        this.starter=new RelationNode(rtcEdge.getStarter());
+        this.ender=new ClassNode(rtcEdge.getEnder());
+        this.port=rtcEdge.port;
+        this.edgeName=rtcEdge.getEdgeName();
+        this.setIcmSet(rtcEdge.getIcmSet());
+        this.ccmId =rtcEdge.getCcmId();
     }
 
-    public RelationToValueEdge(String port , String edgeName, RelationNode starter, ValueNode ender) {
+    public RelationToClassEdge(String port, String edgeName, RelationNode starter, ClassNode ender) {
+        this.edgeName=edgeName;
+        this.starter=starter;
+        this.ender=ender;
         this.port=port;
-        this.edgeName = edgeName;
-        this.starter = starter;
-        this.ender = ender;
     }
 
-    public RelationToValueEdge(Long ccmId, Long icmId, String edgeName, RelationNode starter, ValueNode ender) {
-        this(ccmId, icmId, "", edgeName, starter, ender);
+    public RelationToClassEdge(Long ccmId, Long icmId, String port, RelationNode starter, ClassNode ender) {
+        this(ccmId, icmId, port, "class", starter, ender);
     }
 
-    public RelationToValueEdge(Long ccmId, Long icmId, String port, String edgeName, RelationNode starter, ValueNode ender) {
+    public RelationToClassEdge(Long ccmId, Long icmId, String port, String edgeName, RelationNode starter, ClassNode ender) {
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
         this.port = port;
@@ -79,8 +79,8 @@ public class RelationToValueEdge implements Edge {
         this.ender = ender;
     }
 
-    public void UpdateRelationToVEdge(RelationToValueEdge relationToValueEdge) {
-        this.setIcmSet(relationToValueEdge.getIcmSet());
+    public void UpdateRelationToCEdge(RelationToClassEdge relationToClassEdge) {
+        this.setIcmSet(relationToClassEdge.getIcmSet());
     }
 
     // 添加 icm id
@@ -96,16 +96,8 @@ public class RelationToValueEdge implements Edge {
         return starter;
     }
 
-    public void setStarter(RelationNode starter) {
-        this.starter = starter;
-    }
-
-    public ValueNode getEnder() {
+    public ClassNode getEnder() {
         return ender;
-    }
-
-    public void setEnder(ValueNode ender) {
-        this.ender = ender;
     }
 
     public String getEdgeName() {
@@ -166,4 +158,11 @@ public class RelationToValueEdge implements Edge {
         this.id = id;
     }
 
+    public void setStarter(RelationNode starter) {
+        this.starter = starter;
+    }
+
+    public void setEnder(ClassNode ender) {
+        this.ender = ender;
+    }
 }

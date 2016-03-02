@@ -9,12 +9,12 @@
 
 package net.stigmod.service.migrateService;
 
-import net.stigmod.domain.node.ClassNode;
-import net.stigmod.domain.node.RelationNode;
-import net.stigmod.domain.node.ValueNode;
-import net.stigmod.domain.relationship.ClassToValueEdge;
-import net.stigmod.domain.relationship.RelationToClassEdge;
-import net.stigmod.domain.relationship.RelationToValueEdge;
+import net.stigmod.domain.conceptualmodel.ClassNode;
+import net.stigmod.domain.conceptualmodel.RelationNode;
+import net.stigmod.domain.conceptualmodel.ValueNode;
+import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
+import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
+import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
 
 import java.util.List;
 import java.util.Map;

@@ -9,9 +9,9 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.node.CollectiveConceptualModel;
-import net.stigmod.domain.node.IndividualConceptualModel;
-import net.stigmod.domain.node.User;
+import net.stigmod.domain.system.CollectiveConceptualModel;
+import net.stigmod.domain.system.IndividualConceptualModel;
+import net.stigmod.domain.system.User;
 import net.stigmod.repository.node.CollectiveConceptualModelRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import org.neo4j.ogm.session.Session;
@@ -20,8 +20,6 @@ import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**

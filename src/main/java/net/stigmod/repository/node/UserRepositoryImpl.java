@@ -1,7 +1,6 @@
 package net.stigmod.repository.node;
 
-import net.stigmod.domain.node.User;
-import net.stigmod.repository.node.UserRepository;
+import net.stigmod.domain.system.User;
 import net.stigmod.service.StigmodUserDetails;
 import net.stigmod.service.StigmodUserDetailsService;
 import org.neo4j.helpers.collection.IteratorUtil;

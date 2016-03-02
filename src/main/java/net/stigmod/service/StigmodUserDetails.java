@@ -9,7 +9,7 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.node.User;
+import net.stigmod.domain.system.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

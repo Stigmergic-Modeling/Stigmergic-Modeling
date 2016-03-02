@@ -10,8 +10,8 @@
 package net.stigmod.domain.page;
 
 import net.stigmod.domain.info.IcmBrief;
-import net.stigmod.domain.node.IndividualConceptualModel;
-import net.stigmod.domain.node.User;
+import net.stigmod.domain.system.IndividualConceptualModel;
+import net.stigmod.domain.system.User;
 
 import java.util.Date;
 import java.util.HashSet;
