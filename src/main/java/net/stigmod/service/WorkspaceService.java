@@ -11,15 +11,10 @@ package net.stigmod.service;
 
 import com.google.gson.Gson;
 import javafx.util.Pair;
+import net.stigmod.domain.conceptualmodel.*;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
-import net.stigmod.domain.conceptualmodel.ClassNode;
 import net.stigmod.domain.system.IndividualConceptualModel;
-import net.stigmod.domain.conceptualmodel.RelationNode;
-import net.stigmod.domain.conceptualmodel.ValueNode;
-import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
-import net.stigmod.domain.conceptualmodel.Edge;
-import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
@@ -28,6 +23,7 @@ import net.stigmod.repository.relationship.ClassToVEdgeRepository;
 import net.stigmod.repository.relationship.EdgeRepository;
 import net.stigmod.repository.relationship.RelationToCEdgeRepository;
 import net.stigmod.repository.relationship.RelationToVEdgeRepository;
+import net.stigmod.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
@@ -269,39 +265,20 @@ public class WorkspaceService {
                 }
                 modelingResponse.addMessage("Add attribute [" + attributeName + "] to class [" + className + "] finished.");
 
-//                /*
-//                 *  添加 (relationship)-[isAttribute]->(value)
-//                 */
-//
-//                // 获取名为 "true" 的 value node
-//                Pair<ValueNode, Boolean> valueNodeAndExistence = this.getValueNodeByName("true", ccmId, icmId);
-//                ValueNode vnTrue = valueNodeAndExistence.getKey();
-//                boolean vnTrueExists = valueNodeAndExistence.getValue();
-//
-////                // 获取 r2vEdge
-////                RelationToValueEdge r2trueEdge = vnTrueExists
-////                        ? (RelationToValueEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, relationNode.getId(), vnTrue.getId(), "isAttribute")
-////                        : new RelationToValueEdge(ccmId, icmId, "isAttribute", relationNode, vnTrue);
-//
-//
-//                /*
-//                 *  添加 (relationship)-[e0.role]->(value)
-//                 */
-//
-//                // 获取名为 className (lower case) 的 value node
-//                valueNodeAndExistence = this.getValueNodeByName(className, ccmId, icmId);
-//                ValueNode vnClassNameLC = valueNodeAndExistence.getKey();
-//                boolean vnClassNameLCExists = valueNodeAndExistence.getValue();
-//
-//                /*
-//                 *  添加 (relationship)-[e1.role]->(value)
-//                 */
-//
-//                // 获取名为 attributeName 的 value node
-//                valueNodeAndExistence = this.getValueNodeByName(Util.decapitalize(attributeName), ccmId, icmId);
-//                ValueNode vnattributeName = valueNodeAndExistence.getKey();
-//                boolean vnattributeNameExists = valueNodeAndExistence.getValue();
+                /*
+                 *  添加 (relationship)-[isAttribute]->(value)
+                 */
+                this.addValueNodeAndR2VEdge(ccmId, icmId, "", "isAttribute", relationNode, "true");
 
+                /*
+                 *  添加 (relationship)-[e0.role]->(value)
+                 */
+                this.addValueNodeAndR2VEdge(ccmId, icmId, "E0", "role", relationNode, Util.decapitalize(className));
+
+                /*
+                 *  添加 (relationship)-[e1.role]->(value)
+                 */
+                this.addValueNodeAndR2VEdge(ccmId, icmId, "E1", "role", relationNode, attributeName);
 
             } else if (op.get(2).equals("RLT")) {  // add relationship
 
@@ -340,6 +317,13 @@ public class WorkspaceService {
         neo4jTemplate.save(icm);
     }
 
+    /**
+     * 若 value node 已存在于数据库，则返回该节点；若不存在，则创建并返回
+     * @param name 值节点的名字
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @return 值节点 和 存在性
+     */
     private Pair<ValueNode, Boolean> getValueNodeByName(String name, Long ccmId, Long icmId) {
         List<ValueNode> valueNodes = valueNodeRepository.findByNameAndCcmId(name, ccmId);
         Boolean exist = !valueNodes.isEmpty();
@@ -349,5 +333,40 @@ public class WorkspaceService {
             neo4jTemplate.save(valueNode);  // add icmId 后需要及时保存
         }
         return new Pair<>(valueNode, exist);
+    }
+
+    /**
+     * 以一个 relationship node 为起点，添加一个 value node，并连接这两个 node （可能 value node 已存在于 CCM，也可能两个 node 都已存在于 CCM）
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @param port 关系的端口（E0, E1 或 空）
+     * @param edgeName 关系节点与直接点之间边的名字（注意不是关系的名字）
+     * @param relationNode 关系节点
+     * @param valueName 值节点的名字
+     */
+    private void addValueNodeAndR2VEdge(Long ccmId, Long icmId, String port, String edgeName, RelationNode relationNode, String valueName) {
+
+        // 获取 value node
+        Pair<ValueNode, Boolean> valueNodeAndExistence = this.getValueNodeByName(valueName, ccmId, icmId);
+        ValueNode valueNode = valueNodeAndExistence.getKey();
+        boolean valueNodeExists = valueNodeAndExistence.getValue();
+
+        // 获取 edge
+        RelationToValueEdge r2trueEdge = null;
+        List<Edge> r2trueEdges = null;
+        if (valueNodeExists) {
+            r2trueEdges = edgeRepository.getByTwoVertexIdsAndEdgeName(ccmId, relationNode.getId(), valueNode.getId(), edgeName);
+            if (!r2trueEdges.isEmpty()) {
+                r2trueEdge = (RelationToValueEdge) r2trueEdges.get(0);  // CCM 中已存在此边
+                r2trueEdge.addIcmId(icmId);
+            }
+        }
+        if (!valueNodeExists || r2trueEdges.isEmpty()) {  // CCM 中未存在此边
+            r2trueEdge = new RelationToValueEdge(ccmId, icmId, port, edgeName, relationNode, valueNode);
+            relationNode.addR2VEdge(r2trueEdge);
+            valueNode.addR2VEdge(r2trueEdge);
+        }
+
+        neo4jTemplate.save(r2trueEdge);
     }
 }
