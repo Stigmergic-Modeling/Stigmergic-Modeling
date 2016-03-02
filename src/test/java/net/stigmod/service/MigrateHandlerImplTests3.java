@@ -77,18 +77,24 @@ public class MigrateHandlerImplTests3 {
 
 
                     String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
+
+//                    if(line.equals("class:5:Cart:productId*_Int")) {
+//                        System.out.println("line: "+line+" ,lowerCValueNodeName: "+lowerCValueNodeName);
+//                    }
                     ValueNode valueNode;//该class类的valueNode
                     ValueNode mainRoleVNode;//该class类的role
                     if(valueListMap.containsKey(cValueNodeName)) {//class节点对每个用户而言不同,但value节点对每个用户相同
                         valueNode = valueNodeList.get(valueListMap.get(cValueNodeName));
                         valueNode.getIcmSet().addAll(new HashSet<Long>(curSet));
-
-                        mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
-                        mainRoleVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
                     }else {
                         valueNode = new ValueNode();//这个是class对应得value节点
                         constructVNode(valueNode,valueListMap,c++,0l,curSet,cValueNodeName);
+                    }
 
+                    if(valueListMap.containsKey(lowerCValueNodeName)) {
+                        mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
+                        mainRoleVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                    }else {
                         mainRoleVNode = new ValueNode();//这个是针对该类的role
                         constructVNode(mainRoleVNode,valueListMap,c++,0l,curSet,lowerCValueNodeName);
                     }
@@ -300,6 +306,7 @@ public class MigrateHandlerImplTests3 {
 
                     //获取multi类型
                     if(multis != null) {
+//                        System.out.println("multis: "+strs[3]);
                         ValueNode startMultiVNode = valueNodeList.get(valueListMap.get(multis[0]));
                         ValueNode endMultiVNode = valueNodeList.get(valueListMap.get(multis[1]));
                         startMultiVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
@@ -367,6 +374,9 @@ public class MigrateHandlerImplTests3 {
     }
 
     private void constructVNode(ValueNode vNode,Map<String,Integer> valueListMap,long vid,long modelId,Set<Long> icmSet,String name) {
+//        if(name.equals("Cart")) {
+//            System.out.println("111");
+//        }
         vNode.setId(vid);
         vNode.setCcmId(modelId);
         vNode.setIcmSet(new HashSet<Long>(icmSet));
