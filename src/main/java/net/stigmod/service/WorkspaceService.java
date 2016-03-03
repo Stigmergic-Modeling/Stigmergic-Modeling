@@ -287,10 +287,6 @@ public class WorkspaceService {
                 String relationGroupName = op.get(3);
                 String relationshipId = op.get(4);  // 同 op.get(5)
                 String addingType = op.get(6);
-                assert relationGroupName.contains("-");
-                String[] classNames = relationGroupName.split("-");
-                String classNameE0 = classNames[0];  // 暂时认为 “-” 左侧的是 E0，如有错误，则在 type 为 “class” 的 ADD POR 中修正
-                String classNameE1 = classNames[1];  // 暂时认为 “-” 左侧的是 E0，如有错误，则在 type 为 “class” 的 ADD POR 中修正
                 boolean isFreshCreation = addingType.equals("fresh");
 
                 // 获取 relationship node
@@ -300,15 +296,6 @@ public class WorkspaceService {
                     relationNode.addIcmId(icmId);
                 }
                 relationNodeRepository.save(relationNode);
-
-                // 获取关系两端的 class node (必定存在于 ICM 中)
-                ClassNode classNodeE0 = classNodeRepository.getOneByName(ccmId, icmId, classNameE0);
-                ClassNode classNodeE1 = classNodeRepository.getOneByName(ccmId, icmId, classNameE1);
-                assert classNodeE0 != null && classNodeE1 != null;
-
-                // 添加 r2cEdge
-                this.addR2CEdge(ccmId, icmId, "E0", "class", relationNode, classNodeE0);
-                this.addR2CEdge(ccmId, icmId, "E1", "class", relationNode, classNodeE1);
 
                 // 更新 id 映射和返回信息
                 if (isFreshCreation) {
@@ -379,6 +366,48 @@ public class WorkspaceService {
 
             } else if (op.get(2).equals("POR")) {  // add property of relationship
 
+                // ADD POR relationGroup relation property valueE0 valueE1
+                String relationGroupName = op.get(3);
+                Long relationshipId = this.getNeo4jId(icmId, op.get(4));  // NOTE: may be FrontId or Neo4jId !!!
+                String propertyName = op.get(5);
+                String propertyValueE0 = op.get(6);
+                String propertyValueE1 = op.get(7);
+
+                // 获取关系节点（必定存在于 ICM 中）
+                RelationNode relationNode = relationNodeRepository.findOne(relationshipId);
+                assert relationNode != null;
+
+                switch (propertyName) {
+                    case "type":   // 关系的类型和名称（名称可能为空字符串）
+
+                        String typeEdgeName = "is" + propertyValueE0;
+                        this.addValueNodeAndR2VEdge(ccmId, icmId, "", typeEdgeName, relationNode, "true");
+
+                        if (!propertyValueE1.equals("")) {  // 若有名字，则添加
+                            this.addValueNodeAndR2VEdge(ccmId, icmId, "", "name", relationNode, propertyValueE1);
+                        }
+
+                        break;
+                    case "class":   // 关系两端的类
+
+                        // 获取关系两端的 class node (必定存在于 ICM 中)
+                        ClassNode classNodeE0 = classNodeRepository.getOneByName(ccmId, icmId, propertyValueE0);
+                        ClassNode classNodeE1 = classNodeRepository.getOneByName(ccmId, icmId, propertyValueE1);
+                        assert classNodeE0 != null && classNodeE1 != null;
+
+                        // 添加 r2cEdge
+                        this.addR2CEdge(ccmId, icmId, "E0", "class", relationNode, classNodeE0);
+                        this.addR2CEdge(ccmId, icmId, "E1", "class", relationNode, classNodeE1);
+
+                        break;
+                    default:   // 一般 property
+
+                        this.addValueNodeAndR2VEdge(ccmId, icmId, "E0", propertyName, relationNode, propertyValueE0);
+                        this.addValueNodeAndR2VEdge(ccmId, icmId, "E1", propertyName, relationNode, propertyValueE1);
+                        break;
+                }
+                modelingResponse.addMessage("Add property [" + propertyName + "] to relationship [" + relationshipId.toString() + "] of relationship group [" + relationGroupName + "] finished.");
+
             } else {
                 throw new IllegalArgumentException("Operation " + op.get(1) + " " + op.get(2) + " is not supported");  // NOT ALLOWED
             }
@@ -394,7 +423,8 @@ public class WorkspaceService {
      * @return 后端数据库 ID
      */
     @Transactional
-    private Long getBackIdFromFrontId(IndividualConceptualModel icm, String frontId) {
+    private Long getBackIdFromFrontId(Long icmId, String frontId) {
+        IndividualConceptualModel icm = icmRepository.findOne(icmId);
         return icm.getBackIdFromFrontId(frontId);
     }
 
@@ -527,5 +557,15 @@ public class WorkspaceService {
             valueNode.addR2VEdge(r2trueEdge);
         }
         edgeRepository.save(r2trueEdge);  // 若用 neo4jTemplate.save()，则可能导致保存不及时
+    }
+
+    /**
+     * 由 FrontId 获得 Neo4jId。若本来就是 Neo4jId，则直接转成 Long 类型
+     * @param icmId icmId，id mapping 即保存在其中
+     * @param id may be FrontId or Neo4jId !!!
+     * @return Neo4jId
+     */
+    private Long getNeo4jId(Long icmId, String id) {
+        return this.getBackIdFromFrontId(icmId, id);
     }
 }

@@ -83,7 +83,7 @@ public class IndividualConceptualModel {
         if (-1 != index) {
             return Long.parseLong(this.backIdList.get(index), 10);
         } else {
-            return -1L;
+            return Long.parseLong(frontId, 10);
         }
     }
 
