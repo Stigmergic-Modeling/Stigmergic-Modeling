@@ -25,18 +25,20 @@ import java.util.List;
 public interface EdgeRepository extends GraphRepository<Edge> {
 
     @Query( "MATCH (starter {ccmId:{ccmId}})-[edge]->(ender {ccmId:{ccmId}}) " +
-            "WHERE id(starter)={starterId} AND id(ender)={enderId} AND edge.name={edgeName} " +
+            "WHERE id(starter)={starterId} AND id(ender)={enderId} AND edge.name={edgeName} AND edge.port={port} " +
             "RETURN edge")
     Edge getOneByTwoVertexIdsAndEdgeName(@Param("ccmId") Long ccmId,
                                          @Param("starterId") Long starterId,
                                          @Param("enderId") Long enderId,
+                                         @Param("port") String port,
                                          @Param("edgeName") String edgeName);
 
     @Query( "MATCH (starter {ccmId:{ccmId}})-[edge]->(ender {ccmId:{ccmId}}) " +
-            "WHERE id(starter)={starterId} AND id(ender)={enderId} AND edge.name={edgeName} " +
+            "WHERE id(starter)={starterId} AND id(ender)={enderId} AND edge.name={edgeName} AND edge.port={port} " +
             "RETURN edge")
     List<Edge> getByTwoVertexIdsAndEdgeName(@Param("ccmId") Long ccmId,
                                             @Param("starterId") Long starterId,
                                             @Param("enderId") Long enderId,
+                                            @Param("port") String port,
                                             @Param("edgeName") String edgeName);
 }
