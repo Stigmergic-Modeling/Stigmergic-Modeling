@@ -36,7 +36,7 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
             "<--(:Class)" +
             "<--(rel:Relationship)" +
             "-[{name:'role',port:'E1'}]->(:Value {name:{attributeName}, ccmId:{ccmId}}) " +
-            "WHERE str({icmId}) IN rel.icm_list " +
+            "WHERE toString({icmId}) IN rel.icmSet " +
             "RETURN rel")
     RelationNode getOneAttRelByClassNameAndAttName(@Param("ccmId") Long ccmId,
                                                 @Param("icmId") Long icmId,

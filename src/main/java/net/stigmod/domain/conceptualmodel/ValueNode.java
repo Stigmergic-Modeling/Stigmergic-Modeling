@@ -25,7 +25,7 @@ import java.util.Set;
  */
 
 @NodeEntity(label = "Value")
-public class ValueNode implements Vertex {
+public class ValueNode extends AbstractVertex {
 
     @GraphId
     private Long id;
@@ -39,9 +39,6 @@ public class ValueNode implements Vertex {
     private boolean isInitEntropy;
     private Long ccmId;
 
-    @Property(name="icm_list")
-    private Set<String> icmSet =new HashSet<>();
-
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<>();
 
@@ -49,6 +46,7 @@ public class ValueNode implements Vertex {
     private Set<RelationToValueEdge> rtvEdges =new HashSet<>();
 
     public ValueNode(){
+//        super();
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;
@@ -94,22 +92,6 @@ public class ValueNode implements Vertex {
 //        this.rtvEdges=valueNode.getRtvEdges();
 //    }
 
-    public void removeIcmSetFromSet(Set<Long> otherIcmSet) {
-        Iterator<Long> iter = otherIcmSet.iterator();
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            this.icmSet.remove(curIcm.toString());
-        }
-    }
-
-    public void addIcmSetFromSet(Set<Long> otherIcmSet) {
-        Iterator<Long> iter = otherIcmSet.iterator();
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            this.icmSet.add(curIcm.toString());
-        }
-    }
-
     // 添加 class->value 边
     public void addC2VEdge(ClassToValueEdge c2vEdge) {
         ctvEdges.add(c2vEdge);
@@ -118,15 +100,6 @@ public class ValueNode implements Vertex {
     // 添加 relationship->value 边
     public void addR2VEdge(RelationToValueEdge r2vEdge) {
         this.rtvEdges.add(r2vEdge);
-    }
-
-    // 添加 icm id
-    public void addIcmId(Long icmId) {
-        this.icmSet.add(icmId.toString());
-    }
-
-    public void removeIcmId(Long icmId) {
-        this.icmSet.remove(icmId.toString());
     }
 
     public Long getId() {
@@ -151,21 +124,6 @@ public class ValueNode implements Vertex {
 
     public Set<RelationToValueEdge> getRtvEdges() {
         return rtvEdges;
-    }
-
-    public Set<Long> getIcmSet() {
-        Set<Long> ret = new HashSet<>();
-        for (String elem : this.icmSet) {
-            ret.add(Long.parseLong(elem, 10));
-        }
-        return ret;
-    }
-
-    public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet.clear();
-        for (Long elem : icmSet) {
-            this.icmSet.add(elem.toString());
-        }
     }
 
     public double getBiEntropyValue() {

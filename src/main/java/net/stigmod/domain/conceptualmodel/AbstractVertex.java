@@ -9,27 +9,12 @@
 
 package net.stigmod.domain.conceptualmodel;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Shijun Wang
- * @version 2016/3/2
+ * @version 2016/3/4
  */
-public interface ConceptualModelElement {
-
-    void removeIcmId(Long icmId);
-
-    void removeIcmSetFromSet(Set<Long> otherIcmSet);
-
-    void addIcmSetFromSet(Set<Long> otherIcmSet);
-
-    Set<Long> getIcmSet();
-
-    void setIcmSet(Set<Long> icmSet);
-
-    // 添加 icm id
-    void addIcmId(Long icmId);
-
-    // 统计引用用户数
-    long countIcmNum();
+public abstract class AbstractVertex extends AbstractConceptualModelElement implements Vertex {
 }

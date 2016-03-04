@@ -24,12 +24,9 @@ import java.util.Set;
  * @version 2015/11/10
  */
 @NodeEntity(label = "Class")
-public class ClassNode implements Vertex {
+public class ClassNode extends AbstractVertex {
     @GraphId
     private Long id;
-
-    @Property(name="icm_list")
-    private Set<String> icmSet = new HashSet<>();
 
 //    private double orgEntropyValue;//这个表示没有乘上用户数前的节点熵值
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值(这是orgE*num后的结果)
@@ -47,6 +44,7 @@ public class ClassNode implements Vertex {
     private Set<ClassToValueEdge> ctvEdges = new HashSet<>();
 
     public ClassNode(){
+//        super();
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;
@@ -97,46 +95,6 @@ public class ClassNode implements Vertex {
     // 添加 relationship->class 边
     public void addR2CEdge(RelationToClassEdge r2cEdge) {
         this.rtcEdges.add(r2cEdge);
-    }
-
-    // 添加 icm id
-    public void addIcmId(Long icmId) {
-        this.icmSet.add(icmId.toString());
-    }
-
-    public void removeIcmId(Long icmId) {
-        this.icmSet.remove(icmId.toString());
-    }
-
-    public void removeIcmSetFromSet(Set<Long> otherIcmSet) {
-        Iterator<Long> iter = otherIcmSet.iterator();
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            this.icmSet.remove(curIcm.toString());
-        }
-    }
-
-    public void addIcmSetFromSet(Set<Long> otherIcmSet) {
-        Iterator<Long> iter = otherIcmSet.iterator();
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            this.icmSet.add(curIcm.toString());
-        }
-    }
-
-    public Set<Long> getIcmSet() {
-        Set<Long> ret = new HashSet<>();
-        for (String elem : this.icmSet) {
-            ret.add(Long.parseLong(elem, 10));
-        }
-        return ret;
-    }
-
-    public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet.clear();
-        for (Long elem : icmSet) {
-            this.icmSet.add(elem.toString());
-        }
     }
 
     public Set<RelationToClassEdge> getRtcEdges() {

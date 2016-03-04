@@ -26,13 +26,10 @@ import java.util.Set;
  */
 
 @NodeEntity(label = "Relationship")
-public class RelationNode implements Vertex {
+public class RelationNode extends AbstractVertex {
 
     @GraphId
     private Long id;
-
-    @Property(name="icm_list")
-    private Set<String> icmSet = new HashSet<>();
 
 //    private double orgEntropyValue;//表示没有乘用户数之前的节点熵值
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值
@@ -42,6 +39,7 @@ public class RelationNode implements Vertex {
     private Long ccmId;
 
     public RelationNode() {
+//        super();
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;
@@ -82,31 +80,6 @@ public class RelationNode implements Vertex {
         this.rtvEdges.add(r2vEdge);
     }
 
-    public void removeIcmSetFromSet(Set<Long> otherIcmSet) {
-        Iterator<Long> iter = otherIcmSet.iterator();
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            this.icmSet.remove(curIcm.toString());
-        }
-    }
-
-    public void addIcmSetFromSet(Set<Long> otherIcmSet) {
-        Iterator<Long> iter = otherIcmSet.iterator();
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            this.icmSet.add(curIcm.toString());
-        }
-    }
-
-    // 添加 icm id
-    public void addIcmId(Long icmId) {
-        this.icmSet.add(icmId.toString());
-    }
-
-    public void removeIcmId(Long icmId) {
-        this.icmSet.remove(icmId.toString());
-    }
-
     public Long getId() {
         return id;
     }
@@ -125,21 +98,6 @@ public class RelationNode implements Vertex {
 
     public Set<RelationToClassEdge> getRtcEdges() {
         return rtcEdges;
-    }
-
-    public Set<Long> getIcmSet() {
-        Set<Long> ret = new HashSet<>();
-        for (String elem : this.icmSet) {
-            ret.add(Long.parseLong(elem, 10));
-        }
-        return ret;
-    }
-
-    public void setIcmSet(Set<Long> icmSet) {
-        this.icmSet.clear();
-        for (Long elem : icmSet) {
-            this.icmSet.add(elem.toString());
-        }
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {

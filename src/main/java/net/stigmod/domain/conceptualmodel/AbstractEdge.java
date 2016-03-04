@@ -9,11 +9,14 @@
 
 package net.stigmod.domain.conceptualmodel;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Shijun Wang
  * @version 2016/3/3
  */
-public abstract class AbstractEdge implements Edge {
+public abstract class AbstractEdge extends AbstractConceptualModelElement implements Edge {
 
     protected String port;
     protected String name;

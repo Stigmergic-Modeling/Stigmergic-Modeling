@@ -26,16 +26,20 @@ import java.util.List;
 public interface ClassNodeRepository extends GraphRepository<ClassNode>{
 
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
-            "WHERE str({icmId}) IN class.icm_list AND str({icmId}) IN r.icm_list " +
+            "WHERE toString({icmId}) IN class.icmSet AND toString({icmId}) IN r.icmSet " +
             "RETURN class")
     ClassNode getOneByName(@Param("ccmId") Long ccmId,
                            @Param("icmId") Long icmId,
                            @Param("className") String className);
 
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
-            "WHERE str({icmId}) IN class.icm_list AND str({icmId}) IN r.icm_list " +
+            "WHERE toString({icmId}) IN class.icmSet AND toString({icmId}) IN r.icmSet " +
             "RETURN class")
     List<ClassNode> getByName(@Param("ccmId") Long ccmId,
                               @Param("icmId") Long icmId,
                               @Param("className") String className);
+
+    @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) RETURN class")  // 不要求该类节点在 ICM 中存在
+    List<ClassNode> getAllByName(@Param("ccmId") Long ccmId,
+                                 @Param("className") String className);
 }
