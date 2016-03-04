@@ -10,7 +10,6 @@
 package net.stigmod.repository.node;
 
 import net.stigmod.domain.conceptualmodel.ClassNode;
-import net.stigmod.domain.conceptualmodel.ConceptualModelElement;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
@@ -29,18 +28,18 @@ public interface ClassNodeRepository extends GraphRepository<ClassNode>{
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
             "WHERE toString({icmId}) IN class.icmSet AND toString({icmId}) IN r.icmSet " +
             "RETURN class")
-    ConceptualModelElement getOneByName(@Param("ccmId") Long ccmId,
+    ClassNode getOneByName(@Param("ccmId") Long ccmId,
                            @Param("icmId") Long icmId,
                            @Param("className") String className);
 
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
             "WHERE toString({icmId}) IN class.icmSet AND toString({icmId}) IN r.icmSet " +
             "RETURN class")
-    Iterable<ConceptualModelElement> getByName(@Param("ccmId") Long ccmId,
+    List<ClassNode> getByName(@Param("ccmId") Long ccmId,
                               @Param("icmId") Long icmId,
                               @Param("className") String className);
 
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) RETURN class")  // 不要求该类节点在 ICM 中存在
-    Iterable<ConceptualModelElement> getAllByName(@Param("ccmId") Long ccmId,
+    List<ClassNode> getAllByName(@Param("ccmId") Long ccmId,
                                  @Param("className") String className);
 }
