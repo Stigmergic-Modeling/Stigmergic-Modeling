@@ -29,6 +29,7 @@ import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -224,7 +225,7 @@ public class WorkspaceService {
                  */
 
                 // 获取 class node （一定存在于 ICM 中）
-                ClassNode classNode = classNodeRepository.getOneByName(ccmId, icmId, className);
+                ClassNode classNode = (ClassNode) classNodeRepository.getOneByName(ccmId, icmId, className);
                 assert classNode != null;
                 boolean isFreshCreation = addingType.equals("fresh");
 
@@ -383,8 +384,8 @@ public class WorkspaceService {
                     case "class":   // 关系两端的类
 
                         // 获取关系两端的 class node (必定存在于 ICM 中)
-                        ClassNode classNodeE0 = classNodeRepository.getOneByName(ccmId, icmId, propertyValueE0);
-                        ClassNode classNodeE1 = classNodeRepository.getOneByName(ccmId, icmId, propertyValueE1);
+                        ClassNode classNodeE0 = (ClassNode) classNodeRepository.getOneByName(ccmId, icmId, propertyValueE0);
+                        ClassNode classNodeE1 = (ClassNode) classNodeRepository.getOneByName(ccmId, icmId, propertyValueE1);
                         assert classNodeE0 != null && classNodeE1 != null;
 
                         // 添加 r2cEdge
@@ -501,14 +502,14 @@ public class WorkspaceService {
 
         // 获取 class node
         if (valueNodeExists) {
-            List<ClassNode> classNodes = classNodeRepository.getByName(ccmId, icmId, className);
+            Collection<ConceptualModelElement> classNodes = (Collection<ConceptualModelElement>) classNodeRepository.getByName(ccmId, icmId, className);
             if (!classNodes.isEmpty()) {  // ICM 中有类节点，直接返回
-                return new Pair<>(classNodes.get(0), true);
+                return new Pair<>((ClassNode) ((List<ConceptualModelElement>) classNodes).get(0), true);
             } else {
-                classNodes = classNodeRepository.getAllByName(ccmId, className);
+                classNodes = (Collection<ConceptualModelElement>) classNodeRepository.getAllByName(ccmId, className);
                 if (!classNodes.isEmpty()) {  // CCM 中有类节点，将 icmId 加入后返回
-//                    ClassNode classNode = this.findTheMostReferencedElement(classNodes);
-                    ClassNode classNode = classNodes.get(0);
+                    ClassNode classNode = (ClassNode) this.findTheMostReferencedElement(classNodes);
+//                    ClassNode classNode = classNodes.get(0);
                     classNode.addIcmId(icmId);
                     classNodeRepository.save(classNode);  // class node
                     ClassToValueEdge c2vEdge = (ClassToValueEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, classNode.getId(), valueNode.getId(), "", "name");
@@ -531,25 +532,25 @@ public class WorkspaceService {
         return new Pair<>(classNode, false);
     }
 
-//    /**
-//     * 返回引用最多的元素
-//     * @param elements
-//     * @return
-//     */
-//    private ConceptualModelElement findTheMostReferencedElement(List<ConceptualModelElement> elements) {
-//
-//        ConceptualModelElement ret = null;
-//        long baseNum = 0L;
-//
-//        for (ConceptualModelElement element : elements) {
-//            long icmNum = element.countIcmNum();
-//            if (icmNum > baseNum) {
-//                baseNum = icmNum;
-//                ret = element;
-//            }
-//        }
-//        return ret;
-//    }
+    /**
+     * 返回引用最多的元素
+     * @param elements
+     * @return
+     */
+    private ConceptualModelElement findTheMostReferencedElement(Iterable<ConceptualModelElement> elements) {
+
+        ConceptualModelElement ret = null;
+        long baseNum = 0L;
+
+        for (ConceptualModelElement element : elements) {
+            long icmNum = element.countIcmNum();
+            if (icmNum > baseNum) {
+                baseNum = icmNum;
+                ret = element;
+            }
+        }
+        return ret;
+    }
 
     /**
      * 在关系节点和类节点间创建边，此边可能已经存在于 CCM 中
