@@ -525,6 +525,8 @@ public class WorkspaceService {
         classNode.addC2VEdge(c2vEdge);
         valueNode.addC2VEdge(c2vEdge);
         edgeRepository.save(c2vEdge); // 保存
+        classNodeRepository.save(classNode);  // 边和端点分别保存下，防止保存不及时
+        valueNodeRepository.save(valueNode);  // 边和端点分别保存下，防止保存不及时
 
         return new Pair<>(classNode, false);
     }
@@ -579,6 +581,8 @@ public class WorkspaceService {
             classNode.addR2CEdge(r2cEdge);
         }
         edgeRepository.save(r2cEdge);  // 若用 neo4jTemplate.save()，则可能导致保存不及时
+        relationNodeRepository.save(relationNode);  // 边和端点分别保存下，防止保存不及时
+        classNodeRepository.save(classNode);  // 边和端点分别保存下，防止保存不及时
     }
 
     /**
@@ -614,6 +618,8 @@ public class WorkspaceService {
             valueNode.addR2VEdge(r2trueEdge);
         }
         edgeRepository.save(r2trueEdge);  // 若用 neo4jTemplate.save()，则可能导致保存不及时
+        relationNodeRepository.save(relationNode);  // 边和端点分别保存下，防止保存不及时
+        valueNodeRepository.save(valueNode);  // 边和端点分别保存下，防止保存不及时
     }
 
     /**
