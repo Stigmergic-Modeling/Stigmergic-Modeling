@@ -15,6 +15,9 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Kai Fu
  * @author Shijun Wang
@@ -42,4 +45,30 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
                                                 @Param("icmId") Long icmId,
                                                 @Param("className") String className,
                                                 @Param("attributeName") String attributeName);
+
+    @Query("MATCH (relationship:Relationship)-[edge:PROPERTY]->(value:Value {name:'true'}) " +
+            "WHERE edge.port='' " +
+            "AND NOT edge.name='name' " +
+            "AND toString({icmId}) IN relationship.icmSet " +
+            "AND toString({icmId}) IN edge.icmSet " +
+            "AND toString({icmId}) IN value.icmSet " +
+            "RETURN id(relationship) as relationshipId, edge.name as relationshipType")
+    List<Map<String, Object>> getAllRelationshipsAndTypesByIcmId(@Param("icmId") Long icmId);
+
+    @Query("MATCH (relationship:Relationship)-[edge:PROPERTY]->(value:Value) " +
+            "WHERE id(relationship)={relationshipId} " +
+            "AND toString({icmId}) IN relationship.icmSet " +
+            "AND toString({icmId}) IN edge.icmSet " +
+            "AND toString({icmId}) IN value.icmSet " +
+            "RETURN edge.port as port, edge.name as propertyName, value.name as propertyValue")
+    List<Map<String, Object>> getAllRelationshipPropertiesByIcmIdAndRelationshipId(@Param("icmId") Long icmId, @Param("relationshipId") Long relationshipId);
+
+    @Query("MATCH (relationship:Relationship)-[edge:E_CLASS {name: 'class'}]->(class:Class)-[:PROPERTY]->(value:Value) " +
+            "WHERE id(relationship)={relationshipId} " +
+            "AND toString({icmId}) IN relationship.icmSet " +
+            "AND toString({icmId}) IN edge.icmSet " +
+            "AND toString({icmId}) IN class.icmSet " +
+            "AND toString({icmId}) IN value.icmSet " +
+            "RETURN edge.port as port, value.name as propertyValue")
+    List<Map<String, Object>> getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(@Param("icmId") Long icmId, @Param("relationshipId") Long relationshipId);
 }

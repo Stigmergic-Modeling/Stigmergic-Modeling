@@ -205,10 +205,30 @@ define(function (require, exports, module) {
 
         // 如果传入了参数，则用传入参数初始化模型
         if (arguments.length > 0) {
-            this[0] = JSON.parse(JSON.stringify(modelPassIn[0]));
-            this[1] = JSON.parse(JSON.stringify(modelPassIn[1]));
-            this[2] = JSON.parse(JSON.stringify(modelPassIn[2]));
-            this[3] = JSON.parse(JSON.stringify(modelPassIn[3]));
+            this[0] = JSON.parse(JSON.stringify(modelPassIn.classes));
+            this[1] = JSON.parse(JSON.stringify(modelPassIn.relationshipGroups));
+            this[2] = JSON.parse(JSON.stringify(modelPassIn.name2IdMapping));
+            this[3] = JSON.parse(JSON.stringify(modelPassIn.id2IdMapping));
+
+            // 将后端格式转化为前端格式
+            for (var key in this[0]) {
+                if (this[0].hasOwnProperty(key)) {
+                    var tempClassInIcm = this[0][key];
+                    tempClassInIcm[0] = tempClassInIcm.attributes;
+                    tempClassInIcm[1] = tempClassInIcm.order;
+                    delete tempClassInIcm.attributes;
+                    delete tempClassInIcm.order;
+                }
+            }
+            for (key in this[1]) {
+                if (this[1].hasOwnProperty(key)) {
+                    var tempRelGrpInIcm = this[1][key];
+                    tempRelGrpInIcm[0] = tempRelGrpInIcm.relationships;
+                    tempRelGrpInIcm[1] = tempRelGrpInIcm.order;
+                    delete tempRelGrpInIcm.relationships;
+                    delete tempRelGrpInIcm.order;
+                }
+            }
         }
 
         // 使用动态原型模式，在构造函数内部定义原型方法

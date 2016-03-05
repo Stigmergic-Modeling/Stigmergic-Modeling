@@ -27,9 +27,6 @@ import java.util.Set;
 @NodeEntity(label = "Value")
 public class ValueNode extends AbstractVertex {
 
-    @GraphId
-    private Long id;
-
     @Property(name="name")
     private String name;
 
@@ -100,14 +97,6 @@ public class ValueNode extends AbstractVertex {
     // 添加 relationship->value 边
     public void addR2VEdge(RelationToValueEdge r2vEdge) {
         this.rtvEdges.add(r2vEdge);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

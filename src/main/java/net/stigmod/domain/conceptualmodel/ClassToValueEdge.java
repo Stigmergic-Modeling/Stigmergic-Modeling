@@ -23,9 +23,6 @@ import java.util.Set;
 @RelationshipEntity(type="PROPERTY")
 public class ClassToValueEdge extends AbstractEdge {
 
-    @GraphId
-    private Long id;
-
     @StartNode
     private ClassNode starter;
 
@@ -81,10 +78,6 @@ public class ClassToValueEdge extends AbstractEdge {
         this.setIcmSet(classToValueEdge.getIcmSet());//其他的要保持不变
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public ClassNode getStarter() {
         return starter;
     }
@@ -123,9 +116,5 @@ public class ClassToValueEdge extends AbstractEdge {
 
     public void setIsChanged(boolean isChanged) {
         this.isChanged = isChanged;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }

@@ -25,8 +25,6 @@ import java.util.Set;
  */
 @NodeEntity(label = "Class")
 public class ClassNode extends AbstractVertex {
-    @GraphId
-    private Long id;
 
 //    private double orgEntropyValue;//这个表示没有乘上用户数前的节点熵值
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值(这是orgE*num后的结果)
@@ -105,10 +103,6 @@ public class ClassNode extends AbstractVertex {
         return ctvEdges;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public double getBiEntropyValue() {
         return biEntropyValue;
     }
@@ -123,10 +117,6 @@ public class ClassNode extends AbstractVertex {
 
     public void setCcmId(Long ccmId) {
         this.ccmId = ccmId;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public int getLoc() {

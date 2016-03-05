@@ -12,25 +12,21 @@ package net.stigmod.service;
 import com.google.gson.Gson;
 import javafx.util.Pair;
 import net.stigmod.domain.conceptualmodel.*;
+import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
 import net.stigmod.domain.system.IndividualConceptualModel;
-import net.stigmod.repository.node.ClassNodeRepository;
-import net.stigmod.repository.node.IndividualConceptualModelRepository;
-import net.stigmod.repository.node.RelationNodeRepository;
-import net.stigmod.repository.node.ValueNodeRepository;
-import net.stigmod.repository.relationship.ClassToVEdgeRepository;
-import net.stigmod.repository.relationship.EdgeRepository;
-import net.stigmod.repository.relationship.RelationToCEdgeRepository;
-import net.stigmod.repository.relationship.RelationToVEdgeRepository;
+import net.stigmod.repository.node.*;
+import net.stigmod.repository.relationship.*;
 import net.stigmod.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Shijun Wang
@@ -64,6 +60,9 @@ public class WorkspaceService {
     private RelationToVEdgeRepository r2vEdgeRepository;
 
     @Autowired
+    private VertexRepository vertexRepository;
+
+    @Autowired
     private EdgeRepository edgeRepository;
 
     /**
@@ -77,11 +76,69 @@ public class WorkspaceService {
     }
 
     /**
+     *
+     * @return
+     */
+    public IcmDetail getIcmDetail(Long icmId) {
+        IcmDetail icmDetail = new IcmDetail();
+
+        // 获取所有的类节点
+        List<Map<String, Object>> classNamesAndIds = classNodeRepository.getAllClassNamesAndIdsByIcmId(icmId);
+        icmDetail.addClasses(classNamesAndIds);
+
+        // 获取所有的关系节点
+        List<Map<String, Object>> relationshipsAndTypes = relationNodeRepository.getAllRelationshipsAndTypesByIcmId(icmId);
+
+        for (Map<String, Object> relationshipAndType : relationshipsAndTypes) {
+            Long relationshipId = ((Integer) relationshipAndType.get("relationshipId")).longValue();
+            String relationshipType = (String) relationshipAndType.get("relationshipType");
+
+            List<Map<String, Object>> classEnds = relationNodeRepository.getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
+            List<Map<String, Object>> relationshipProperties = relationNodeRepository.getAllRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
+
+            if (relationshipType.equals("isAttribute")) {  // 类的属性
+                boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
+                String className = isTheFirstElementEnd0
+                        ? (String) classEnds.get(0).get("propertyValue")
+                        : (String) classEnds.get(1).get("propertyValue");
+                String attributeType = isTheFirstElementEnd0
+                        ? (String) classEnds.get(1).get("propertyValue")
+                        : (String) classEnds.get(0).get("propertyValue");
+                if (attributeType.startsWith("_")) {
+                    attributeType = attributeType.substring(1);  // 若为内置类型，则去掉开头的下划线
+                }
+                String attributeName = null;
+                Map<String, String> propertyAndValues = new HashMap<>();
+                propertyAndValues.put("type", attributeType);
+
+                for (Map<String, Object> relationshipProperty : relationshipProperties) {
+                    if (relationshipProperty.get("port").equals("E1")) {  // E1 端是有有效信息的端
+                        String propertyName = (String) relationshipProperty.get("propertyName");
+                        String key = propertyName.equals("role") ? "name" : propertyName;
+                        if (propertyName.equals("role")) {
+                            attributeName = (String) relationshipProperty.get("propertyValue");
+                        }
+                        propertyAndValues.put(key, (String) relationshipProperty.get("propertyValue"));
+                    }
+                }
+
+                // 添加类的属性
+                icmDetail.addAttribute(className, attributeName, relationshipId, propertyAndValues);
+
+            } else {  // 类间的关系
+
+            }
+        }
+
+        return icmDetail;
+    }
+
+    /**
      * 将 JSON 字符串转换为 ModelingOperationLog 对象
      * @param molJsonString 字符串形式的 LOG
      * @return 对象形式的 LOG
      */
-    public ModelingOperationLog constructMOL(String molJsonString) {
+    private ModelingOperationLog constructMOL(String molJsonString) {
         Gson gson = new Gson();
         return gson.fromJson(molJsonString, ModelingOperationLog.class);
     }
@@ -91,7 +148,7 @@ public class WorkspaceService {
      * @param mol 前端传回来的操作日志
      */
     @Transactional
-    public ModelingResponse executeMOL(ModelingOperationLog mol) {
+    private ModelingResponse executeMOL(ModelingOperationLog mol) {
         List<List<String>> ops = mol.log;
         Long ccmId = mol.ccmId;
         Long icmId = mol.icmId;
@@ -155,7 +212,7 @@ public class WorkspaceService {
      * @param op 一条操作
      */
     @Transactional
-    public void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
+    private void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
 
         // 注意，op 的第一个元素是 Date
         if (op.get(1).equals("ADD")) {
