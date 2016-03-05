@@ -85,7 +85,7 @@ public class MigrateHandlerImplTests3 {
                     ValueNode mainRoleVNode;//该class类的role
                     if(valueListMap.containsKey(cValueNodeName)) {//class节点对每个用户而言不同,但value节点对每个用户相同
                         valueNode = valueNodeList.get(valueListMap.get(cValueNodeName));
-                        valueNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                        valueNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                     }else {
                         valueNode = new ValueNode();//这个是class对应得value节点
                         constructVNode(valueNode,valueListMap,c++,0l,curSet,cValueNodeName);
@@ -93,7 +93,7 @@ public class MigrateHandlerImplTests3 {
 
                     if(valueListMap.containsKey(lowerCValueNodeName)) {
                         mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
-                        mainRoleVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                        mainRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                     }else {
                         mainRoleVNode = new ValueNode();//这个是针对该类的role
                         constructVNode(mainRoleVNode,valueListMap,c++,0l,curSet,lowerCValueNodeName);
@@ -118,11 +118,11 @@ public class MigrateHandlerImplTests3 {
                         }
                         String typeName = subStrs[1];
                         ClassNode otherCNode;
-                        ValueNode otherVNode;
+                        ValueNode otherVNode;//只在otherCNode到otherVNode有用
 
                         if(valueListMap.containsKey(typeName)) {
                             otherVNode = valueNodeList.get(valueListMap.get(typeName));
-                            otherVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                            otherVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                         }else {
                             otherVNode = new ValueNode();
                             constructVNode(otherVNode,valueListMap,c++,0l,curSet,typeName);
@@ -130,9 +130,8 @@ public class MigrateHandlerImplTests3 {
 
                         if(classListMap.containsKey(typeName)) {
                             otherCNode = classNodeList.get(classListMap.get(typeName));
-                            otherCNode.getIcmSet().addAll(new HashSet<Long>(curSet));
-
-                            otherCNode.getCtvEdges().iterator().next().getIcmSet().addAll(new HashSet<Long>(curSet));
+                            otherCNode.addIcmSetFromSet(new HashSet<Long>(curSet));
+                            otherCNode.getCtvEdges().iterator().next().addIcmSetFromSet(new HashSet<Long>(curSet));
                         }else {
                             otherCNode = new ClassNode();
                             otherCNode.setId(c++);
@@ -152,7 +151,7 @@ public class MigrateHandlerImplTests3 {
                         ValueNode roleVNode;
                         if(valueListMap.containsKey(attrRole)) {
                             roleVNode = valueNodeList.get(valueListMap.get(attrRole));
-                            roleVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                            roleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                         }else {
                             roleVNode = new ValueNode();
                             constructVNode(roleVNode,valueListMap,c++,0l,curSet,attrRole);
@@ -166,11 +165,11 @@ public class MigrateHandlerImplTests3 {
                         relationNodeList.add(relationNode1);
 
                         ValueNode attrMultiVNode = null;
-                        ValueNode classMultiVNode = valueNodeList.get(valueListMap.get("*"));
+                        ValueNode classMultiVNode = valueNodeList.get(valueListMap.get("1"));
                         if(attrMulti.equals("")) attrMultiVNode = valueNodeList.get(valueListMap.get("1"));
                         else attrMultiVNode = valueNodeList.get(valueListMap.get("*"));
-                        attrMultiVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
-                        classMultiVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                        attrMultiVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
+                        classMultiVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
 
                         RelationToClassEdge rtcEdge1 = new RelationToClassEdge("e0","class",relationNode1,classNode);
                         rtcEdge1.setIcmSet(new HashSet<Long>(curSet));
@@ -192,6 +191,7 @@ public class MigrateHandlerImplTests3 {
                         rtvEdge2.setCcmId(0l);
                         relationNode1.getRtvEdges().add(rtvEdge2);
                         classMultiVNode.getRtvEdges().add(rtvEdge2);
+                        classMultiVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
 
                         //下面是e1端
 
@@ -202,12 +202,12 @@ public class MigrateHandlerImplTests3 {
                         relationNode1.getRtcEdges().add(rtcEdge2);
                         otherCNode.getRtcEdges().add(rtcEdge2);
 
-                        RelationToValueEdge rtvEdge3 = new RelationToValueEdge("e1","role",relationNode1,otherVNode);
+                        RelationToValueEdge rtvEdge3 = new RelationToValueEdge("e1","role",relationNode1,roleVNode);
                         rtvEdge3.setIcmSet(new HashSet<Long>(curSet));
                         rtvEdge3.setId(c++);
                         rtvEdge3.setCcmId(0l);
                         relationNode1.getRtvEdges().add(rtvEdge3);
-                        otherVNode.getRtvEdges().add(rtvEdge3);
+                        roleVNode.getRtvEdges().add(rtvEdge3);
 
                         RelationToValueEdge rtvEdge4 = new RelationToValueEdge("e1","multi",relationNode1,attrMultiVNode);
                         rtvEdge4.setIcmSet(new HashSet<Long>(curSet));
@@ -215,6 +215,7 @@ public class MigrateHandlerImplTests3 {
                         rtvEdge4.setCcmId(0l);
                         relationNode1.getRtvEdges().add(rtvEdge4);
                         attrMultiVNode.getRtvEdges().add(rtvEdge4);
+                        attrMultiVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
 
                         //下面是一个指向true节点的isAttribute边
                         RelationToValueEdge rtvEdge5 = new RelationToValueEdge("","isAttribute",relationNode1,
@@ -224,6 +225,7 @@ public class MigrateHandlerImplTests3 {
                         rtvEdge5.setCcmId(0l);
                         relationNode1.getRtvEdges().add(rtvEdge5);
                         valueNodeList.get(valueListMap.get("true")).getRtvEdges().add(rtvEdge5);
+                        valueNodeList.get(valueListMap.get("true")).addIcmSetFromSet(new HashSet<Long>(curSet));
                     }
 
                 }else {
@@ -272,14 +274,14 @@ public class MigrateHandlerImplTests3 {
                         if(roles!=null) {
                             if(valueListMap.containsKey(roles[0])) {
                                 startRoleVNode = valueNodeList.get(valueListMap.get(roles[0]));
-                                startRoleVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                                startRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                             }else {//说明系统中没有这个value节点
                                 startRoleVNode = new ValueNode();
                                 constructVNode(startRoleVNode,valueListMap,c++,0l,curSet,roles[0]);
                             }
                             if(valueListMap.containsKey(roles[1])) {
                                 endRoleVNode = valueNodeList.get(valueListMap.get(roles[1]));
-                                endRoleVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                                endRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                             }else {
                                 endRoleVNode = new ValueNode();
                                 constructVNode(endRoleVNode,valueListMap,c++,0l,curSet,roles[1]);
@@ -309,8 +311,8 @@ public class MigrateHandlerImplTests3 {
 //                        System.out.println("multis: "+strs[3]);
                         ValueNode startMultiVNode = valueNodeList.get(valueListMap.get(multis[0]));
                         ValueNode endMultiVNode = valueNodeList.get(valueListMap.get(multis[1]));
-                        startMultiVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
-                        endMultiVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                        startMultiVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
+                        endMultiVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
 
                         RelationToValueEdge rtvEdge2 = new RelationToValueEdge("e0","multi",relationNode,startMultiVNode);
                         rtvEdge2.setId(c++);
@@ -332,7 +334,7 @@ public class MigrateHandlerImplTests3 {
                         ValueNode relationNameVNode = null;
                         if(valueListMap.containsKey(relationName)) {
                             relationNameVNode = valueNodeList.get(valueListMap.get(relationName));
-                            relationNameVNode.getIcmSet().addAll(new HashSet<Long>(curSet));
+                            relationNameVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
                         }else {
                             relationNameVNode = new ValueNode();
                             constructVNode(relationNameVNode,valueListMap,c++,0l,curSet,relationName);
@@ -364,6 +366,7 @@ public class MigrateHandlerImplTests3 {
                     rtvEdge6.setCcmId(0l);
                     relationNode.getRtvEdges().add(rtvEdge6);
                     valueNodeList.get(valueListMap.get("true")).getRtvEdges().add(rtvEdge6);
+                    valueNodeList.get(valueListMap.get("true")).addIcmSetFromSet(new HashSet<Long>(curSet));
                 }
             }else {
                 curUId=curUId+1;
