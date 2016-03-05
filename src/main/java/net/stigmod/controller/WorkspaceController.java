@@ -89,7 +89,7 @@ public class WorkspaceController {
         } catch (Exception e) {
             model.addAttribute("error", e);
             model.addAttribute("title", "user");
-            return "user";
+            return "workspace";
         }
     }
 

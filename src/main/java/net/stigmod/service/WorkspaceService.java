@@ -35,8 +35,8 @@ import java.util.Map;
 @Service
 public class WorkspaceService {
 
-    @Autowired
-    private Neo4jOperations neo4jTemplate;
+//    @Autowired
+//    private Neo4jOperations neo4jTemplate;
 
     @Autowired
     private IndividualConceptualModelRepository icmRepository;
@@ -50,20 +50,25 @@ public class WorkspaceService {
     @Autowired
     private ValueNodeRepository valueNodeRepository;
 
-    @Autowired
-    private ClassToVEdgeRepository c2vEdgeRepository;
-
-    @Autowired
-    private RelationToCEdgeRepository r2cEdgeRepository;
-
-    @Autowired
-    private RelationToVEdgeRepository r2vEdgeRepository;
-
-    @Autowired
-    private VertexRepository vertexRepository;
+//    @Autowired
+//    private ClassToVEdgeRepository c2vEdgeRepository;
+//
+//    @Autowired
+//    private RelationToCEdgeRepository r2cEdgeRepository;
+//
+//    @Autowired
+//    private RelationToVEdgeRepository r2vEdgeRepository;
+//
+//    @Autowired
+//    private VertexRepository vertexRepository;
 
     @Autowired
     private EdgeRepository edgeRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+
 
     /**
      * 从前端向后端同步建模结果
@@ -130,6 +135,12 @@ public class WorkspaceService {
             }
         }
 
+        // 添加 Orders
+        List<Order> attributeOrders = orderRepository.getByIcmIdAndType(icmId, "AttOdr");
+        icmDetail.addAttributeOrders(attributeOrders);
+        List<Order> relationshipOrders = orderRepository.getByIcmIdAndType(icmId, "RelOdr");
+        icmDetail.addRelationshipOrders(relationshipOrders);
+
         return icmDetail;
     }
 
@@ -150,13 +161,33 @@ public class WorkspaceService {
     @Transactional
     private ModelingResponse executeMOL(ModelingOperationLog mol) {
         List<List<String>> ops = mol.log;
+        ModelingOperationLog.OrderChanges orderChanges = mol.orderChanges;
         Long ccmId = mol.ccmId;
         Long icmId = mol.icmId;
         ModelingResponse modelingResponse = new ModelingResponse();
         IndividualConceptualModel icm = icmRepository.findOne(icmId);
 
+        // 操作序列
         for (List<String> op : ops) {
             executeOP(op, ccmId, icmId, modelingResponse, icm);
+        }
+
+        // 顺序改变 (attribute) (可考虑与下面的 relationship 合并！)
+        for (Map.Entry<String, List<String>> attributeOrderChanges : orderChanges.classes.entrySet()) {
+            String name = attributeOrderChanges.getKey();
+            List<String> orderList = attributeOrderChanges.getValue();
+            Order order = this.getOrder(icmId, "AttOdr", name);
+            order.setOrderList(orderList);
+            orderRepository.save(order);
+        }
+
+        // 顺序改变 (relationship)
+        for (Map.Entry<String, List<String>> attributeOrderChanges : orderChanges.relationGroups.entrySet()) {
+            String name = attributeOrderChanges.getKey();
+            List<String> orderList = attributeOrderChanges.getValue();
+            Order order = this.getOrder(icmId, "RelOdr", name);
+            order.setOrderList(orderList);
+            orderRepository.save(order);
         }
 
         return modelingResponse;
@@ -687,5 +718,21 @@ public class WorkspaceService {
      */
     private Long getNeo4jId(Long icmId, String id) {
         return this.getBackIdFromFrontId(icmId, id);
+    }
+
+    /**
+     * 根据 name 从数据库中获取 Order 对象，若不存在则创建后返回
+     * @param name Order 的名称
+     * @return Order 对象
+     */
+    private Order getOrder(Long icmId, String type, String name) {
+        List<Order> Orders = orderRepository.getByIcmIdAndTypeAndName(icmId, type, name);
+        if (!Orders.isEmpty()) {
+            return Orders.get(0);
+        } else {
+            Order order = new Order(icmId, type, name);
+            orderRepository.save(order);
+            return order;
+        }
     }
 }

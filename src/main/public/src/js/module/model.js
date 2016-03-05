@@ -215,18 +215,18 @@ define(function (require, exports, module) {
                 if (this[0].hasOwnProperty(key)) {
                     var tempClassInIcm = this[0][key];
                     tempClassInIcm[0] = tempClassInIcm.attributes;
-                    tempClassInIcm[1] = tempClassInIcm.order;
+                    tempClassInIcm[1] = tempClassInIcm.orderInIcm;
                     delete tempClassInIcm.attributes;
-                    delete tempClassInIcm.order;
+                    delete tempClassInIcm.orderInIcm;
                 }
             }
             for (key in this[1]) {
                 if (this[1].hasOwnProperty(key)) {
                     var tempRelGrpInIcm = this[1][key];
                     tempRelGrpInIcm[0] = tempRelGrpInIcm.relationships;
-                    tempRelGrpInIcm[1] = tempRelGrpInIcm.order;
+                    tempRelGrpInIcm[1] = tempRelGrpInIcm.orderInIcm;
                     delete tempRelGrpInIcm.relationships;
-                    delete tempRelGrpInIcm.order;
+                    delete tempRelGrpInIcm.orderInIcm;
                 }
             }
         }
@@ -917,6 +917,7 @@ define(function (require, exports, module) {
             Model.prototype.modifyRelGrpName = function (oldName, newName) {
 
                 this.modifyNodeName([1], oldName, newName);
+                this.modifyOrderChangeRecord(1, oldName, newName);  // 修改 this.attRelOrderChanged 中的 key
             };
 
             // 修改关系组中的关系的ID

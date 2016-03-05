@@ -9,7 +9,7 @@
 
 package net.stigmod.repository.node;
 
-import net.stigmod.domain.conceptualmodel.Vertex;
+import net.stigmod.domain.conceptualmodel.Order;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
@@ -22,8 +22,12 @@ import java.util.List;
  * @version 2016/3/5
  */
 @Repository
-public interface VertexRepository extends GraphRepository<Vertex> {
+public interface OrderRepository extends GraphRepository<Order> {
 
-    @Query("MATCH (vertex:{label}) WHERE toString({icmId}) in vertex.icmSet RETURN vertex")
-    List<Vertex> getAllByIcmIdAndLabel(@Param("icmId") Long icmId, @Param("label") String label);
+    @Query("MATCH (order:Order {icmId: {icmId}, type: {type}, name: {name}}) RETURN order")
+    List<Order> getByIcmIdAndTypeAndName(@Param("icmId") Long icmId, @Param("type") String type, @Param("name") String name);
+
+    @Query("MATCH (order:Order {icmId: {icmId}, type: {type}}) RETURN order")
+    List<Order> getByIcmIdAndType(@Param("icmId") Long icmId, @Param("type") String type);
+
 }

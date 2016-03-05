@@ -27,7 +27,7 @@ public class ModelingOperationLog {
     public List<List<String>> log;
     public OrderChanges orderChanges;
 
-    class OrderChanges {
+    public class OrderChanges {
         public Map<String, List<String>> classes;
         public Map<String, List<String>> relationGroups;
     }

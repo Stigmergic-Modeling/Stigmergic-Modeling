@@ -10,6 +10,7 @@
 package net.stigmod.domain.info;
 
 import javafx.util.Pair;
+import net.stigmod.domain.conceptualmodel.Order;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,9 +34,11 @@ public class IcmDetail {
     public void addClasses(List<Map<String, Object>> classNamesAndIds) {
         for (Map<String, Object> classNameAndId : classNamesAndIds) {
             String name = (String) classNameAndId.get("className");
-            Long id = ((Integer) classNameAndId.get("classId")).longValue();  // SDN 返回的数字都是 Integer 类型的，不能直接转型成 Long
-            this.classes.put(name, new Clazz());
-            this.name2IdMapping.addClass(name, id);
+            if (!name.startsWith("_")) {  // 前端模型中不需要内置类 _string, _int, _float, _boolean
+                Long id = ((Integer) classNameAndId.get("classId")).longValue();  // SDN 返回的数字都是 Integer 类型的，不能直接转型成 Long
+                this.classes.put(name, new Clazz());
+                this.name2IdMapping.addClass(name, id);
+            }
         }
     }
 
@@ -66,6 +69,20 @@ public class IcmDetail {
         }
     }
 
+    // 添加 attribute 的顺序 List
+    public void addAttributeOrders(List<Order> orders) {
+        for (Order order : orders) {
+            this.classes.get(order.getName()).orderInIcm.order = order.getOrderList();
+        }
+    }
+
+    // 添加 relationship 的顺序 List
+    public void addRelationshipOrders(List<Order> orders) {
+        for (Order order : orders) {
+            this.relationshipGroups.get(order.getName()).orderInIcm.order = order.getOrderList();
+        }
+    }
+
     private String makeRelationshipGroupName(String className0, String className1) {
         if (className0.compareTo(className1) > 0) {
             return className1 + '-' + className0;  // 1 的字典序靠前
@@ -78,7 +95,7 @@ public class IcmDetail {
     public class Clazz {
         // 这 2 个属性在前端需要转换为数组的 2 个元素
         public Map<String, List<Map<String, String>>> attributes = new HashMap<>();  // 这里的 List 是冗余的，为与遗留代码兼容
-        public Order order = new Order();
+        public OrderInIcm orderInIcm = new OrderInIcm();
 
         public void addAttribute(String attributeName) {
             List<Map<String, String>> redundantList = new ArrayList<>();
@@ -94,7 +111,7 @@ public class IcmDetail {
     public class RelationshipGroup {
         // 这 2 个属性在前端需要转换为数组的 2 个元素
         public Map<Long, List<Map<String, Pair<String, String>>>> relationships = new HashMap<>(); // Pair<String, String> 这个类型有待商榷，如果json化时不为数组，则需用List<String>代替
-        public Order order = new Order();
+        public OrderInIcm orderInIcm = new OrderInIcm();
 
         public void addRelationship(Long relationshipId) {
             List<Map<String, Pair<String, String>>> redundantList = new ArrayList<>();
@@ -107,7 +124,7 @@ public class IcmDetail {
         }
     }
 
-    public class Order {  // 这个 Order 类是冗余的，保留的目的是与前端的遗留代码兼容
+    public class OrderInIcm {  // 这个 Order 类是冗余的，保留的目的是与前端的遗留代码兼容
         public List<String> order = new ArrayList<>();
     }
 
