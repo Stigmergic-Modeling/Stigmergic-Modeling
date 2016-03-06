@@ -68,21 +68,9 @@ public class MigrateHandlerImplTests3 {
                 if(strs[0].equals("class")) {
                     String cValueNodeName = strs[2];
 
-                    ClassNode classNode = new ClassNode();
-                    classNode.setIcmSet(new HashSet<Long>(curSet));
-                    classNode.setCcmId(0l);
-                    classNode.setId(c++);
-                    classNodeList.add(classNode);
-                    classListMap.put(cValueNodeName,classNodeList.size()-1);
+                    ClassNode classNode = null;
 
-
-                    String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
-
-//                    if(line.equals("class:5:Cart:productId*_Int")) {
-//                        System.out.println("line: "+line+" ,lowerCValueNodeName: "+lowerCValueNodeName);
-//                    }
-                    ValueNode valueNode;//该class类的valueNode
-                    ValueNode mainRoleVNode;//该class类的role
+                    ValueNode valueNode = null;//该class类的valueNode
                     if(valueListMap.containsKey(cValueNodeName)) {//class节点对每个用户而言不同,但value节点对每个用户相同
                         valueNode = valueNodeList.get(valueListMap.get(cValueNodeName));
                         valueNode.addIcmSetFromSet(new HashSet<Long>(curSet));
@@ -91,6 +79,30 @@ public class MigrateHandlerImplTests3 {
                         constructVNode(valueNode,valueListMap,c++,0l,curSet,cValueNodeName);
                     }
 
+                    if(classListMap.containsKey(cValueNodeName)) {
+                        classNode = classNodeList.get(classListMap.get(cValueNodeName));
+                        classNode.addIcmSetFromSet(new HashSet<Long>(curSet));
+                    }else {
+                        classNode = new ClassNode();
+                        classNode.setIcmSet(new HashSet<Long>(curSet));
+                        classNode.setCcmId(0l);
+                        classNode.setId(c++);
+                        classNodeList.add(classNode);
+                        classListMap.put(cValueNodeName,classNodeList.size()-1);
+
+                        //创建了classNode和valueNode,下面创建ctv这条边
+                        ClassToValueEdge ctvEdge = new ClassToValueEdge("name",classNode,valueNode);
+                        ctvEdge.setId(c++);
+                        ctvEdge.setIcmSet(new HashSet<Long>(curSet));
+                        ctvEdge.setCcmId(0l);
+                        classNode.getCtvEdges().add(ctvEdge);
+                        valueNode.getCtvEdges().add(ctvEdge);
+                    }
+
+
+                    String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
+                    ValueNode mainRoleVNode = null;//该class类的role
+
                     if(valueListMap.containsKey(lowerCValueNodeName)) {
                         mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
                         mainRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
@@ -98,13 +110,6 @@ public class MigrateHandlerImplTests3 {
                         mainRoleVNode = new ValueNode();//这个是针对该类的role
                         constructVNode(mainRoleVNode,valueListMap,c++,0l,curSet,lowerCValueNodeName);
                     }
-                    //创建了classNode和valueNode,下面创建ctv这条边
-                    ClassToValueEdge ctvEdge = new ClassToValueEdge("name",classNode,valueNode);
-                    ctvEdge.setId(c++);
-                    ctvEdge.setIcmSet(new HashSet<Long>(curSet));
-                    ctvEdge.setCcmId(0l);
-                    classNode.getCtvEdges().add(ctvEdge);
-                    valueNode.getCtvEdges().add(ctvEdge);
 
                     //下面是Class节点与它对应的attribute节点的关联
                     for(int i=3;i<strs.length;i++) {
