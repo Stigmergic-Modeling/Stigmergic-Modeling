@@ -568,6 +568,16 @@ public class WorkspaceService {
             case "RMV":
                 switch (opO) {
                     case "CLS": {  // remove a class
+
+                        // RMV CLS class
+                        String className = op.get(3);
+
+                        // 删除与 class 节点相连的 relationship
+
+                        // 删除 class 节点
+
+                        // 删除相应的 Order 节点
+
                         break;
                     }
                     case "ATT": {  // remove an attribute
@@ -597,7 +607,8 @@ public class WorkspaceService {
                         // 删除 relationship 节点本身
                         relationNode.removeIcmId(icmId);
                         relationNodeRepository.save(relationNode);
-                        modelingResponse.addMessage("Remove attribute [" + attributeName + "] from class [" + className + "] successfully.");
+                        modelingResponse.addMessage("Remove attribute [" + attributeName + "] " +
+                                "from class [" + className + "] successfully.");
 
                         break;
                     }
@@ -608,50 +619,10 @@ public class WorkspaceService {
                         String attributeName = op.get(4);
                         String propertyName = op.get(5);
 
-                        RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
-                        relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 以距离 2 重新载入
-
-                        if (propertyName.equals("type")) {  // 要删除 type property，只需删除一条 E1.class 边
-
-                            // 获取关系的 E1.class property 边
-                            RelationToClassEdge r2cEdgeE1 = null;
-                            for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
-                                if (r2cEdge.getIcmSet().contains(icmId) && r2cEdge.getName().equals("class") && r2cEdge.getPort().equals("E1")) {
-                                    r2cEdgeE1 = r2cEdge;
-                                }
-                            }
-                            assert r2cEdgeE1 != null;
-
-                            // 删除其中的 icmId
-                            r2cEdgeE1.removeIcmId(icmId);
-
-                        } else {  // 要删除 type 以外的 property，需删 E0.{propertyName} 边和 E1.{propertyName} 边，及可能删除两边的端点
-
-                            // 获取关系的两条相应的 property 边 （propertyName 不为 "type"）
-                            RelationToValueEdge r2vEdgeE0 = null;
-                            RelationToValueEdge r2vEdgeE1 = null;
-                            for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
-                                if (r2vEdge.getIcmSet().contains(icmId) && r2vEdge.getName().equals(propertyName)) {
-                                    if (r2vEdge.getPort().equals("E0")) {
-                                        r2vEdgeE0 = r2vEdge;
-                                    } else {
-                                        r2vEdgeE1 = r2vEdge;
-                                    }
-                                }
-                            }
-                            assert r2vEdgeE0 != null && r2vEdgeE1 != null;
-
-                            // 删除其中的 icmId
-                            r2vEdgeE0.removeIcmId(icmId);
-                            r2vEdgeE1.removeIcmId(icmId);
-
-                            // 获取两边终点的 value nodes 并尝试删除其中的 icmId
-                            r2vEdgeE0.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
-                            r2vEdgeE1.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
-                        }
-
-                        relationNodeRepository.save(relationNode);
-                        modelingResponse.addMessage("Remove property [" + propertyName + "] from attribute [" + attributeName + "] of class [" + className + "] successfully.");
+                        this.removeProperty(ccmId, icmId, "attribute", className, attributeName, 0L, propertyName);
+                        modelingResponse.addMessage("Remove property [" + propertyName + "] " +
+                                "from attribute [" + attributeName + "] " +
+                                "of class [" + className + "] successfully.");
 
                         break;
                     }
@@ -661,7 +632,18 @@ public class WorkspaceService {
                     case "RLT": {
                         break;
                     }
-                    case "POR": {
+                    case "POR": {  // remove a property of a relationship
+
+                        // RMV POR relationGroup relation property
+                        String relationshipGroupName = op.get(3);
+                        Long relationshipId = this.getNeo4jId(icmId, op.get(4));
+                        String propertyName = op.get(5);
+
+                        this.removeProperty(ccmId, icmId, "relationship", "", "", relationshipId, propertyName);
+                        modelingResponse.addMessage("Remove property [" + propertyName + "] " +
+                                "from relationship [" + relationshipId.toString() + "] " +
+                                "of relationship group [" + relationshipGroupName + "] successfully.");
+
                         break;
                     }
                     default:
@@ -952,5 +934,68 @@ public class WorkspaceService {
             orderRepository.save(order);
             return order;
         }
+    }
+
+    /**
+     * 从 ICM 中移除一个 attribute property 或 relationship property
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @param type "attribute" or "relationship"
+     * @param className 类名
+     * @param attributeName 属性名
+     * @param relationshipId 关系ID
+     * @param propertyName 要移除的特性的名称
+     */
+    private void removeProperty(Long ccmId, Long icmId, String type, String className, String attributeName, Long relationshipId ,String propertyName) {
+
+        // 获取 relationship node
+        RelationNode relationNode;
+        if (type.equals("attribute")) {
+            relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
+            relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 以距离 2 重新载入
+        } else {  // relationship
+            relationNode = relationNodeRepository.findOne(relationshipId, 2);  // 以距离 2 载入
+        }
+
+        if (propertyName.equals("type")) {  // 要删除 attribute 的 type property，只需删除一条 E1.class 边 （relationship 不会删除 type property）
+
+            // 获取关系的 E1.class property 边
+            RelationToClassEdge r2cEdgeE1 = null;
+            for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+                if (r2cEdge.getIcmSet().contains(icmId) && r2cEdge.getName().equals("class") && r2cEdge.getPort().equals("E1")) {
+                    r2cEdgeE1 = r2cEdge;
+                }
+            }
+            assert r2cEdgeE1 != null;
+
+            // 删除其中的 icmId
+            r2cEdgeE1.removeIcmId(icmId);
+
+        } else {  // 要删除 type 以外的 property，需删 E0.{propertyName} 边和 E1.{propertyName} 边，及可能删除两边的端点
+
+            // 获取关系的两条相应的 property 边 （propertyName 不为 "type"）
+            RelationToValueEdge r2vEdgeE0 = null;
+            RelationToValueEdge r2vEdgeE1 = null;
+            for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+                if (r2vEdge.getIcmSet().contains(icmId) && r2vEdge.getName().equals(propertyName)) {
+                    if (r2vEdge.getPort().equals("E0")) {
+                        r2vEdgeE0 = r2vEdge;
+                    } else {
+                        r2vEdgeE1 = r2vEdge;
+                    }
+                }
+            }
+            assert r2vEdgeE0 != null && r2vEdgeE1 != null;
+
+            // 删除其中的 icmId
+            r2vEdgeE0.removeIcmId(icmId);
+            r2vEdgeE1.removeIcmId(icmId);
+
+            // 获取两边终点的 value nodes 并尝试删除其中的 icmId
+            r2vEdgeE0.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
+            r2vEdgeE1.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
+        }
+
+        relationNodeRepository.save(relationNode);
     }
 }
