@@ -606,7 +606,22 @@ public class WorkspaceService {
 
                         break;
                     }
-                    case "RLG": {
+                    case "RLG": {  // remove a relationship group
+
+                        // RMV RLG relationGroup
+                        String relationshipGroupName = op.get(3);
+                        String[] classNames = relationshipGroupName.split("-");
+
+                        // 删除所有在该 relationship group 中的 relationship
+                        List<Long> relationshipIds = relationNodeRepository.getAllRelationshipIdsInRelationshipGroup(icmId, classNames[0], classNames[1]);
+                        for (Number relationshipId : relationshipIds) {  // 这里的 Number 类型和下面的 longValue() 方法调用是为了应付 SDN4 的一个 Long 变为 Integer 的 BUG
+                            this.removeAttributeOrRelationship(ccmId, icmId, "relationship", "", "", relationshipId.longValue());
+                        }
+
+                        // 删除与该 relationship group 对应的 Order 节点
+                        orderRepository.removeByIcmIdAndName(icmId, relationshipGroupName);
+                        modelingResponse.addMessage("Remove relationship group [" + relationshipGroupName + "] successfully.");
+
                         break;
                     }
                     case "RLT": {  // remove a relationship

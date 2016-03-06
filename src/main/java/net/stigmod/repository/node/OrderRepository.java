@@ -30,4 +30,6 @@ public interface OrderRepository extends GraphRepository<Order> {
     @Query("MATCH (order:Order {icmId: {icmId}, type: {type}}) RETURN order")
     List<Order> getByIcmIdAndType(@Param("icmId") Long icmId, @Param("type") String type);
 
+    @Query("MATCH (order:Order {icmId: {icmId}, name: {name}}) DELETE order")
+    void removeByIcmIdAndName(@Param("icmId") Long icmId, @Param("name") String name);
 }
