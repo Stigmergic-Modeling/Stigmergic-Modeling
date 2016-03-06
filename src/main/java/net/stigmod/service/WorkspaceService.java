@@ -349,7 +349,7 @@ public class WorkspaceService {
                             }
                             edgeRepository.save(c2vEdge);
                         }
-                        modelingResponse.addMessage("Add class [" + className + "] finished.");
+                        modelingResponse.addMessage("Add class [" + className + "] successfully.");
 
                         break;
                     }
@@ -405,7 +405,7 @@ public class WorkspaceService {
                             modelingResponse.addIdMapping(attributeId, relationNode.getId());  // 向返回对象中添加映射
                             this.addFrontBackIdMapping(icm, attributeId, relationNode.getId());  // 向 ICM 中添加映射
                         }
-                        modelingResponse.addMessage("Add attribute [" + attributeName + "] to class [" + className + "] finished.");
+                        modelingResponse.addMessage("Add attribute [" + attributeName + "] to class [" + className + "] successfully.");
 
                         /*
                          *  添加 (relationship)-[isAttribute]->(value)
@@ -446,7 +446,7 @@ public class WorkspaceService {
                             modelingResponse.addIdMapping(relationshipId, relationNode.getId());  // 向返回对象中添加映射
                             this.addFrontBackIdMapping(icm, relationshipId, relationNode.getId());  // 向 ICM 中添加映射
                         }
-                        modelingResponse.addMessage("Add relationship [" + relationGroupName + "] finished.");
+                        modelingResponse.addMessage("Add relationship [" + relationGroupName + "] successfully.");
 
                         break;
                     }
@@ -508,7 +508,7 @@ public class WorkspaceService {
                             // 添加 (relationship)-[e1.{propertyName}]->(value)
                             this.addValueNodeAndR2VEdge(ccmId, icmId, "E1", propertyName, relationNode, propertyValueE1);
                         }
-                        modelingResponse.addMessage("Add property [" + propertyName + "] to attribute [" + attributeName + "] of class [" + className + "] finished.");
+                        modelingResponse.addMessage("Add property [" + propertyName + "] to attribute [" + attributeName + "] of class [" + className + "] successfully.");
 
                         break;
                     }
@@ -555,7 +555,7 @@ public class WorkspaceService {
                                 this.addValueNodeAndR2VEdge(ccmId, icmId, "E1", propertyName, relationNode, propertyValueE1);
                                 break;
                         }
-                        modelingResponse.addMessage("Add property [" + propertyName + "] to relationship [" + relationshipId.toString() + "] of relationship group [" + relationGroupName + "] finished.");
+                        modelingResponse.addMessage("Add property [" + propertyName + "] to relationship [" + relationshipId.toString() + "] of relationship group [" + relationGroupName + "] successfully.");
 
                         break;
                     }
@@ -567,10 +567,38 @@ public class WorkspaceService {
                 break;
             case "RMV":
                 switch (opO) {
-                    case "CLS": {  // remove class
+                    case "CLS": {  // remove a class
                         break;
                     }
-                    case "ATT": {
+                    case "ATT": {  // remove an attribute
+
+                        // RMV ATT class attribute
+                        String className = op.get(3);
+                        String attributeName = op.get(4);
+
+                        RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
+                        relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 以距离 2 重新载入
+
+                        // 删除所有 relationship 节点周围的 R2V 边及节点
+                        for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+                            if (r2vEdge.getIcmSet().contains(icmId)) {
+                                r2vEdge.removeIcmId(icmId);  // 删除其中的 icmId
+                                r2vEdge.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);  // 获取两边终点的 value nodes 并尝试删除其中的 icmId
+                            }
+                        }
+
+                        // 删除所有 relationship 节点周围的 R2C 边
+                        for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+                            if (r2cEdge.getIcmSet().contains(icmId)) {
+                                r2cEdge.removeIcmId(icmId);  // 删除其中的 icmId
+                            }
+                        }
+
+                        // 删除 relationship 节点本身
+                        relationNode.removeIcmId(icmId);
+                        relationNodeRepository.save(relationNode);
+                        modelingResponse.addMessage("Remove attribute [" + attributeName + "] from class [" + className + "] successfully.");
+
                         break;
                     }
                     case "POA": {  // remove a property of an attribute
@@ -585,7 +613,7 @@ public class WorkspaceService {
 
                         if (propertyName.equals("type")) {  // 要删除 type property，只需删除一条 E1.class 边
 
-                            // 获取关系的两条相应的 property 边 （propertyName 不为 "type"）
+                            // 获取关系的 E1.class property 边
                             RelationToClassEdge r2cEdgeE1 = null;
                             for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
                                 if (r2cEdge.getIcmSet().contains(icmId) && r2cEdge.getName().equals("class") && r2cEdge.getPort().equals("E1")) {
@@ -623,6 +651,7 @@ public class WorkspaceService {
                         }
 
                         relationNodeRepository.save(relationNode);
+                        modelingResponse.addMessage("Remove property [" + propertyName + "] from attribute [" + attributeName + "] of class [" + className + "] successfully.");
 
                         break;
                     }
