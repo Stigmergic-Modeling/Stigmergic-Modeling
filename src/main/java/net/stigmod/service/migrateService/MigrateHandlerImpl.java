@@ -140,9 +140,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
             iterNum++;
             System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
-//            int[] randomList=randomValue();
+            int[] randomList=randomValue();
 //            int[] randomList={0,41};
-            int[] randomList = {0,57,86,177,158,151,8,248,204,146,250,237,233,126,211,20,201,150,159,48,267,194,253,139,168,143,61,256,40,43,23,271,157,251,136,93,144,63,98,125,183,274,119,28,246,84,196,182,234,83,56,208,118,231,192,243,38,95,117,175,25,172,13,188,49,76,213,222,224,252,142,6,27,239,198,217,259,133,60,130,45,78,137,249,16,235,82,24,9,202,181,113,39,161,238,11,132,255,187,88,89,30,273,148,94,210,244,191,105,116,203,36,184,232,164,129,185,272,223,212,260,241,115,171,226,262,70,176,109,228,53,131,71,75,104,101,41,80,59,34,103,106,120,107,254,218,91,124,108,96,162,195,149,269,122,18,51,258,178,32,275,261,270,81,147,173,12,169,2,112,14,155,135,214,22,90,225,58,44,73,110,29,180,33,265,153,200,266,21,145,64,215,156,50,179,79,128,26,3,207,87,268,35,163,102,47,221,100,247,123,154,46,190,206,74,166,186,65,111,263,229,193,152,66,31,138,99,42,85,67,52,174,127,69,167,92,257,10,5,97,114,220,189,199,236,77,37,197,19,1,68,216,205,219,245,134,54,7,55,15,72,209,242,240,141,165,121,62,17,264,170,4,230,140,227,160};
+//            int[] randomList = {0,57,86,177,158,151,8,248,204,146,250,237,233,126,211,20,201,150,159,48,267,194,253,139,168,143,61,256,40,43,23,271,157,251,136,93,144,63,98,125,183,274,119,28,246,84,196,182,234,83,56,208,118,231,192,243,38,95,117,175,25,172,13,188,49,76,213,222,224,252,142,6,27,239,198,217,259,133,60,130,45,78,137,249,16,235,82,24,9,202,181,113,39,161,238,11,132,255,187,88,89,30,273,148,94,210,244,191,105,116,203,36,184,232,164,129,185,272,223,212,260,241,115,171,226,262,70,176,109,228,53,131,71,75,104,101,41,80,59,34,103,106,120,107,254,218,91,124,108,96,162,195,149,269,122,18,51,258,178,32,275,261,270,81,147,173,12,169,2,112,14,155,135,214,22,90,225,58,44,73,110,29,180,33,265,153,200,266,21,145,64,215,156,50,179,79,128,26,3,207,87,268,35,163,102,47,221,100,247,123,154,46,190,206,74,166,186,65,111,263,229,193,152,66,31,138,99,42,85,67,52,174,127,69,167,92,257,10,5,97,114,220,189,199,236,77,37,197,19,1,68,216,205,219,245,134,54,7,55,15,72,209,242,240,141,165,121,62,17,264,170,4,230,140,227,160};
             int curSum=randomList.length;
 
             for(int i=0;i<curSum;i++) {
@@ -168,7 +168,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     System.out.println("当前测试的熵值为: "+ testE);
                 }
 //
-                if(randValue == 86) {
+                if(randValue == 177) {
                     System.out.println("123");
                 }
 
@@ -788,6 +788,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 recoverEdgeStateForClassNode(targetClassNodeListId);
                 recoverEdgeStateForClassNode(minVarCNodeListId);
                 recoverMigrateClassNode(targetClassNodeListId,minVarCNodeListId);
+                removeRecoverClassNullNode(minVarCNodeListId);
                 systemEntropy = recoverSystemEntropy;
                 this.nodeSum=recoverNodeSum;
             }else {
@@ -821,6 +822,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     recoverEdgeStateForClassNode(targetClassNodeListId);
                     recoverEdgeStateForClassNode(minVarCNodeListId);
                     recoverMigrateClassNode(targetClassNodeListId,minVarCNodeListId);
+                    removeRecoverClassNullNode(minVarCNodeListId);
                     this.nodeSum=recoverNodeSum;
                     systemEntropy = recoverSystemEntropy;
                 }
@@ -1394,6 +1396,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 recoverEdgeStateForRelationNode(targetRelationNodeListId);
                 recoverEdgeStateForRelationNode(minVarRNodeId);
                 recoverMigrateRelationNode(targetRelationNodeListId,minVarRNodeId);
+                removeRecoverRelationNullNode(minVarRNodeId);//去除这边多余的0边
                 systemEntropy = recoverSystemEntropy;
                 this.nodeSum=recoverNodeSum;
             }else {
@@ -1429,6 +1432,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     recoverEdgeStateForRelationNode(targetRelationNodeListId);
                     recoverEdgeStateForRelationNode(minVarRNodeId);
                     recoverMigrateRelationNode(targetRelationNodeListId,minVarRNodeId);
+                    removeRecoverRelationNullNode(minVarRNodeId);//去除这边多余的0边
                     systemEntropy = recoverSystemEntropy;
                     this.nodeSum=recoverNodeSum;
                 }
@@ -1665,6 +1669,23 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
+    private void removeRecoverClassNullNode(int minVarCNodeListId) {
+        if(minVarCNodeListId >= classNodeList.size()) return;
+        ClassNode targetCNode = classNodeList.get(minVarCNodeListId);
+        Set<RelationToClassEdge> rtcList = new HashSet<>(targetCNode.getRtcEdges());
+        Set<ClassToValueEdge> ctvList = new HashSet<>(targetCNode.getCtvEdges());
+        for(RelationToClassEdge rtcEdge : rtcList)
+            if(rtcEdge.getIcmSet().size()==0) {
+                rtcEdge.getStarter().getRtcEdges().remove(rtcEdge);
+                targetCNode.getRtcEdges().remove(rtcEdge);
+            }
+        for(ClassToValueEdge ctvEdge : ctvList)
+            if(ctvEdge.getIcmSet().size()==0) {
+                ctvEdge.getEnder().getCtvEdges().remove(ctvEdge);
+                targetCNode.getCtvEdges().remove(ctvEdge);
+            }
+    }
+
     private void recoverMigrateStateForRelationNode(Long icmId,int targetRelationNodeListId,
                                                     int minVarRNodeListId,boolean isUsedNullNode) {
         RelationNode relationRNode = relationNodeList.get(targetRelationNodeListId);
@@ -1685,6 +1706,23 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
             relationNodeList.remove(relationNodeList.size()-1);
         }
+    }
+
+    private void removeRecoverRelationNullNode(int minVarRNodeListId) {
+        if(minVarRNodeListId >= relationNodeList.size()) return;
+        RelationNode targetRNode = relationNodeList.get(minVarRNodeListId);
+        Set<RelationToClassEdge> rtcList = new HashSet<>(targetRNode.getRtcEdges());
+        Set<RelationToValueEdge> rtvList = new HashSet<>(targetRNode.getRtvEdges());
+        for(RelationToClassEdge rtcEdge : rtcList)
+            if(rtcEdge.getIcmSet().size()==0) {
+                rtcEdge.getEnder().getRtcEdges().remove(rtcEdge);
+                targetRNode.getRtcEdges().remove(rtcEdge);
+            }
+        for(RelationToValueEdge rtvEdge : rtvList)
+            if(rtvEdge.getIcmSet().size()==0) {
+                rtvEdge.getEnder().getRtvEdges().remove(rtvEdge);
+                targetRNode.getRtvEdges().remove(rtvEdge);
+            }
     }
 
     private void recoverEdgeStateForClassNode(int classNodeListId) {
@@ -1836,12 +1874,18 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 if(ctvEdge.getIcmSet().size()>icmSum) {
                     System.out.println("11111111");
                 }
+                if(ctvEdge.getIcmSet().size() == 0) {
+                    System.out.println("11111111");
+                }
             }
 
             for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
                 if(rtcEdge.getIcmSet().size()>icmSum) {
                     System.out.println("222222222");
                     System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+                }
+                if(rtcEdge.getIcmSet().size() == 0) {
+                    System.out.println("222222222");
                 }
             }
         }
@@ -1853,10 +1897,17 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 if(rtvEdge.getIcmSet().size()>icmSum) {
                     System.out.println("3333333333");
                 }
+                if(rtvEdge.getIcmSet().size()==0) {
+                    System.out.println("3333333333");
+                }
             }
 
             for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
                 if(rtcEdge.getIcmSet().size()>icmSum) {
+                    System.out.println("44444444444");
+                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+                }
+                if(rtcEdge.getIcmSet().size()==0) {
                     System.out.println("44444444444");
                     System.out.println("relation: "+rtcEdge.getStarter().getLoc());
                 }
@@ -1871,9 +1922,17 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     System.out.println("55555555555");
                     System.out.println("classNode loc: "+ctvEdge.getStarter().getLoc());
                 }
+                if(ctvEdge.getIcmSet().size() == 0) {
+                    System.out.println("55555555555");
+                    System.out.println("classNode loc: "+ctvEdge.getStarter().getLoc());
+                }
             }
             for(RelationToValueEdge rtvEdge : vNode.getRtvEdges()) {
                 if(rtvEdge.getIcmSet().size() > icmSum) {
+                    System.out.println("66666666666");
+                    System.out.println("relationNode loc: "+rtvEdge.getStarter().getLoc());
+                }
+                if(rtvEdge.getIcmSet().size() == 0) {
                     System.out.println("66666666666");
                     System.out.println("relationNode loc: "+rtvEdge.getStarter().getLoc());
                 }
