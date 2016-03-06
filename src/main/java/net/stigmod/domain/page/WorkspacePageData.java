@@ -10,6 +10,7 @@
 package net.stigmod.domain.page;
 
 import net.stigmod.domain.info.IcmBrief;
+import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
 
@@ -29,17 +30,15 @@ public class WorkspacePageData extends AbstractPageData {
     public Long ccmId;
     public Long icmId;
     public String icmName;
-
-//    private IcmDetail model;
-
+    public IcmDetail model;
     public Set<IcmBrief> models;
 
-    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms, Long ccmId) {
+    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms, Long ccmId, IcmDetail icmDetail) {
         this.userName = user.getName();
         this.ccmId = ccmId;
         this.icmId = currentIcm.getId();
         this.icmName = currentIcm.getName();
-
+        this.model = icmDetail;
         this.models = new HashSet<>();
         for (IndividualConceptualModel icm : icms) {
             Long id = icm.getId();
@@ -51,5 +50,7 @@ public class WorkspacePageData extends AbstractPageData {
 
             models.add(new IcmBrief(id, name, description, updateDate, classNum, relationshipNum));
         }
+
+
     }
 }

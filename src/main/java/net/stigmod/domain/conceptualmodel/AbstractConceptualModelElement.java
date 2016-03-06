@@ -9,6 +9,7 @@
 
 package net.stigmod.domain.conceptualmodel;
 
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Property;
 
 import java.util.HashSet;
@@ -19,6 +20,9 @@ import java.util.Set;
  * @version 2016/3/4
  */
 public abstract class AbstractConceptualModelElement implements ConceptualModelElement {
+
+    @GraphId
+    protected Long id;
 
     @Property
     protected Set<String> icmSet = new HashSet<>();
@@ -61,6 +65,14 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
         for (Long elem : icmSet) {
             this.icmSet.add(elem.toString());
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public long countIcmNum() {

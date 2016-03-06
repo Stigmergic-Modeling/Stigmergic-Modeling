@@ -23,6 +23,6 @@ public class Neo4jDatabaseCleaner {
 //    Session session;
 
     public void cleanDb(Session session) {
-        session.execute("MATCH n OPTIONAL MATCH n-[r]-m delete n,r,m");
+//        session.execute("MATCH n OPTIONAL MATCH n-[r]-m delete n,r,m");
     }
 }

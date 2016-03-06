@@ -9,7 +9,9 @@
 
 package net.stigmod.controller;
 
+import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingResponse;
+import net.stigmod.domain.page.UserPageData;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
 import net.stigmod.domain.page.PageData;
@@ -75,9 +77,9 @@ public class WorkspaceController {
         try {
             IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
             Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
-//            Long ccmId = currentIcm.getCcms().iterator().next().getId();  // 获取 ICM 对应的 CCM 的 ID （此法不通，icm 对象中保存的 ccmId 有时为空）
             Long ccmId = modelService.getCcmIdOfIcm(currentIcm.getId());  // 获取 ICM 对应的 CCM 的 ID
-            PageData pageData = new WorkspacePageData(user, currentIcm, icms, ccmId);
+            IcmDetail icmDetail = workspaceService.getIcmDetail(currentIcm.getId());  // 获取 ICM 实际内容
+            PageData pageData = new WorkspacePageData(user, currentIcm, icms, ccmId, icmDetail);
 
             model.addAttribute("currentIcm", currentIcm);
             model.addAttribute("icms", icms);
@@ -86,6 +88,8 @@ public class WorkspaceController {
             return "workspace";
 
         } catch (Exception e) {
+            PageData pageData = new UserPageData(modelService.getAllIcmsOfUser(user));
+            model.addAttribute("data", pageData.toJsonString());
             model.addAttribute("error", e);
             model.addAttribute("title", "user");
             return "user";

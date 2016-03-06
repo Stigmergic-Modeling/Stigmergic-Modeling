@@ -28,9 +28,6 @@ import java.util.Set;
 @NodeEntity(label = "Relationship")
 public class RelationNode extends AbstractVertex {
 
-    @GraphId
-    private Long id;
-
 //    private double orgEntropyValue;//表示没有乘用户数之前的节点熵值
     private double biEntropyValue;//这个表示没有乘上节点数前的节点熵值
     private double postBiEntropyValue;
@@ -78,14 +75,6 @@ public class RelationNode extends AbstractVertex {
     // 添加 relationship->value 边
     public void addR2VEdge(RelationToValueEdge r2vEdge) {
         this.rtvEdges.add(r2vEdge);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
 //    public void UpdateRelationNode(RelationNode relationNode) {

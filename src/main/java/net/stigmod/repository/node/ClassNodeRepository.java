@@ -16,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Kai Fu
@@ -42,4 +43,11 @@ public interface ClassNodeRepository extends GraphRepository<ClassNode>{
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) RETURN class")  // 不要求该类节点在 ICM 中存在
     List<ClassNode> getAllByName(@Param("ccmId") Long ccmId,
                                  @Param("className") String className);
+
+    @Query("MATCH (class:Class)-[edge:PROPERTY {name:'name'}]->(value:Value) " +
+            "WHERE toString({icmId}) IN class.icmSet " +
+            "AND toString({icmId}) IN edge.icmSet " +
+            "AND toString({icmId}) IN value.icmSet " +
+            "RETURN value.name as className, id(class) as classId")
+    List<Map<String, Object>> getAllClassNamesAndIdsByIcmId(@Param("icmId") Long icmId);
 }

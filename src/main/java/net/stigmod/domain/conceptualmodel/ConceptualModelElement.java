@@ -17,6 +17,10 @@ import java.util.Set;
  */
 public interface ConceptualModelElement {
 
+    Long getId();
+
+    void setId(Long id);
+
     void removeIcmId(Long icmId);
 
     void removeIcmSetFromSet(Set<Long> otherIcmSet);

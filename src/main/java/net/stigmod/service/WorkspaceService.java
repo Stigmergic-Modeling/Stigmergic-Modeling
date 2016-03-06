@@ -12,25 +12,19 @@ package net.stigmod.service;
 import com.google.gson.Gson;
 import javafx.util.Pair;
 import net.stigmod.domain.conceptualmodel.*;
+import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
 import net.stigmod.domain.system.IndividualConceptualModel;
-import net.stigmod.repository.node.ClassNodeRepository;
-import net.stigmod.repository.node.IndividualConceptualModelRepository;
-import net.stigmod.repository.node.RelationNodeRepository;
-import net.stigmod.repository.node.ValueNodeRepository;
-import net.stigmod.repository.relationship.ClassToVEdgeRepository;
-import net.stigmod.repository.relationship.EdgeRepository;
-import net.stigmod.repository.relationship.RelationToCEdgeRepository;
-import net.stigmod.repository.relationship.RelationToVEdgeRepository;
+import net.stigmod.repository.node.*;
+import net.stigmod.repository.relationship.*;
 import net.stigmod.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Shijun Wang
@@ -39,8 +33,8 @@ import java.util.List;
 @Service
 public class WorkspaceService {
 
-    @Autowired
-    private Neo4jOperations neo4jTemplate;
+//    @Autowired
+//    private Neo4jOperations neo4jTemplate;
 
     @Autowired
     private IndividualConceptualModelRepository icmRepository;
@@ -54,17 +48,25 @@ public class WorkspaceService {
     @Autowired
     private ValueNodeRepository valueNodeRepository;
 
-    @Autowired
-    private ClassToVEdgeRepository c2vEdgeRepository;
-
-    @Autowired
-    private RelationToCEdgeRepository r2cEdgeRepository;
-
-    @Autowired
-    private RelationToVEdgeRepository r2vEdgeRepository;
+//    @Autowired
+//    private ClassToVEdgeRepository c2vEdgeRepository;
+//
+//    @Autowired
+//    private RelationToCEdgeRepository r2cEdgeRepository;
+//
+//    @Autowired
+//    private RelationToVEdgeRepository r2vEdgeRepository;
+//
+//    @Autowired
+//    private VertexRepository vertexRepository;
 
     @Autowired
     private EdgeRepository edgeRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+
 
     /**
      * 从前端向后端同步建模结果
@@ -77,11 +79,116 @@ public class WorkspaceService {
     }
 
     /**
+     *
+     * @return
+     */
+    public IcmDetail getIcmDetail(Long icmId) {
+        IcmDetail icmDetail = new IcmDetail();
+
+        // 获取所有的类节点
+        List<Map<String, Object>> classNamesAndIds = classNodeRepository.getAllClassNamesAndIdsByIcmId(icmId);
+        icmDetail.addClasses(classNamesAndIds);
+
+        // 获取所有的关系节点
+        List<Map<String, Object>> relationshipsAndTypes = relationNodeRepository.getAllRelationshipsAndTypesByIcmId(icmId);
+
+        for (Map<String, Object> relationshipAndType : relationshipsAndTypes) {
+            Long relationshipId = ((Integer) relationshipAndType.get("relationshipId")).longValue();
+            String relationshipType = (String) relationshipAndType.get("relationshipType");
+
+            List<Map<String, Object>> classEnds = relationNodeRepository.getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
+            List<Map<String, Object>> relationshipProperties = relationNodeRepository.getAllRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
+
+            boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
+            String className0 = isTheFirstElementEnd0
+                    ? (String) classEnds.get(0).get("propertyValue")
+                    : (String) classEnds.get(1).get("propertyValue");
+            String className1 = isTheFirstElementEnd0
+                    ? (String) classEnds.get(1).get("propertyValue")
+                    : (String) classEnds.get(0).get("propertyValue");
+
+            if (relationshipType.equals("isAttribute")) {  // 类的属性
+//                String className = className0;
+                String attributeType = className1;
+                if (attributeType.startsWith("_")) {
+                    attributeType = attributeType.substring(1);  // 若为内置类型，则去掉开头的下划线
+                }
+                String attributeName = null;
+                Map<String, String> propertyAndValues = new HashMap<>();
+                propertyAndValues.put("type", attributeType);
+
+                for (Map<String, Object> relationshipProperty : relationshipProperties) {
+                    if (relationshipProperty.get("port").equals("E1")) {  // E1 端是有有效信息的端
+                        String propertyName = (String) relationshipProperty.get("propertyName");
+                        String key = propertyName.equals("role") ? "name" : propertyName;
+                        if (propertyName.equals("role")) {
+                            attributeName = (String) relationshipProperty.get("propertyValue");
+                        }
+                        propertyAndValues.put(key, (String) relationshipProperty.get("propertyValue"));
+                    }
+                }
+
+                // 添加类的属性
+                icmDetail.addAttribute(className0, attributeName, relationshipId, propertyAndValues);
+
+            } else {  // 类间的关系
+
+                relationshipType = relationshipType.substring(2);  // 去掉开头的“is”，如 “isGeneralization” -> “Generalization”
+                String relationshipName = "";
+                Map<String, List<String>> propertyAndValues = new HashMap<>();
+
+                for (Map<String, Object> relationshipProperty : relationshipProperties) {
+                    String port = (String) relationshipProperty.get("port");
+                    String propertyName = (String) relationshipProperty.get("propertyName");
+                    String propertyValue = (String) relationshipProperty.get("propertyValue");
+
+                    if (propertyName.equals("name")) {  // 有可能没有名字
+                        relationshipName = propertyValue;
+                        continue;
+                    }
+                    switch (port) {  // 确保 E0 在 List 的第一个元素， E1 是第二个
+                        case "E0":
+                            if (propertyAndValues.containsKey(propertyName)) {
+                                propertyAndValues.get(propertyName).set(0, propertyValue);
+                            } else {
+                                propertyAndValues.put(propertyName, new ArrayList<>(Arrays.asList(propertyValue, "")));
+                            }
+                            break;
+                        case "E1":
+                            if (propertyAndValues.containsKey(propertyName)) {
+                                propertyAndValues.get(propertyName).set(1, propertyValue);
+                            } else {
+                                propertyAndValues.put(propertyName, new ArrayList<>(Arrays.asList("", propertyValue)));
+                            }
+                            break;
+                        default:
+                            // DO NOTHING （port 为空的情况，什么都不做。port 为空时，意味着是 name 边或 type 边）
+                            break;
+                    }
+                }
+                propertyAndValues.put("type", new ArrayList<>(Arrays.asList(relationshipType, relationshipName)));
+                propertyAndValues.put("class", new ArrayList<>(Arrays.asList(className0, className1)));
+
+                // 添加关系
+                icmDetail.addRelationship(relationshipId, propertyAndValues);
+            }
+        }
+
+        // 添加 Orders
+        List<Order> attributeOrders = orderRepository.getByIcmIdAndType(icmId, "AttOdr");
+        icmDetail.addAttributeOrders(attributeOrders);
+        List<Order> relationshipOrders = orderRepository.getByIcmIdAndType(icmId, "RelOdr");
+        icmDetail.addRelationshipOrders(relationshipOrders);
+
+        return icmDetail;
+    }
+
+    /**
      * 将 JSON 字符串转换为 ModelingOperationLog 对象
      * @param molJsonString 字符串形式的 LOG
      * @return 对象形式的 LOG
      */
-    public ModelingOperationLog constructMOL(String molJsonString) {
+    private ModelingOperationLog constructMOL(String molJsonString) {
         Gson gson = new Gson();
         return gson.fromJson(molJsonString, ModelingOperationLog.class);
     }
@@ -91,15 +198,35 @@ public class WorkspaceService {
      * @param mol 前端传回来的操作日志
      */
     @Transactional
-    public ModelingResponse executeMOL(ModelingOperationLog mol) {
+    private ModelingResponse executeMOL(ModelingOperationLog mol) {
         List<List<String>> ops = mol.log;
+        ModelingOperationLog.OrderChanges orderChanges = mol.orderChanges;
         Long ccmId = mol.ccmId;
         Long icmId = mol.icmId;
         ModelingResponse modelingResponse = new ModelingResponse();
         IndividualConceptualModel icm = icmRepository.findOne(icmId);
 
+        // 操作序列
         for (List<String> op : ops) {
             executeOP(op, ccmId, icmId, modelingResponse, icm);
+        }
+
+        // 顺序改变 (attribute)
+        for (Map.Entry<String, List<String>> attributeOrderChanges : orderChanges.classes.entrySet()) {
+            String name = attributeOrderChanges.getKey();
+            List<String> orderList = attributeOrderChanges.getValue();
+            Order order = this.getOrder(icmId, "AttOdr", name);
+            order.setOrderList(orderList);
+            orderRepository.save(order);
+        }
+
+        // 顺序改变 (relationship)
+        for (Map.Entry<String, List<String>> attributeOrderChanges : orderChanges.relationGroups.entrySet()) {
+            String name = attributeOrderChanges.getKey();
+            List<String> orderList = this.getBackIdsFromFrontIds(icmId, attributeOrderChanges.getValue());  // 将可能的 frontId 转换为 backId
+            Order order = this.getOrder(icmId, "RelOdr", name);
+            order.setOrderList(orderList);
+            orderRepository.save(order);
         }
 
         return modelingResponse;
@@ -155,7 +282,7 @@ public class WorkspaceService {
      * @param op 一条操作
      */
     @Transactional
-    public void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
+    private void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
 
         // 注意，op 的第一个元素是 Date
         if (op.get(1).equals("ADD")) {
@@ -421,6 +548,22 @@ public class WorkspaceService {
     }
 
     /**
+     * 由前端 ID 获得相应的后端 ID （批量）
+     * @param icmId
+     * @param frontIds 前端临时 ID List
+     * @return 后端数据库 ID List
+     */
+    @Transactional
+    private List<String> getBackIdsFromFrontIds(Long icmId, List<String> frontIds) {  // 因为是List，由于Neo4j的bug，需要用String而不是Long类型来表示BackId
+        IndividualConceptualModel icm = icmRepository.findOne(icmId);
+        List<String> backIds = new ArrayList<>();
+        for (String frontId : frontIds) {
+            backIds.add(icm.getBackIdFromFrontId(frontId).toString());
+        }
+        return backIds;
+    }
+
+    /**
      * 向 ICM 中添加 ID 映射
      * @param icmId ICM ID
      * @param frontId 前端临时 ID
@@ -630,5 +773,21 @@ public class WorkspaceService {
      */
     private Long getNeo4jId(Long icmId, String id) {
         return this.getBackIdFromFrontId(icmId, id);
+    }
+
+    /**
+     * 根据 name 从数据库中获取 Order 对象，若不存在则创建后返回
+     * @param name Order 的名称
+     * @return Order 对象
+     */
+    private Order getOrder(Long icmId, String type, String name) {
+        List<Order> Orders = orderRepository.getByIcmIdAndTypeAndName(icmId, type, name);
+        if (!Orders.isEmpty()) {
+            return Orders.get(0);
+        } else {
+            Order order = new Order(icmId, type, name);
+            orderRepository.save(order);
+            return order;
+        }
     }
 }
