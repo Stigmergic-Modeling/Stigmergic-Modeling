@@ -14,4 +14,11 @@ package net.stigmod.domain.conceptualmodel;
  * @version 2016/3/2
  */
 public interface Vertex extends ConceptualModelElement {
+
+    /**
+     * 如果该点是 ICM 中的孤立点，则将该点从 ICM 中删除
+     * @param icmId icmId
+     * @return 是否是孤立点
+     */
+    boolean removeIcmIdIfNoEdgeAttachedInIcm(Long icmId);
 }

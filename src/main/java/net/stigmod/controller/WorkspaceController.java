@@ -88,6 +88,7 @@ public class WorkspaceController {
             return "workspace";
 
         } catch (Exception e) {
+            e.printStackTrace();
             PageData pageData = new UserPageData(modelService.getAllIcmsOfUser(user));
             model.addAttribute("data", pageData.toJsonString());
             model.addAttribute("error", e);

@@ -38,8 +38,11 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
             "(:Value {name:{className}, ccmId:{ccmId}})" +
             "<--(:Class)" +
             "<--(rel:Relationship)" +
-            "-[{name:'role',port:'E1'}]->(:Value {name:{attributeName}, ccmId:{ccmId}}) " +
+            "-[edge1{name:'role',port:'E1'}]->(:Value {name:{attributeName}, ccmId:{ccmId}}), " +
+            "(rel:Relationship)-[edge2{name:'isAttribute'}]->(:Value {name:'true', ccmId:{ccmId}}) " +
             "WHERE toString({icmId}) IN rel.icmSet " +
+            "AND toString({icmId}) IN edge1.icmSet " +
+            "AND toString({icmId}) IN edge2.icmSet " +
             "RETURN rel")
     RelationNode getOneAttRelByClassNameAndAttName(@Param("ccmId") Long ccmId,
                                                 @Param("icmId") Long icmId,

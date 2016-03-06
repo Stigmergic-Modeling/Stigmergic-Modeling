@@ -99,6 +99,29 @@ public class ValueNode extends AbstractVertex {
         this.rtvEdges.add(r2vEdge);
     }
 
+    /**
+     * 如果该点是 ICM 中的孤立点，则将该点从 ICM 中删除
+     * @param icmId icmId
+     * @return 是否是孤立点
+     */
+    public boolean removeIcmIdIfNoEdgeAttachedInIcm(Long icmId) {
+
+        for (ClassToValueEdge c2vEdge : this.getCtvEdges()) {
+            if (c2vEdge.getIcmSet().contains(icmId)) {
+                return false;  // 有边中含有 icmId，此节点暂时不能从 ICM 中删除
+            }
+        }
+        for (RelationToValueEdge r2vEdge : this.getRtvEdges()) {
+            if (r2vEdge.getIcmSet().contains(icmId)) {
+                return false;  // 有边中含有 icmId，此节点暂时不能从 ICM 中删除
+            }
+        }
+
+        // 此节点已经是 ICM 中的孤立点，删除
+        this.removeIcmId(icmId);
+        return true;
+    }
+
     public String getName() {
         return name;
     }

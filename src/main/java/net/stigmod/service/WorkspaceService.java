@@ -100,23 +100,34 @@ public class WorkspaceService {
             List<Map<String, Object>> classEnds = relationNodeRepository.getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
             List<Map<String, Object>> relationshipProperties = relationNodeRepository.getAllRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
 
-            boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
-            String className0 = isTheFirstElementEnd0
-                    ? (String) classEnds.get(0).get("propertyValue")
-                    : (String) classEnds.get(1).get("propertyValue");
-            String className1 = isTheFirstElementEnd0
-                    ? (String) classEnds.get(1).get("propertyValue")
-                    : (String) classEnds.get(0).get("propertyValue");
+            boolean isNoTypeAttribute = classEnds.size() < 2;  // 若 classEnds 只有一边有，则说明这是一个没有 type property 的 attribute
+            String className0;
+            String className1 = null;
+
+            if (isNoTypeAttribute) {
+                className0 = (String) classEnds.get(0).get("propertyValue");
+            } else {
+                boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
+                className0 = isTheFirstElementEnd0
+                        ? (String) classEnds.get(0).get("propertyValue")
+                        : (String) classEnds.get(1).get("propertyValue");
+                className1 = isTheFirstElementEnd0
+                        ? (String) classEnds.get(1).get("propertyValue")
+                        : (String) classEnds.get(0).get("propertyValue");
+            }
 
             if (relationshipType.equals("isAttribute")) {  // 类的属性
-//                String className = className0;
-                String attributeType = className1;
-                if (attributeType.startsWith("_")) {
-                    attributeType = attributeType.substring(1);  // 若为内置类型，则去掉开头的下划线
-                }
+
                 String attributeName = null;
                 Map<String, String> propertyAndValues = new HashMap<>();
-                propertyAndValues.put("type", attributeType);
+
+                if (!isNoTypeAttribute) {  // attribute 有 type property
+                    String attributeType = className1;
+                    if (attributeType.startsWith("_")) {
+                        attributeType = attributeType.substring(1);  // 若为内置类型，则去掉开头的下划线
+                    }
+                    propertyAndValues.put("type", attributeType);
+                }
 
                 for (Map<String, Object> relationshipProperty : relationshipProperties) {
                     if (relationshipProperty.get("port").equals("E1")) {  // E1 端是有有效信息的端
@@ -549,13 +560,108 @@ public class WorkspaceService {
                         break;
                     }
                     default:
-                        throw new IllegalArgumentException("Operation " + op.get(1) + " " + op.get(2) + " is not supported");  // NOT ALLOWED
+                        throw new IllegalArgumentException("Operation " + opV + " " + opO + " is not supported");  // NOT ALLOWED
 
                 }
 
                 break;
             case "RMV":
-                // SOMETHING
+                switch (opO) {
+                    case "CLS": {  // remove class
+                        break;
+                    }
+                    case "ATT": {
+                        break;
+                    }
+                    case "POA": {  // remove a property of an attribute
+
+                        // RMV POA class attribute property
+                        String className = op.get(3);
+                        String attributeName = op.get(4);
+                        String propertyName = op.get(5);
+
+                        RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
+                        relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 以距离 2 重新载入
+
+                        if (propertyName.equals("type")) {  // 要删除 type property，只需删除一条 E1.class 边
+
+                            // 获取关系的两条相应的 property 边 （propertyName 不为 "type"）
+                            RelationToClassEdge r2cEdgeE1 = null;
+                            for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+                                if (r2cEdge.getIcmSet().contains(icmId) && r2cEdge.getName().equals("class") && r2cEdge.getPort().equals("E1")) {
+                                    r2cEdgeE1 = r2cEdge;
+                                }
+                            }
+                            assert r2cEdgeE1 != null;
+
+                            // 删除其中的 icmId
+                            r2cEdgeE1.removeIcmId(icmId);
+
+                        } else {  // 要删除 type 以外的 property，需删 E0.{propertyName} 边和 E1.{propertyName} 边，及可能删除两边的端点
+
+                            // 获取关系的两条相应的 property 边 （propertyName 不为 "type"）
+                            RelationToValueEdge r2vEdgeE0 = null;
+                            RelationToValueEdge r2vEdgeE1 = null;
+                            for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+                                if (r2vEdge.getIcmSet().contains(icmId) && r2vEdge.getName().equals(propertyName)) {
+                                    if (r2vEdge.getPort().equals("E0")) {
+                                        r2vEdgeE0 = r2vEdge;
+                                    } else {
+                                        r2vEdgeE1 = r2vEdge;
+                                    }
+                                }
+                            }
+                            assert r2vEdgeE0 != null && r2vEdgeE1 != null;
+
+                            // 删除其中的 icmId
+                            r2vEdgeE0.removeIcmId(icmId);
+                            r2vEdgeE1.removeIcmId(icmId);
+
+                            // 获取两边终点的 value nodes 并尝试删除其中的 icmId
+                            r2vEdgeE0.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
+                            r2vEdgeE1.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
+                        }
+
+                        relationNodeRepository.save(relationNode);
+
+                        break;
+                    }
+                    case "RLG": {
+                        break;
+                    }
+                    case "RLT": {
+                        break;
+                    }
+                    case "POR": {
+                        break;
+                    }
+                    default:
+                        throw new IllegalArgumentException("Operation " + opV + " " + opO + " is not supported");  // NOT ALLOWED
+                }
+                break;
+            case "MOD":
+                switch (opO) {
+                    case "CLS": {
+                        break;
+                    }
+                    case "ATT": {
+                        break;
+                    }
+                    case "POA": {
+                        break;
+                    }
+                    case "RLG": {
+                        break;
+                    }
+                    case "RLT": {
+                        break;
+                    }
+                    case "POR": {
+                        break;
+                    }
+                    default:
+                        throw new IllegalArgumentException("Operation " + opV + " " + opO + " is not supported");  // NOT ALLOWED
+                }
                 break;
             default:
                 // DO NOTHING
