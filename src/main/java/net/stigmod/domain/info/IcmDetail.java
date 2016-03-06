@@ -9,7 +9,6 @@
 
 package net.stigmod.domain.info;
 
-import javafx.util.Pair;
 import net.stigmod.domain.conceptualmodel.Order;
 
 import java.util.ArrayList;
@@ -55,16 +54,16 @@ public class IcmDetail {
     }
 
     // 添加一个关系关系（若其归属的关系组尚未存在，则首先添加关系组，再添加关系）
-    public void addRelationship(Long relationshipId, Map<String, Pair<String, String>> propertyAndValues) {  // type 和 name 合并在 key 为 “name” 的 propertyAndValues 中
-        String relationshipGroupName = makeRelationshipGroupName(propertyAndValues.get("class").getKey(), propertyAndValues.get("class").getValue());
+    public void addRelationship(Long relationshipId, Map<String, List<String>> propertyAndValues) {  // type 和 name 合并在 key 为 “name” 的 propertyAndValues 中
+        String relationshipGroupName = makeRelationshipGroupName(propertyAndValues.get("class").get(0), propertyAndValues.get("class").get(1));
         if (!this.relationshipGroups.containsKey(relationshipGroupName)) {
             this.relationshipGroups.put(relationshipGroupName, new RelationshipGroup());
         }
         RelationshipGroup relationshipGroup = this.relationshipGroups.get(relationshipGroupName);
         relationshipGroup.addRelationship(relationshipId);
-        for (Map.Entry<String, Pair<String, String>> item : propertyAndValues.entrySet()) {
+        for (Map.Entry<String, List<String>> item : propertyAndValues.entrySet()) {
             String propertyName = item.getKey();
-            Pair<String, String> propertyValue = item.getValue();
+            List<String> propertyValue = item.getValue();
             relationshipGroup.addRelationshipProperty(relationshipId, propertyName, propertyValue);
         }
     }
@@ -110,16 +109,16 @@ public class IcmDetail {
 
     public class RelationshipGroup {
         // 这 2 个属性在前端需要转换为数组的 2 个元素
-        public Map<Long, List<Map<String, Pair<String, String>>>> relationships = new HashMap<>(); // Pair<String, String> 这个类型有待商榷，如果json化时不为数组，则需用List<String>代替
+        public Map<Long, List<Map<String, List<String>>>> relationships = new HashMap<>(); // Pair<String, String> 这个类型有待商榷，如果json化时不为数组，则需用List<String>代替
         public OrderInIcm orderInIcm = new OrderInIcm();
 
         public void addRelationship(Long relationshipId) {
-            List<Map<String, Pair<String, String>>> redundantList = new ArrayList<>();
-            redundantList.add(new HashMap<String, Pair<String, String>>());
+            List<Map<String, List<String>>> redundantList = new ArrayList<>();
+            redundantList.add(new HashMap<String, List<String>>());
             this.relationships.put(relationshipId, redundantList);
         }
 
-        public void addRelationshipProperty(Long relationshipId, String propertyName, Pair<String, String> propertyValue) {
+        public void addRelationshipProperty(Long relationshipId, String propertyName, List<String> propertyValue) {
             this.relationships.get(relationshipId).get(0).put(propertyName, propertyValue);
         }
     }

@@ -37,6 +37,10 @@ public class Order {
     @Property
     private List<String> orderList = new ArrayList<>();
 
+    public Order() {
+        this(0L, "", "");
+    }
+
     public Order(Long icmId, String type, String name) {
         this.icmId = icmId;
         this.type = type;

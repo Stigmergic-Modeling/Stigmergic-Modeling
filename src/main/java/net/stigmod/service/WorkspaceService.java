@@ -24,9 +24,7 @@ import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Shijun Wang
@@ -101,14 +99,17 @@ public class WorkspaceService {
             List<Map<String, Object>> classEnds = relationNodeRepository.getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
             List<Map<String, Object>> relationshipProperties = relationNodeRepository.getAllRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
 
+            boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
+            String className0 = isTheFirstElementEnd0
+                    ? (String) classEnds.get(0).get("propertyValue")
+                    : (String) classEnds.get(1).get("propertyValue");
+            String className1 = isTheFirstElementEnd0
+                    ? (String) classEnds.get(1).get("propertyValue")
+                    : (String) classEnds.get(0).get("propertyValue");
+
             if (relationshipType.equals("isAttribute")) {  // 类的属性
-                boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
-                String className = isTheFirstElementEnd0
-                        ? (String) classEnds.get(0).get("propertyValue")
-                        : (String) classEnds.get(1).get("propertyValue");
-                String attributeType = isTheFirstElementEnd0
-                        ? (String) classEnds.get(1).get("propertyValue")
-                        : (String) classEnds.get(0).get("propertyValue");
+//                String className = className0;
+                String attributeType = className1;
                 if (attributeType.startsWith("_")) {
                     attributeType = attributeType.substring(1);  // 若为内置类型，则去掉开头的下划线
                 }
@@ -128,10 +129,48 @@ public class WorkspaceService {
                 }
 
                 // 添加类的属性
-                icmDetail.addAttribute(className, attributeName, relationshipId, propertyAndValues);
+                icmDetail.addAttribute(className0, attributeName, relationshipId, propertyAndValues);
 
             } else {  // 类间的关系
 
+                relationshipType = relationshipType.substring(2);  // 去掉开头的“is”，如 “isGeneralization” -> “Generalization”
+                String relationshipName = "";
+                Map<String, List<String>> propertyAndValues = new HashMap<>();
+
+                for (Map<String, Object> relationshipProperty : relationshipProperties) {
+                    String port = (String) relationshipProperty.get("port");
+                    String propertyName = (String) relationshipProperty.get("propertyName");
+                    String propertyValue = (String) relationshipProperty.get("propertyValue");
+
+                    if (propertyName.equals("name")) {  // 有可能没有名字
+                        relationshipName = propertyValue;
+                        continue;
+                    }
+                    switch (port) {  // 确保 E0 在 List 的第一个元素， E1 是第二个
+                        case "E0":
+                            if (propertyAndValues.containsKey(propertyName)) {
+                                propertyAndValues.get(propertyName).set(0, propertyValue);
+                            } else {
+                                propertyAndValues.put(propertyName, new ArrayList<>(Arrays.asList(propertyValue, "")));
+                            }
+                            break;
+                        case "E1":
+                            if (propertyAndValues.containsKey(propertyName)) {
+                                propertyAndValues.get(propertyName).set(1, propertyValue);
+                            } else {
+                                propertyAndValues.put(propertyName, new ArrayList<>(Arrays.asList("", propertyValue)));
+                            }
+                            break;
+                        default:
+                            // DO NOTHING （port 为空的情况，什么都不做。port 为空时，意味着是 name 边或 type 边）
+                            break;
+                    }
+                }
+                propertyAndValues.put("type", new ArrayList<>(Arrays.asList(relationshipType, relationshipName)));
+                propertyAndValues.put("class", new ArrayList<>(Arrays.asList(className0, className1)));
+
+                // 添加关系
+                icmDetail.addRelationship(relationshipId, propertyAndValues);
             }
         }
 
@@ -172,7 +211,7 @@ public class WorkspaceService {
             executeOP(op, ccmId, icmId, modelingResponse, icm);
         }
 
-        // 顺序改变 (attribute) (可考虑与下面的 relationship 合并！)
+        // 顺序改变 (attribute)
         for (Map.Entry<String, List<String>> attributeOrderChanges : orderChanges.classes.entrySet()) {
             String name = attributeOrderChanges.getKey();
             List<String> orderList = attributeOrderChanges.getValue();
@@ -184,7 +223,7 @@ public class WorkspaceService {
         // 顺序改变 (relationship)
         for (Map.Entry<String, List<String>> attributeOrderChanges : orderChanges.relationGroups.entrySet()) {
             String name = attributeOrderChanges.getKey();
-            List<String> orderList = attributeOrderChanges.getValue();
+            List<String> orderList = this.getBackIdsFromFrontIds(icmId, attributeOrderChanges.getValue());  // 将可能的 frontId 转换为 backId
             Order order = this.getOrder(icmId, "RelOdr", name);
             order.setOrderList(orderList);
             orderRepository.save(order);
@@ -506,6 +545,22 @@ public class WorkspaceService {
     private Long getBackIdFromFrontId(Long icmId, String frontId) {
         IndividualConceptualModel icm = icmRepository.findOne(icmId);
         return icm.getBackIdFromFrontId(frontId);
+    }
+
+    /**
+     * 由前端 ID 获得相应的后端 ID （批量）
+     * @param icmId
+     * @param frontIds 前端临时 ID List
+     * @return 后端数据库 ID List
+     */
+    @Transactional
+    private List<String> getBackIdsFromFrontIds(Long icmId, List<String> frontIds) {  // 因为是List，由于Neo4j的bug，需要用String而不是Long类型来表示BackId
+        IndividualConceptualModel icm = icmRepository.findOne(icmId);
+        List<String> backIds = new ArrayList<>();
+        for (String frontId : frontIds) {
+            backIds.add(icm.getBackIdFromFrontId(frontId).toString());
+        }
+        return backIds;
     }
 
     /**

@@ -11,6 +11,7 @@ package net.stigmod.controller;
 
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingResponse;
+import net.stigmod.domain.page.UserPageData;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
 import net.stigmod.domain.page.PageData;
@@ -87,9 +88,11 @@ public class WorkspaceController {
             return "workspace";
 
         } catch (Exception e) {
+            PageData pageData = new UserPageData(modelService.getAllIcmsOfUser(user));
+            model.addAttribute("data", pageData.toJsonString());
             model.addAttribute("error", e);
             model.addAttribute("title", "user");
-            return "workspace";
+            return "user";
         }
     }
 
