@@ -586,27 +586,7 @@ public class WorkspaceService {
                         String className = op.get(3);
                         String attributeName = op.get(4);
 
-                        RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
-                        relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 以距离 2 重新载入
-
-                        // 删除所有 relationship 节点周围的 R2V 边及节点
-                        for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
-                            if (r2vEdge.getIcmSet().contains(icmId)) {
-                                r2vEdge.removeIcmId(icmId);  // 删除其中的 icmId
-                                r2vEdge.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);  // 获取两边终点的 value nodes 并尝试删除其中的 icmId
-                            }
-                        }
-
-                        // 删除所有 relationship 节点周围的 R2C 边
-                        for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
-                            if (r2cEdge.getIcmSet().contains(icmId)) {
-                                r2cEdge.removeIcmId(icmId);  // 删除其中的 icmId
-                            }
-                        }
-
-                        // 删除 relationship 节点本身
-                        relationNode.removeIcmId(icmId);
-                        relationNodeRepository.save(relationNode);
+                        this.removeAttributeOrRelationship(ccmId, icmId, "attribute", className, attributeName, 0L);
                         modelingResponse.addMessage("Remove attribute [" + attributeName + "] " +
                                 "from class [" + className + "] successfully.");
 
@@ -629,7 +609,16 @@ public class WorkspaceService {
                     case "RLG": {
                         break;
                     }
-                    case "RLT": {
+                    case "RLT": {  // remove a relationship
+
+                        // RMV RLT relationGroup relation
+                        String relationshipGroupName = op.get(3);
+                        Long relationshipId = this.getNeo4jId(icmId, op.get(4));
+
+                        this.removeAttributeOrRelationship(ccmId, icmId, "relationship", "", "", relationshipId);
+                        modelingResponse.addMessage("Remove relationship [" + relationshipId.toString() + "] " +
+                                "from relationship group [" + relationshipGroupName + "] successfully.");
+
                         break;
                     }
                     case "POR": {  // remove a property of a relationship
@@ -996,6 +985,46 @@ public class WorkspaceService {
             r2vEdgeE1.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
         }
 
+        relationNodeRepository.save(relationNode);
+    }
+
+    /**
+     * 从 ICM 中移除一个 attribute 或 relationship
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @param type "attribute" or "relationship"
+     * @param className 类名
+     * @param attributeName 属性名
+     * @param relationshipId 关系ID
+     */
+    private void removeAttributeOrRelationship(Long ccmId, Long icmId, String type, String className, String attributeName, Long relationshipId) {
+
+        // 获取 relationship node
+        RelationNode relationNode;
+        if (type.equals("attribute")) {
+            relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
+            relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 以距离 2 重新载入
+        } else {  // relationship
+            relationNode = relationNodeRepository.findOne(relationshipId, 2);  // 以距离 2 载入
+        }
+
+        // 删除所有 relationship 节点周围的 R2V 边及节点
+        for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+            if (r2vEdge.getIcmSet().contains(icmId)) {
+                r2vEdge.removeIcmId(icmId);  // 删除其中的 icmId
+                r2vEdge.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);  // 获取两边终点的 value nodes 并尝试删除其中的 icmId
+            }
+        }
+
+        // 删除所有 relationship 节点周围的 R2C 边
+        for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+            if (r2cEdge.getIcmSet().contains(icmId)) {
+                r2cEdge.removeIcmId(icmId);  // 删除其中的 icmId
+            }
+        }
+
+        // 删除 relationship 节点本身
+        relationNode.removeIcmId(icmId);
         relationNodeRepository.save(relationNode);
     }
 }
