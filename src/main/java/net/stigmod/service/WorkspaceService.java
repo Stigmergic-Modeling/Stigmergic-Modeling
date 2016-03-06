@@ -572,11 +572,30 @@ public class WorkspaceService {
                         // RMV CLS class
                         String className = op.get(3);
 
-                        // 删除与 class 节点相连的 relationship
+                        // 删除与 class 节点相连的 relationship （attribute 可与 relationship 一视同仁，只要提供 attribute 的 ID 即可）
+                        // RMV CLS 之后，会自动生成与该 class 相关的 RMV RLG （在随后的 OP 中）
+                        List<Long> relationshipIds = relationNodeRepository.getAllRelationshipIdsRelatedToClass(icmId, className);
+                        for (Number relationshipId : relationshipIds) {  // 这里的 Number 类型和下面的 longValue() 方法调用是为了应付 SDN4 的一个 Long 变为 Integer 的 BUG
+                            this.removeAttributeOrRelationship(ccmId, icmId, "relationship", "", "", relationshipId.longValue());
+                        }
 
                         // 删除 class 节点
+                        ClassNode classNode = classNodeRepository.getOneByName(ccmId, icmId, className);
+                        assert classNode != null;
+                        classNode = classNodeRepository.findOne(classNode.getId(), 1);  // class name 在一个 ICM 中不会重复，因此不必观察存储类名的 value node 周围的边即可直接删除
+                        for (ClassToValueEdge c2vEdge: classNode.getCtvEdges()) {
+                            if (c2vEdge.getIcmSet().contains(icmId)) {  // 直接删除
+                                c2vEdge.removeIcmId(icmId);
+                                c2vEdge.getEnder().removeIcmId(icmId);
+                                break;
+                            }
+                        }
+                        classNode.removeIcmId(icmId);
+                        classNodeRepository.save(classNode);
 
                         // 删除相应的 Order 节点
+                        orderRepository.removeByIcmIdAndName(icmId, className);
+                        modelingResponse.addMessage("Remove class [" + className + "] successfully.");
 
                         break;
                     }

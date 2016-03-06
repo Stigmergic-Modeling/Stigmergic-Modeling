@@ -92,4 +92,14 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
     List<Long> getAllRelationshipIdsInRelationshipGroup(@Param("icmId") Long icmId,
                                                          @Param("className0") String className0,
                                                          @Param("className1") String className1);
+
+    @Query("MATCH (relationship:Relationship)-[edge0:E_CLASS]->(class:Class)-[edge1:PROPERTY]->(value:Value {name: {className}}) " +
+            "WHERE toString({icmId}) IN relationship.icmSet " +
+            "AND toString({icmId}) IN edge0.icmSet " +
+            "AND toString({icmId}) IN edge1.icmSet " +
+            "AND toString({icmId}) IN class.icmSet " +
+            "AND toString({icmId}) IN value.icmSet " +
+            "RETURN id(relationship)")
+    List<Long> getAllRelationshipIdsRelatedToClass(@Param("icmId") Long icmId,
+                                                   @Param("className") String className);
 }
