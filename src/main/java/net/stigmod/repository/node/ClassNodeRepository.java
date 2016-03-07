@@ -40,6 +40,11 @@ public interface ClassNodeRepository extends GraphRepository<ClassNode>{
                               @Param("icmId") Long icmId,
                               @Param("className") String className);
 
+    @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
+            "RETURN class")
+    List<ClassNode> getByNameFromCcm(@Param("ccmId") Long ccmId,
+                                     @Param("className") String className);
+
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) RETURN class")  // 不要求该类节点在 ICM 中存在
     List<ClassNode> getAllByName(@Param("ccmId") Long ccmId,
                                  @Param("className") String className);

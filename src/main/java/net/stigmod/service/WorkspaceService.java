@@ -718,29 +718,6 @@ public class WorkspaceService {
                             attributeOrder.setName(classNameNew);
                             orderRepository.save(attributeOrder);
                         }
-
-//                        // 修改 Relationship Order 节点（如果存在的话）
-//                        List<Order> relationshipOrders = orderRepository.getByIcmIdAndType(icmId, "RelOdr");  // 提取所有 Relationship Order
-//                        for (Order relationshipOrder : relationshipOrders) {  // 逐一判断是否需要修改名称
-//                            String[] classNames = relationshipOrder.getName().split("-");
-//                            String relationGroupNameNew;
-//                            if (classNames[0].equals(classNameOld) && classNames[1].equals(classNameOld)) {
-//                                relationGroupNameNew = classNameNew + "-" + classNameNew;
-//                            } else if (classNames[0].equals(classNameOld)) {
-//                                relationGroupNameNew = classNameNew.compareTo(classNames[1]) < 0
-//                                        ? classNameNew + "-" + classNames[1]
-//                                        : classNames[1] + "-" + classNameNew;
-//                            } else if (classNames[1].equals(classNameOld)) {
-//                                relationGroupNameNew = classNameNew.compareTo(classNames[0]) < 0
-//                                        ? classNameNew + "-" + classNames[0]
-//                                        : classNames[0] + "-" + classNameNew;
-//                            } else {
-//                                continue;  // 此 order 不需要修改名称
-//                            }
-//                            relationshipOrder.setName(relationGroupNameNew);
-//                            orderRepository.save(relationshipOrder);
-//                        }
-
                         modelingResponse.addMessage("Modify class name from [" + classNameOld + "] to [" + classNameNew + "]  successfully.");
 
                         break;
@@ -752,47 +729,38 @@ public class WorkspaceService {
                         String attributeNameOld = op.get(4);
                         String attributeNameNew = op.get(5);
 
-                        // 更换 attribute relationship 所连接的 value 节点
-                        RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeNameOld);
-                        assert relationNode != null;
-                        relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);  // 深度 2，因为需要用 removeIcmIdIfNoEdgeAttachedInIcm() 方法
-
-                        boolean newAttributeNameAlreadyConnected = false;  // 标志位，表示新属性名的 value 点是否已经在 CCM 中与 relationship 点连接
-                        for (RelationToValueEdge r2vEdge: relationNode.getRtvEdges()) {
-                            if (r2vEdge.getIcmSet().contains(icmId)
-                                    && r2vEdge.getPort().equals("E1")
-                                    && r2vEdge.getName().equals("role")
-                                    && r2vEdge.getEnder().getName().equals(attributeNameOld)) {  // 删除旧名
-                                r2vEdge.removeIcmId(icmId);
-                                r2vEdge.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
-                            } else if (r2vEdge.getPort().equals("E1")
-                                    && r2vEdge.getName().equals("role")
-                                    && r2vEdge.getEnder().getName().equals(attributeNameNew)) {  // 若新名称已在 CCM 中与该 relationship 连接，则直接利用
-                                newAttributeNameAlreadyConnected = true;
-                                r2vEdge.addIcmId(icmId);
-                                r2vEdge.getEnder().addIcmId(icmId);
-                            }
-                        }
-                        if (!newAttributeNameAlreadyConnected) {  // 若新名称没有在 CCM 中与该 relationship 连接
-                            List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, attributeNameNew);
-                            ValueNode valueNode;
-                            if (!valueNodes.isEmpty()) {  // 新名称已经存在于 CCM（只是没有与该类连接），则利用
-                                valueNode = valueNodes.get(0);
-                                valueNode.addIcmId(icmId);
-                            } else {  // 新名称并不存在于 CCM，则新建
-                                valueNode = new ValueNode(ccmId, icmId, attributeNameNew);
-                            }
-                            RelationToValueEdge r2vEdge = new RelationToValueEdge(ccmId, icmId, "E1", "role", relationNode, valueNode);
-                            relationNode.addR2VEdge(r2vEdge);
-                            valueNode.addR2VEdge(r2vEdge);
-                        }
-                        relationNodeRepository.save(relationNode);
+                        // DO NOTHING (handled by MOD POA)
 
                         modelingResponse.addMessage("Modify attribute name from [" + attributeNameOld + "] to [" + attributeNameNew + "] in class [" + className + "] successfully.");
 
                         break;
                     }
-                    case "POA": {
+                    case "POA": {  // modify the value of an attribute
+
+                        // MOD POA class attribute property value
+                        String className = op.get(3);
+                        String attributeName = op.get(4);
+                        String propertyName = op.get(5);
+                        String propertyValueE1 = op.get(6);
+
+                        // 获取 relationship node
+                        RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
+                        assert relationNode != null;
+                        relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);
+
+                        if (propertyName.equals("type")) {
+                            this.modifyAttributeTypeProperty(ccmId, icmId, relationNode, propertyValueE1);
+
+                        } else {  // 非 class 特性 (propertyName != "type")
+                            this.modifyAttributeProperty(ccmId, icmId, relationNode, propertyName, propertyValueE1);
+                        }
+
+                        relationNodeRepository.save(relationNode);
+                        modelingResponse.addMessage("Modify property [" + propertyName + "] " +
+                                "to [" + propertyValueE1 + "] " +
+                                "in attribute [" + attributeName + "] " +
+                                "of class [" + className + "] successfully.");
+
                         break;
                     }
                     case "RLG": {  // modify the name of a relationshipGroup
@@ -1186,5 +1154,121 @@ public class WorkspaceService {
         // 删除 relationship 节点本身
         relationNode.removeIcmId(icmId);
         relationNodeRepository.save(relationNode);
+    }
+
+    /**
+     * 修改属性中的特性的值（type 特性除外）
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @param relationNode relationship node 提取深度需要大于等于 2
+     * @param propertyName 特性名
+     * @param propertyValue 特性值
+     */
+    private void modifyAttributeProperty(Long ccmId, Long icmId, RelationNode relationNode, String propertyName, String propertyValue) {  // relationship node 提取深度需要大于等于 2
+
+        if (propertyName.equals("name")) {  // 对于 attribute name property，要换名成 role
+            propertyName = "role";
+        }
+        boolean newAttributePropertyValueAlreadyConnected = false;  // 标志位，表示新属性名的 value 点是否已经在 CCM 中与 relationship 点连接
+        for (RelationToValueEdge r2vEdge: relationNode.getRtvEdges()) {
+            if (r2vEdge.getIcmSet().contains(icmId)
+                    && r2vEdge.getPort().equals("E1")
+                    && r2vEdge.getName().equals(propertyName)) {  // 删除旧名（ICM 中此点的 E1.{propertyName} 边唯一，因此不用进一步验证类型类的名字）
+                r2vEdge.removeIcmId(icmId);
+                r2vEdge.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
+            } else if (r2vEdge.getPort().equals("E1")
+                    && r2vEdge.getName().equals(propertyName)
+                    && r2vEdge.getEnder().getName().equals(propertyValue)) {  // 若新名称已在 CCM 中与该 relationship 连接，则直接利用
+                newAttributePropertyValueAlreadyConnected = true;
+                r2vEdge.addIcmId(icmId);
+                r2vEdge.getEnder().addIcmId(icmId);
+            }
+        }
+        if (!newAttributePropertyValueAlreadyConnected) {  // 若新名称没有在 CCM 中与该 relationship 连接
+            List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, propertyValue);
+            ValueNode valueNode;
+            if (!valueNodes.isEmpty()) {  // 新名称已经存在于 CCM（只是没有与该类连接），则利用
+                valueNode = valueNodes.get(0);
+                valueNode.addIcmId(icmId);
+            } else {  // 新名称并不存在于 CCM，则新建
+                valueNode = new ValueNode(ccmId, icmId, propertyValue);
+            }
+            RelationToValueEdge r2vEdge = new RelationToValueEdge(ccmId, icmId, "E1", propertyName, relationNode, valueNode);
+            relationNode.addR2VEdge(r2vEdge);
+            valueNode.addR2VEdge(r2vEdge);
+        }
+    }
+
+    /**
+     * 修改属性中的 type 特性的值
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @param relationNode relationship node 提取深度需要大于等于 2
+     * @param propertyValue 特性值
+     */
+    private void modifyAttributeTypeProperty(Long ccmId, Long icmId, RelationNode relationNode, String propertyValue) {
+
+        // 作为类型的类
+        if (propertyValue.equals("int") || propertyValue.equals("float") || propertyValue.equals("string") || propertyValue.equals("boolean")) {
+            propertyValue = "_" + propertyValue;  // 内置类型名称的特殊处理
+        }
+
+        for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+            if (r2cEdge.getIcmSet().contains(icmId)
+                    && r2cEdge.getPort().equals("E1")
+                    && r2cEdge.getName().equals("class")) {  // 找到类型类，删除联系边（ICM 中此点的 E1.class 边唯一，因此不用进一步验证类型类的名字）
+                r2cEdge.removeIcmId(icmId);
+                break;
+            }
+        }
+
+        boolean classNodeAlreadyConnected = false;
+        RelationToClassEdge r2cEdge= null;
+        ClassNode classNode= null;
+        ClassToValueEdge c2vEdge = null;
+        ValueNode valueNode = null;
+
+        for (RelationToClassEdge edge : relationNode.getRtcEdges()) {
+            if (edge.getPort().equals("E1") && edge.getName().equals("class")) {  //  && r2cEdge.getEnder().getIcmSet().contains(icmId)
+                classNode = edge.getEnder();
+                for (ClassToValueEdge edge2 : classNode.getCtvEdges()) {
+                    if (edge2.getName().equals("name") && edge2.getEnder().getName().equals(propertyValue)) {  // CCM 中存在 (r)-->(c)-->(v:{name:{propertyValueE1}})
+                        classNodeAlreadyConnected = true;
+                        valueNode = edge2.getEnder();
+                        r2cEdge = edge;
+                        c2vEdge = edge2;
+                        break;
+                    }
+                }
+            }
+            if (classNodeAlreadyConnected) break;
+        }
+        if (!classNodeAlreadyConnected) {
+            List<ClassNode> classNodes = classNodeRepository.getByNameFromCcm(ccmId, propertyValue);
+            if (!classNodes.isEmpty()) {  // CCM 中存在 (c)-->(v:{name:{propertyValueE1}})
+                classNode = classNodeRepository.findOne(classNodes.get(0).getId(), 1);  // CCM 中符合条件的 classNode 可能有多个，取第一个。getByNameFromCcm() 可保证第一个是引用数最多的一个
+                for (ClassToValueEdge edge : classNode.getCtvEdges()) {
+                    if (edge.getEnder().getName().equals(propertyValue)) {
+                        valueNode = edge.getEnder();
+                        c2vEdge = edge;
+                        break;
+                    }
+                }
+            } else {  // CCM 中不存在 (c)-->(v:{name:{propertyValueE1}})  （认为 CCM 中不可能存在没有 class 节点连接的名字为类名（Axxxx or _xxxx）的 value 节点）
+                classNode = new ClassNode(ccmId, icmId);
+                valueNode = new ValueNode(ccmId, icmId, propertyValue);
+                c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
+                classNode.addC2VEdge(c2vEdge);
+                valueNode.addC2VEdge(c2vEdge);
+            }
+            r2cEdge = new RelationToClassEdge(ccmId, icmId, "E1", "class", relationNode, classNode);
+            relationNode.addR2CEdge(r2cEdge);
+            classNode.addR2CEdge(r2cEdge);
+        }
+        assert valueNode != null;
+        valueNode.addIcmId(icmId);
+        c2vEdge.addIcmId(icmId);
+        classNode.addIcmId(icmId);
+        r2cEdge.addIcmId(icmId);
     }
 }
