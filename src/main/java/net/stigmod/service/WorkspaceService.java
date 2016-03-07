@@ -719,27 +719,27 @@ public class WorkspaceService {
                             orderRepository.save(attributeOrder);
                         }
 
-                        // 修改 Relationship Order 节点（如果存在的话）
-                        List<Order> relationshipOrders = orderRepository.getByIcmIdAndType(icmId, "RelOdr");  // 提取所有 Relationship Order
-                        for (Order relationshipOrder : relationshipOrders) {  // 逐一判断是否需要修改名称
-                            String[] classNames = relationshipOrder.getName().split("-");
-                            String relationGroupNameNew;
-                            if (classNames[0].equals(classNameOld) && classNames[1].equals(classNameOld)) {
-                                relationGroupNameNew = classNameNew + "-" + classNameNew;
-                            } else if (classNames[0].equals(classNameOld)) {
-                                relationGroupNameNew = classNameNew.compareTo(classNames[1]) < 0
-                                        ? classNameNew + "-" + classNames[1]
-                                        : classNames[1] + "-" + classNameNew;
-                            } else if (classNames[1].equals(classNameOld)) {
-                                relationGroupNameNew = classNameNew.compareTo(classNames[0]) < 0
-                                        ? classNameNew + "-" + classNames[0]
-                                        : classNames[0] + "-" + classNameNew;
-                            } else {
-                                continue;  // 此 order 不需要修改名称
-                            }
-                            relationshipOrder.setName(relationGroupNameNew);
-                            orderRepository.save(relationshipOrder);
-                        }
+//                        // 修改 Relationship Order 节点（如果存在的话）
+//                        List<Order> relationshipOrders = orderRepository.getByIcmIdAndType(icmId, "RelOdr");  // 提取所有 Relationship Order
+//                        for (Order relationshipOrder : relationshipOrders) {  // 逐一判断是否需要修改名称
+//                            String[] classNames = relationshipOrder.getName().split("-");
+//                            String relationGroupNameNew;
+//                            if (classNames[0].equals(classNameOld) && classNames[1].equals(classNameOld)) {
+//                                relationGroupNameNew = classNameNew + "-" + classNameNew;
+//                            } else if (classNames[0].equals(classNameOld)) {
+//                                relationGroupNameNew = classNameNew.compareTo(classNames[1]) < 0
+//                                        ? classNameNew + "-" + classNames[1]
+//                                        : classNames[1] + "-" + classNameNew;
+//                            } else if (classNames[1].equals(classNameOld)) {
+//                                relationGroupNameNew = classNameNew.compareTo(classNames[0]) < 0
+//                                        ? classNameNew + "-" + classNames[0]
+//                                        : classNames[0] + "-" + classNameNew;
+//                            } else {
+//                                continue;  // 此 order 不需要修改名称
+//                            }
+//                            relationshipOrder.setName(relationGroupNameNew);
+//                            orderRepository.save(relationshipOrder);
+//                        }
 
                         modelingResponse.addMessage("Modify class name from [" + classNameOld + "] to [" + classNameNew + "]  successfully.");
 
@@ -751,8 +751,21 @@ public class WorkspaceService {
                     case "POA": {
                         break;
                     }
-                    case "RLG": {
-                        // DO NOTHING
+                    case "RLG": {  // modify the name of a relationshipGroup
+
+                        // MOD RLG relationGroupOld relationGroupNew
+                        String relationshipGroupNameOld = op.get(3);
+                        String relationshipGroupNameNew = op.get(4);
+
+                        List<Order> relationshipOrders = orderRepository.getByIcmIdAndTypeAndName(icmId, "RelOdr", relationshipGroupNameOld);
+                        if (!relationshipOrders.isEmpty()) {
+                            Order attributeOrder = relationshipOrders.get(0);
+                            attributeOrder.setName(relationshipGroupNameNew);
+                            orderRepository.save(attributeOrder);
+                        }
+                        modelingResponse.addMessage("Modify relationship group name from [" + relationshipGroupNameOld + "] " +
+                                "to [" + relationshipGroupNameNew + "]  successfully.");
+
                         break;
                     }
                     case "RLT": {
