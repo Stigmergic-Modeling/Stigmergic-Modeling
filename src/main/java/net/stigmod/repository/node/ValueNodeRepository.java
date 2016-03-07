@@ -26,5 +26,5 @@ import java.util.List;
 public interface ValueNodeRepository extends GraphRepository<ValueNode> {
 
     @Query("MATCH (value:Value {name:{name},ccmId:{ccmId}}) RETURN value")
-    List<ValueNode> findByNameAndCcmId(@Param("name") String name, @Param("ccmId") Long ccmId);
+    List<ValueNode> getByCcmIdAndName(@Param("ccmId") Long ccmId, @Param("name") String name);
 }

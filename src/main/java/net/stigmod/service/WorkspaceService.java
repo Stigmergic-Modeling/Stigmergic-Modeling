@@ -20,7 +20,6 @@ import net.stigmod.repository.node.*;
 import net.stigmod.repository.relationship.*;
 import net.stigmod.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -584,7 +583,7 @@ public class WorkspaceService {
                         assert classNode != null;
                         classNode = classNodeRepository.findOne(classNode.getId(), 1);  // class name 在一个 ICM 中不会重复，因此不必观察存储类名的 value node 周围的边即可直接删除
                         for (ClassToValueEdge c2vEdge: classNode.getCtvEdges()) {
-                            if (c2vEdge.getIcmSet().contains(icmId)) {  // 直接删除
+                            if (c2vEdge.getIcmSet().contains(icmId) && c2vEdge.getName().equals("name")) {  // 直接删除
                                 c2vEdge.removeIcmId(icmId);
                                 c2vEdge.getEnder().removeIcmId(icmId);
                                 break;
@@ -675,7 +674,75 @@ public class WorkspaceService {
                 break;
             case "MOD":
                 switch (opO) {
-                    case "CLS": {
+                    case "CLS": {  // modify the name of a class
+
+                        // MOD CLS classOld classNew
+                        String classNameOld = op.get(3);
+                        String classNameNew = op.get(4);
+
+                        // 更换类所连接的 value 节点
+                        ClassNode classNode = classNodeRepository.getOneByName(ccmId, icmId, classNameOld);
+                        assert classNode != null;
+                        classNode = classNodeRepository.findOne(classNode.getId(), 1);  // class name 在一个 ICM 中不会重复，因此不必观察存储类名的 value node 周围的边即可直接删除
+
+                        boolean newClassNameAlreadyConnected = false;  // 标志位，表示新类名的 value 点是否已经在 CCM 中与 class 点连接
+                        for (ClassToValueEdge c2vEdge: classNode.getCtvEdges()) {
+                            if (c2vEdge.getIcmSet().contains(icmId) && c2vEdge.getName().equals("name") && c2vEdge.getEnder().getName().equals(classNameOld)) {  // 删除旧名
+                                c2vEdge.removeIcmId(icmId);
+                                c2vEdge.getEnder().removeIcmId(icmId);
+                            } else if (c2vEdge.getName().equals("name") && c2vEdge.getEnder().getName().equals(classNameNew)) {  // 若新名称已在 CCM 中与该类连接，则直接利用
+                                newClassNameAlreadyConnected = true;
+                                c2vEdge.addIcmId(icmId);
+                                c2vEdge.getEnder().addIcmId(icmId);
+                            }
+                        }
+                        if (!newClassNameAlreadyConnected) {  // 若新名称没有在 CCM 中与该类连接
+                            List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, classNameNew);
+                            ValueNode valueNode;
+                            if (!valueNodes.isEmpty()) {  // 新名称已经存在于 CCM（只是没有与该类连接），则利用
+                                valueNode = valueNodes.get(0);
+                                valueNode.addIcmId(icmId);
+                            } else {  // 新名称并不存在于 CCM，则新建
+                                valueNode = new ValueNode(ccmId, icmId, classNameNew);
+                            }
+                            ClassToValueEdge c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
+                            classNode.addC2VEdge(c2vEdge);
+                            valueNode.addC2VEdge(c2vEdge);
+                        }
+                        classNodeRepository.save(classNode);
+
+                        // 修改 Attribute Order 节点（如果存在的话）
+                        List<Order> attributeOrders = orderRepository.getByIcmIdAndTypeAndName(icmId, "AttOdr", classNameOld);
+                        if (!attributeOrders.isEmpty()) {
+                            Order attributeOrder = attributeOrders.get(0);
+                            attributeOrder.setName(classNameNew);
+                            orderRepository.save(attributeOrder);
+                        }
+
+                        // 修改 Relationship Order 节点（如果存在的话）
+                        List<Order> relationshipOrders = orderRepository.getByIcmIdAndType(icmId, "RelOdr");  // 提取所有 Relationship Order
+                        for (Order relationshipOrder : relationshipOrders) {  // 逐一判断是否需要修改名称
+                            String[] classNames = relationshipOrder.getName().split("-");
+                            String relationGroupNameNew;
+                            if (classNames[0].equals(classNameOld) && classNames[1].equals(classNameOld)) {
+                                relationGroupNameNew = classNameNew + "-" + classNameNew;
+                            } else if (classNames[0].equals(classNameOld)) {
+                                relationGroupNameNew = classNameNew.compareTo(classNames[1]) < 0
+                                        ? classNameNew + "-" + classNames[1]
+                                        : classNames[1] + "-" + classNameNew;
+                            } else if (classNames[1].equals(classNameOld)) {
+                                relationGroupNameNew = classNameNew.compareTo(classNames[0]) < 0
+                                        ? classNameNew + "-" + classNames[0]
+                                        : classNames[0] + "-" + classNameNew;
+                            } else {
+                                continue;  // 此 order 不需要修改名称
+                            }
+                            relationshipOrder.setName(relationGroupNameNew);
+                            orderRepository.save(relationshipOrder);
+                        }
+
+                        modelingResponse.addMessage("Modify class name from [" + classNameOld + "] to [" + classNameNew + "]  successfully.");
+
                         break;
                     }
                     case "ATT": {
@@ -685,9 +752,11 @@ public class WorkspaceService {
                         break;
                     }
                     case "RLG": {
+                        // DO NOTHING
                         break;
                     }
                     case "RLT": {
+                        // DO NOTHING
                         break;
                     }
                     case "POR": {
@@ -752,7 +821,7 @@ public class WorkspaceService {
      */
     @Transactional
     private Pair<ValueNode, Boolean> getValueNodeByName(Long ccmId, Long icmId, String name) {
-        List<ValueNode> valueNodes = valueNodeRepository.findByNameAndCcmId(name, ccmId);
+        List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, name);
         Boolean exist = !valueNodes.isEmpty();
         ValueNode valueNode = exist ? valueNodes.get(0) : new ValueNode(ccmId, icmId, name);
         if (exist) {
