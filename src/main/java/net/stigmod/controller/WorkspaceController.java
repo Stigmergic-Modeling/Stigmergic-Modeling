@@ -11,6 +11,7 @@ package net.stigmod.controller;
 
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingResponse;
+import net.stigmod.domain.info.RecommendationResponse;
 import net.stigmod.domain.page.UserPageData;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
@@ -105,10 +106,19 @@ public class WorkspaceController {
 //        String fakeRequstBody = "{\"date\":1456910848622,\"user\":\"Stoyan\",\"ccmId\":229,\"icmId\":241,\"icmName\":\"AnimalFarm\",\"log\":[[1456829560019, \"ADD\", \"CLS\", \"Hen\", \"244\", \"binding\"],[1456917060145, \"ADD\", \"ATT\", \"Hen\", \"leg\", \"246\", \"binding\"]],\"orderChanges\":{\"classes\":{},\"relationGroups\":{}}}";
 //        String fakeRequstBody = "{\"date\":1456910848622,\"user\":\"Stoyan\",\"ccmId\":229,\"icmId\":248,\"icmName\":\"AnimalFarm\",\"log\":[[1456829560019, \"ADD\", \"CLS\", \"Hen\", \"244\", \"binding\"],[1456917060145, \"ADD\", \"ATT\", \"Hen\", \"leg\", \"246\", \"binding\"]],\"orderChanges\":{\"classes\":{},\"relationGroups\":{}}}";
 //        ModelingResponse modelingResponse = workspaceService.modelingOperationSync(fakeRequstBody);
+
         ModelingResponse modelingResponse = workspaceService.modelingOperationSync(requestBody);
         System.out.println(modelingResponse);
 
         return modelingResponse;
+    }
+
+    // Workspace 页面 getCCM 请求
+    @RequestMapping(value = "/{icmName}/getccm", method = RequestMethod.GET)
+    @ResponseBody
+    public RecommendationResponse getCcm(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+        RecommendationResponse recRes = new RecommendationResponse();
+        return recRes;
     }
 
 }

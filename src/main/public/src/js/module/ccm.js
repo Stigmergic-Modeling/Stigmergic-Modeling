@@ -28,46 +28,153 @@ define(function (require, exports, module) {
             return new arguments.callee(ccmPassIn);
         }
 
-        this.clazz = {};
+        this.clazz = {
+            "101": {
+                "name": {
+                    "A": {"ref": 1},
+                    "B": {"ref": 1},
+                    "C": {"ref": 1}
+                },
+                "attribute": {
+                    "201": {
+                        "name": {
+                            "a": {"ref": 1},
+                            "b": {"ref": 1}
+                        },
+                        "type": {
+                            "int": {"ref": 1},
+                            "string": {"ref": 1}
+                        },
+                        "multiplicity": {
+                            "*": {"ref": 1},
+                            "2": {"ref": 1}
+                        },
+                        "ref": 1
+                    }
+                },
+                "ref": 1
+            },
+            "102": {
+                "name": {
+                    "D": {"ref": 1},
+                    "E": {"ref": 1},
+                    "F": {"ref": 1}
+                },
+                "attribute": {
+                    "202": {
+                        "name": {
+                            "a": {"ref": 1},
+                            "d": {"ref": 1}
+                        },
+                        "type": {
+                            "int": {"ref": 1},
+                            "101": {"ref": 1}  // 注意这里类型是某个类的ID
+                        },
+                        "multiplicity": {
+                            "*": {"ref": 1},
+                            "2": {"ref": 1}
+                        },
+                        "ref": 1
+                    },
+                    "203": {
+                        "name": {
+                            "e": {"ref": 1},
+                            "b": {"ref": 1}
+                        },
+                        "type": {
+                            "int": {"ref": 1},
+                            "string": {"ref": 1}
+                        },
+                        "multiplicity": {
+                            "*": {"ref": 1},
+                            "2": {"ref": 1}
+                        },
+                        "ref": 1
+                    }
+                },
+                "ref": 1
+            }
+        };
 
         this.relgrp = {
-            "554b0e254102f9a612c0a472-555066cd882a296d270c5507": {
-                "558366c7004b1400ebfce399": {
+            "101-102": {
+                "301": {
                     "type": {
-                        "Composition": {
-                            "ref": 1
-                        }
+                        "Composition": {"ref": 1}
                     },
                     "name": {
-                        "hasA": {
-                            "ref": 1
-                        }
+                        "hasA": {"ref": 1}
                     },
                     "role": {
-                        "whole-part": {
-                            "ref": 1
+                        "E0": {
+                            "whole": {"ref": 1}
+                        },
+                        "E1": {
+                            "part": {"ref": 1}
                         }
                     },
                     "clazz": {
-                        "554b0e254102f9a612c0a472-555066cd882a296d270c5507": {
-                            "ref": 1
+                        "E0": {
+                            "101": {"ref": 1}
+                        },
+                        "E1": {
+                            "102": {"ref": 1}
                         }
                     },
                     "multiplicity": {
-                        "1-*": {
-                            "ref": 1
+                        "E0": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1},
+                            "1..*": {"ref": 1}
                         },
-                        "*-*": {
-                            "ref": 1
-                        },
-                        "1..*-*": {
-                            "ref": 1
+                        "E1": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1}
                         }
                     },
                     "ref": 2
                 }
             }
         };
+
+        //this.relgrp = {
+        //    "101-102": {
+        //        "301": {
+        //            "type": {
+        //                "Composition": {
+        //                    "ref": 1
+        //                }
+        //            },
+        //            "name": {
+        //                "hasA": {
+        //                    "ref": 1
+        //                }
+        //            },
+        //            "role": {
+        //                "whole-part": {
+        //                    "ref": 1
+        //                }
+        //            },
+        //            "clazz": {
+        //                "101-102": {
+        //                    "ref": 1
+        //                }
+        //            },
+        //            "multiplicity": {
+        //                "1-*": {
+        //                    "ref": 1
+        //                },
+        //                "*-*": {
+        //                    "ref": 1
+        //                },
+        //                "1..*-*": {
+        //                    "ref": 1
+        //                }
+        //            },
+        //            "ref": 2
+        //        }
+        //    }
+        //};
 
     }
 
@@ -78,19 +185,20 @@ define(function (require, exports, module) {
         var ccm = this;
         var url = '/' + icmName + '/getccm';
 
-        $.ajax({
-            type: 'GET',
-            url: url,
-            dataType: 'json'
-        })
-                .done(function (collectiveModel) {
-                    ccm.clazz = collectiveModel.class;
-                    ccm.relgrp = collectiveModel.relationGroup;
-                    console.log('collectiveModel', collectiveModel);
-                })
-                .fail(function () {
-                    console.log('getCCM failed');
-                });
+        //$.ajax({
+        //    type: 'GET',
+        //    url: url,
+        //    //contentType: 'application/json',
+        //    dataType: 'json'
+        //})
+        //        .done(function (collectiveModel) {
+        //            ccm.clazz = collectiveModel.class;
+        //            ccm.relgrp = collectiveModel.relationGroup;
+        //            console.log('collectiveModel', collectiveModel);
+        //        })
+        //        .fail(function () {
+        //            console.log('getCCM failed');
+        //        });
     };
 
     /**
