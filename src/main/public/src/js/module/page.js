@@ -75,11 +75,11 @@ define(function (require, exports, module) {
         //    page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
         //}, recInterval);
 
-        // 页面打开20s后更新一次右侧推荐栏的推荐结果
-        //setTimeout(function() {
-        //    page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
-        //    page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
-        //}, 2000);
+        //
+        setTimeout(function() {
+            page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
+            page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
+        }, 2000);
 
 
         // 顶部栏(网站导航条之下)

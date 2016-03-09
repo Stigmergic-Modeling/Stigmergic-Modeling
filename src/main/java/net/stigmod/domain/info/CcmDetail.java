@@ -53,7 +53,7 @@ public class CcmDetail {
         public Map<String, Reference> composite = null;
         public Long ref = 0L;
 
-        public void addProperty
+//        public void addProperty
     }
 
     public class RelationshipGroup {
@@ -65,7 +65,7 @@ public class CcmDetail {
         public Map<String, Reference> name = new HashMap<>();
         public Map<String, Reference> type = new HashMap<>();
         public TwoEndsReference role = new TwoEndsReference();
-        public TwoEndsReference classs = new TwoEndsReference();  // 注意，这里 class 不能做属性名！需要在前端转换
+        public TwoEndsReference clazz = new TwoEndsReference();  // 注意，这里 class 不能做属性名！需要在前端转换
         public TwoEndsReference multiplicity = null;
         public TwoEndsReference ordering = null;
         public TwoEndsReference uniqueness = null;

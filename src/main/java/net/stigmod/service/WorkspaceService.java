@@ -243,19 +243,19 @@ public class WorkspaceService {
 //
 
         // 获取所有关系节点，向 ccmDetail 中添加所有属性和关系
-        List<RelationNode> relationNodesTemp = (List<RelationNode>)(List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Relationship");  // 获取所有关系节点
-        for (RelationNode relationNodeTemp : relationNodesTemp) {
-
-            // 深度 1 足够取到所有的关系节点、与关系直接相连的值节点、类节点，至于类名值节点，则从已经构建好的 ccmDetail 中获取
-            RelationNode relationNode = relationNodeRepository.findOne(relationNodeTemp.getId(), 1);
-            String type;
-            for (RelationToValueEdge)
-
-            if () {
-
-            }
-
-        }
+//        List<RelationNode> relationNodesTemp = (List<RelationNode>)(List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Relationship");  // 获取所有关系节点
+//        for (RelationNode relationNodeTemp : relationNodesTemp) {
+//
+//            // 深度 1 足够取到所有的关系节点、与关系直接相连的值节点、类节点，至于类名值节点，则从已经构建好的 ccmDetail 中获取
+//            RelationNode relationNode = relationNodeRepository.findOne(relationNodeTemp.getId(), 1);
+//            String type;
+//            for (RelationToValueEdge)
+//
+//            if () {
+//
+//            }
+//
+//        }
 
         return ccmDetail;
 
