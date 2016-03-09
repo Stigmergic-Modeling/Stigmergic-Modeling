@@ -215,6 +215,7 @@ public class WorkspaceService {
     public CcmDetail getCcmDetail(Long ccmId) {
 
         CcmDetail ccmDetail = new CcmDetail();
+        Map<Long, String> builtInClassIdNameMapping = new HashMap<>();  // 用于在关系构造时识别出关系两端类是否是内置的
 
         // 向 ccmDetail 中添加所有类信息
         List<Map<String, Object>> classInfos = classNodeRepository.getAllClassInfoBycmId(ccmId);
@@ -223,7 +224,12 @@ public class WorkspaceService {
             Long classRef = ((Integer) classInfo.get("classRef")).longValue();
             String className = (String) classInfo.get("className");
             Long nameRef = ((Integer) classInfo.get("nameRef")).longValue();
-            ccmDetail.addClass(classId, classRef, className, nameRef);
+
+            if (!className.startsWith("_")) {  // 过滤掉内置类
+                ccmDetail.addClass(classId, classRef, className, nameRef);
+            } else {
+                builtInClassIdNameMapping.put(classId, className);
+            }
         }
 
 
@@ -243,19 +249,57 @@ public class WorkspaceService {
 //
 
         // 获取所有关系节点，向 ccmDetail 中添加所有属性和关系
-//        List<RelationNode> relationNodesTemp = (List<RelationNode>)(List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Relationship");  // 获取所有关系节点
-//        for (RelationNode relationNodeTemp : relationNodesTemp) {
-//
-//            // 深度 1 足够取到所有的关系节点、与关系直接相连的值节点、类节点，至于类名值节点，则从已经构建好的 ccmDetail 中获取
-//            RelationNode relationNode = relationNodeRepository.findOne(relationNodeTemp.getId(), 1);
-//            String type;
-//            for (RelationToValueEdge)
-//
-//            if () {
-//
-//            }
-//
-//        }
+        List<RelationNode> relationNodesTemp = (List<RelationNode>)(List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Relationship");  // 获取所有关系节点
+        for (RelationNode relationNodeTemp : relationNodesTemp) {
+
+            // 深度 1 足够取到所有的关系节点、与关系直接相连的值节点、类节点，至于类名值节点，则从已经构建好的 ccmDetail 中获取
+            Long relationshipId = relationNodeTemp.getId();
+            Long relationshipRef = (long) relationNodeTemp.getIcmSet().size();
+            RelationNode relationNode = relationNodeRepository.findOne(relationshipId, 1);
+
+//            // 第一次遍历到 class 的边，确定可能的 relationship group 组合
+//            Set<Long> classIdsAsE0 = new HashSet<>();
+//            Set<Long> classIdsAsE1 = new HashSet<>();
+
+
+            // 遍历该 relationship 到 class 的边
+            for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+                if (r2cEdge.getIcmSet().size() > 0) {  // 滤掉没有用户引用的边
+                    Long classId = r2cEdge.getEnder().getId();
+                    String classIdString = builtInClassIdNameMapping.containsKey(classId)  // 将内置类的 Id 换成名字
+                            ? builtInClassIdNameMapping.get(classId)
+                            : classId.toString();
+                    ccmDetail.addRelationshipProperty(relationshipId, r2cEdge.getPort(), r2cEdge.getName(),
+                            classIdString, relationshipRef, (long) r2cEdge.getIcmSet().size());
+                }
+            }
+
+            // 遍历该 relationship 到 value 的边
+            for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+                if (r2vEdge.getIcmSet().size() > 0) {  // 滤掉没有用户引用的边
+                    String propertyName;
+                    String propertyValue;
+                    if (r2vEdge.getPort().equals("") && r2vEdge.getName().startsWith("is")) {  // 特殊处理 type 边
+                        propertyName = "type";
+                        propertyValue = r2vEdge.getName().substring(2);  // 去掉开头的 is
+                    } else {
+                        propertyName = r2vEdge.getName();
+                        propertyValue = r2vEdge.getEnder().getName();
+                        if (propertyValue.equals("#true")) {  // 去掉 #true #false 的 # 并大写第一个字母
+                            propertyValue = "True";
+                        }
+                        if (propertyValue.equals("#false")) {  // 去掉 #true #false 的 # 并大写第一个字母
+                            propertyValue = "False";
+                        }
+                    }
+
+                    ccmDetail.addRelationshipProperty(relationshipId, r2vEdge.getPort(), propertyName,
+                            propertyValue, relationshipRef, (long) r2vEdge.getIcmSet().size());
+                }
+            }
+        }
+
+        ccmDetail.fillInAttAndRelLists();  // relationshipId 按类型填入 list
 
         return ccmDetail;
 

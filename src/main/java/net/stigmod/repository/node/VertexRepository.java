@@ -27,6 +27,7 @@ public interface VertexRepository extends GraphRepository<Vertex> {
     @Query("MATCH (vertex) WHERE {label} IN labels(vertex) AND toString({icmId}) IN vertex.icmSet RETURN vertex")
     List<Vertex> getAllByIcmIdAndLabel(@Param("icmId") Long icmId, @Param("label") String label);
 
-    @Query("MATCH (vertex {ccmId: {ccmId}}) WHERE {label} IN labels(vertex) RETURN vertex")
+    @Query("MATCH (vertex {ccmId: {ccmId}}) WHERE {label} IN labels(vertex) " +
+            "AND size(vertex.icmSet) > 0 RETURN vertex")  // icmSet 为空的点是已删除的点
     List<Vertex> getAllByCcmIdAndLabel(@Param("ccmId") Long ccmId, @Param("label") String label);
 }

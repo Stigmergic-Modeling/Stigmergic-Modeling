@@ -64,32 +64,34 @@ define(function (require, exports, module) {
                 "name": {
                     "hasA": {"ref": 1}
                 },
-                "role": {
-                    "E0": {
-                        "whole": {"ref": 1}
+                "property": {
+                    "role": {
+                        "E0": {
+                            "whole": {"ref": 1}
+                        },
+                        "E1": {
+                            "part": {"ref": 1}
+                        }
                     },
-                    "E1": {
-                        "part": {"ref": 1}
-                    }
-                },
-                "clazz": {
-                    "E0": {
-                        "101": {"ref": 1}
+                    "clazz": {
+                        "E0": {
+                            "101": {"ref": 1}
+                        },
+                        "E1": {
+                            "102": {"ref": 1},
+                            "_string": {"ref": 2}
+                        }
                     },
-                    "E1": {
-                        "102": {"ref": 1},
-                        "_string": {"ref": 2}
-                    }
-                },
-                "multiplicity": {
-                    "E0": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1},
-                        "1..*": {"ref": 1}
-                    },
-                    "E1": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1}
+                    "multiplicity": {
+                        "E0": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1},
+                            "1..*": {"ref": 1}
+                        },
+                        "E1": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1}
+                        }
                     }
                 },
                 "ref": 1
@@ -102,31 +104,34 @@ define(function (require, exports, module) {
                 "name": {
                     "hasA": {"ref": 1}
                 },
-                "role": {
-                    "E0": {
-                        "whole": {"ref": 1}
+                "property": {
+                    "role": {
+                        "E0": {
+                            "whole": {"ref": 1}
+                        },
+                        "E1": {
+                            "part": {"ref": 1}
+                        }
                     },
-                    "E1": {
-                        "part": {"ref": 1}
-                    }
-                },
-                "clazz": {
-                    "E0": {
-                        "102": {"ref": 1}
+                    "clazz": {
+                        "E0": {
+                            "101": {"ref": 1}
+                        },
+                        "E1": {
+                            "102": {"ref": 1},
+                            "_string": {"ref": 2}
+                        }
                     },
-                    "E1": {
-                        "101": {"ref": 1}
-                    }
-                },
-                "multiplicity": {
-                    "E0": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1},
-                        "1..*": {"ref": 1}
-                    },
-                    "E1": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1}
+                    "multiplicity": {
+                        "E0": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1},
+                            "1..*": {"ref": 1}
+                        },
+                        "E1": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1}
+                        }
                     }
                 },
                 "ref": 1
@@ -139,31 +144,34 @@ define(function (require, exports, module) {
                 "name": {
                     "hasA": {"ref": 1}
                 },
-                "role": {
-                    "E0": {
-                        "whole": {"ref": 1}
+                "property": {
+                    "role": {
+                        "E0": {
+                            "whole": {"ref": 1}
+                        },
+                        "E1": {
+                            "part": {"ref": 1}
+                        }
                     },
-                    "E1": {
-                        "part": {"ref": 1}
-                    }
-                },
-                "clazz": {
-                    "E0": {
-                        "102": {"ref": 1}
+                    "clazz": {
+                        "E0": {
+                            "101": {"ref": 1}
+                        },
+                        "E1": {
+                            "102": {"ref": 1},
+                            "_string": {"ref": 2}
+                        }
                     },
-                    "E1": {
-                        "101": {"ref": 1}
-                    }
-                },
-                "multiplicity": {
-                    "E0": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1},
-                        "1..*": {"ref": 1}
-                    },
-                    "E1": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1}
+                    "multiplicity": {
+                        "E0": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1},
+                            "1..*": {"ref": 1}
+                        },
+                        "E1": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1}
+                        }
                     }
                 },
                 "ref": 1
@@ -176,31 +184,34 @@ define(function (require, exports, module) {
                 "name": {
                     "hasA": {"ref": 1}
                 },
-                "role": {
-                    "E0": {
-                        "whole": {"ref": 1}
+                "property": {
+                    "role": {
+                        "E0": {
+                            "whole": {"ref": 1}
+                        },
+                        "E1": {
+                            "part": {"ref": 1}
+                        }
                     },
-                    "E1": {
-                        "part": {"ref": 1}
-                    }
-                },
-                "clazz": {
-                    "E0": {
-                        "101": {"ref": 1}
+                    "clazz": {
+                        "E0": {
+                            "101": {"ref": 1}
+                        },
+                        "E1": {
+                            "102": {"ref": 1},
+                            "_string": {"ref": 2}
+                        }
                     },
-                    "E1": {
-                        "102": {"ref": 1}
-                    }
-                },
-                "multiplicity": {
-                    "E0": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1},
-                        "1..*": {"ref": 1}
-                    },
-                    "E1": {
-                        "1": {"ref": 1},
-                        "*": {"ref": 1}
+                    "multiplicity": {
+                        "E0": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1},
+                            "1..*": {"ref": 1}
+                        },
+                        "E1": {
+                            "1": {"ref": 1},
+                            "*": {"ref": 1}
+                        }
                     }
                 },
                 "ref": 2
@@ -366,20 +377,21 @@ define(function (require, exports, module) {
         var ccm = this;
         var url = '/' + icmName + '/getccm';
 
-        //$.ajax({
-        //    type: 'GET',
-        //    url: url,
-        //    //contentType: 'application/json',
-        //    dataType: 'json'
-        //})
-        //        .done(function (collectiveModel) {
-        //            ccm.clazz = collectiveModel.class;
-        //            ccm.relgrp = collectiveModel.relationGroup;
-        //            console.log('collectiveModel', collectiveModel);
-        //        })
-        //        .fail(function () {
-        //            console.log('getCCM failed');
-        //        });
+        $.ajax({
+            type: 'GET',
+            url: url,
+            //contentType: 'application/json',
+            dataType: 'json'
+        })
+                .done(function (collectiveModel) {
+                    ccm.clazz = collectiveModel.clazz;
+                    ccm.relgrp = collectiveModel.relgrp;
+                    ccm.relationship = collectiveModel.relationship;
+                    console.log('collectiveModel', collectiveModel);
+                })
+                .fail(function () {
+                    console.log('getCCM failed');
+                });
     };
 
     /**
@@ -556,8 +568,8 @@ define(function (require, exports, module) {
             clazz.attribute = [];
             for (var j = 0; j < attributeIds.length; j++) {
                 var attributeInfo = this.relationship[attributeIds[j]];
-                var attributeNames = attributeInfo.role.E1;
-                var attributeTypes = attributeInfo.clazz.E1;
+                var attributeNames = attributeInfo.property.role.E1;
+                var attributeTypes = attributeInfo.property.clazz.E1;
 
                 // 获取该 attribute 引用数
                 tmpObj = {};
