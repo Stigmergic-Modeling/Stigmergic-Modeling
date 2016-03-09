@@ -139,6 +139,117 @@ define(function (require, exports, module) {
             }
         };
 
+        //this.clazz = {
+        //    "101": {
+        //        "name": {
+        //            "A": {"ref": 1},
+        //            "B": {"ref": 1},
+        //            "C": {"ref": 1}
+        //        },
+        //        "attribute": {
+        //            "201": {  // 每个 attribute 可能在多个 class 中出现
+        //                "name": {
+        //                    "a": {"ref": 1},
+        //                    "b": {"ref": 1}
+        //                },
+        //                "type": {
+        //                    "int": {"ref": 1},
+        //                    "string": {"ref": 1}
+        //                },
+        //                "multiplicity": {
+        //                    "*": {"ref": 1},
+        //                    "2": {"ref": 1}
+        //                },
+        //                "ref": 1
+        //            }
+        //        },
+        //        "ref": 1
+        //    },
+        //    "102": {
+        //        "name": {
+        //            "D": {"ref": 1},
+        //            "E": {"ref": 1},
+        //            "F": {"ref": 1}
+        //        },
+        //        "attribute": {
+        //            "202": {
+        //                "name": {
+        //                    "a": {"ref": 1},
+        //                    "d": {"ref": 1}
+        //                },
+        //                "type": {
+        //                    "int": {"ref": 1},
+        //                    "101": {"ref": 1}  // 注意这里类型是某个类的ID
+        //                },
+        //                "multiplicity": {
+        //                    "*": {"ref": 1},
+        //                    "2": {"ref": 1}
+        //                },
+        //                "ref": 1
+        //            },
+        //            "203": {
+        //                "name": {
+        //                    "e": {"ref": 1},
+        //                    "b": {"ref": 1}
+        //                },
+        //                "type": {
+        //                    "int": {"ref": 1},
+        //                    "string": {"ref": 1}
+        //                },
+        //                "multiplicity": {
+        //                    "*": {"ref": 1},
+        //                    "2": {"ref": 1}
+        //                },
+        //                "ref": 1
+        //            }
+        //        },
+        //        "ref": 1
+        //    }
+        //};
+        //
+        //this.relgrp = {
+        //    "101-102": {
+        //        "relationship": {
+        //            "301": {
+        //                "type": {
+        //                    "Composition": {"ref": 1}
+        //                },
+        //                "name": {
+        //                    "hasA": {"ref": 1}
+        //                },
+        //                "role": {
+        //                    "E0": {
+        //                        "whole": {"ref": 1}
+        //                    },
+        //                    "E1": {
+        //                        "part": {"ref": 1}
+        //                    }
+        //                },
+        //                "clazz": {  // 这个其实是多余的，E0 和 E1 都只可能有一种取值
+        //                    "E0": {
+        //                        "101": {"ref": 1}
+        //                    },
+        //                    "E1": {
+        //                        "102": {"ref": 1}
+        //                    }
+        //                },
+        //                "multiplicity": {
+        //                    "E0": {
+        //                        "1": {"ref": 1},
+        //                        "*": {"ref": 1},
+        //                        "1..*": {"ref": 1}
+        //                    },
+        //                    "E1": {
+        //                        "1": {"ref": 1},
+        //                        "*": {"ref": 1}
+        //                    }
+        //                },
+        //                "ref": 2
+        //            }
+        //        }
+        //    }
+        //};
+
         //this.relgrp = {
         //    "101-102": {
         //        "301": {
@@ -187,20 +298,20 @@ define(function (require, exports, module) {
         var ccm = this;
         var url = '/' + icmName + '/getccm';
 
-        //$.ajax({
-        //    type: 'GET',
-        //    url: url,
-        //    //contentType: 'application/json',
-        //    dataType: 'json'
-        //})
-        //        .done(function (collectiveModel) {
-        //            ccm.clazz = collectiveModel.class;
-        //            ccm.relgrp = collectiveModel.relationGroup;
-        //            console.log('collectiveModel', collectiveModel);
-        //        })
-        //        .fail(function () {
-        //            console.log('getCCM failed');
-        //        });
+        $.ajax({
+            type: 'GET',
+            url: url,
+            //contentType: 'application/json',
+            dataType: 'json'
+        })
+                .done(function (collectiveModel) {
+                    ccm.clazz = collectiveModel.class;
+                    ccm.relgrp = collectiveModel.relationGroup;
+                    console.log('collectiveModel', collectiveModel);
+                })
+                .fail(function () {
+                    console.log('getCCM failed');
+                });
     };
 
     /**
@@ -251,7 +362,7 @@ define(function (require, exports, module) {
      */
     CCM.prototype.getAttributeNames = function (icm, classCluster, className) {
         if (!this.clazz[classCluster]) {
-            return [];
+            return [];2
         }
 
         var attributes = this.clazz[classCluster].attribute,

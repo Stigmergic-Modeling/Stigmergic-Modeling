@@ -25,7 +25,16 @@ public class CcmDetail {
     public class Clazz {
         public Map<String, Reference> name = new HashMap<>();
         public Map<String, Attribute> attribute = new HashMap<>();
-        public long ref = 0L;
+        public Long ref = 0L;
+
+        public Clazz(Long classRef, String className, Long nameRef) {  // 初始化时，添加一个 name，其他 name 后续添加
+            this.name.put(className, new Reference(nameRef));
+            this.ref = classRef;
+        }
+
+        public void addClassName(String className, Long nameRef) {  // 后续添加 name
+            this.name.put(className, new Reference(nameRef));
+        }
     }
 
     public class Attribute {
@@ -42,7 +51,9 @@ public class CcmDetail {
         public Map<String, Reference> subsets = null;
         public Map<String, Reference> redefines = null;
         public Map<String, Reference> composite = null;
-        public long ref = 0L;
+        public Long ref = 0L;
+
+        public void addProperty
     }
 
     public class RelationshipGroup {
@@ -62,15 +73,36 @@ public class CcmDetail {
         public TwoEndsReference union = null;
         public TwoEndsReference subsets = null;
         public TwoEndsReference redefines = null;
-        public long ref = 0L;
+        public Long ref = 0L;
     }
 
     public class Reference {
-        public long ref = 0L;
+        public Long ref = 0L;
+
+        public Reference(Long ref) {
+            this.ref = ref;
+        }
     }
 
     public class TwoEndsReference {
         public Map<String, Reference> E0 = new HashMap<>();
         public Map<String, Reference> E1 = new HashMap<>();
+    }
+
+
+    /**
+     * 添加类、类引用数、类名引用数
+     * @param classId 类节点后端 ID
+     * @param classRef 类节点引用数
+     * @param className 类名
+     * @param nameRef 类名引用数
+     */
+    public void addClass(Long classId, Long classRef, String className, Long nameRef) {
+        String classIdString = classId.toString();
+        if (!this.clazz.containsKey(classIdString)) {  // 首次添加这个类（以 ID 区分）
+            this.clazz.put(classIdString, new Clazz(classRef, className, nameRef));
+        } else {  // 非首次添加这个类（以 ID 区分）
+            this.clazz.get(classIdString).addClassName(className, nameRef);
+        }
     }
 }

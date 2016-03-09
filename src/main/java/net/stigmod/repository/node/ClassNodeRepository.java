@@ -55,4 +55,9 @@ public interface ClassNodeRepository extends GraphRepository<ClassNode>{
             "AND toString({icmId}) IN value.icmSet " +
             "RETURN value.name as className, id(class) as classId")
     List<Map<String, Object>> getAllClassNamesAndIdsByIcmId(@Param("icmId") Long icmId);
+
+    @Query("MATCH (class:Class {ccmId: {ccmId}})-[edge:PROPERTY {name:'name'}]->(value:Value) " +
+            "RETURN value.name as className, id(class) as classId, " +
+            "size(class.icmSet) as classRef, size(edge.icmSet) as nameRef")
+    List<Map<String, Object>> getAllClassInfoBycmId(@Param("ccmId") Long ccmId);
 }

@@ -67,15 +67,19 @@ define(function (require, exports, module) {
         // 右侧栏
         this.rightColWgt = new RightColWgt('#stigmod-rcmd-right');
         //page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
-        //var recInterval = 20000;  // 每隔20s更新一侧右侧推荐栏的推荐结果
-        setTimeout(function() {
-            page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
-            page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
-        }, 2000);
+
+        // 每隔20s更新一次右侧推荐栏的推荐结果
+        //var recInterval = 20000;
         //setInterval(function() {
         //    page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
         //    page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
         //}, recInterval);
+
+        // 页面打开20s后更新一次右侧推荐栏的推荐结果
+        //setTimeout(function() {
+        //    page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
+        //    page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
+        //}, 2000);
 
 
         // 顶部栏(网站导航条之下)

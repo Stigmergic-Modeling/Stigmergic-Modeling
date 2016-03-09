@@ -119,7 +119,6 @@ public class WorkspaceController {
     public CcmDetail getCcm(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
 //        RecommendationResponse recRes = new RecommendationResponse();
 
-
         try {
             Long ccmId = 229L;
             CcmDetail ccmDetail = workspaceService.getCcmDetail(ccmId);

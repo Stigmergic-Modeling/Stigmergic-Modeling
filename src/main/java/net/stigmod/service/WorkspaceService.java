@@ -214,10 +214,50 @@ public class WorkspaceService {
      */
     public CcmDetail getCcmDetail(Long ccmId) {
 
-        // 获取所有类节点
-        List<ClassNode> classNodes = (List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Class");
+        CcmDetail ccmDetail = new CcmDetail();
 
-        return new CcmDetail();
+        // 向 ccmDetail 中添加所有类信息
+        List<Map<String, Object>> classInfos = classNodeRepository.getAllClassInfoBycmId(ccmId);
+        for (Map<String, Object> classInfo : classInfos) {
+            Long classId = ((Integer) classInfo.get("classId")).longValue();
+            Long classRef = ((Integer) classInfo.get("classRef")).longValue();
+            String className = (String) classInfo.get("className");
+            Long nameRef = ((Integer) classInfo.get("nameRef")).longValue();
+            ccmDetail.addClass(classId, classRef, className, nameRef);
+        }
+
+
+//        // 获取所有类节点，向 ccmDetail 中添加所有类（暂时废弃，转而使用提取关键信息而不是整个节点对象）
+//        List<ClassNode> classNodesTemp = (List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Class");  // 获取所有类节点
+//        for (ClassNode classNodeTemp : classNodesTemp) {
+//            ClassNode classNode = classNodeRepository.findOne(classNodeTemp.getId(), 1);  // 用深度 1 重取，以获得类周围的边信息
+//            Map<String, Long> classNameAndRef = new HashMap<>();
+//            for (ClassToValueEdge c2vEdge : classNode.getCtvEdges()) {  // 构造 classNameAndRef
+//                Long ref = (long) c2vEdge.getIcmSet().size();
+//                if (ref > 0) {  // ref == 0 的边是已经删除的边
+//                    classNameAndRef.put(c2vEdge.getEnder().getName(), ref);
+//                }
+//            }
+//            ccmDetail.addClass(classNode.getId(), classNameAndRef, (long) classNode.getIcmSet().size());  // 向 ccmDetail 中添加一个类
+//        }
+//
+
+        // 获取所有关系节点，向 ccmDetail 中添加所有属性和关系
+        List<RelationNode> relationNodesTemp = (List<RelationNode>)(List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Relationship");  // 获取所有关系节点
+        for (RelationNode relationNodeTemp : relationNodesTemp) {
+
+            // 深度 1 足够取到所有的关系节点、与关系直接相连的值节点、类节点，至于类名值节点，则从已经构建好的 ccmDetail 中获取
+            RelationNode relationNode = relationNodeRepository.findOne(relationNodeTemp.getId(), 1);
+            String type;
+            for (RelationToValueEdge)
+
+            if () {
+
+            }
+
+        }
+
+        return ccmDetail;
 
     }
 
