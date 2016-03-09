@@ -12,6 +12,7 @@ package net.stigmod.service;
 import com.google.gson.Gson;
 import javafx.util.Pair;
 import net.stigmod.domain.conceptualmodel.*;
+import net.stigmod.domain.info.CcmDetail;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
@@ -56,8 +57,8 @@ public class WorkspaceService {
 //    @Autowired
 //    private RelationToVEdgeRepository r2vEdgeRepository;
 //
-//    @Autowired
-//    private VertexRepository vertexRepository;
+    @Autowired
+    private VertexRepository vertexRepository;
 
     @Autowired
     private EdgeRepository edgeRepository;
@@ -69,10 +70,11 @@ public class WorkspaceService {
 
     /**
      * 从前端向后端同步建模结果
+     * （之所以叫同步，是因为一来是后端获取前端的建模结果并保存，二来后端也向前端传递 frontId 到 backId 的映射）
      * @param molJsonString 字符串形式的 LOG
      * @return 要返回给前端的 Response
      */
-    public ModelingResponse modelingOperationSync(String molJsonString) {
+    public ModelingResponse syncModelingOperations(String molJsonString) {
         ModelingOperationLog mol = constructMOL(molJsonString);
         return executeMOL(mol);
     }
@@ -203,6 +205,20 @@ public class WorkspaceService {
         icmDetail.addRelationshipOrders(relationshipOrders);
 
         return icmDetail;
+    }
+
+    /**
+     * 构造用于前端推荐的 CCM 详细信息
+     * @param ccmId ccmId
+     * @return CCM 详细信息
+     */
+    public CcmDetail getCcmDetail(Long ccmId) {
+
+        // 获取所有类节点
+        List<ClassNode> classNodes = (List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Class");
+
+        return new CcmDetail();
+
     }
 
     /**

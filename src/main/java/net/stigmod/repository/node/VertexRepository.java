@@ -24,6 +24,9 @@ import java.util.List;
 @Repository
 public interface VertexRepository extends GraphRepository<Vertex> {
 
-    @Query("MATCH (vertex:{label}) WHERE toString({icmId}) in vertex.icmSet RETURN vertex")
+    @Query("MATCH (vertex) WHERE {label} IN labels(vertex) AND toString({icmId}) IN vertex.icmSet RETURN vertex")
     List<Vertex> getAllByIcmIdAndLabel(@Param("icmId") Long icmId, @Param("label") String label);
+
+    @Query("MATCH (vertex {ccmId: {ccmId}}) WHERE {label} IN labels(vertex) RETURN vertex")
+    List<Vertex> getAllByCcmIdAndLabel(@Param("ccmId") Long ccmId, @Param("label") String label);
 }

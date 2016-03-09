@@ -36,7 +36,7 @@ define(function (require, exports, module) {
                     "C": {"ref": 1}
                 },
                 "attribute": {
-                    "201": {
+                    "201": {  // 每个 attribute 可能在多个 class 中出现
                         "name": {
                             "a": {"ref": 1},
                             "b": {"ref": 1}
@@ -98,41 +98,43 @@ define(function (require, exports, module) {
 
         this.relgrp = {
             "101-102": {
-                "301": {
-                    "type": {
-                        "Composition": {"ref": 1}
-                    },
-                    "name": {
-                        "hasA": {"ref": 1}
-                    },
-                    "role": {
-                        "E0": {
-                            "whole": {"ref": 1}
+                "relationship": {
+                    "301": {
+                        "type": {
+                            "Composition": {"ref": 1}
                         },
-                        "E1": {
-                            "part": {"ref": 1}
-                        }
-                    },
-                    "clazz": {
-                        "E0": {
-                            "101": {"ref": 1}
+                        "name": {
+                            "hasA": {"ref": 1}
                         },
-                        "E1": {
-                            "102": {"ref": 1}
-                        }
-                    },
-                    "multiplicity": {
-                        "E0": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1},
-                            "1..*": {"ref": 1}
+                        "role": {
+                            "E0": {
+                                "whole": {"ref": 1}
+                            },
+                            "E1": {
+                                "part": {"ref": 1}
+                            }
                         },
-                        "E1": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1}
-                        }
-                    },
-                    "ref": 2
+                        "clazz": {  // 这个其实是多余的，E0 和 E1 都只可能有一种取值
+                            "E0": {
+                                "101": {"ref": 1}
+                            },
+                            "E1": {
+                                "102": {"ref": 1}
+                            }
+                        },
+                        "multiplicity": {
+                            "E0": {
+                                "1": {"ref": 1},
+                                "*": {"ref": 1},
+                                "1..*": {"ref": 1}
+                            },
+                            "E1": {
+                                "1": {"ref": 1},
+                                "*": {"ref": 1}
+                            }
+                        },
+                        "ref": 2
+                    }
                 }
             }
         };

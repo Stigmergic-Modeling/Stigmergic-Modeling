@@ -9,9 +9,9 @@
 
 package net.stigmod.controller;
 
+import net.stigmod.domain.info.CcmDetail;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingResponse;
-import net.stigmod.domain.info.RecommendationResponse;
 import net.stigmod.domain.page.UserPageData;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
@@ -101,13 +101,13 @@ public class WorkspaceController {
     // Workspace 页面 Synchronize Ajax POST
     @RequestMapping(value = "/{icmName}/workspace", method = RequestMethod.POST)
     @ResponseBody
-    public ModelingResponse workspace(@PathVariable String icmName, @RequestBody String requestBody) {
+    public ModelingResponse workspace(@PathVariable String icmName, @RequestBody String modelingOperationLogJsonString) {
 
 //        String fakeRequstBody = "{\"date\":1456910848622,\"user\":\"Stoyan\",\"ccmId\":229,\"icmId\":241,\"icmName\":\"AnimalFarm\",\"log\":[[1456829560019, \"ADD\", \"CLS\", \"Hen\", \"244\", \"binding\"],[1456917060145, \"ADD\", \"ATT\", \"Hen\", \"leg\", \"246\", \"binding\"]],\"orderChanges\":{\"classes\":{},\"relationGroups\":{}}}";
 //        String fakeRequstBody = "{\"date\":1456910848622,\"user\":\"Stoyan\",\"ccmId\":229,\"icmId\":248,\"icmName\":\"AnimalFarm\",\"log\":[[1456829560019, \"ADD\", \"CLS\", \"Hen\", \"244\", \"binding\"],[1456917060145, \"ADD\", \"ATT\", \"Hen\", \"leg\", \"246\", \"binding\"]],\"orderChanges\":{\"classes\":{},\"relationGroups\":{}}}";
-//        ModelingResponse modelingResponse = workspaceService.modelingOperationSync(fakeRequstBody);
+//        ModelingResponse modelingResponse = workspaceService.syncModelingOperations(fakeRequstBody);
 
-        ModelingResponse modelingResponse = workspaceService.modelingOperationSync(requestBody);
+        ModelingResponse modelingResponse = workspaceService.syncModelingOperations(modelingOperationLogJsonString);
         System.out.println(modelingResponse);
 
         return modelingResponse;
@@ -116,9 +116,20 @@ public class WorkspaceController {
     // Workspace 页面 getCCM 请求
     @RequestMapping(value = "/{icmName}/getccm", method = RequestMethod.GET)
     @ResponseBody
-    public RecommendationResponse getCcm(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
-        RecommendationResponse recRes = new RecommendationResponse();
-        return recRes;
+    public CcmDetail getCcm(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+//        RecommendationResponse recRes = new RecommendationResponse();
+
+
+        try {
+            Long ccmId = 229L;
+            CcmDetail ccmDetail = workspaceService.getCcmDetail(ccmId);
+            System.out.println(ccmDetail);
+            return ccmDetail;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new CcmDetail();
+        }
     }
 
 }
