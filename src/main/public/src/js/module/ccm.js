@@ -10,7 +10,7 @@ define(function (require, exports, module) {
      *
      *  ----------------------------------  */
 
-    function CCM(ccmPassIn) {
+    function CCM(ccmId) {
 
         /*  ----------------------------------  *
          *
@@ -25,9 +25,12 @@ define(function (require, exports, module) {
          *  ----------------------------------  */
 
         if (!(this instanceof arguments.callee)) {
-            return new arguments.callee(ccmPassIn);
+            return new arguments.callee(ccmId);
         }
 
+        this.ccmId = ccmId;
+
+        // 示例数据
         this.clazz = {
             "101": {
                 "name": {
@@ -218,156 +221,6 @@ define(function (require, exports, module) {
             }
         };
 
-        //this.clazz = {
-        //    "101": {
-        //        "name": {
-        //            "A": {"ref": 1},
-        //            "B": {"ref": 1},
-        //            "C": {"ref": 1}
-        //        },
-        //        "attribute": {
-        //            "201": {  // 每个 attribute 可能在多个 class 中出现
-        //                "name": {
-        //                    "a": {"ref": 1},
-        //                    "b": {"ref": 1}
-        //                },
-        //                "type": {
-        //                    "int": {"ref": 1},
-        //                    "string": {"ref": 1}
-        //                },
-        //                "multiplicity": {
-        //                    "*": {"ref": 1},
-        //                    "2": {"ref": 1}
-        //                },
-        //                "ref": 1
-        //            }
-        //        },
-        //        "ref": 1
-        //    },
-        //    "102": {
-        //        "name": {
-        //            "D": {"ref": 1},
-        //            "E": {"ref": 1},
-        //            "F": {"ref": 1}
-        //        },
-        //        "attribute": {
-        //            "202": {
-        //                "name": {
-        //                    "a": {"ref": 1},
-        //                    "d": {"ref": 1}
-        //                },
-        //                "type": {
-        //                    "int": {"ref": 1},
-        //                    "101": {"ref": 1}  // 注意这里类型是某个类的ID
-        //                },
-        //                "multiplicity": {
-        //                    "*": {"ref": 1},
-        //                    "2": {"ref": 1}
-        //                },
-        //                "ref": 1
-        //            },
-        //            "203": {
-        //                "name": {
-        //                    "e": {"ref": 1},
-        //                    "b": {"ref": 1}
-        //                },
-        //                "type": {
-        //                    "int": {"ref": 1},
-        //                    "string": {"ref": 1}
-        //                },
-        //                "multiplicity": {
-        //                    "*": {"ref": 1},
-        //                    "2": {"ref": 1}
-        //                },
-        //                "ref": 1
-        //            }
-        //        },
-        //        "ref": 1
-        //    }
-        //};
-        //
-        //this.relgrp = {
-        //    "101-102": {
-        //        "relationship": {
-        //            "301": {
-        //                "type": {
-        //                    "Composition": {"ref": 1}
-        //                },
-        //                "name": {
-        //                    "hasA": {"ref": 1}
-        //                },
-        //                "role": {
-        //                    "E0": {
-        //                        "whole": {"ref": 1}
-        //                    },
-        //                    "E1": {
-        //                        "part": {"ref": 1}
-        //                    }
-        //                },
-        //                "clazz": {  // 这个其实是多余的，E0 和 E1 都只可能有一种取值
-        //                    "E0": {
-        //                        "101": {"ref": 1}
-        //                    },
-        //                    "E1": {
-        //                        "102": {"ref": 1}
-        //                    }
-        //                },
-        //                "multiplicity": {
-        //                    "E0": {
-        //                        "1": {"ref": 1},
-        //                        "*": {"ref": 1},
-        //                        "1..*": {"ref": 1}
-        //                    },
-        //                    "E1": {
-        //                        "1": {"ref": 1},
-        //                        "*": {"ref": 1}
-        //                    }
-        //                },
-        //                "ref": 2
-        //            }
-        //        }
-        //    }
-        //};
-
-        //this.relgrp = {
-        //    "101-102": {
-        //        "301": {
-        //            "type": {
-        //                "Composition": {
-        //                    "ref": 1
-        //                }
-        //            },
-        //            "name": {
-        //                "hasA": {
-        //                    "ref": 1
-        //                }
-        //            },
-        //            "role": {
-        //                "whole-part": {
-        //                    "ref": 1
-        //                }
-        //            },
-        //            "clazz": {
-        //                "101-102": {
-        //                    "ref": 1
-        //                }
-        //            },
-        //            "multiplicity": {
-        //                "1-*": {
-        //                    "ref": 1
-        //                },
-        //                "*-*": {
-        //                    "ref": 1
-        //                },
-        //                "1..*-*": {
-        //                    "ref": 1
-        //                }
-        //            },
-        //            "ref": 2
-        //        }
-        //    }
-        //};
-
     }
 
     /**
@@ -375,7 +228,7 @@ define(function (require, exports, module) {
      */
     CCM.prototype.getCCM = function (icmName) {
         var ccm = this;
-        var url = '/' + icmName + '/getccm';
+        var url = '/' + icmName + '/getccm?ccmId=' + ccm.ccmId;
 
         $.ajax({
             type: 'GET',
@@ -513,7 +366,7 @@ define(function (require, exports, module) {
         for (classCluster in this.clazz) {
             if (this.clazz.hasOwnProperty(classCluster)) {
 
-                // 获取引用数最多的名字  TODO 排除内置类型类
+                // 获取引用数最多的名字（后端传来的数据中已经过滤掉内置类型）
                 clazz = {};
                 clazz.id = classCluster;  // 记录id，用于采用推荐时绑定
                 maxRef = 0;
@@ -529,39 +382,13 @@ define(function (require, exports, module) {
                 if (clazz.name in classNamesInICM || clazz.id in classIdsInICM) {
                     continue;  // 与当前 ICM class 名称相同的 CCM class 不会被推荐  TODO: 只要id不同，就换第二高引用的名字来推荐该类，除非该类只有一个名字（与icm中重名）
                 }
-
-                //// 获取所有的属性
-                //attributes = this.clazz[classCluster].attribute;
-                //clazz.attribute = [];
-                //for (attribute in attributes) {
-                //    if (attributes.hasOwnProperty(attribute)) {
-                //
-                //        // TODO: 按引用数取最高
-                //        tmpObj = {
-                //            name: Object.keys(attributes[attribute].name)[0],
-                //            ref: attributes[attribute].ref
-                //        };
-                //        if (attributes[attribute].type) {
-                //            var tmpValue = Object.keys(attributes[attribute].type)[0];
-                //            if (tmpValue !== '_int' && tmpValue !== '_string' && tmpValue !== '_float' && tmpValue !== '_boolean') {
-                //                tmpObj.type = 'ClassType';  // TODO 从classid映射成name（若ICM中没有该id，则需要从ccm重寻找……）
-                //            } else {
-                //                tmpObj.type = tmpValue;
-                //            }
-                //        }
-                //
-                //        clazz.attribute.push(tmpObj);
-                //    }
-                //}
-
-
                 classIdNameMappingInCCM[clazz.id] = clazz.name;  // 用于记录每个 ICM class node 中引用数最高的名字
                 classes.push(clazz);
             }
         }
 
         // 第二遍，提取可能被推荐类的属性（属性名和属性类型）
-        for (i = 0; i < classes.length; i++) {
+        for (var i = 0; i < classes.length; i++) {
 
             clazz = classes[i];
             var attributeIds = this.clazz[clazz.id].attribute;

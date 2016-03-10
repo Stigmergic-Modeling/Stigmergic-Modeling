@@ -39,7 +39,7 @@ define(function (require, exports, module) {
         // 模型
         this.stateOfPage = new StateOfPage(stateRawData);
         this.icm = new ICM(icmRawData);
-        this.ccm = new CCM();
+        this.ccm = new CCM(stateRawData.ccmId);
         //console.log('icm', this.icm);
 
         // 参数

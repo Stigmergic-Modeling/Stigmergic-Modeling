@@ -232,22 +232,6 @@ public class WorkspaceService {
             }
         }
 
-
-//        // 获取所有类节点，向 ccmDetail 中添加所有类（暂时废弃，转而使用提取关键信息而不是整个节点对象）
-//        List<ClassNode> classNodesTemp = (List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Class");  // 获取所有类节点
-//        for (ClassNode classNodeTemp : classNodesTemp) {
-//            ClassNode classNode = classNodeRepository.findOne(classNodeTemp.getId(), 1);  // 用深度 1 重取，以获得类周围的边信息
-//            Map<String, Long> classNameAndRef = new HashMap<>();
-//            for (ClassToValueEdge c2vEdge : classNode.getCtvEdges()) {  // 构造 classNameAndRef
-//                Long ref = (long) c2vEdge.getIcmSet().size();
-//                if (ref > 0) {  // ref == 0 的边是已经删除的边
-//                    classNameAndRef.put(c2vEdge.getEnder().getName(), ref);
-//                }
-//            }
-//            ccmDetail.addClass(classNode.getId(), classNameAndRef, (long) classNode.getIcmSet().size());  // 向 ccmDetail 中添加一个类
-//        }
-//
-
         // 获取所有关系节点，向 ccmDetail 中添加所有属性和关系
         List<RelationNode> relationNodesTemp = (List<RelationNode>)(List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Relationship");  // 获取所有关系节点
         for (RelationNode relationNodeTemp : relationNodesTemp) {
@@ -256,11 +240,6 @@ public class WorkspaceService {
             Long relationshipId = relationNodeTemp.getId();
             Long relationshipRef = (long) relationNodeTemp.getIcmSet().size();
             RelationNode relationNode = relationNodeRepository.findOne(relationshipId, 1);
-
-//            // 第一次遍历到 class 的边，确定可能的 relationship group 组合
-//            Set<Long> classIdsAsE0 = new HashSet<>();
-//            Set<Long> classIdsAsE1 = new HashSet<>();
-
 
             // 遍历该 relationship 到 class 的边
             for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
@@ -299,10 +278,10 @@ public class WorkspaceService {
             }
         }
 
-        ccmDetail.fillInAttAndRelLists();  // relationshipId 按类型填入 list
+        // relationshipId 按类型填入 list
+        ccmDetail.fillInAttAndRelLists();
 
         return ccmDetail;
-
     }
 
     /**

@@ -113,14 +113,11 @@ public class WorkspaceController {
         return modelingResponse;
     }
 
-    // Workspace 页面 getCCM 请求
+    // Workspace 页面 getCCM ajax GET
     @RequestMapping(value = "/{icmName}/getccm", method = RequestMethod.GET)
     @ResponseBody
-    public CcmDetail getCcm(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
-//        RecommendationResponse recRes = new RecommendationResponse();
-
+    public CcmDetail getCcm(@PathVariable String icmName, @RequestParam("ccmId") Long ccmId) {
         try {
-            Long ccmId = 229L;
             CcmDetail ccmDetail = workspaceService.getCcmDetail(ccmId);
             System.out.println(ccmDetail);
             return ccmDetail;
