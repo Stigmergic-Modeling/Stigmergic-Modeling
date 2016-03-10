@@ -12,6 +12,7 @@ package net.stigmod.service;
 import com.google.gson.Gson;
 import javafx.util.Pair;
 import net.stigmod.domain.conceptualmodel.*;
+import net.stigmod.domain.info.CcmDetail;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
@@ -56,8 +57,8 @@ public class WorkspaceService {
 //    @Autowired
 //    private RelationToVEdgeRepository r2vEdgeRepository;
 //
-//    @Autowired
-//    private VertexRepository vertexRepository;
+    @Autowired
+    private VertexRepository vertexRepository;
 
     @Autowired
     private EdgeRepository edgeRepository;
@@ -69,10 +70,11 @@ public class WorkspaceService {
 
     /**
      * 从前端向后端同步建模结果
+     * （之所以叫同步，是因为一来是后端获取前端的建模结果并保存，二来后端也向前端传递 frontId 到 backId 的映射）
      * @param molJsonString 字符串形式的 LOG
      * @return 要返回给前端的 Response
      */
-    public ModelingResponse modelingOperationSync(String molJsonString) {
+    public ModelingResponse syncModelingOperations(String molJsonString) {
         ModelingOperationLog mol = constructMOL(molJsonString);
         return executeMOL(mol);
     }
@@ -131,11 +133,17 @@ public class WorkspaceService {
                 for (Map<String, Object> relationshipProperty : relationshipProperties) {
                     if (relationshipProperty.get("port").equals("E1")) {  // E1 端是有有效信息的端
                         String propertyName = (String) relationshipProperty.get("propertyName");
-                        String key = propertyName.equals("role") ? "name" : propertyName;
                         if (propertyName.equals("role")) {
                             attributeName = (String) relationshipProperty.get("propertyValue");
                         }
-                        propertyAndValues.put(key, (String) relationshipProperty.get("propertyValue"));
+                        String key = propertyName.equals("role") ? "name" : propertyName;
+                        String value = (String) relationshipProperty.get("propertyValue");
+                        if (value.equals("#true")) {  // 对于 true 和 false 特殊处理
+                            value = "True";
+                        } else if (value.equals("#false")) {  // 对于 true 和 false 特殊处理
+                            value = "False";
+                        }
+                        propertyAndValues.put(key, value);
                     }
                 }
 
@@ -152,6 +160,11 @@ public class WorkspaceService {
                     String port = (String) relationshipProperty.get("port");
                     String propertyName = (String) relationshipProperty.get("propertyName");
                     String propertyValue = (String) relationshipProperty.get("propertyValue");
+                    if (propertyValue.equals("#true")) {  // 对于 true 和 false 特殊处理
+                        propertyValue = "True";
+                    } else if (propertyValue.equals("#false")) {  // 对于 true 和 false 特殊处理
+                        propertyValue = "False";
+                    }
 
                     if (propertyName.equals("name")) {  // 有可能没有名字
                         relationshipName = propertyValue;
@@ -192,6 +205,20 @@ public class WorkspaceService {
         icmDetail.addRelationshipOrders(relationshipOrders);
 
         return icmDetail;
+    }
+
+    /**
+     * 构造用于前端推荐的 CCM 详细信息
+     * @param ccmId ccmId
+     * @return CCM 详细信息
+     */
+    public CcmDetail getCcmDetail(Long ccmId) {
+
+        // 获取所有类节点
+        List<ClassNode> classNodes = (List) vertexRepository.getAllByCcmIdAndLabel(ccmId, "Class");
+
+        return new CcmDetail();
+
     }
 
     /**
@@ -409,7 +436,7 @@ public class WorkspaceService {
                         /*
                          *  添加 (relationship)-[isAttribute]->(value)
                          */
-                        this.addValueNodeAndR2VEdge(ccmId, icmId, "", "isAttribute", relationNode, "true");
+                        this.addValueNodeAndR2VEdge(ccmId, icmId, "", "isAttribute", relationNode, "#true");
 
                         /*
                          *  添加 (relationship)-[e0.role]->(value)
@@ -495,7 +522,7 @@ public class WorkspaceService {
                                 case "readOnly":
                                 case "union":
                                 case "composite":
-                                    propertyValueE0 = "true";
+                                    propertyValueE0 = "#true";
                                     break;
                                 default:
                                     return;
@@ -529,7 +556,7 @@ public class WorkspaceService {
                             case "type":   // 关系的类型和名称（名称可能为空字符串）
 
                                 String typeEdgeName = "is" + propertyValueE0;
-                                this.addValueNodeAndR2VEdge(ccmId, icmId, "", typeEdgeName, relationNode, "true");
+                                this.addValueNodeAndR2VEdge(ccmId, icmId, "", typeEdgeName, relationNode, "#true");
 
                                 if (!propertyValueE1.equals("")) {  // 若有名字，则添加
                                     this.addValueNodeAndR2VEdge(ccmId, icmId, "", "name", relationNode, propertyValueE1);
@@ -1397,7 +1424,7 @@ public class WorkspaceService {
         for (RelationToValueEdge r2vEdge: relationNode.getRtvEdges()) {
             // type
             if (isValueE0Modified && r2vEdge.getIcmSet().contains(icmId) && r2vEdge.getPort().equals("")
-                    && !r2vEdge.getName().equals("name") && r2vEdge.getEnder().getName().equals("true")) {  // port 为空的边，其 name 除了“name”就是“isXXXX”了
+                    && !r2vEdge.getName().equals("name") && r2vEdge.getEnder().getName().equals("#true")) {  // port 为空的边，其 name 除了“name”就是“isXXXX”了
                 if (r2vEdge.getName().equals(relationshipTypeEdgeName)) {  // type 的 edge name 没有修改
                     isValueE0Modified = false;
                 } else {  // type 的 edge name 被修改了
@@ -1405,7 +1432,7 @@ public class WorkspaceService {
                     r2vEdge.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
                 }
             } else if (isValueE0Modified && r2vEdge.getPort().equals("") && r2vEdge.getName().equals(relationshipTypeEdgeName)
-                    && r2vEdge.getEnder().getName().equals("true")) {  // 若新名称已在 CCM 中与该 relationship 连接，则直接利用
+                    && r2vEdge.getEnder().getName().equals("#true")) {  // 若新名称已在 CCM 中与该 relationship 连接，则直接利用
                 newPropertyValue0AlreadyConnected = true;
                 r2vEdge.addIcmId(icmId);
                 r2vEdge.getEnder().addIcmId(icmId);
@@ -1428,13 +1455,13 @@ public class WorkspaceService {
 
         // type
         if (isValueE0Modified && !newPropertyValue0AlreadyConnected) {  // 若新名称没有在 CCM 中与该 relationship 连接
-            List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, "true");
+            List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, "#true");
             ValueNode valueNode;
             if (!valueNodes.isEmpty()) {  // 新名称已经存在于 CCM（只是没有与该类连接），则利用
                 valueNode = valueNodes.get(0);
                 valueNode.addIcmId(icmId);
             } else {  // 新名称并不存在于 CCM，则新建
-                valueNode = new ValueNode(ccmId, icmId, "true");
+                valueNode = new ValueNode(ccmId, icmId, "#true");
             }
             RelationToValueEdge r2vEdge = new RelationToValueEdge(ccmId, icmId, "", relationshipTypeEdgeName, relationNode, valueNode);
             relationNode.addR2VEdge(r2vEdge);

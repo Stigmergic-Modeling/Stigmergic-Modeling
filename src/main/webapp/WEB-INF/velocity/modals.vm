@@ -58,7 +58,7 @@
 
         <div class="modal-content modal-normal modal-normal-no-animation">
             <div class="modal-header">
-                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'RELATION GROUP'</h4>
+                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'RELATIONSHIP GROUP'</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -288,12 +288,12 @@
 
         <div class="modal-content modal-normal modal-normal-animation">
             <div class="modal-header">
-                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'RELATION'</h4>
+                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'RELATIONSHIP'</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-xs-12">
-                        <p class="stigmod-modal-subtitle"><span class="glyphicon glyphicon-shopping-cart"></span> Choose 'Properties' you want to add to the 'Relation'</p>
+                        <p class="stigmod-modal-subtitle"><span class="glyphicon glyphicon-shopping-cart"></span> Choose 'Properties' you want to add to the 'Relationship'</p>
                         <div class="stigmod-align-center-8">
                             <div class="row stigmod-background">
                                 <div class="col-xs-4">
@@ -556,7 +556,7 @@
                     <div id = "Relation">
                         <svg width = "150" height = "24">
                             <line id = "relationLegend" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#DFE1E3" stroke-width="2"/>
-                            <text x="35" y = "19">Relation</text>
+                            <text x="35" y = "19">Relationship</text>
                         </svg>
                     </div>
                 </div>

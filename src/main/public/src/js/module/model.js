@@ -526,17 +526,17 @@ define(function (require, exports, module) {
                             item.push(args[0]);
 
                             if (0 === path[0]) {
-                                if (args[1] === 'True') args[1] = 'true';
-                                if (args[1] === 'False') args[1] = 'false';
+                                if (args[1] === 'True') args[1] = '#true';
+                                if (args[1] === 'False') args[1] = '#false';
                                 item.push(args[1]);
 
                             } else {
                                 var propertyValueE0 = args[1][0].toString();  // 将数组转换成字符串
                                 var propertyValueE1 = args[1][1].toString();
-                                if (propertyValueE0 === 'True') propertyValueE0 = 'true';
-                                if (propertyValueE0 === 'False') propertyValueE0 = 'false';
-                                if (propertyValueE1 === 'True') propertyValueE1 = 'true';
-                                if (propertyValueE1 === 'False') propertyValueE1 = 'false';
+                                if (propertyValueE0 === 'True') propertyValueE0 = '#true';
+                                if (propertyValueE0 === 'False') propertyValueE0 = '#false';
+                                if (propertyValueE1 === 'True') propertyValueE1 = '#true';
+                                if (propertyValueE1 === 'False') propertyValueE1 = '#false';
                                 item.push(propertyValueE0);
                                 item.push(propertyValueE1);
                             }
@@ -596,17 +596,17 @@ define(function (require, exports, module) {
                             item.push(args[0]);
 
                             if (0 === path[0]) {
-                                if (args[1] === 'True') args[1] = 'true';
-                                if (args[1] === 'False') args[1] = 'false';
+                                if (args[1] === 'True') args[1] = '#true';
+                                if (args[1] === 'False') args[1] = '#false';
                                 item.push(args[1]);
 
                             } else {
                                 propertyValueE0 = args[1][0].toString();  // 将数组转换成字符串
                                 propertyValueE1 = args[1][1].toString();
-                                if (propertyValueE0 === 'True') propertyValueE0 = 'true';
-                                if (propertyValueE0 === 'False') propertyValueE0 = 'false';
-                                if (propertyValueE1 === 'True') propertyValueE1 = 'true';
-                                if (propertyValueE1 === 'False') propertyValueE1 = 'false';
+                                if (propertyValueE0 === 'True') propertyValueE0 = '#true';
+                                if (propertyValueE0 === 'False') propertyValueE0 = '#false';
+                                if (propertyValueE1 === 'True') propertyValueE1 = '#true';
+                                if (propertyValueE1 === 'False') propertyValueE1 = '#false';
                                 item.push(propertyValueE0);
                                 item.push(propertyValueE1);
                             }

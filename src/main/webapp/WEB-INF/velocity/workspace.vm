@@ -105,7 +105,7 @@
                         <div class="panel-heading stigmod-hovershow-trig">
                             <h3 class="panel-title">
                                 <span class="glyphicon glyphicon-random stigmod-classname-icon"></span>
-                                <span class="stigmod-classname-title">RELATION GROUP</span>
+                                <span class="stigmod-classname-title">RELATIONSHIP GROUP</span>
                             </h3>
                         </div>
                         <div class="list-group">
@@ -167,7 +167,7 @@
 
                     <!--<div class="panel panel-default">-->
                     <!--<div class="panel-heading">-->
-                    <!--<div class="panel-title stigmod-rcmd-title">RELATION</div>-->
+                    <!--<div class="panel-title stigmod-rcmd-title">RELATIONSHIP</div>-->
                     <!--</div>-->
                     <!--<div class="list-group" id="stigmod-rcmd-relation">-->
                     <!--<a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="Course" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">Courses (Name) <span class="pull-right stigmod-hovershow-cont"><span class="fa fa-magnet"></span>&nbsp;&nbsp;<span class="fa fa-plus" data-toggle="modal" data-target="#stigmod-modal-addclass-disp"></span></span></a>-->
@@ -654,7 +654,7 @@
         <div class="col-xs-4">
             <div class="btn-group pull-right">
                 <button type="button" class="btn btn-default stigmod-addattrel-trig stigmod-addattrel-last">
-                    <span class="glyphicon glyphicon-plus" data-toggle="tooltip" data-placement="left" data-original-title="Add a new relation"></span>
+                    <span class="glyphicon glyphicon-plus" data-toggle="tooltip" data-placement="left" data-original-title="Add a new relationship"></span>
                 </button>
                 <button type="button" class="btn btn-default stigmod-clickedit-btn-edit" disabled>
                     <span class="glyphicon glyphicon-edit"></span>
@@ -664,7 +664,7 @@
                         <span class="glyphicon glyphicon-cog" data-toggle="tooltip" data-placement="left" data-original-title="Configurations"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                        <li><a href="#" class="stigmod-remove-trig">Delete this relation group</a></li>
+                        <li><a href="#" class="stigmod-remove-trig">Delete this relationship group</a></li>
                     </ul>
                 </div>
             </div>
@@ -674,12 +674,12 @@
     <div id="stigmod-cont-right">
         <!-- 属性 -->
         <div class="panel-heading">
-            <p id="stigmod-rel-title"><span class="fa fa-book"></span>&nbsp; RELATION</p>
+            <p id="stigmod-rel-title"><span class="fa fa-book"></span>&nbsp; RELATIONSHIP</p>
         </div>
         <!-- relation template here -->
         <div class="list-group">
             <div class="list-group-item text-center stigmod-cursor-pointer stigmod-addattrel-trig stigmod-addattrel-last">
-                <a>Add a New Relation</a>
+                <a>Add a New Relationship</a>
             </div>
         </div>
     </div>
@@ -714,14 +714,14 @@
             <span class="stigmod-dropdown-addattrel">
               <span data-toggle="dropdown"><span class="fa fa-plus" data-toggle="tooltip" data-placement="top" data-original-title="Add a new property"></span></span>
               <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                  <li class="stigmod-addattrel-trig stigmod-addattrel-above" role="presentation"><a role="menuitem" tabindex="-1" href="#">Add a new Relation above</a></li>
-                  <li class="stigmod-addattrel-trig stigmod-addattrel-below" role="presentation"><a role="menuitem" tabindex="-1" href="#">Add a new Relation below</a></li>
+                  <li class="stigmod-addattrel-trig stigmod-addattrel-above" role="presentation"><a role="menuitem" tabindex="-1" href="#">Add a new Relationship above</a></li>
+                  <li class="stigmod-addattrel-trig stigmod-addattrel-below" role="presentation"><a role="menuitem" tabindex="-1" href="#">Add a new Relationship below</a></li>
               </ul>
             </span>
                             <span>&nbsp;&nbsp;&nbsp;</span>
                             <span><span class="fa fa-arrow-up" data-toggle="tooltip" data-placement="top" data-original-title="Move up"></span></span>
                             <span><span class="fa fa-arrow-down" data-toggle="tooltip" data-placement="top" data-original-title="Move down"></span></span></span><span>&nbsp;&nbsp;&nbsp;</span>
-            <span><span class="fa fa-remove" data-toggle="tooltip" data-placement="top" data-original-title="Remove this relation"></span>
+            <span><span class="fa fa-remove" data-toggle="tooltip" data-placement="top" data-original-title="Remove this relationship"></span>
                         </div>
                     </div>
                 </div>
@@ -1139,7 +1139,7 @@
     <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="" data-placement="left" data-html="true" data-content="">
         <span class="tag"></span>
     <span class="pull-right stigmod-hovershow-cont">
-      <span class="fa fa-magnet">
+      <span class="fa fa-hand-lizard-o">
       </span>
     </span>
     </a>
