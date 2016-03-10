@@ -39,7 +39,7 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
             "<--(:Class)" +
             "<--(rel:Relationship)" +
             "-[edge1{name:'role',port:'E1'}]->(:Value {name:{attributeName}, ccmId:{ccmId}}), " +
-            "(rel:Relationship)-[edge2{name:'isAttribute'}]->(:Value {name:'true', ccmId:{ccmId}}) " +
+            "(rel:Relationship)-[edge2{name:'isAttribute'}]->(:Value {name:'#true', ccmId:{ccmId}}) " +
             "WHERE toString({icmId}) IN rel.icmSet " +
             "AND toString({icmId}) IN edge1.icmSet " +
             "AND toString({icmId}) IN edge2.icmSet " +
@@ -50,7 +50,7 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
                                                    @Param("attributeName") String attributeName);
 
 
-    @Query("MATCH (relationship:Relationship)-[edge:PROPERTY]->(value:Value {name:'true'}) " +
+    @Query("MATCH (relationship:Relationship)-[edge:PROPERTY]->(value:Value {name:'#true'}) " +
             "WHERE edge.port='' " +
             "AND NOT edge.name='name' " +
             "AND toString({icmId}) IN relationship.icmSet " +
