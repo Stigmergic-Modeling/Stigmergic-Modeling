@@ -1,0 +1,105 @@
+#parse ("header.vm")
+
+<div id="stigmod-pg-user-settings">
+    <div class="row">
+        <!-- 左侧信息栏 -->
+        <div class="col-xs-3" id="stigmod-settings-left">
+            <div class="panel panel-default">
+                <div class="panel-heading">Personal settings</div>
+                <div class="list-group">
+                    <a href="/user/settings/profile" class="list-group-item stigmod-cursor-pointer">Profile</a>
+                    <a href="/user/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
+                    <a class="list-group-item stigmod-cursor-pointer active">
+                        <span>Model settings</span>
+                        <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 中间栏 -->
+        <div class="col-xs-3" id="stigmod-settings-mid">
+            <div class="panel panel-default">
+                <div class="panel-heading">Model settings</div>
+                <div class="list-group">
+                    <a href="/user/settings/model" class="list-group-item stigmod-cursor-pointer">General</a>
+
+                    #foreach (${icm} in ${icms})
+                        <a
+                        #if (${currentIcm.getName()} != ${icm.getName()})
+                        href="/user/settings/model/${icm.getName()}"
+                        #end
+                        class="list-group-item stigmod-cursor-pointer
+                        #if (${currentIcm.getName()} == ${icm.getName()})
+                        active
+                        #end
+                        ">
+                        <span>${icm.getName()}</span>
+                        #if (${currentIcm.getName()} == ${icm.getName()})
+                        <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                        #end
+                        </a>
+                    #end
+
+##                    <% modelInfo.forEach(function(info) { %>
+##                    <a
+##                    <% if (name !== info.name) { %>
+##                    href="/user/settings/model/<%= info.name %>"
+##                    <% } %>
+##                    class="list-group-item stigmod-cursor-pointer
+##                    <% if (name === info.name) { %>
+##                    active
+##                    <% } %>
+##                    ">
+##                    <span><%= info.name %></span>
+##                    <% if (name === info.name) { %>
+##                    <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+##                    <% } %>
+##                    </a>
+##                    <% }); %>
+                </div>
+            </div>
+        </div>
+        <!-- 右侧栏 -->
+        <div class="col-xs-6 stigmod-settings-right">
+            <div class="panel panel-default">
+                <div class="panel-heading">Update model</div>
+                <div class="row stigmod-settings-left-inner">
+                    <div class="col-xs-12">
+                        <form action="/user/settings/model/${currentIcm.getName()}/update" method="post">
+                            <dl>
+                                <dt>Name</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}" disabled /></dd>
+                            </dl>
+                            <dl>
+                                <dt>Description</dt>
+                                <dd>
+                                    <textarea type="text" class="stigmod-input stigmod-textarea" name="description">${currentIcm.getDescription()}</textarea>
+                                </dd>
+                            </dl>
+                            <dl>
+                                <dt>TODO: 针对此模型的个性化设置，如attribute中默认的property个数等</dt>
+                                <dd></dd>
+                            </dl>
+                            <button type="submit" class="btn btn-success">Update model settings</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-danger">
+                <div class="panel-heading">Delete model</div>
+                <div class="row stigmod-settings-left-inner">
+                    <div class="col-xs-12">
+                        <form action="/user/settings/model/${currentIcm.getName()}/delete" method="post">
+                            <input type="hidden" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}" />
+                            <p>Once you delete a model, there is no going back. Please be certain.</p>
+                            <button type="submit" class="btn btn-danger">Delete model</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

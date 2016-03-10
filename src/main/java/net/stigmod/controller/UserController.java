@@ -9,6 +9,8 @@
 
 package net.stigmod.controller;
 
+import net.stigmod.domain.info.IcmDetail;
+import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
 //import net.stigmod.repository.MovieRepository;
 import net.stigmod.domain.page.NewModelPageData;
@@ -24,11 +26,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 /**
  * Handle user related page requests
@@ -97,25 +101,22 @@ public class UserController {
     // POST 新建模型（全新新建方式）
     @RequestMapping(value = "/newmodel/clean", method = RequestMethod.POST)
     public String doNewModelClean(@RequestParam(value = "name") String name,
-                                      @RequestParam(value = "description") String description,
-                                      ModelMap model) {
+                                  @RequestParam(value = "description") String description,
+                                  ModelMap model) {
         final User user = userRepository.getUserFromSession();
 
         try {
             modelService.createIcmClean(user, name, description);
-//            model.addAttribute("success", "Create new model successfully.");
-//            model.addAttribute("title", "Workspace");
-
             return "redirect:/" + name + "/workspace";
 
         } catch(Exception e) {
             logger.info("createIcmClean fail");
+            e.printStackTrace();
             model.addAttribute("error", e.getMessage());
             model.addAttribute("title", "New Model");
             model.addAttribute("user", user);
             model.addAttribute("host", host);
             model.addAttribute("port", port);
-
             return "new_model";
         }
     }
@@ -130,23 +131,108 @@ public class UserController {
 
         try {
             modelService.createIcmInherited(user, name, description, ccmId);
-//            model.addAttribute("success", "Create new model successfully.");
-//            model.addAttribute("title", "Workspace");
-
             return "redirect:/" + name + "/workspace";
 
         } catch(Exception e) {
             logger.info("createIcmInherited fail");
+            e.printStackTrace();
             model.addAttribute("error", e.getMessage());
             model.addAttribute("title", "New Model");
             model.addAttribute("user", user);
             model.addAttribute("host", host);
             model.addAttribute("port", port);
-
             return "new_model";
         }
     }
 
+    // GET 用户设置 profile 页面
+    @RequestMapping(value = "/user/settings/profile", method = RequestMethod.GET)
+    public String settings(ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
 
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Profile Settings");
+        return "user_settings";
+    }
+
+    // GET 用户设置 account 页面
+    @RequestMapping(value = "/user/settings/account", method = RequestMethod.GET)
+    public String settingsAccount(ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Account Settings");
+        return "user_settings_account";
+    }
+
+    // GET 用户设置 model 页面
+    @RequestMapping(value = "/user/settings/model", method = RequestMethod.GET)
+    public String settingsModel(ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Model Settings");
+
+        try {
+            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            model.addAttribute("icms", icms);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "user_settings_model";
+    }
+
+    // GET 用户设置 model specific 页面
+    @RequestMapping(value = "/user/settings/model/{icmName}", method = RequestMethod.GET)
+    public String settingsModelSpecific(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Specific Model Settings");
+
+        try {
+            IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
+            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            model.addAttribute("currentIcm", currentIcm);
+            model.addAttribute("icms", icms);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "user_settings_model_specific";
+    }
 }
 

@@ -8,7 +8,7 @@
             #if (${avatar})
                 <img src="${avatar}" class="img-responsive img-rounded"/>
             #else
-                <a href="/u/settings/profile">
+                <a href="/user/settings/profile">
                     <img src="/static/dist/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
                 </a>
             #end
@@ -17,13 +17,13 @@
 ##            <div id="stigmod-username">${user.getMail()}</div>
             <hr />
             <div id="stigmod-info-left">
-                #if (${user.getLocation()})
+                #if ("${user.getLocation()}" != "")
                     <p><span class="glyphicon glyphicon-map-marker stigmod-detailinfo-icon"></span>&nbsp;${user.getLocation()}</p>
                 #end
                 #if (${user.getMail()})
                     <p><span class="glyphicon glyphicon-envelope stigmod-detailinfo-icon"></span>&nbsp;${user.getMail()}</p>
                 #end
-                #if (${user.getUrl()})
+                #if ("${user.getUrl()}" != "")
                     <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span>&nbsp;${user.getUrl()}</p>
                 #end
                 #if (${user.getSignUpDate()})
@@ -60,7 +60,7 @@
                             <input type="text" class="form-control" placeholder="Find a model..." id="stigmod-searchbar-input">
                         </div>
                         <button class="btn btn-default">Search</button>
-                        <a class="btn btn-success" id="stigmod-searchbar-newbtn" href="/newmodel"><span class="fa fa-cube"></span>&nbsp;New</a>
+                        <a class="btn btn-success" id="stigmod-searchbar-newbtn" href="/newmodel"><span class="fa fa-cube"></span>&nbsp;&nbsp;Create New</a>
                     </form>
                 </div>
             </div>

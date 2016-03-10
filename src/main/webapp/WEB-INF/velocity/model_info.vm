@@ -94,7 +94,7 @@
                                 <!--</tr>-->
                                 <tr>
                                     <td class="stigmod-vert-align-center">Settings</td>
-                                    <td><a href="/u/settings/model/<%= modelInfo.icm.name %>" type="button" class="btn btn-default">Model settings</a></td>
+                                    <td><a href="/user/settings/model/${currentIcm.getName()}" type="button" class="btn btn-default">Model settings</a></td>
                                 </tr>
                                 </tbody>
                             </table>

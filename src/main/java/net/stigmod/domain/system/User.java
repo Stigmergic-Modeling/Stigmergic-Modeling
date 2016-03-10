@@ -41,8 +41,8 @@ public class User {
     private String mail;
     private String password;
     private String name;
-    private String url;
-    private String location;
+    private String url = "";
+    private String location = "";
     private Date signUpDate;
 
     @Convert(UserRolesConverter.class)
