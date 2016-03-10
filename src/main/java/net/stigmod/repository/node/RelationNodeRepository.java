@@ -78,6 +78,11 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
     List<Map<String, Object>> getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(@Param("icmId") Long icmId,
                                                                                         @Param("relationshipId") Long relationshipId);
 
+//    @Query("MATCH (relationship:Relationship {ccmId: {ccmId}})-[edge]->(vertex) " +
+//            "RETURN value.name as className, id(relationship) as relationshipId, " +
+//            "size(class.icmSet) as classRef, size(edge.icmSet) as nameRef")
+//    List<Map<String, Object>> getAllRelationshipInfoBycmId(@Param("ccmId") Long ccmId);
+
     @Query("MATCH (value0:Value {name: {className0}})<-[edge0b:PROPERTY]-(class0:Class)<-[edge0a:E_CLASS]-" +
             "(relationship:Relationship)-[edge1a:E_CLASS]->(class1:Class)-[edge1b:PROPERTY]->(value1:Value {name: {className1}}) " +
             "WHERE toString({icmId}) IN relationship.icmSet " +
