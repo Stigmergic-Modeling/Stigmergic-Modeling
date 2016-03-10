@@ -3169,7 +3169,7 @@ define(function (require, exports, module) {
             var matches,
                     substrRegex,
                     strs,  // 将 strs 的生成写在 findMatches 函数中，可保证每次查询时 icm 都是最新的
-                    classId = icm.getClassId(stateOfPage.clazz);
+                    classId = icm.getClassId(stateOfPage.clazz);  // 不论这个类是个“老类（已在 CCM 中保存过）”还是刚刚绑定创建，都能获取到 CCM ID
 
             switch (flag) {
                 case 'classInICM': strs = Object.keys(icm[0]); break;

@@ -14,13 +14,261 @@ define(function (require, exports, module) {
 
         /*  ----------------------------------  *
          *
-         *  CCM
+         *  CCM (this)
          *    |
-         *     -- clazz
+         *    |-- ccmId : < ccmId >
+         *    |
+         *    |-- clazz
+         *    |     |
+         *    |     |-- < class ID >
+         *    |     |     |
+         *    |     |     |-- name
+         *    |     |     |     |
+         *    |     |     |     |-- < class name >
+         *    |     |     |     |     |
+         *    |     |     |     |      -- ref : < name reference number >
+         *    |     |     |     |
+         *    |     |     |     |-- < class name >
+         *    |     |     |     |     |
+         *    |     |     |     |      -- ref : < name reference number >
+         *    |     |     |     |
+         *    |     |     |      -- < class name >
+         *    |     |     |           |
+         *    |     |     |            -- ref : < name reference number >
+         *    |     |     |
+         *    |     |     |-- attribute
+         *    |     |     |     |
+         *    |     |     |      -- [ attribute ID list ] (attribute ID is the same as relationship ID)
+         *    |     |     |
+         *    |     |      -- ref : < class reference number >
+         *    |     |
+         *    |      -- < class ID >
+         *    |           |
+         *    |           |-- name
+         *    |           |     |
+         *    |           |     |-- < class name >
+         *    |           |     |     |
+         *    |           |     |      -- ref : < name reference number >
+         *    |           |     |
+         *    |           |     |-- < class name >
+         *    |           |     |     |
+         *    |           |     |      -- ref : < name reference number >
+         *    |           |     |
+         *    |           |      -- < class name >
+         *    |           |           |
+         *    |           |            -- ref : < name reference number >
+         *    |           |
+         *    |           |-- attribute
+         *    |           |     |
+         *    |           |      -- [ attribute ID list ] (attribute ID is the same as relationship ID)
+         *    |           |
+         *    |            -- ref : < class reference number >
+         *    |
+         *    |-- relgrp
+         *    |     |
+         *    |     |-- < classA ID - classB ID > (dictionary order)
+         *    |     |     |
+         *    |     |      -- relationship
+         *    |     |           |
+         *    |     |            -- [ relationship ID list ]
+         *    |     |
+         *    |     |
+         *    |      -- < classA ID - classB ID > (dictionary order)
+         *    |           |
+         *    |            -- relationship
+         *    |                 |
+         *    |                  -- [ relationship ID list ]
+         *    |
+         *     -- relationship
          *          |
-         *          |-- [class ID]
+         *          |-- < relationship ID >
+         *          |     |
+         *          |     |-- type
+         *          |     |     |
+         *          |     |     |-- < relationship type >
+         *          |     |     |     |
+         *          |     |     |      -- ref : < type reference number >
+         *          |     |     |
+         *          |     |     |-- < relationship type >
+         *          |     |     |     |
+         *          |     |     |      -- ref : < type reference number >
+         *          |     |     |
+         *          |     |      -- < relationship type >
+         *          |     |           |
+         *          |     |            -- ref : < type reference number >
          *          |     |
          *          |     |-- name
+         *          |     |     |
+         *          |     |     |-- < relationship name >
+         *          |     |     |     |
+         *          |     |     |      -- ref : < name reference number >
+         *          |     |     |
+         *          |     |     |-- < relationship name >
+         *          |     |     |     |
+         *          |     |     |      -- ref : < name reference number >
+         *          |     |     |
+         *          |     |      -- < relationship name >
+         *          |     |           |
+         *          |     |            -- ref : < name reference number >
+         *          |     |
+         *          |     |-- property
+         *          |     |     |
+         *          |     |     |-- < property name >
+         *          |     |     |     |
+         *          |     |     |     |-- E0
+         *          |     |     |     |     |
+         *          |     |     |     |     |-- < property value >
+         *          |     |     |     |     |     |
+         *          |     |     |     |     |      -- ref : < property value reference number >
+         *          |     |     |     |     |
+         *          |     |     |     |     |-- < property value >
+         *          |     |     |     |     |     |
+         *          |     |     |     |     |      -- ref : < property value reference number >
+         *          |     |     |     |     |
+         *          |     |     |     |      -- < property value >
+         *          |     |     |     |           |
+         *          |     |     |     |            -- ref : < property value reference number >
+         *          |     |     |     |
+         *          |     |     |      -- E1
+         *          |     |     |           |
+         *          |     |     |           |-- < property value >
+         *          |     |     |           |     |
+         *          |     |     |           |      -- ref : < property value reference number >
+         *          |     |     |           |
+         *          |     |     |           |-- < property value >
+         *          |     |     |           |     |
+         *          |     |     |           |      -- ref : < property value reference number >
+         *          |     |     |           |
+         *          |     |     |            -- < property value >
+         *          |     |     |                 |
+         *          |     |     |                  -- ref : < property value reference number >
+         *          |     |     |
+         *          |     |      -- < property name >
+         *          |     |           |
+         *          |     |           |-- E0
+         *          |     |           |     |
+         *          |     |           |     |-- < property value >
+         *          |     |           |     |     |
+         *          |     |           |     |      -- ref : < property value reference number >
+         *          |     |           |     |
+         *          |     |           |     |-- < property value >
+         *          |     |           |     |     |
+         *          |     |           |     |      -- ref : < property value reference number >
+         *          |     |           |     |
+         *          |     |           |      -- < property value >
+         *          |     |           |           |
+         *          |     |           |            -- ref : < property value reference number >
+         *          |     |           |
+         *          |     |            -- E1
+         *          |     |                 |
+         *          |     |                 |-- < property value >
+         *          |     |                 |     |
+         *          |     |                 |      -- ref : < property value reference number >
+         *          |     |                 |
+         *          |     |                 |-- < property value >
+         *          |     |                 |     |
+         *          |     |                 |      -- ref : < property value reference number >
+         *          |     |                 |
+         *          |     |                  -- < property value >
+         *          |     |                       |
+         *          |     |                        -- ref : < property value reference number >
+         *          |     |
+         *          |      -- ref : < relationship reference number >
+         *          |
+         *           -- < relationship ID >
+         *                |
+         *                |-- type
+         *                |     |
+         *                |     |-- < relationship type >
+         *                |     |     |
+         *                |     |      -- ref : < type reference number >
+         *                |     |
+         *                |     |-- < relationship type >
+         *                |     |     |
+         *                |     |      -- ref : < type reference number >
+         *                |     |
+         *                |      -- < relationship type >
+         *                |           |
+         *                |            -- ref : < type reference number >
+         *                |
+         *                |-- name
+         *                |     |
+         *                |     |-- < relationship name >
+         *                |     |     |
+         *                |     |      -- ref : < name reference number >
+         *                |     |
+         *                |     |-- < relationship name >
+         *                |     |     |
+         *                |     |      -- ref : < name reference number >
+         *                |     |
+         *                |      -- < relationship name >
+         *                |           |
+         *                |            -- ref : < name reference number >
+         *                |
+         *                |-- property
+         *                |     |
+         *                |     |-- < property name >
+         *                |     |     |
+         *                |     |     |-- E0
+         *                |     |     |     |
+         *                |     |     |     |-- < property value >
+         *                |     |     |     |     |
+         *                |     |     |     |      -- ref : < property value reference number >
+         *                |     |     |     |
+         *                |     |     |     |-- < property value >
+         *                |     |     |     |     |
+         *                |     |     |     |      -- ref : < property value reference number >
+         *                |     |     |     |
+         *                |     |     |      -- < property value >
+         *                |     |     |           |
+         *                |     |     |            -- ref : < property value reference number >
+         *                |     |     |
+         *                |     |      -- E1
+         *                |     |           |
+         *                |     |           |-- < property value >
+         *                |     |           |     |
+         *                |     |           |      -- ref : < property value reference number >
+         *                |     |           |
+         *                |     |           |-- < property value >
+         *                |     |           |     |
+         *                |     |           |      -- ref : < property value reference number >
+         *                |     |           |
+         *                |     |            -- < property value >
+         *                |     |                 |
+         *                |     |                  -- ref : < property value reference number >
+         *                |     |
+         *                |      -- < property name >
+         *                |           |
+         *                |           |-- E0
+         *                |           |     |
+         *                |           |     |-- < property value >
+         *                |           |     |     |
+         *                |           |     |      -- ref : < property value reference number >
+         *                |           |     |
+         *                |           |     |-- < property value >
+         *                |           |     |     |
+         *                |           |     |      -- ref : < property value reference number >
+         *                |           |     |
+         *                |           |      -- < property value >
+         *                |           |           |
+         *                |           |            -- ref : < property value reference number >
+         *                |           |
+         *                |            -- E1
+         *                |                 |
+         *                |                 |-- < property value >
+         *                |                 |     |
+         *                |                 |      -- ref : < property value reference number >
+         *                |                 |
+         *                |                 |-- < property value >
+         *                |                 |     |
+         *                |                 |      -- ref : < property value reference number >
+         *                |                 |
+         *                |                  -- < property value >
+         *                |                       |
+         *                |                        -- ref : < property value reference number >
+         *                |
+         *                 -- ref : < relationship reference number >
+         *
          *
          *  ----------------------------------  */
 
@@ -224,7 +472,7 @@ define(function (require, exports, module) {
     }
 
     /**
-     * 更新前端CCM
+     * 更新前端 CCM
      */
     CCM.prototype.getCCM = function (icmName) {
         var ccm = this;
@@ -248,7 +496,7 @@ define(function (require, exports, module) {
     };
 
     /**
-     * 获取CCM中所有类名，用于输入框下拉列表推荐
+     * 获取 CCM 中所有类名，用于输入框下拉列表推荐
      * @returns {Array}
      */
     CCM.prototype.getClassNames = function(icm) {
@@ -287,9 +535,9 @@ define(function (require, exports, module) {
     };
 
     /**
-     * 获取CCM中某classCluster所有属性名
+     * 获取 CCM 中某 classCluster 所有属性名，用于输入框下拉列表推荐
      * @param icm
-     * @param classCluster
+     * @param classCluster (class ID)
      * @param className
      * @returns {*}
      */
@@ -298,26 +546,23 @@ define(function (require, exports, module) {
             return [];
         }
 
-        var attributes = this.clazz[classCluster].attribute,
-                attributeCluster,
+        var attributeIds = this.clazz[classCluster].attribute,  // attribute ID 的数组
                 attributeNames = [],
                 attributeHash = {},
-                i, len,
+                i, ilen, j, jlen,
                 names, name;
 
-        // 获得互不重复的 names 及其 ref 数
-        for (attributeCluster in attributes) {
-            if (attributes.hasOwnProperty(attributeCluster)) {
-                names = Object.keys(attributes[attributeCluster].name);
+        for (i = 0, ilen = attributeIds.length; i < ilen; i++) {
+            var attributeInfo = this.relationship[attributeIds[i]];
+            var attributeRoleE1 = attributeInfo.property.role.E1;
+            names = Object.keys(attributeRoleE1);
 
-                for (i = 0, len = names.length; i < len; i++) {
-                    //console.log(icm);
-                    if (!icm[0][className] || !(names[i] in icm[0][className][0])) {  // 去重 TODO 使用正确的className
+            for (j = 0, jlen = names.length; j < jlen; j++) {
+                if (!icm[0][className] || !(names[j] in icm[0][className][0])) {  // 去重 TODO 使用正确的className （？有问题吗）
 
-                        // 收集
-                        if (!attributeHash[names[i]] || attributeHash[names[i]] < attributes[attributeCluster].name[names[i]].ref) {  // 自身去重
-                            attributeHash[names[i]] = attributes[attributeCluster].name[names[i]].ref;
-                        }
+                    // 收集
+                    if (!attributeHash[names[j]] || attributeHash[names[j]] < attributeRoleE1[names[j]].ref) {  // 自身去重
+                        attributeHash[names[j]] = attributeRoleE1[names[j]].ref;
                     }
                 }
             }
@@ -334,7 +579,7 @@ define(function (require, exports, module) {
     };
 
     /**
-     * 获取ccm中所有的类（及其attributes）
+     * 获取 CCM 中所有的类（及其 attributes 的基本信息，即属性名和属性类型）
      * @param icm
      * @returns {Array}
      */
@@ -450,9 +695,9 @@ define(function (require, exports, module) {
     };
 
     /**
-     * 获取ccm中某classCluster的属性
+     * 获取 CCM 中某 classCluster 的属性
      * @param icm
-     * @param classCluster
+     * @param classCluster (class ID)
      * @param className
      * @returns {Array}
      */
@@ -512,7 +757,7 @@ define(function (require, exports, module) {
     };
 
     /**
-     * 获取ccm中的relations
+     * 获取 CCM 中的 relationships
      * @param icm
      * @param relgrpName
      * @returns {Array}
