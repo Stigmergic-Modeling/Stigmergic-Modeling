@@ -798,118 +798,111 @@ define(function (require, exports, module) {
      * @returns {Array}
      */
     CCM.prototype.getRelations = function (icm, relgrpName) {
-        var relations, relation, res, tmpObj, property, i,
+        var relation, res, tmpObj, property, i, j,
                 relationIdsInICM ={};  // icm中该class中的relation ID，用于去重
-
         var relgrpId = relgrpName2Id(relgrpName);
 
-        for (relation in icm[1][relgrpName][0]) {  // TODO 当前版本ICM中relationName和relationId是相同的，但下一版本不同，需要转换
+        for (relation in icm[1][relgrpName][0]) {
             if (icm[1][relgrpName][0].hasOwnProperty(relation)) {
                 relationIdsInICM[relation] = true;  // 构造 relationIdsInICM
             }
         }
-        //console.log('relationIdsInICM', relationIdsInICM);
-        //console.log('relgrpId', relgrpId);
 
-        if (!this.relgrp[relgrpId]) {
+        if (!this.relgrp[relgrpId]) {  // 若 CCM 中尚没有 relgrpId 中两个 class 节点之间的关系，则返回空
             return [];
         }
 
-        relations = this.relgrp[relgrpId];
+        var relationshipIds = this.relgrp[relgrpId].relationship;
         res = [];
-        for (relation in relations) {
-            if (relations.hasOwnProperty(relation)) {
+        for (i = 0; i < relationshipIds.length; i++) {
+            var relationshipInfo = this.relationship[relationshipIds[i]];
+            tmpObj = {
+                id: relationshipIds[i],  // 记录id，用于采用推荐时绑定
+                ref: relationshipInfo.ref
+            };
 
-                // TODO: 按引用数取最高
-                tmpObj = {
-                    id: relation,  // 记录id，用于采用推荐时绑定
-                    ref: relations[relation].ref
-                };
-                //console.log(relations[relation]);
-
-                // 确定name
-                var maxName = {
-                    name: '',
-                    ref: 0
-                };
-                var names = relations[relation].name;
-                //console.log('Object.keys(names).length', Object.keys(names));
-                //if (!(Object.keys(names).length === 1 && names[''])) {
-                for (var tmpName in names) {
-                    if (names.hasOwnProperty(tmpName) && names[tmpName].ref > maxName.ref) {
-                        maxName.name = tmpName;
-                        maxName.ref = tmpName.ref;
-                    }
+            // 确定name
+            var maxName = {
+                name: '',
+                ref: 0
+            };
+            var names = relationshipInfo.name;
+            for (var tmpName in names) {
+                if (names.hasOwnProperty(tmpName) && names[tmpName].ref > maxName.ref) {
+                    maxName.name = tmpName;
+                    maxName.ref = tmpName.ref;
                 }
-                tmpObj.name = maxName.name;
-
-                // 确定关系类型
-                var relType = 'isGeneralization isAggregation isComposition isAssociation'.split(' ');
-                var maxType = {
-                    type: '',
-                    ref: 0
-                };
-                for (i = 0; i < relType.length; i++) {
-                    if (relations[relation].type[relType[i]]) {
-                        console.log('relations[relation][relType[i]]', relations[relation].type[relType[i]]);
-                        if (relations[relation].type[relType[i]].ref > maxType.ref) {
-                            maxType.type = relType[i];
-                            maxType.ref = relations[relation].type[relType[i]].ref;
-                        }
-                    }
-                }
-                tmpObj.type = maxType.type.substring(2);  //  删除‘is’
-
-                // 确定两端哪边是E0，哪端是E1
-                var ends = Object.keys(relations[relation]);
-                //console.log('ends', ends);
-                var nonEntity = 'ref name type'.split(' ');
-                for (i = 0; i < nonEntity.length; i++) {
-                    ends.splice(ends.indexOf(nonEntity[i]), 1);
-                }
-                //console.log('ends', ends);
-                var end0 = relations[relation][ends[0]].direction;
-                //console.log('end0', end0);
-                if (!end0['0'] || (end0['1'] && end0['1'].ref > end0['0'].ref)) {  // 确保ends[0]与真正的END0对应
-                    var tmpEndClass = ends[0];
-                    ends[0] = ends[1];
-                    ends[1] = tmpEndClass;
-                }
-                //console.log('ends', ends);
-
-                // 构造用于显示的relation
-                var tmpProp = null;
-                for (property in relations[relation][ends[0]]) {
-                    if (relations[relation][ends[0]].hasOwnProperty(property) && property != 'ref') {
-
-                        // 去除我们不希望构造在关系两端的内容
-                        var nonProp = 'direction name isGeneralization isAggregation isComposition isAssociation'.split(' ');
-                        for (i = 0; i < nonProp.length; i++) {
-                            if (property === nonProp[i]) break;
-                        }
-                        if (i !== nonProp.length) continue;
-
-                        // 拼接左右两端  TODO 按引用数排序后选出
-                        tmpProp = Object.keys(relations[relation][ends[0]][property])[0] + '-' +
-                                  Object.keys(relations[relation][ends[1]][property])[0];
-
-                        if (property === 'class') {  // 对clazz特性特殊处理，将id变换为name  TODO: icm模型变更成Id为key后，这里需要相应改动
-                            tmpObj[property] = clazzIds2Names(tmpProp);
-                        } else {
-                            tmpObj[property] = tmpProp;
-                        }
-                    }
-                }
-
-                // DONE：调试完成后，需要将下文注释还原为代码
-                if (tmpObj.id in relationIdsInICM) {
-                    continue;  // 与当前 ICM relation ID相同的 CCM relation 不会被推荐
-                }
-
-                res.push(tmpObj);
             }
+            tmpObj.name = maxName.name;
+
+            // 确定关系类型
+            var relType = 'Generalization Aggregation Composition Association'.split(' ');
+            var maxType = {
+                type: '',
+                ref: 0
+            };
+            for (j = 0; j < relType.length; j++) {
+                if (relationshipInfo.type[relType[j]]) {
+                    //console.log('relationshipInfo[relType[j]]', relationshipInfo.type[relType[j]]);
+                    if (relationshipInfo.type[relType[j]].ref > maxType.ref) {
+                        maxType.type = relType[j];
+                        maxType.ref = relationshipInfo.type[relType[j]].ref;
+                    }
+                }
+            }
+            tmpObj.type = maxType.type;
+
+            // 构造用于显示的 relationship
+            var tmpProp = null;
+            for (property in relationshipInfo.property) {
+                if (relationshipInfo.property.hasOwnProperty(property)) {
+
+                    // 获取 E0 端引用数最高的 property value
+                    var maxPropE0 = {
+                        value: '',
+                        ref: 0
+                    };
+                    var propertyE0 = relationshipInfo.property[property].E0;
+                    for (var valueE0 in propertyE0) {
+                        if (propertyE0.hasOwnProperty(valueE0)) {
+                            if (propertyE0[valueE0].ref > maxPropE0.ref && '_' !== valueE0.charAt(0)) {  // 后一个条件确保内置类（名字）不被选为关系的一端
+                                maxPropE0.value = valueE0;
+                                maxPropE0.ref = propertyE0[valueE0].ref;
+                            }
+                        }
+                    }
+
+                    // 获取 E1 端引用数最高的 property value
+                    var maxPropE1 = {
+                        value: '',
+                        ref: 0
+                    };
+                    var propertyE1 = relationshipInfo.property[property].E1;
+                    for (var valueE1 in propertyE1) {
+                        if (propertyE1.hasOwnProperty(valueE1)) {
+                            if (propertyE1[valueE1].ref > maxPropE1.ref && '_' !== valueE1.charAt(0)) {  // 后一个条件确保内置类（名字）不被选为关系的一端
+                                maxPropE1.value = valueE1;
+                                maxPropE1.ref = propertyE1[valueE1].ref;
+                            }
+                        }
+                    }
+
+                    // 拼接左右两端
+                    tmpProp = maxPropE0.value + '-' + maxPropE1.value;
+
+                    if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name
+                        tmpObj['class'] = clazzIds2Names(tmpProp);  // TODO 此处函数换为可以映射 CCM id-name 的版本
+                    } else {
+                        tmpObj[property] = tmpProp;
+                    }
+                }
+            }
+            if (tmpObj.id in relationIdsInICM) {
+                continue;  // 与当前 ICM relation ID相同的 CCM relation 不会被推荐
+            }
+
+            res.push(tmpObj);
         }
-        //console.log('relationIdsInICM', res);
         return res;
 
         // 辅助函数
@@ -931,9 +924,9 @@ define(function (require, exports, module) {
             var clazz = relgrpName.split('-');
             var id0 = icm[2]['clazz'][clazz[0]].id;
             //var id1 = icm[2]['clazz'][clazz[1]].id;
-            if (id0 === id[0]) {
+            if (id0 == id[0]) {  // id0 是 number 类型，这里用 ==（ 而不是 === ） 可直接与 string 类型的 id[] 判断相等性
                 return relgrpName;
-            } else if (id0 === id[1]) {
+            } else if (id0 == id[1]) {  // id0 是 number 类型，这里用 ==（ 而不是 === ） 可直接与 string 类型的 id[] 判断相等性
                 return clazz[1] + '-' + clazz[0];
             } else {
                 return 'error-error';

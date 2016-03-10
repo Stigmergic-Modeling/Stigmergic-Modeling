@@ -109,7 +109,7 @@ public class IcmDetail {
 
     public class RelationshipGroup {
         // 这 2 个属性在前端需要转换为数组的 2 个元素
-        public Map<Long, List<Map<String, List<String>>>> relationships = new HashMap<>(); // Pair<String, String> 这个类型有待商榷，如果json化时不为数组，则需用List<String>代替
+        public Map<Long, List<Map<String, List<String>>>> relationships = new HashMap<>();
         public OrderInIcm orderInIcm = new OrderInIcm();
 
         public void addRelationship(Long relationshipId) {

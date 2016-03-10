@@ -119,7 +119,6 @@ public class WorkspaceController {
     public CcmDetail getCcm(@PathVariable String icmName, @RequestParam("ccmId") Long ccmId) {
         try {
             CcmDetail ccmDetail = workspaceService.getCcmDetail(ccmId);
-            System.out.println(ccmDetail);
             return ccmDetail;
 
         } catch (Exception e) {
