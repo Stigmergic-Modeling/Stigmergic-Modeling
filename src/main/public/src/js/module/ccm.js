@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
     function CCM(ccmId) {
 
-        /*  ----------------------------------  *
+        /*  ------------------------------------------------------------------------------------------------------  *
          *
          *  CCM (this)
          *    |
@@ -270,12 +270,16 @@ define(function (require, exports, module) {
          *                 -- ref : < relationship reference number >
          *
          *
-         *  ----------------------------------  */
+         *  ------------------------------------------------------------------------------------------------------  */
 
         if (!(this instanceof arguments.callee)) {
             return new arguments.callee(ccmId);
         }
 
+        // 用于存放临时数据
+        this.temp = {};
+
+        // CCM ID
         this.ccmId = ccmId;
 
         // 示例数据
@@ -584,14 +588,15 @@ define(function (require, exports, module) {
      * @returns {Array}
      */
     CCM.prototype.getClasses = function(icm) {
-        var classCluster, maxRef, names, className, attributes, attribute, tmpObj,
+        var classCluster, maxRef, names, className, tmpObj,
                 clazz, classes = [],
                 cName,
                 classInICM = icm[2]['clazz'],
                 classNamesInICM = {},  // icm中class名，用于去重
                 classIdsInICM ={};  // icm中classID，用于去重
+        var ccm = this;
         var classIdNameMappingInICM = {};  // 用于记录每个 ICM class node 中用户所选的名字
-        var classIdNameMappingInCCM = {};  // 用于记录每个 ICM class node 中引用数最高的名字
+        var classIdNameMappingInCCM = {};  // 用于记录每个 CCM class node 中引用数最高的名字
 
         for (cName in icm[0]) {
             if (icm[0].hasOwnProperty(cName)) {
@@ -686,10 +691,11 @@ define(function (require, exports, module) {
                         }
                     }
                 }
-
                 clazz.attribute.push(tmpObj);
             }
         }
+        ccm.temp.classIdNameMapping = classIdNameMappingInCCM;  // 更新每个 ICM class node 中用户所选的名字
+        icm.temp.classIdNameMapping = classIdNameMappingInCCM;  // 更新每个 CCM class node 中引用数最高的名字
 
         return classes;
     };
@@ -702,10 +708,11 @@ define(function (require, exports, module) {
      * @returns {Array}
      */
     CCM.prototype.getAttributes = function (icm, classCluster, className) {
-        var attributes, attribute, res, tmpObj, property, attrName,
+        var attribute, res, tmpObj, property, attrName,
                 attrInICM = icm[2]['clazz'][className]['attribute'],
                 attrNamesInICM = {},  // icm中该class中的attribute名，用于去重
                 attrIdsInICM ={};  // icm中该class中的attribute ID，用于去重
+        var ccm = this;
 
         for (attrName in icm[0][className][0]) {
             if (icm[0][className][0].hasOwnProperty(attrName)) {
@@ -724,33 +731,61 @@ define(function (require, exports, module) {
             return [];
         }
 
-        attributes = this.clazz[classCluster].attribute;
+        var attributeIds = this.clazz[classCluster].attribute;  // CCM 中该类的 attribute ID 数组
         res = [];
-        for (attribute in attributes) {
-            if (attributes.hasOwnProperty(attribute)) {
+        for (var i = 0; i < attributeIds.length; i++) {
+            var attributeInfo = this.relationship[attributeIds[i]];
 
-                // TODO: 按引用数取最高
-                tmpObj = {
-                    id: attribute,  // 记录id，用于采用推荐时绑定
-                    ref: attributes[attribute].ref
-                };
-                for (property in attributes[attribute]) {
-                    if (attributes[attribute].hasOwnProperty(property) && property !== 'ref') {
-                        var tmpValue = Object.keys(attributes[attribute][property])[0];
-                        if (property === 'type' && tmpValue !== 'int' && tmpValue !== 'string' && tmpValue !== 'float' && tmpValue !== 'boolean') {
-                            tmpObj[property] = 'ClassType';
-                        } else {
-                            tmpObj[property] = tmpValue;
-                            console.log('tmpValue', tmpValue);
+            tmpObj = {
+                id: attributeIds[i],  // 记录id，用于采用推荐时绑定
+                ref: attributeInfo.ref  // 这个 ref 是该 relationship 作为关系的引用数和作为属性的引用数之和
+            };
+            for (property in attributeInfo.property) {  // relationship 的 type 和 name 对于 attribute 来说是没用的，所以可以直接看 .property 里的特性
+                if (attributeInfo.property.hasOwnProperty(property)) {
+                    var attributeProperty = attributeInfo.property[property].E1;
+                    var propertyName, propertyValue;
+
+                    // 选出该属性特性引用数最多的取值
+                    var maxRef = 0;
+                    for (var value in attributeProperty) {
+                        if (attributeProperty.hasOwnProperty(value)) {
+                            if (attributeProperty[value].ref > maxRef) {
+                                propertyValue = value;
+                                maxRef = attributeProperty[value].ref;
+                            }
                         }
                     }
-                }
-                if (tmpObj.name in attrNamesInICM || tmpObj.id in attrIdsInICM) {
-                    continue;  // 与当前 ICM attribute 名称或ID相同的 CCM attribute 不会被推荐
-                }
 
-                res.push(tmpObj);
+                    // 将 relationship 中的特性命名换为 attribute 中的叫法
+                    if ('role' === property) {
+                        propertyName = 'name';
+                    } else if ('clazz' === property) {
+                        propertyName = 'type';
+                        if ('_' === propertyValue.charAt(0)) {  // 对于内置类型，去掉前面的下划线
+                            propertyValue = propertyValue.slice(1);
+                        } else {  // 对非内置类型，由 class ID 获取引用数最高的 class name
+
+                            // 由于ccm.getClasses()方法会在页面初始化后被调用，因此下面用到的 icm.temp 和 ccm.temp 中的 id-name 映射已经被初始化了
+                            if (propertyValue in icm.temp.classIdNameMapping) {  // 在 ICM 中，直接去该用户对其的命名
+                                propertyValue = icm.temp.classIdNameMapping[propertyValue];
+                            } else if (propertyValue in ccm.temp.classIdNameMapping) {  // 在 CCM 中且不为“禁止推荐的类”，取引用数最高的名字
+                                propertyValue = ccm.temp.classIdNameMapping[propertyValue];
+                            } else {  // 禁止推荐的类 TODO: 这里如何处理有待考察
+                                propertyValue = '';
+                            }
+                        }
+                    }
+
+                    // 将特性加入属性对象
+                    tmpObj[propertyName] = propertyValue;
+                }
             }
+            if (tmpObj.name in attrNamesInICM || tmpObj.id in attrIdsInICM) {
+                continue;  // 与当前 ICM attribute 名称或ID相同的 CCM attribute 不会被推荐
+            }
+
+            // 将属性对象加入属性列表
+            res.push(tmpObj);
         }
 
         return res;

@@ -194,6 +194,8 @@ define(function (require, exports, module) {
         // 这个映射中永远只保存不一致的 id，若 id 变为一致的，则从此映射中删除
         this[3] = {};
 
+        // 用于存放临时数据
+        this.temp = {};
 
         // log
         this.operationLog = [];
