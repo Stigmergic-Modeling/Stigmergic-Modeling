@@ -11,7 +11,7 @@
     <!-- default header name is X-CSRF-TOKEN -->
     <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
-    <title>Stigmergic-Modeling - ${title}</title>
+    <title>Stigmergic-Modeling | ${title}</title>
     <!-- CSS -->
     <link href="/static/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/dist/css/font-awesome.min.css" rel="stylesheet">

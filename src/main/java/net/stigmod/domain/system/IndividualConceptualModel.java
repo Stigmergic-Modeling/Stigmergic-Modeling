@@ -22,7 +22,6 @@ import java.util.*;
  * @version     2015/11/10
  * @author 	    Shijun Wang
  */
-@Component
 @NodeEntity(label = "ICM")
 public class IndividualConceptualModel {
 

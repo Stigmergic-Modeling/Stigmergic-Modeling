@@ -13,6 +13,7 @@ import net.stigmod.domain.info.CcmDetail;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingResponse;
 import net.stigmod.domain.page.UserPageData;
+import net.stigmod.domain.system.CollectiveConceptualModel;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
 import net.stigmod.domain.page.PageData;
@@ -85,7 +86,7 @@ public class WorkspaceController {
             model.addAttribute("currentIcm", currentIcm);
             model.addAttribute("icms", icms);
             model.addAttribute("data", pageData.toJsonString());
-            model.addAttribute("title", "workspace");
+            model.addAttribute("title", "Workspace");
             return "workspace";
 
         } catch (Exception e) {
@@ -93,39 +94,70 @@ public class WorkspaceController {
             PageData pageData = new UserPageData(modelService.getAllIcmsOfUser(user));
             model.addAttribute("data", pageData.toJsonString());
             model.addAttribute("error", e);
-            model.addAttribute("title", "user");
+            model.addAttribute("title", "User");
             return "user";
         }
     }
 
-    // Workspace 页面 Synchronize Ajax POST
+    // Ajax POST Workspace 页面 Synchronize
     @RequestMapping(value = "/{icmName}/workspace", method = RequestMethod.POST)
     @ResponseBody
     public ModelingResponse workspace(@PathVariable String icmName, @RequestBody String modelingOperationLogJsonString) {
-
-//        String fakeRequstBody = "{\"date\":1456910848622,\"user\":\"Stoyan\",\"ccmId\":229,\"icmId\":241,\"icmName\":\"AnimalFarm\",\"log\":[[1456829560019, \"ADD\", \"CLS\", \"Hen\", \"244\", \"binding\"],[1456917060145, \"ADD\", \"ATT\", \"Hen\", \"leg\", \"246\", \"binding\"]],\"orderChanges\":{\"classes\":{},\"relationGroups\":{}}}";
-//        String fakeRequstBody = "{\"date\":1456910848622,\"user\":\"Stoyan\",\"ccmId\":229,\"icmId\":248,\"icmName\":\"AnimalFarm\",\"log\":[[1456829560019, \"ADD\", \"CLS\", \"Hen\", \"244\", \"binding\"],[1456917060145, \"ADD\", \"ATT\", \"Hen\", \"leg\", \"246\", \"binding\"]],\"orderChanges\":{\"classes\":{},\"relationGroups\":{}}}";
-//        ModelingResponse modelingResponse = workspaceService.syncModelingOperations(fakeRequstBody);
-
-        ModelingResponse modelingResponse = workspaceService.syncModelingOperations(modelingOperationLogJsonString);
-        System.out.println(modelingResponse);
-
-        return modelingResponse;
+        try {
+            return workspaceService.syncModelingOperations(modelingOperationLogJsonString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ModelingResponse();
+        }
     }
 
-    // Workspace 页面 getCCM ajax GET
+    // Ajax GET Workspace 页面 getCCM
     @RequestMapping(value = "/{icmName}/getccm", method = RequestMethod.GET)
     @ResponseBody
     public CcmDetail getCcm(@PathVariable String icmName, @RequestParam("ccmId") Long ccmId) {
         try {
             CcmDetail ccmDetail = workspaceService.getCcmDetail(ccmId);
             return ccmDetail;
-
         } catch (Exception e) {
             e.printStackTrace();
             return new CcmDetail();
         }
     }
 
+    // GET ModelInfo 页面
+    @RequestMapping(value = "/{icmName}/info", method = RequestMethod.GET)
+    public String modelInfo(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+
+        try {
+            IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
+            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            CollectiveConceptualModel currentCcm = modelService.getCcmOfUserByIcmId(currentIcm.getId());
+
+            model.addAttribute("currentIcm", currentIcm);
+            model.addAttribute("currentCcm", currentCcm);
+            model.addAttribute("icms", icms);
+            model.addAttribute("title", "Model Info");
+            return "model_info";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            PageData pageData = new UserPageData(modelService.getAllIcmsOfUser(user));
+            model.addAttribute("data", pageData.toJsonString());
+            model.addAttribute("error", e);
+            model.addAttribute("title", "User");
+            return "user";
+        }
+    }
 }
 

@@ -69,7 +69,7 @@ public class UserController {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("data", pageData.toJsonString());
-        model.addAttribute("title", "user");
+        model.addAttribute("title", "User");
         return "user";
     }
 
@@ -148,8 +148,5 @@ public class UserController {
     }
 
 
-    private String cvtObj2Json (Object obj) {
-        return "ok";
-    }
 }
 

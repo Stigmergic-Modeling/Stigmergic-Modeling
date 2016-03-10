@@ -2787,7 +2787,7 @@ define(function (require, exports, module) {
 
             popover = this.getPopover(data[i]);
             $item.attr('data-content', popover);
-            $item.attr('title', 'RELATION : ' + data[i].type);
+            $item.attr('title', 'RELATIONSHIP : ' + data[i].type);
 
             // 点击填表
             $item.on('click', fillInBlanks);

@@ -85,15 +85,6 @@ public class ModelService {
     @Transactional
     public IndividualConceptualModel getIcmOfUserByName(User user, String icmName) {
         return icmRepo.getIcmOfUserByName(user.getId(), icmName);
-
-//        String cypher = "MATCH (user:User)-[:OWNS]->(icm:ICM) " +
-//                "WHERE ID(user) = 108 AND icm.name = {icmName} " +
-//                "RETURN icm";
-//        Map<String, String> params = new HashMap<>();
-////        params.put("userId", user.getId().toString());
-//        params.put("icmName", icmName);
-//
-//        return neo4jTemplate.queryForObject(IndividualConceptualModel.class, cypher, params);
     }
 
     // 获取某 ICM 所在 CCM 的 ID
@@ -102,4 +93,9 @@ public class ModelService {
         return ccmRepo.getCcmByIcmId(icmId).getId();
     }
 
+    // 由 ICM ID 获取 CCM 对象
+    @Transactional
+    public CollectiveConceptualModel getCcmOfUserByIcmId(Long icmId) {
+        return ccmRepo.getCcmByIcmId(icmId);
+    }
 }
