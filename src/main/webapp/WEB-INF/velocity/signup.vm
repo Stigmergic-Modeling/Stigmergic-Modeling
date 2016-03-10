@@ -32,7 +32,7 @@
                 <label for="password-repeat">Repeat Your Password</label>
                 <input type="password" class="form-control" required id="password-repeat" name="password-repeat" />
             </div>
-            <button class="btn btn-success" type="submit">Sign up</button>
+            <button class="btn btn-warning" type="submit">Sign up</button>
         </form>
     </div>
 </div>

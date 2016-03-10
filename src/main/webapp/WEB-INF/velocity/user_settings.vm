@@ -43,7 +43,7 @@
                                 <dt>URL</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" name="url" value="${user.getUrl()}" /></dd>
                             </dl>
-                            <button type="submit" class="btn btn-success">Update profile</button>
+                            <button type="submit" class="btn btn-warning">Update profile</button>
                         </form>
                     </div>
                     <div class="col-xs-4"></div>

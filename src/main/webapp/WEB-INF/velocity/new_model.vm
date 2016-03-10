@@ -5,7 +5,7 @@
         <!-- 左侧栏 -->
         <div class="col-xs-2 stigmod-settings-right" id="sigmod-newmodel-left-side"></div>
         <div class="col-xs-4 stigmod-settings-right stigmod-cursor-pointer" id="sigmod-newmodel-left">
-            <div class="panel panel-success">
+            <div class="panel panel-warning">
                 <div class="panel-heading"><span class="fa fa-users"></span><span class="stigmod-hide-when-clk-right"> Inherited Creation (recommened)</span></div>
                 <div class="panel-body stigmod-hide-when-clk-right">
                     <p>Base your model on an existing Collective Concept Model, and build your model with the help of Stigmergic-Modeling's powerful element recommendation function.</p>
@@ -32,7 +32,7 @@
                                     <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
                                 </dd>
                             </dl>
-                            <button type="submit" class="btn btn-success">Create</button>
+                            <button type="submit" class="btn btn-warning">Create</button>
                         </form>
                     </div>
                 </div>

@@ -60,7 +60,7 @@
                             <input type="text" class="form-control" placeholder="Find a model..." id="stigmod-searchbar-input">
                         </div>
                         <button class="btn btn-default">Search</button>
-                        <a class="btn btn-success" id="stigmod-searchbar-newbtn" href="/newmodel"><span class="fa fa-cube"></span>&nbsp;&nbsp;Create New</a>
+                        <a class="btn btn-warning" id="stigmod-searchbar-newbtn" href="/newmodel"><span class="fa fa-cube"></span>&nbsp;&nbsp;Create New</a>
                     </form>
                 </div>
             </div>
