@@ -29,69 +29,68 @@ import java.util.*;
  * @version     2015/11/11
  * @author 	    Kai Fu
  */
-
 @Service
 public class EntropyHandlerImpl implements EntropyHandler{
 
-    @Autowired
-    private ClassNodeRepository classNodeRepository;
+//    @Autowired
+//    private ClassNodeRepository classNodeRepository;
+//
+//    @Autowired
+//    private RelationNodeRepository relationNodeRepository;
+//
+//    @Autowired
+//    private ValueNodeRepository valueNodeRepository;
 
-    @Autowired
-    private RelationNodeRepository relationNodeRepository;
-
-    @Autowired
-    private ValueNodeRepository valueNodeRepository;
-
-    /**
-     * 计算类节点的熵值
-     * @param id
-     * @return 熵值
-     */
-    public Double computeClassEntropy(Long id , int nodeSum) {
-        double res=0.0;
-        ClassNode classNode=classNodeRepository.findOne(id);
-        if(classNode!=null) {
-            Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();//所有的出边
-            Set<RelationToClassEdge> rtcEdges=classNode.getRtcEdges();//所有的入边
-            Map<String,List<Set<Long>>> myMap=getMapForClassNode(ctvEdges,rtcEdges);
-            res= computeMapEntropy(myMap, nodeSum);
-        }
-        return res;
-    }
-
-    /**
-     * 计算关系节点的熵值
-     * @param id
-     * @return 熵值
-     */
-    public Double computeRelationEntropy(Long id , int nodeSum) {
-        double res=0.0;
-        RelationNode relationNode=relationNodeRepository.findOne(id);
-        if(relationNode!=null) {
-            Set<RelationToClassEdge> rtcEdges=relationNode.getRtcEdges();
-            Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
-            Map<String,List<Set<Long>>> myMap=getMapForRelationNode(rtcEdges,rtvEdges);
-            res= computeMapEntropy(myMap, nodeSum);
-        }
-        return res;
-    }
-
-    /**
-     * 计算值节点的熵值
-     * @param id
-     * @return 熵值
-     */
-    public Double computeValueEntropy(Long id , int nodeSum) {
-        double res=0.0;
-        ValueNode valueNode=valueNodeRepository.findOne(id);
-        if(valueNode!=null) {
-            Set<ClassToValueEdge> ctvEdges=valueNode.getCtvEdges();
-            Set<RelationToValueEdge> rtvEdges=valueNode.getRtvEdges();
-            Map<String,List<Set<Long>>> myMap=getMapForValueNode(ctvEdges,rtvEdges);
-            res= computeMapEntropy(myMap, nodeSum);
-        }
-        return res;
-    }
+//    /**
+//     * 计算类节点的熵值
+//     * @param id
+//     * @return 熵值
+//     */
+//    public Double computeClassEntropy(Long id , int nodeSum) {
+//        double res=0.0;
+//        ClassNode classNode=classNodeRepository.findOne(id);
+//        if(classNode!=null) {
+//            Set<ClassToValueEdge> ctvEdges=classNode.getCtvEdges();//所有的出边
+//            Set<RelationToClassEdge> rtcEdges=classNode.getRtcEdges();//所有的入边
+//            Map<String,List<Set<Long>>> myMap=getMapForClassNode(ctvEdges,rtcEdges);
+//            res= computeMapEntropy(myMap, nodeSum);
+//        }
+//        return res;
+//    }
+//
+//    /**
+//     * 计算关系节点的熵值
+//     * @param id
+//     * @return 熵值
+//     */
+//    public Double computeRelationEntropy(Long id , int nodeSum) {
+//        double res=0.0;
+//        RelationNode relationNode=relationNodeRepository.findOne(id);
+//        if(relationNode!=null) {
+//            Set<RelationToClassEdge> rtcEdges=relationNode.getRtcEdges();
+//            Set<RelationToValueEdge> rtvEdges=relationNode.getRtvEdges();
+//            Map<String,List<Set<Long>>> myMap=getMapForRelationNode(rtcEdges,rtvEdges);
+//            res= computeMapEntropy(myMap, nodeSum);
+//        }
+//        return res;
+//    }
+//
+//    /**
+//     * 计算值节点的熵值
+//     * @param id
+//     * @return 熵值
+//     */
+//    public Double computeValueEntropy(Long id , int nodeSum) {
+//        double res=0.0;
+//        ValueNode valueNode=valueNodeRepository.findOne(id);
+//        if(valueNode!=null) {
+//            Set<ClassToValueEdge> ctvEdges=valueNode.getCtvEdges();
+//            Set<RelationToValueEdge> rtvEdges=valueNode.getRtvEdges();
+//            Map<String,List<Set<Long>>> myMap=getMapForValueNode(ctvEdges,rtvEdges);
+//            res= computeMapEntropy(myMap, nodeSum);
+//        }
+//        return res;
+//    }
 
 //    /**
 //     * 计算整个ccm的熵值...实际上目前这个有问题,因为没有区分不同的ccm,现在相当于假设系统只有一个ccm

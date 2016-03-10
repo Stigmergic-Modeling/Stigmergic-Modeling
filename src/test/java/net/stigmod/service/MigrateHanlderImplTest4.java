@@ -9,12 +9,7 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.conceptualmodel.ClassNode;
-import net.stigmod.domain.conceptualmodel.RelationNode;
-import net.stigmod.domain.conceptualmodel.ValueNode;
-import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
-import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
-import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
+import net.stigmod.domain.conceptualmodel.*;
 import net.stigmod.service.migrateService.MigrateHandlerImpl;
 import org.junit.Test;
 
@@ -23,14 +18,20 @@ import java.util.*;
 
 /**
  * @author Kai Fu
- * @version 2016/2/28
+ * @version 2016/3/7
  */
-public class MigrateHandlerImplTests3 {
+public class MigrateHanlderImplTest4 {
     List<ClassNode> classNodeList=new ArrayList<>();
     List<RelationNode> relationNodeList=new ArrayList<>();
     List<ValueNode> valueNodeList=new ArrayList<>();
 
+    //这些nodeNum记录了对应节点数目
+    int vNodeNum=37;
+    int cNodeNum=8;
+    int rNodeNum=25;//暂定
+
     long c=0;
+    int PersonNum;
 
     public void readFile(String path) throws IOException {
         File file = new File(path);
@@ -396,4 +397,5 @@ public class MigrateHandlerImplTests3 {
 //        migrateHandler.migrateInitForTest(classNodeList,relationNodeList,valueNodeList,++c);
 //        migrateHandler.migrateHandler(0l);
     }
+
 }

@@ -22,6 +22,8 @@ public abstract class AbstractEdge extends AbstractConceptualModelElement implem
     protected String name;
     protected String displayName;
 
+    protected int loc;
+
     public void updateDisplayName() {
         this.displayName = this.port.equals("") ? this.name : this.port + '.' + this.name;
     }
@@ -42,6 +44,14 @@ public abstract class AbstractEdge extends AbstractConceptualModelElement implem
     public void setName(String name) {
         this.name = name;
         this.updateDisplayName();
+    }
+
+    public int getLoc() {
+        return loc;
+    }
+
+    public void setLoc(int loc) {
+        this.loc = loc;
     }
 
     public String getDisplayName() {

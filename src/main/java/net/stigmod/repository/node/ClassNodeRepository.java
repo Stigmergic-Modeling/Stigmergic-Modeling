@@ -24,7 +24,7 @@ import java.util.Map;
  * @version 2015/11/10
  */
 @Repository
-public interface ClassNodeRepository extends GraphRepository<ClassNode>{
+public interface ClassNodeRepository extends GraphRepository<ClassNode> {
 
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
             "WHERE toString({icmId}) IN class.icmSet AND toString({icmId}) IN r.icmSet " +

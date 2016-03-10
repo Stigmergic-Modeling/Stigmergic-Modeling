@@ -19,6 +19,10 @@ import org.springframework.stereotype.Service;
  */
 public interface MigrateHandler {
 
-    public void migrateHandler(Long id);
+    public void migrateHandler();
+
+    public void migrateInit(Long modelId);
+
+    public void migrateEnd();
 
 }

@@ -49,6 +49,7 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
                                                    @Param("className") String className,
                                                    @Param("attributeName") String attributeName);
 
+
     @Query("MATCH (relationship:Relationship)-[edge:PROPERTY]->(value:Value {name:'true'}) " +
             "WHERE edge.port='' " +
             "AND NOT edge.name='name' " +

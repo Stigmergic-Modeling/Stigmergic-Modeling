@@ -27,9 +27,9 @@ import java.util.Set;
  * @author 	    Kai Fu
  */
 public interface EntropyHandler {
-    public Double computeClassEntropy(Long id , int nodeSum);
-    public Double computeRelationEntropy(Long id , int nodeSum);
-    public Double computeValueEntropy(Long id , int nodeSum);
+//    public Double computeClassEntropy(Long id , int nodeSum);
+//    public Double computeRelationEntropy(Long id , int nodeSum);
+//    public Double computeValueEntropy(Long id , int nodeSum);
 
 //    public Double computeSystemEntropy();
 

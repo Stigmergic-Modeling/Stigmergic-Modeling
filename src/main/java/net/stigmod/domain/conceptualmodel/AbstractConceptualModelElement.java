@@ -67,6 +67,10 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
         }
     }
 
+    public String getUniqueIdentifierString() {
+        return this.toString();
+    }
+
     public Long getId() {
         return id;
     }
