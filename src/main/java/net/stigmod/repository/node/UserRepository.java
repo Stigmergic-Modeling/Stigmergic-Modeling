@@ -20,5 +20,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends GraphRepository<User>, StigmodUserDetailsService {
+
+    User findByMail(String mail);
 }
 

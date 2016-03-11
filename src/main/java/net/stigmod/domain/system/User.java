@@ -88,8 +88,20 @@ public class User {
         this.password = encode(newPass1);
     }
 
+    /**
+     * 增加 ICM 与该 User 的关联
+     * @param icm ICM
+     */
     public void addIcm(IndividualConceptualModel icm) {
-        icms.add(icm);
+        this.icms.add(icm);
+    }
+
+    /**
+     * 删除 ICM 与该 User 的关联
+     * @param icm ICM
+     */
+    public void removeIcm(IndividualConceptualModel icm) {
+        this.icms.remove(icm);
     }
 
     @Override

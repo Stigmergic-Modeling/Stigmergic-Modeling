@@ -65,8 +65,20 @@ public class CollectiveConceptualModel {
         this.relationshipNum = 0;
     }
 
+    /**
+     * 增加 ICM 与该 CCM 的关联
+     * @param icm ICM
+     */
     public void addIcm(IndividualConceptualModel icm) {
         this.icms.add(icm);
+    }
+
+    /**
+     * 删除 ICM 与该 CCM 的关联
+     * @param icm ICM
+     */
+    public void removeIcm(IndividualConceptualModel icm) {
+        this.icms.remove(icm);
     }
 
     public Long getId() {

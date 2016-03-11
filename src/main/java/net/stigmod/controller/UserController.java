@@ -99,7 +99,7 @@ public class UserController {
 
     // POST 新建模型（全新新建方式）
     @RequestMapping(value = "/newmodel/clean", method = RequestMethod.POST)
-    public String doNewModelClean(@RequestParam(value = "name") String name,
+    public String doNewModelClean(@RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
                                   @RequestParam(value = "description") String description,
                                   ModelMap model) {
         final User user = userRepository.getUserFromSession();
@@ -122,7 +122,7 @@ public class UserController {
 
     // POST 新建模型（继承新建方式）
     @RequestMapping(value = "/newmodel/inherited", method = RequestMethod.POST)
-    public String doNewModelInherited(@RequestParam(value = "name") String name,
+    public String doNewModelInherited(@RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
                                       @RequestParam(value = "description") String description,
                                       @RequestParam(value = "id") Long ccmId,
                                       ModelMap model) {
@@ -263,6 +263,87 @@ public class UserController {
         }
 
         return "user_settings_model_specific";
+    }
+
+    // POST 用户设置 model specific 页面 update
+    @RequestMapping(value = "/user/settings/model/{icmName}/update", method = RequestMethod.POST)
+    public String settingsModelSpecificUpdateGo(@PathVariable String icmName,  // 并不使用这个名字，因为可能不准确
+                                                @RequestParam(value = "id") Long id,
+                                                @RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
+                                                @RequestParam(value = "description") String description,
+                                                ModelMap model,
+                                                HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Specific Model Settings");
+
+        try {
+            modelService.updateIcmInfo(id, name, description);
+            model.addAttribute("success", "Model information updated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Model information updating fail. (Error: " + e.getMessage() + " )");
+        }
+
+        try {
+            IndividualConceptualModel currentIcm = modelService.getIcmById(id);
+            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            model.addAttribute("currentIcm", currentIcm);
+            model.addAttribute("icms", icms);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "user_settings_model_specific";
+    }
+
+    // POST 用户设置 model specific 页面 delete
+    // 仅仅隐去该用户对该 ICM 的查看权，并将 ICM 改名，防止用户再次建立与该名字相同的名字的 ICM；其他任何内容都不删除
+    @RequestMapping(value = "/user/settings/model/{icmName}/delete", method = RequestMethod.POST)
+    public String settingsModelSpecificDeleteGo(@PathVariable String icmName,  // 并不使用这个名字，因为可能不准确
+                                                @RequestParam(value = "id") Long id,
+                                                ModelMap model,
+                                                HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Specific Model Settings");
+
+        try {
+            modelService.deleteIcmInfo(id);
+            model.addAttribute("success", "Model information delete successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Model information delete fail. (Error: " + e.getMessage() + " )");
+        }
+
+        try {
+//            IndividualConceptualModel currentIcm = modelService.getIcmById(id);
+            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+//            model.addAttribute("currentIcm", currentIcm);
+            model.addAttribute("icms", icms);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "user_settings_model";
     }
 }
 

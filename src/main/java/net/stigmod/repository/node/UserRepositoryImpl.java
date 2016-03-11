@@ -88,16 +88,6 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
         context.setAuthentication(authentication);
     }
 
-//    @Override
-//    @Transactional
-//    public void addFriend(String friendLogin, final User user) {
-//        User friend = findByLogin(friendLogin);
-//        if (!user.equals(friend)) {
-//            user.addFriend(friend);
-//            userRepository.save(user);
-//        }
-//    }
-
     public Iterable<User> findByProperty(String propertyName, Object propertyValue) {
         return session.loadAll(User.class, new Filter(propertyName, propertyValue));
     }

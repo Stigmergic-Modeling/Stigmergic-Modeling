@@ -86,16 +86,44 @@ public class IndividualConceptualModel {
         }
     }
 
+    /**
+     * 增加 User 与该 ICM 的关联
+     * @param user User
+     */
+    public void addUser(User user) {
+        this.users.add(user);
+    }
+
+    /**
+     * 删除 User 与该 ICM 的关联
+     * @param user User
+     */
+    public void removeUser(User user) {
+        this.users.remove(user);
+    }
+
+    /**
+     * 增加 CCM 与该 ICM 的关联
+     * @param user User
+     */
+    public void addCcm(CollectiveConceptualModel ccm) {
+        this.ccms.add(ccm);
+    }
+
+    /**
+     * 删除 CCM 与该 ICM 的关联
+     * @param user User
+     */
+    public void removeCcm(CollectiveConceptualModel ccm) {
+        this.ccms.remove(ccm);
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public void addUser(User user) {
-        users.add(user);
     }
 
     public Set<User> getUsers() {

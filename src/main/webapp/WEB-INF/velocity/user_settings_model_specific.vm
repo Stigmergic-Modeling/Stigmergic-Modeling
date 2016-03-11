@@ -48,6 +48,8 @@
                 <div class="row stigmod-settings-left-inner">
                     <div class="col-xs-12">
                         <form action="/user/settings/model/${currentIcm.getName()}/update" method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <input type="hidden" class="stigmod-input stigmod-input-lg" name="id" value="${currentIcm.getId()}"/>
                             <dl>
                                 <dt>Name</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}"/></dd>
@@ -72,7 +74,8 @@
                 <div class="row stigmod-settings-left-inner">
                     <div class="col-xs-12">
                         <form action="/user/settings/model/${currentIcm.getName()}/delete" method="post">
-                            <input type="hidden" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}" />
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <input type="hidden" class="stigmod-input stigmod-input-lg" name="id" value="${currentIcm.getId()}" />
                             <p>Once you delete a model, there is no going back. Please be certain.</p>
                             <button type="submit" class="btn btn-danger">Delete model</button>
                         </form>
