@@ -12,7 +12,6 @@ package net.stigmod.controller;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
-//import net.stigmod.repository.MovieRepository;
 import net.stigmod.domain.page.NewModelPageData;
 import net.stigmod.domain.page.PageData;
 import net.stigmod.domain.page.UserPageData;
@@ -147,7 +146,7 @@ public class UserController {
 
     // GET 用户设置 profile 页面
     @RequestMapping(value = "/user/settings/profile", method = RequestMethod.GET)
-    public String settings(ModelMap model, HttpServletRequest request) {
+    public String settingsProfile(ModelMap model, HttpServletRequest request) {
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -160,6 +159,37 @@ public class UserController {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Profile Settings");
+        return "user_settings";
+    }
+
+    // POST 用户设置 profile 页面
+    @RequestMapping(value = "/user/settings/profile", method = RequestMethod.POST)
+    public String settingsProfileGo(@RequestParam(value = "name") String name,
+                                    @RequestParam(value = "location") String location,
+                                    @RequestParam(value = "url") String url,
+                                    ModelMap model,
+                                    HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Profile Settings");
+
+        try {
+            userRepository.updateUserInfo(user.getMail(), name, location, url);
+            model.addAttribute("success", "User profile updated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "User profile updating fail. (Error: " + e.getMessage() + " )");
+        }
+
         return "user_settings";
     }
 

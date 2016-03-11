@@ -23,8 +23,9 @@
                 <div class="row stigmod-settings-left-inner">
                     <div class="col-xs-8">
                         <form method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <dl>
-                                <dt>Profile picture</dt>
+                                <dt>Avatar</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-avatar" name="avatar" disabled /></dd>
                             </dl>
                             <dl>

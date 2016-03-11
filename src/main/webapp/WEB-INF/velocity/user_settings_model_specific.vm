@@ -22,7 +22,6 @@
                 <div class="panel-heading">Model settings</div>
                 <div class="list-group">
                     <a href="/user/settings/model" class="list-group-item stigmod-cursor-pointer">General</a>
-
                     #foreach (${icm} in ${icms})
                         <a
                         #if (${currentIcm.getName()} != ${icm.getName()})
@@ -39,23 +38,6 @@
                         #end
                         </a>
                     #end
-
-##                    <% modelInfo.forEach(function(info) { %>
-##                    <a
-##                    <% if (name !== info.name) { %>
-##                    href="/user/settings/model/<%= info.name %>"
-##                    <% } %>
-##                    class="list-group-item stigmod-cursor-pointer
-##                    <% if (name === info.name) { %>
-##                    active
-##                    <% } %>
-##                    ">
-##                    <span><%= info.name %></span>
-##                    <% if (name === info.name) { %>
-##                    <span class="glyphicon glyphicon-chevron-right pull-right"></span>
-##                    <% } %>
-##                    </a>
-##                    <% }); %>
                 </div>
             </div>
         </div>
@@ -68,7 +50,7 @@
                         <form action="/user/settings/model/${currentIcm.getName()}/update" method="post">
                             <dl>
                                 <dt>Name</dt>
-                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}" disabled /></dd>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}"/></dd>
                             </dl>
                             <dl>
                                 <dt>Description</dt>

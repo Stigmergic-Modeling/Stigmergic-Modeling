@@ -1,7 +1,14 @@
+/*
+ * Copyright 2014-2016, Stigmergic-Modeling Project
+ * SEIDR, Peking University
+ * All rights reserved
+ *
+ * Stigmergic-Modeling is used for collaborative groups to create a conceptual model.
+ * It is based on UML 2.0 class diagram specifications and stigmergy theory.
+ */
+
 package net.stigmod.service;
 
-//import org.neo4j.cineasts.domain.Movie;
-//import org.neo4j.cineasts.domain.Rating;
 import net.stigmod.domain.system.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,8 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author mh
- * @since 08.11.11
+ * @author  Shijun Wang
+ * @version 2016/03/11
  */
 public interface StigmodUserDetailsService extends UserDetailsService {
     @Override
@@ -18,12 +25,9 @@ public interface StigmodUserDetailsService extends UserDetailsService {
 
     User getUserFromSession();
 
-//    @Transactional
-//    Rating rate(Movie movie, User user, int stars, String comment);
-
     @Transactional
     User register(String name, String mail, String password, String passwordRepeat);
 
-//    @Transactional
-//    void addFriend(String login, final User userFromSession);
+    @Transactional
+    void updateUserInfo(String mail, String name, String location, String url);
 }

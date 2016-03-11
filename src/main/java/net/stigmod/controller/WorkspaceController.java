@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
-//import net.stigmod.repository.MovieRepository;
 
 /**
  * Handle workspace page requests
@@ -116,8 +115,7 @@ public class WorkspaceController {
     @ResponseBody
     public CcmDetail getCcm(@PathVariable String icmName, @RequestParam("ccmId") Long ccmId) {
         try {
-            CcmDetail ccmDetail = workspaceService.getCcmDetail(ccmId);
-            return ccmDetail;
+            return workspaceService.getCcmDetail(ccmId);
         } catch (Exception e) {
             e.printStackTrace();
             return new CcmDetail();
