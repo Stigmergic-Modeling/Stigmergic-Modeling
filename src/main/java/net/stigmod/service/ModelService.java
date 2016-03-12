@@ -134,7 +134,6 @@ public class ModelService {
 
         // 获取当前 User 和 ICM
         User user = userRepo.getUserFromSession();
-//        user = userRepo.findOne(user.getId());
         IndividualConceptualModel icm = icmRepo.findOne(icmId);
 
         // 改名并回收 ICM

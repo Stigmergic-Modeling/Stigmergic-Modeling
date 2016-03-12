@@ -9,7 +9,9 @@
 
 package net.stigmod.controller;
 
+import net.stigmod.domain.system.User;
 import net.stigmod.repository.node.UserRepository;
+import net.stigmod.service.SimpleRegistrationService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -45,6 +47,9 @@ public class AuthController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    SimpleRegistrationService registrationService;
+
     private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     // sign up page GET
@@ -72,9 +77,14 @@ public class AuthController {
             @RequestParam(value = "password-repeat") String passwordRepeat,
             ModelMap model, HttpServletRequest request) {
         try {
-            userRepository.register(name, mail, password, passwordRepeat);
+
+            User user = new User(name, mail, password);
+            registrationService.register(user);
+
+//            userRepository.register(name, mail, password, passwordRepeat);
             return "redirect:/user";
         } catch(Exception e) {
+            e.printStackTrace();
             model.addAttribute("host", host);
             model.addAttribute("port", port);
             model.addAttribute("title", "Sign Up");

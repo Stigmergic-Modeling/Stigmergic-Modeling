@@ -9,23 +9,19 @@
 
 package net.stigmod.util.config;
 
-//import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * StigMod configuration base object class
- *
- * @version     2015/10/30
- * @author 	    Shijun Wang
+ * @author Shijun Wang
+ * @version 2016/3/12
  */
-@XmlRootElement
-public class Config {
-
+@XmlRootElement(namespace="package net.stigmod.util.config.Config")
+public class MailServer {
     private String host;
     private String port;
-    private Neo4j neo4j;
-    private MailServer mailServer;
+    private String username;
+    private String password;
 
     public String getHost() {
         return host;
@@ -45,21 +41,21 @@ public class Config {
         this.port = port;
     }
 
-    public Neo4j getNeo4j() {
-        return neo4j;
+    public String getUsername() {
+        return username;
     }
 
     @XmlElement
-    public void setNeo4j(Neo4j neo4j) {
-        this.neo4j = neo4j;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public MailServer getMailServer() {
-        return mailServer;
+    public String getPassword() {
+        return password;
     }
 
     @XmlElement
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

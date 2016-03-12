@@ -335,9 +335,7 @@ public class UserController {
         }
 
         try {
-//            IndividualConceptualModel currentIcm = modelService.getIcmById(id);
             Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
-//            model.addAttribute("currentIcm", currentIcm);
             model.addAttribute("icms", icms);
         } catch (Exception e) {
             e.printStackTrace();
