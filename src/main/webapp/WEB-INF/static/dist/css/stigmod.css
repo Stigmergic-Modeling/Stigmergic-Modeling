@@ -256,6 +256,10 @@ blockquote {
 .stigmod-a-nounderline:hover {
   text-decoration: none;
 }
+/* 蓝色文字 */
+.stigmod-blue-text {
+  color: #428bca;
+}
 
 /* 高亮文字背景 */
 .stigmod-highlight {

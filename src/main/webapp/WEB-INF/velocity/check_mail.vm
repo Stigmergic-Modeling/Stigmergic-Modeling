@@ -3,18 +3,25 @@
 <form id="remail" action="/checkmail/resend" method="post">
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     <input type="hidden" name="verificationId" value="${verificationId}" />
+    <input type="hidden" name="confirmType" value="${confirmType}" /> <!-- 区分是“注册激活”还是“重置密码” -->
     <input type="hidden" name="mail" value="${mail}" />
     <div class="text-center">
         <hr />
         <br />
         <br />
 
-        <h4>A confirmation email has been sent to <strong>${mail}</strong>.</h4>
-        <h4>Click the activate button in the email to activate your account.</h4>
+        <h4 class="stigmod-blue-text">A confirmation email has been sent to <strong>${mail}</strong>.</h4>
+        #if (${confirmType}=="signup")
+            <h4 class="stigmod-blue-text">Click the "Activate" button in the email to activate your account.</h4>
+        #elseif (${confirmType}=="forget")
+            <h4 class="stigmod-blue-text">Click the "Reset Password" button in the email to reset your password.</h4>
+        #else
+
+        #end
         <br />
 
-        <p>If you have not recieced our email, please check out if it is in your spam mail box.</p>
-        <p>If it is not in your spam mail box either, please click <button type="submit" class="btn btn-default" data-toggle="popover" data-trigger="hover" data-placement="top" title="Note"
+        <p>If you have not recieced our email, please check out if it is in the spam folder of you mailbox.</p>
+        <p>If it is not in the spam folder either, please click <button type="submit" class="btn btn-default" data-toggle="popover" data-trigger="hover" data-placement="top" title="Note"
                                                                      data-content="New activation link will be sent to your email address. Please use the newest one to activate your account.">
             here
         </button> to resend the email.</p>

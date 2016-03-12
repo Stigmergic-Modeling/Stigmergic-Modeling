@@ -80,7 +80,11 @@ public class AuthController {
 
         try {
             String verificationId = userRepository.register(name, mail, password, passwordRepeat);
-            return "redirect:/checkmail?mail=" + mail + "&verificationId=" + verificationId;
+
+            model.addAttribute("mail", mail);
+            model.addAttribute("verificationId", verificationId);
+            model.addAttribute("confirmType", "signup");  // 区分是“注册激活”还是“重置密码”
+            return "redirect:/checkmail";
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -128,13 +132,16 @@ public class AuthController {
 
     // check mail page GET
     @RequestMapping(value="/checkmail", method = RequestMethod.GET)
-    public String checkMail(@RequestParam("mail") String mail, @RequestParam("verificationId") String verificationId,
+    public String checkMail(@RequestParam("mail") String mail,
+                            @RequestParam("verificationId") String verificationId,
+                            @RequestParam("confirmType") String confirmType,
                             ModelMap model, HttpServletRequest request) {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Check Mail");
         model.addAttribute("mail", mail);
         model.addAttribute("verificationId", verificationId);
+        model.addAttribute("confirmType", confirmType);
 
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
@@ -147,15 +154,27 @@ public class AuthController {
 
     // check mail resend POST
     @RequestMapping(value="/checkmail/resend", method = RequestMethod.POST)
-    public String checkMailResend(@RequestParam("mail") String mail, @RequestParam("verificationId") String verificationId,
+    public String checkMailResend(@RequestParam("mail") String mail,
+                                  @RequestParam("verificationId") String verificationId,
+                                  @RequestParam("confirmType") String confirmType,
                                   ModelMap model, HttpServletRequest request) {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Check Mail");
         model.addAttribute("mail", mail);
+        model.addAttribute("verificationId", verificationId);
+        model.addAttribute("confirmType", confirmType);
 
         try {
-            String newVerId =  userRepository.resendRegisterEmail(verificationId);
+            String newVerId;
+            if (confirmType.equals("signup")) {
+                newVerId =  userRepository.resendRegisterEmail(verificationId);
+            } else if (confirmType.equals("forget")) {
+                newVerId =  userRepository.resendResetPasswordEmail(verificationId);
+            } else {
+                throw new IllegalArgumentException("Wrong confirmation email type.");
+            }
+
             model.addAttribute("verificationId", newVerId);
             model.addAttribute("success", "Email resent successfully.");
 
@@ -196,7 +215,10 @@ public class AuthController {
 
         try {
             String verificationId = userRepository.forgetPassword(mail);
-            return "redirect:/checkmail?mail=" + mail + "&verificationId=" + verificationId;
+            model.addAttribute("mail", mail);
+            model.addAttribute("verificationId", verificationId);
+            model.addAttribute("confirmType", "forget");  // 区分是“注册激活”还是“重置密码”
+            return "redirect:/checkmail";
 
         } catch(Exception e) {
             e.printStackTrace();

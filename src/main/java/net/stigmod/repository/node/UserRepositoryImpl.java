@@ -245,7 +245,28 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
             this.sendResetPasswordEmail(mail, user.getName(), newVerId);
             return newVerId;
         } else {
-            throw new UsernameNotFoundException("User does not exist or have already been activated.");
+            throw new UsernameNotFoundException("User does not exist or the password resetting confirmation has expired.");
+        }
+    }
+
+    /**
+     * 重新发送重置密码确认邮件（激活连接会更新）
+     * @param verificationId V ID
+     * @return 新的 V ID
+     */
+    @Transactional
+    public String resendResetPasswordEmail(String verificationId) {
+
+        User user = userRepository.findByVerificationId(verificationId);
+        if (user != null && Arrays.asList(user.getRoles()).contains(User.SecurityRole.ROLE_USER)) {
+
+            String newVerId = user.resetVerificationId();  // 更新 Verification ID
+            userRepository.save(user);
+            this.sendResetPasswordEmail(user.getMail(), user.getName(), verificationId);  // 发送验证邮件
+            return newVerId;
+
+        } else {
+            throw new UsernameNotFoundException("User does not exist or the password resetting confirmation has expired.");
         }
     }
 
@@ -344,7 +365,7 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
         if (user != null && Arrays.asList(user.getRoles()).contains(User.SecurityRole.ROLE_USER)) {
             return user;
         } else {
-            throw new UsernameNotFoundException("User does not exist.");
+            throw new UsernameNotFoundException("User does not exist or the password resetting confirmation has expired.");
         }
     }
 

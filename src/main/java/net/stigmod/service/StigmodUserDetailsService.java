@@ -38,6 +38,9 @@ public interface StigmodUserDetailsService extends UserDetailsService {
     String forgetPassword(String mail);
 
     @Transactional
+    String resendResetPasswordEmail(String verificationId);
+
+    @Transactional
     User resetPasswordVerify(String verificationId);
 
     @Transactional
