@@ -39,7 +39,7 @@
                 <div class="panel-heading">General</div>
                 <div class="row stigmod-settings-left-inner">
                     <div class="col-xs-12">
-                        TODO: 适用于用户所有模型的个性化设置，如attribute中默认的property个数等
+##                        TODO: 适用于用户所有模型的个性化设置，如attribute中默认的property个数等
                     </div>
                 </div>
             </div>

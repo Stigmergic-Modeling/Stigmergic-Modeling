@@ -211,6 +211,37 @@ public class UserController {
         return "user_settings_account";
     }
 
+    // POST 用户设置 account 页面（更改秘密）
+    @RequestMapping(value = "/user/settings/account/changepassword", method = RequestMethod.POST)
+    public String settingsAccountChangePassword(@RequestParam(value = "old-password") String oldPassword,
+                                                @RequestParam(value = "new-password") String newPassword,
+                                                @RequestParam(value = "new-password-repeat") String newPasswordRepeat,
+                                                ModelMap model, HttpServletRequest request) {
+        final User user = userRepository.getUserFromSession();
+
+        try {
+            user.updatePassword(oldPassword, newPassword, newPasswordRepeat);
+            userRepository.save(user);
+            model.addAttribute("success", "Change password successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", e.getMessage());
+        }
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Account Settings");
+        return "user_settings_account";
+    }
+
     // GET 用户设置 model 页面
     @RequestMapping(value = "/user/settings/model", method = RequestMethod.GET)
     public String settingsModel(ModelMap model, HttpServletRequest request) {

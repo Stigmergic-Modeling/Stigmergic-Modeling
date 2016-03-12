@@ -60,10 +60,10 @@
                                     <textarea type="text" class="stigmod-input stigmod-textarea" name="description">${currentIcm.getDescription()}</textarea>
                                 </dd>
                             </dl>
-                            <dl>
-                                <dt>TODO: 针对此模型的个性化设置，如attribute中默认的property个数等</dt>
-                                <dd></dd>
-                            </dl>
+##                            <dl>
+##                                <dt>TODO: 针对此模型的个性化设置，如attribute中默认的property个数等</dt>
+##                                <dd></dd>
+##                            </dl>
                             <button type="submit" class="btn btn-warning">Update model settings</button>
                         </form>
                     </div>

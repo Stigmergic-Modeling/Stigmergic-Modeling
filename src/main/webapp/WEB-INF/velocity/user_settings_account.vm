@@ -22,7 +22,25 @@
                 <div class="panel-heading">Account settings</div>
                 <div class="row stigmod-settings-left-inner">
                     <div class="col-xs-8">
-                        TODO: 用户账户设置，如密码修改
+
+                        <h4>Change password</h4>
+                        <hr>
+                        <form action="/user/settings/account/changepassword" method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <dl>
+                                <dt>Old password</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-avatar" name="old-password" /></dd>
+                            </dl>
+                            <dl>
+                                <dt>New password</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-avatar" name="new-password" /></dd>
+                            </dl>
+                            <dl>
+                                <dt>New password repeat</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-name" name="new-password-repeat" /></dd>
+                            </dl>
+                            <button type="submit" class="btn btn-warning">Change password</button>
+                        </form>
                     </div>
                     <div class="col-xs-4"></div>
                 </div>
