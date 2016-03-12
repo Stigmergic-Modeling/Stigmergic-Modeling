@@ -35,5 +35,14 @@ public interface StigmodUserDetailsService extends UserDetailsService {
     User registerVerify(String verificationId);
 
     @Transactional
+    String forgetPassword(String mail);
+
+    @Transactional
+    User resetPasswordVerify(String verificationId);
+
+    @Transactional
+    User resetPassword(String verificationId, String password, String passwordRepeat);
+
+    @Transactional
     void updateUserInfo(String mail, String name, String location, String url);
 }

@@ -6,11 +6,15 @@
         <h2 class="panel-title">Sign in</h2>
     </div>
     <div class="panel-body">
-        <form method="post" role="form">
+        <form action="/signin" method="post" role="form">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" class="form-control" required autofocus id="email" name="mail" />
+                <label for="email">Email Address</label><!-- 若页面 model 中传入了 mail 参数，则用它填表 -->
+                <input type="email" class="form-control" required autofocus id="email" name="mail"
+                        #if (${mail})
+                            value="${mail}"
+                        #end
+                        />
             </div>
             <div class="form-group">
                 <label for="password">Password</label> <a href="/forget"> (Forget)</a>

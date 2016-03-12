@@ -9,6 +9,7 @@
 
 package net.stigmod.controller;
 
+import net.stigmod.domain.system.User;
 import net.stigmod.repository.node.UserRepository;
 import net.stigmod.service.MailService;
 import net.stigmod.util.config.Config;
@@ -120,9 +121,6 @@ public class AuthController {
             model.addAttribute("host", host);
             model.addAttribute("port", port);
             model.addAttribute("title", "Sign Up");
-//            model.addAttribute("error", "There are something wrong with activation. Please re-signup.");
-//            model.addAttribute("name", name);
-//            model.addAttribute("mail", mail);
             model.addAttribute("error", e.getMessage());
             return "signup";
         }
@@ -174,6 +172,121 @@ public class AuthController {
         }
 
         return "check_mail";
+    }
+
+    // 用户忘记密码页面 GET
+    @RequestMapping(value = "/forget", method = RequestMethod.GET)
+    public String forget(ModelMap model, HttpServletRequest request) {
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Forget Password");
+        return "forget_password";
+    }
+
+    // 用户忘记密码页面 POST
+    @RequestMapping(value = "/forget", method = RequestMethod.POST)
+    public String doForget(@RequestParam("mail") String mail, ModelMap model, HttpServletRequest request) {
+
+        try {
+            String verificationId = userRepository.forgetPassword(mail);
+            return "redirect:/checkmail?mail=" + mail + "&verificationId=" + verificationId;
+
+        } catch(Exception e) {
+            e.printStackTrace();
+
+            // CSRF token
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                model.addAttribute("_csrf", csrfToken);
+            }
+
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Forget Password");
+            model.addAttribute("error", e.getMessage());
+            return "forget_password";
+        }
+    }
+
+    // 用户忘记密码页面 verification GET
+    @RequestMapping(value = "/forget/verify", method = RequestMethod.GET)
+    public String forgetVerify(@RequestParam(value = "id") String id, ModelMap model, HttpServletRequest request) {
+
+        try {
+            User user = userRepository.resetPasswordVerify(id);
+            model.addAttribute("verificationId", user.getVerificationId());  // 将 ID 加入 resetpassword 页面的 GET 参数
+            return "redirect:/resetpassword";  // 邮件验证成功，进入重置密码页面
+
+        } catch(Exception e) {
+            e.printStackTrace();
+
+            // CSRF token
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                model.addAttribute("_csrf", csrfToken);
+            }
+
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Sign In");
+            model.addAttribute("error", e.getMessage());
+            return "signin";
+        }
+    }
+
+    // 用户重置密码页面 GET
+    @RequestMapping(value = "/resetpassword", method = RequestMethod.GET)
+    public String resetPassword(@RequestParam("verificationId") String verificationId,  ModelMap model, HttpServletRequest request) {
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("verificationId", verificationId);  // 用于填写表单中的 hidden input
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Reset Password");
+        return "reset_password";
+    }
+
+    // 用户重置密码页面 POST
+    @RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
+    public String doResetPassword(
+            @RequestParam(value = "verificationId") String verificationId,
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "password-repeat") String passwordRepeat,
+            ModelMap model, HttpServletRequest request) {
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Sign In");
+
+        try {
+            User user = userRepository.resetPassword(verificationId, password, passwordRepeat);
+            model.addAttribute("mail", user.getMail());
+            model.addAttribute("success", "Reset password successfully.");
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", e.getMessage());
+        }
+
+        return "signin";
     }
 
     // sign in page GET  (POST route is taken care of by Spring-Security)

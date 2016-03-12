@@ -133,6 +133,14 @@ public class User {
         return mail == null ? user.mail == null : mail.equals(user.mail);
     }
 
+    /**
+     * 将加密后的密码设置到 User 的属性中
+     * @param password 未加密密码
+     */
+    public void setEncodedPassword(String password) {
+        this.password = this.encode(password);
+    }
+
     @Override
     public int hashCode() {
         return mail != null ? mail.hashCode() : 0;

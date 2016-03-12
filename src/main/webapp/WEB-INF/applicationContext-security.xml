@@ -21,6 +21,9 @@
         <security:intercept-url pattern="/apple-touch-icon-precomposed.png" access="permitAll"/>  <!-- for Safari -->
         <security:intercept-url pattern="/apple-touch-icon.png" access="permitAll"/>  <!-- for Safari -->
         <security:intercept-url pattern="/about" access="permitAll"/>
+        <security:intercept-url pattern="/forget" access="permitAll"/>
+        <security:intercept-url pattern="/forget/verify" access="permitAll"/>
+        <security:intercept-url pattern="/resetpassword" access="permitAll"/>
         <security:intercept-url pattern="/checkmail" access="permitAll"/>
         <security:intercept-url pattern="/checkmail/resend" access="permitAll"/>
         <security:intercept-url pattern="/signup/verify" access="permitAll"/>
