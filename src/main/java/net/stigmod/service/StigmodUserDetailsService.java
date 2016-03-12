@@ -26,7 +26,10 @@ public interface StigmodUserDetailsService extends UserDetailsService {
     User getUserFromSession();
 
     @Transactional
-    User register(String name, String mail, String password, String passwordRepeat);
+    String register(String name, String mail, String password, String passwordRepeat);
+
+    @Transactional
+    User registerVerify(String verificationId);
 
     @Transactional
     void updateUserInfo(String mail, String name, String location, String url);

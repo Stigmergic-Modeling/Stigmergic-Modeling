@@ -22,5 +22,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends GraphRepository<User>, StigmodUserDetailsService {
 
     User findByMail(String mail);
+
+    User findByVerificationId(String verificationId);
 }
 

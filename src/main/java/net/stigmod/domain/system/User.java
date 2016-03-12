@@ -48,19 +48,21 @@ public class User {
     @Convert(UserRolesConverter.class)
     private SecurityRole[] roles;
 
+    private String verificationId = "";
+
     public User() {}
 
     public User(String name, String mail, String password) {
         this.name = name;
         this.mail = mail;
-        this.password = password;
+        this.password = this.encode(password);
         this.signUpDate = new Date();
     }
 
     public User(String name, String mail, String password, SecurityRole... roles) {
         this.name = name;
         this.mail = mail;
-        this.password = encode(password);
+        this.password = this.encode(password);
         this.roles = roles;
         this.signUpDate = new Date();
     }
@@ -72,10 +74,6 @@ public class User {
     @Override
     public String toString() {
         return String.format("%s", mail);
-    }
-
-    public SecurityRole[] getRole() {
-        return roles;
     }
 
     public void updatePassword(String old, String newPass1, String newPass2) {
@@ -104,6 +102,23 @@ public class User {
         this.icms.remove(icm);
     }
 
+    /**
+     * 重置 Verification ID
+     */
+    public String resetVerificationId() {
+        String verificationId = this.generateVerificationId();
+        this.verificationId = verificationId;
+        return verificationId;
+    }
+
+    /**
+     * 生成 Verification ID
+     * @return Verification ID
+     */
+    private String generateVerificationId() {
+        return this.encode(this.getMail() + new Date().toString());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,7 +139,7 @@ public class User {
     }
 
     public enum SecurityRole implements GrantedAuthority {
-        ROLE_USER, ROLE_ADMIN;
+        ROLE_USER, ROLE_USER_TOBE, ROLE_ADMIN;
 
         @Override
         public String getAuthority() {
@@ -141,6 +156,22 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public SecurityRole[] getRoles() {
+        return roles;
+    }
+
+    public void setRoles(SecurityRole[] roles) {
+        this.roles = roles;
+    }
+
+    public String getVerificationId() {
+        return verificationId;
+    }
+
+    public void setVerificationId(String verificationId) {
+        this.verificationId = verificationId;
     }
 
     public Set<IndividualConceptualModel> getIcms() {

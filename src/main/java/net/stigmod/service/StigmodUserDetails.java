@@ -33,7 +33,7 @@ public class StigmodUserDetails implements UserDetails {
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        User.SecurityRole[] roles = user.getRole();
+        User.SecurityRole[] roles = user.getRoles();
         if (roles == null) {
             return Collections.emptyList();
         }

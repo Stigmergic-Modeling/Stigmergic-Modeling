@@ -9,9 +9,8 @@
 
 package net.stigmod.controller;
 
-import net.stigmod.domain.system.User;
 import net.stigmod.repository.node.UserRepository;
-import net.stigmod.service.SimpleRegistrationService;
+import net.stigmod.service.MailService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class AuthController {
     UserRepository userRepository;
 
     @Autowired
-    SimpleRegistrationService registrationService;
+    MailService mailService;
 
     private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -76,29 +75,75 @@ public class AuthController {
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
             ModelMap model, HttpServletRequest request) {
+
         try {
+            String verificationId = userRepository.register(name, mail, password, passwordRepeat);
+            return "redirect:/checkmail?mail=" + mail + "&verificationId=" + verificationId;
 
-            User user = new User(name, mail, password);
-            registrationService.register(user);
-
-//            userRepository.register(name, mail, password, passwordRepeat);
-            return "redirect:/user";
         } catch(Exception e) {
             e.printStackTrace();
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Sign Up");
+
             // CSRF token
             CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
             if (csrfToken != null) {
                 model.addAttribute("_csrf", csrfToken);
             }
 
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Sign Up");
             model.addAttribute("name", name);
             model.addAttribute("mail", mail);
             model.addAttribute("error", e.getMessage());
             return "signup";
         }
+    }
+
+    // sign up verification GET
+    @RequestMapping(value="/signup/verify", method = RequestMethod.GET)
+    public String regVerify(@RequestParam(value = "id") String id, ModelMap model, HttpServletRequest request) {
+
+        try {
+            userRepository.registerVerify(id);
+            return "redirect:/user";  // 激活账户成功
+
+        } catch(Exception e) {
+            e.printStackTrace();
+
+            // CSRF token
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                model.addAttribute("_csrf", csrfToken);
+            }
+
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Sign Up");
+//            model.addAttribute("error", "There are something wrong with activation. Please re-signup.");
+//            model.addAttribute("name", name);
+//            model.addAttribute("mail", mail);
+            model.addAttribute("error", e.getMessage());
+            return "signup";
+        }
+    }
+
+    // check mail page GET
+    @RequestMapping(value="/checkmail", method = RequestMethod.GET)
+    public String checkMail(@RequestParam("mail") String mail, @RequestParam("verificationId") String verificationId,
+                            ModelMap model, HttpServletRequest request) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Sign Up");
+        model.addAttribute("mail", mail);
+        model.addAttribute("verificationId", verificationId);
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        return "check_mail";
     }
 
     // sign in page GET  (POST route is taken care of by Spring-Security)
