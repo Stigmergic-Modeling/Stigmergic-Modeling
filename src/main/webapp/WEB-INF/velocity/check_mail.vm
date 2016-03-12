@@ -1,21 +1,24 @@
 #parse ("header.vm")
 
-<form id="resend-email" method="post">
+<form id="remail" action="/checkmail/resend" method="post">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+    <input type="hidden" name="verificationId" value="${verificationId}" />
+    <input type="hidden" name="mail" value="${mail}" />
     <div class="text-center">
         <hr />
         <br />
         <br />
 
-        <p>A confirmation email has been sent to <strong>${mail}</strong>.</p>
-        <p>Click on the confirmation link in the email to activate your account.</p>
+        <h4>A confirmation email has been sent to <strong>${mail}</strong>.</h4>
+        <h4>Click the activate button in the email to activate your account.</h4>
         <br />
 
-        <div>
-            <button type="submit" class="btn btn-default" data-toggle="popover" data-trigger="hover" data-placement="top" title="Please Note:"
-                    data-content="New activation link will be sent to your email address. Please use the newest one to activate your account.">
-                Click to resend
-            </button>
-        </div>
+        <p>If you have not recieced our email, please check out if it is in your spam mail box.</p>
+        <p>If it is not in your spam mail box either, please click <button type="submit" class="btn btn-default" data-toggle="popover" data-trigger="hover" data-placement="top" title="Note"
+                                                                     data-content="New activation link will be sent to your email address. Please use the newest one to activate your account.">
+            here
+        </button> to resend the email.</p>
+
         <br />
         <br />
 

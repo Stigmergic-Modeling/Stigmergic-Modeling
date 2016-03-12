@@ -25,6 +25,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
 import javax.servlet.http.HttpServletResponse;
@@ -133,9 +134,38 @@ public class AuthController {
                             ModelMap model, HttpServletRequest request) {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
-        model.addAttribute("title", "Sign Up");
+        model.addAttribute("title", "Check Mail");
         model.addAttribute("mail", mail);
         model.addAttribute("verificationId", verificationId);
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        return "check_mail";
+    }
+
+    // check mail resend POST
+    @RequestMapping(value="/checkmail/resend", method = RequestMethod.POST)
+    public String checkMailResend(@RequestParam("mail") String mail, @RequestParam("verificationId") String verificationId,
+                                  ModelMap model, HttpServletRequest request) {
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        model.addAttribute("title", "Check Mail");
+        model.addAttribute("mail", mail);
+
+        try {
+            String newVerId =  userRepository.resendRegisterEmail(verificationId);
+            model.addAttribute("verificationId", newVerId);
+            model.addAttribute("success", "Email resent successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("verificationId", verificationId);
+            model.addAttribute("error", e.getMessage());
+        }
 
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());

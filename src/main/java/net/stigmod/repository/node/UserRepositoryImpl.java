@@ -97,6 +97,39 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
         userRepository.save(user);
 
         // 发送验证邮件
+        this.sendSignupActivationEmail(mail, name, verificationId);
+
+        return verificationId;
+    }
+
+    /**
+     * 重新发送注册确认邮件（激活连接会更新）
+     * @param verificationId V ID
+     * @return 新的 V ID
+     */
+    @Transactional
+    public String resendRegisterEmail(String verificationId) {
+
+        User user = userRepository.findByVerificationId(verificationId);
+        if (user != null && Arrays.asList(user.getRoles()).contains(User.SecurityRole.ROLE_USER_TOBE)) {
+
+            String newVerId = user.resetVerificationId();  // 更新 Verification ID
+            userRepository.save(user);
+            this.sendSignupActivationEmail(user.getMail(), user.getName(), verificationId);  // 发送验证邮件
+            return newVerId;
+
+        } else {
+            throw new UsernameNotFoundException("User does not exist or have already been activated.");
+        }
+    }
+
+    /**
+     * 发送注册验证邮件
+     * @param mail 邮件地址
+     * @param name 用户名
+     * @param verificationId 如其名哈
+     */
+    private void sendSignupActivationEmail(String mail, String name, String verificationId) {
         String verificationLink = "http://localhost/signup/verify?id=" + verificationId;
         String subject = "Stigmergic-Modeling signup confirmation";
         String content = "<div style=\"background-color: #f0f8fa\">\n" +
@@ -171,7 +204,6 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
                 "     </center>\n" +
                 " </div>";
         mailService.sendEmail(mail, subject, content);
-        return verificationId;
     }
 
     /**
