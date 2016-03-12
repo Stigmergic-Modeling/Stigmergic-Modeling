@@ -1,0 +1,105 @@
+#parse ("header.vm")
+
+<div id="stigmod-pg-user">
+    <div class="row">
+        <!-- 左侧信息栏 -->
+        <div class="col-xs-3">
+##            <% if (undefined !== userInfo.avatar && null !== userInfo.avatar && '' !== userInfo.avatar) { %>
+            #if (${avatar})
+                <img src="${avatar}" class="img-responsive img-rounded"/>
+            #else
+                <a href="/user/settings/profile">
+                    <img src="/static/dist/img/user_avatar_default.jpg" class="img-responsive img-rounded"/>
+                </a>
+            #end
+            <br />
+            <div id="stigmod-username">${user.getName()}</div>
+##            <div id="stigmod-username">${user.getMail()}</div>
+            <hr />
+            <div id="stigmod-info-left">
+                #if ("${user.getLocation()}" != "")
+                    <p><span class="glyphicon glyphicon-map-marker stigmod-detailinfo-icon"></span>&nbsp;${user.getLocation()}</p>
+                #end
+                #if (${user.getMail()})
+                    <p><span class="glyphicon glyphicon-envelope stigmod-detailinfo-icon"></span>&nbsp;${user.getMail()}</p>
+                #end
+                #if ("${user.getUrl()}" != "")
+                    <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span>&nbsp;${user.getUrl()}</p>
+                #end
+                #if (${user.getSignUpDate()})
+                    <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span>&nbsp;Joined&nbsp;on&nbsp;${user.getSignUpDate()}</div>
+                #end
+            </div>
+            <hr />
+            <div class="row"> <!-- 三个坑待填 -->
+                <div class="col-xs-4">
+                </div>
+                <div class="col-xs-4">
+                </div>
+                <div class="col-xs-4">
+                </div>
+            </div>
+        </div>
+        <!-- 右侧 Model 栏 -->
+        <div class="col-xs-9">
+            <!-- Model 搜索栏 -->
+            <div class="row">
+                <div class="col-xs-12">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#"><span class="fa fa-cube"></span> &nbsp;Models</a></li>
+                        <li role="presentation"><a href="#"><span class="glyphicon glyphicon-comment"></span> &nbsp;Discussions</a></li>
+                        <li role="presentation"><a href="#"><span class="glyphicon glyphicon-transfer"></span> &nbsp;Activities</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Model 显示栏 -->
+            <div class="row" id="stigmod-searchbar">
+                <div class="col-xs-12">
+                    <form class="form-inline" role="form">
+                        <div class="form-group" id="stigmod-searchbar-form">
+                            <input type="text" class="form-control" placeholder="Find a model..." id="stigmod-searchbar-input">
+                        </div>
+                        <button class="btn btn-default">Search</button>
+                        <a class="btn btn-warning" id="stigmod-searchbar-newbtn" href="/newmodel"><span class="fa fa-cube"></span>&nbsp;&nbsp;Create New</a>
+                    </form>
+                </div>
+            </div>
+            <hr />
+            <div id="stigmod-model-info-container">
+                <!-- ModelInfo 显示组件位置 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ModelInfo 显示组件 -->
+<script type="text/template" id="template-model-info">
+    <div class="stigmod-modelshow">
+        <div class="row">
+            <div class="col-xs-9 stigmod-modelshow-title">
+                <a href=""></a>
+            </div>
+            <div class="col-xs-3 stigmod-modelshow-info">
+                <span class="glyphicon glyphicon-th-large"></span>
+                <span class="stigmod-modelshow-class"></span> &nbsp;&nbsp;
+                <span class="glyphicon glyphicon-random"></span>
+                <span class="stigmod-modelshow-relation"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10 stigmod-modelshow-description">
+            </div>
+            <div class="col-xs-2">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 stigmod-modelshow-date">
+            </div>
+        </div>
+        <hr />
+    </div>
+</script>
+
+
+#set ($jsFile = "user")
+#parse ("footer.vm")

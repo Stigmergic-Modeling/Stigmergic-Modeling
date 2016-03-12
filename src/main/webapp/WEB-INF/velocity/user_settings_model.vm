@@ -1,0 +1,51 @@
+#parse ("header.vm")
+
+<div id="stigmod-pg-user-settings">
+    <div class="row">
+        <!-- 左侧信息栏 -->
+        <div class="col-xs-3" id="stigmod-settings-left">
+            <div class="panel panel-default">
+                <div class="panel-heading">Personal settings</div>
+                <div class="list-group">
+                    <a href="/user/settings/profile" class="list-group-item stigmod-cursor-pointer">Profile</a>
+                    <a href="/user/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
+                    <a class="list-group-item stigmod-cursor-pointer active">
+                        <span>Model settings</span>
+                        <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 中间栏 -->
+        <div class="col-xs-3" id="stigmod-settings-mid">
+            <div class="panel panel-default">
+                <div class="panel-heading">Model settings</div>
+                <div class="list-group">
+                    <a class="list-group-item stigmod-cursor-pointer active">
+                        <span>General</span>
+                        <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                    </a>
+                    #foreach (${icm} in ${icms})
+                        <a href="/user/settings/model/${icm.getName()}" class="list-group-item stigmod-cursor-pointer">
+                            <span>${icm.getName()}</span>
+                        </a>
+                    #end
+                </div>
+            </div>
+        </div>
+        <!-- 右侧栏 -->
+        <div class="col-xs-6 stigmod-settings-right">
+            <div class="panel panel-default">
+                <div class="panel-heading">General</div>
+                <div class="row stigmod-settings-left-inner">
+                    <div class="col-xs-12">
+##                        TODO: 适用于用户所有模型的个性化设置，如attribute中默认的property个数等
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

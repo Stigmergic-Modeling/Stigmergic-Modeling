@@ -1,0 +1,41 @@
+#parse ("header.vm")
+
+<hr />
+<div class="panel panel-default" id="stigmod-panel-signup">
+    <div class="panel-heading">
+        <h2 class="panel-title">Sign up</h2>
+    </div>
+    <div class="panel-body">
+        <form action="/signup" method="post" role="form">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <div class="form-group">
+                <label for="email">Your Email Address</label>
+                #if (${mail})
+                    <input type="email" class="form-control" required autofocus id="email" name="mail" value="${mail}"/>
+                #else
+                    <input type="email" class="form-control" required autofocus id="email" name="mail" />
+                #end
+            </div>
+            <div class="form-group">
+                <label for="name">Your Name</label>
+                #if (${name})
+                    <input type="text" class="form-control" required autofocus id="name" name="name" value="${name}"/>
+                #else
+                    <input type="text" class="form-control" required autofocus id="name" name="name" />
+                #end
+            </div>
+            <div class="form-group">
+                <label for="password">Your Password</label>
+                <input type="password" class="form-control" required id="password" name="password" />
+            </div>
+            <div class="form-group">
+                <label for="password-repeat">Repeat Your Password</label>
+                <input type="password" class="form-control" required id="password-repeat" name="password-repeat" />
+            </div>
+            <button class="btn btn-warning" type="submit">Sign up</button>
+        </form>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

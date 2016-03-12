@@ -1,0 +1,32 @@
+#parse ("header.vm")
+
+<hr />
+<div class="panel panel-default" id="stigmod-panel-signup">
+    <div class="panel-heading">
+        <h2 class="panel-title">Sign in</h2>
+    </div>
+    <div class="panel-body">
+        <form action="/signin" method="post" role="form">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <div class="form-group">
+                <label for="email">Email Address</label><!-- 若页面 model 中传入了 mail 参数，则用它填表 -->
+                <input type="email" class="form-control" required autofocus id="email" name="mail"
+                        #if (${mail})
+                            value="${mail}"
+                        #end
+                        />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label> <a href="/forget"> (Forget)</a>
+                <input type="password" class="form-control" required id="password" name="password" />
+            </div>
+            <!--label class="checkbox">
+              <input type="checkbox" value="remember-me"> Remember me
+            </label-->
+            <button class="btn btn-default" type="submit">Sign in</button>
+        </form>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

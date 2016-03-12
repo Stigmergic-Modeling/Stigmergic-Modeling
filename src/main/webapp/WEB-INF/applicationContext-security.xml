@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <context:annotation-config/>
+    <security:global-method-security secured-annotations="enabled">
+    </security:global-method-security>
+
+    <security:http> <!-- use-expressions="true" -->
+        <security:intercept-url pattern="/" access="isAnonymous()"/>
+        <security:intercept-url pattern="/static/**" access="permitAll"/>
+        <security:intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <security:intercept-url pattern="/preMerge" access="permitAll"/> <!-- 测试用 -->
+        <security:intercept-url pattern="/SimulateMerge" access="permitAll"/> <!-- 测试用 -->
+        <security:intercept-url pattern="/apple-touch-icon-precomposed.png" access="permitAll"/>  <!-- for Safari -->
+        <security:intercept-url pattern="/apple-touch-icon.png" access="permitAll"/>  <!-- for Safari -->
+        <security:intercept-url pattern="/about" access="permitAll"/>
+        <security:intercept-url pattern="/forget" access="permitAll"/>
+        <security:intercept-url pattern="/forget/verify" access="permitAll"/>
+        <security:intercept-url pattern="/resetpassword" access="permitAll"/>
+        <security:intercept-url pattern="/checkmail" access="permitAll"/>
+        <security:intercept-url pattern="/checkmail/resend" access="permitAll"/>
+        <security:intercept-url pattern="/signup/verify" access="permitAll"/>
+        <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
+        <security:intercept-url pattern="/signup*" access="isAnonymous()"/>
+        <security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/> <!-- 尚未激活的用户不能登录（如 ROLE_USER_TOBE） -->
+        <security:form-login login-page="/signin"
+                             authentication-failure-url="/signin?login_error=true"
+                             default-target-url="/user"
+                             login-processing-url="/signin"
+                             username-parameter="mail"
+                             password-parameter="password"/>
+        <security:access-denied-handler error-page="/denied" />
+        <!--<security:logout logout-success-url="/signin"-->
+                         <!--invalidate-session="true"-->
+                         <!--logout-url="/signout"/>-->
+
+        <!--<security:csrf/>-->
+        <!--<security:csrf disabled="true"/>-->
+
+    </security:http>
+
+    <security:authentication-manager>
+        <security:authentication-provider user-service-ref="userRepository">
+            <security:password-encoder hash="md5">
+                <security:salt-source system-wide="cewuiqwzie"/>
+            </security:password-encoder>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+</beans>

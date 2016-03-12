@@ -1,0 +1,58 @@
+#parse ("header.vm")
+
+<div id="stigmod-pg-user-settings">
+    <div class="row">
+        <!-- 左侧信息栏 -->
+        <div class="col-xs-3" id="stigmod-settings-left">
+            <div class="panel panel-default">
+                <div class="panel-heading">Personal settings</div>
+                <div class="list-group">
+                    <a class="list-group-item stigmod-cursor-pointer active">
+                        <span>Profile</span>
+                        <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                    </a>
+                    <a href="/user/settings/account" class="list-group-item stigmod-cursor-pointer">Account settings</a>
+                    <a href="/user/settings/model" class="list-group-item stigmod-cursor-pointer">Model settings</a>
+                </div>
+            </div>
+        </div>
+        <!-- 右侧栏 -->
+        <div class="col-xs-9 stigmod-settings-right">
+            <div class="panel panel-default">
+                <div class="panel-heading">Profile</div>
+                <div class="row stigmod-settings-left-inner">
+                    <div class="col-xs-8">
+                        <form method="post">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+##                            <dl>
+##                                <dt>Avatar</dt>
+##                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-avatar" name="avatar" disabled /></dd>
+##                            </dl>
+                            <dl>
+                                <dt>Name</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-name" name="name" value="${user.getName()}" /></dd>
+                            </dl>
+                            <dl>
+                                <dt>Email</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-email" name="mail" value="${user.getMail()}" disabled /></dd>
+                            </dl>
+                            <dl>
+                                <dt>Location</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-location" name="location" value="${user.getLocation()}" /></dd>
+                            </dl>
+                            <dl>
+                                <dt>URL</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg stigmod-pf-url" name="url" value="${user.getUrl()}" /></dd>
+                            </dl>
+                            <button type="submit" class="btn btn-warning">Update profile</button>
+                        </form>
+                    </div>
+                    <div class="col-xs-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

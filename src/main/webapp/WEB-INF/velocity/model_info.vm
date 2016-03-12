@@ -1,0 +1,148 @@
+#parse ("header.vm")
+
+<div id="stigmod-pg-modelinfo">
+    <!-- 顶部项目名称栏 -->
+    <div class="row">
+        <div class="col-xs-8">
+            <h1 id="stigmod-model-title">
+                <span class="fa fa-cube" id="stigmod-model-title-icon"></span>
+                <a href="/user"><span id="stigmod-model-title-username"> ${user.getName()}</span></a>
+                <span>&nbsp;/&nbsp;</span>
+                <span class="dropdown">
+                    <span class="dropdown-toggle stigmod-a-pseudo" type="button" id="interProjJump" data-toggle="dropdown">
+                        ${currentIcm.getName()}
+                    </span>
+                    #if (${icms.size()} > 1)
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="interProjJump">
+                        #foreach (${icm} in ${icms})
+                            #if (${currentIcm.getName()} != ${icm.getName()})
+                              <li role="presentation"><a href="/${icm.getName()}/info" role="menuitem" tabindex="-1" href="#">${icm.getName()}</a></li>
+                            #end
+                        #end
+                        </ul>
+                    #end
+                </span>
+                <span class="stigmod-modelinfo-title">&nbsp;/&nbsp;</span>
+                <span class="stigmod-modelinfo-title">Model Information</span>
+            </h1>
+        </div>
+        <div class="col-xs-4">
+      <span class="pull-right stigmod-btn-left" id="stigmod-model-info">
+        <a href="/${currentIcm.getName()}/workspace" class="stigmod-a-nounderline">
+            <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;
+            Back to Workspace
+        </a>
+      </span>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-xs-2">
+        </div>
+        <div class="col-xs-8">
+            <!-- 标签栏 -->
+            <div role="tabpanel">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <ul class="nav nav-tabs nav-justified" role="tablist">
+                            <li role="presentation" class="active">
+                                <a href="#stigmod-icm" role="tab" data-toggle="tab">
+                                    <span class="fa fa-user"></span>&nbsp;&nbsp;Individual Concept Model
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#stigmod-ccm" role="tab" data-toggle="tab">
+                                    <span class="fa fa-users"></span>&nbsp;&nbsp;Collective Concept Model
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!--正文-->
+                <div class="tab-content">
+                    <div role="tabpanel" class="row tab-pane active" id="stigmod-icm">
+                        <div class="col-xs-12">
+                            <table class="table table-striped stigmod-table-modelinfo">
+                                <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>${currentIcm.getName()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Description</td>
+                                    <td>${currentIcm.getDescription()}</td>
+                                </tr>
+##                                <tr>
+##                                    <td>Creation Date</td>
+##                                    <td><%= modelInfo.icm.creationDate %></td>
+##                                </tr>
+                                <tr>
+                                    <td>Update Date</td>
+                                    <td>${currentIcm.getUpdateDate()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Number of Classes</td>
+                                    <td>${currentIcm.getClassNum()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Number of Relationships</td>
+                                    <td>${currentIcm.getRelationshipNum()}</td>
+                                </tr>
+                                <!--<tr>-->
+                                <!--<td>Models Imported</td>-->
+                                <!--<td><a href="#">Date</a> - <a href="#">Person</a> - <a href="#">Money</a></td>-->
+                                <!--</tr>-->
+                                <tr>
+                                    <td class="stigmod-vert-align-center">Settings</td>
+                                    <td><a href="/user/settings/model/${currentIcm.getName()}" type="button" class="btn btn-default">Model settings</a></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="row tab-pane" id="stigmod-ccm">
+                        <div class="col-xs-12">
+                            <table class="table table-striped stigmod-table-modelinfo">
+                                <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>${currentCcm.getName()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Description</td>
+                                    <td>${currentIcm.getDescription()}</td>
+                                </tr>
+##                                <tr>
+##                                    <td>Creation Date</td>
+##                                    <td><%= modelInfo.ccm.creationDate %></td>
+##                                </tr>
+                                <tr>
+                                    <td>Update Date</td>
+                                    <td>${currentCcm.getUpdateDate()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Number of Classes</td>
+                                    <td>${currentCcm.getClassNum()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Number of Relationships</td>
+                                    <td>${currentCcm.getRelationshipNum()}</td>
+                                </tr>
+##                                <tr>
+##                                    <td>People participated</td>
+##                                    <td><%= modelInfo.ccm.peopleNum %></td>
+##                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-2">
+        </div>
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")
