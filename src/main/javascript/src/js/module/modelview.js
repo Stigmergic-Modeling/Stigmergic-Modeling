@@ -1137,6 +1137,14 @@ define(function(require, exports, module) {
           document.getElementById("captionSelect").value = enumerationSelectedCaption;
         });
 
+    d3.select("#allNodesLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "allNodes";
+          //d3.select("#optionColor").text("Yellow");
+          d3.select("#allnodeLegendOption").classed("hidden", false);
+        });
+
     d3.select("#associationLegend")
         .on("click",function(){
           d3.selectAll(".legendOption").classed("hidden", true);
@@ -1183,6 +1191,15 @@ define(function(require, exports, module) {
           selectedLegend = "RelationGroup";
           d3.select("#groupLegendOption").classed("hidden", false);
           document.getElementById("groupColorSelect").value = groupSelectedColor;
+
+        });
+
+    d3.select("#edgeLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "AllRelation";
+          d3.select("#edgeLegendOption").classed("hidden", false);
+          //document.getElementById("groupColorSelect").value = groupSelectedColor;
 
         });
 
@@ -1238,6 +1255,34 @@ define(function(require, exports, module) {
           mouseout();
         });
 
+    d3.select("#allcolorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("allcolorSelect").value;
+            classSelectedColor = colorValue;
+            fillColor[0] = colorFillArray[colorValue];
+            strokeColor[0] = colorStrokeArray[colorValue];
+            d3.select("#classLegend")
+                .attr("fill", colorFillArray[colorValue])
+                .attr("stroke", colorStrokeArray[colorValue]);
+            enumerationSelectedColor = colorValue;
+            fillColor[1] = colorFillArray[colorValue];
+            strokeColor[1] = colorStrokeArray[colorValue];
+            d3.select("#enumerationLegend")
+                .attr("fill", colorFillArray[colorValue])
+                .attr("stroke", colorStrokeArray[colorValue]);
+          d3.selectAll(".circle")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          d3.select("#allnodeCircle")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          d3.select("#allNodesLegend")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          mouseout();
+        });
+
+
     d3.select("#captionSelect")
         .on("change", function(){
           var captionValue = document.getElementById("captionSelect").value;
@@ -1285,6 +1330,21 @@ define(function(require, exports, module) {
           }
           mouseout();
         });
+
+    d3.select("#allcaptionSelect")
+        .on("change", function(){
+          var captionValue = document.getElementById("allcaptionSelect").value;
+          myname.text(function(d) {
+            if(captionValue == 1)
+              return d.name;
+            else
+              return "";
+          })
+          classSelectedCaption = captionValue;
+          enumerationSelectedCaption = captionValue;
+          mouseout();
+        });
+
     d3.select("#assColorSelect")
         .on("change", function(){
           var colorValue = document.getElementById("assColorSelect").value;
@@ -1340,6 +1400,42 @@ define(function(require, exports, module) {
           groupSelectedColor = colorValue;
           d3.selectAll(".groupColortoChange")
               .attr("stroke", lineColor["RelationGroup"]);
+          mouseout();
+        });
+
+    d3.select("#allColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("allColorSelect").value;
+          lineColor["Association"] = colorFillArray[colorValue];
+          assSelectedColor = colorValue;
+          d3.select("#associationLegend")
+              .attr("stroke", lineColor["Association"]);
+          d3.select("#assOptionLine")
+              .attr("stroke", lineColor["Association"]);
+          lineColor["Aggregation"] = colorFillArray[colorValue];
+          aggSelectedColor = colorValue;
+          d3.selectAll(".aggColortoChange")
+              .attr("stroke", lineColor["Aggregation"]);
+          lineColor["Generalization"] = colorFillArray[colorValue];
+          genSelectedColor = colorValue;
+          d3.selectAll(".genColortoChange")
+              .attr("stroke", lineColor["Generalization"]);
+          lineColor["Composition"] = colorFillArray[colorValue];
+          comSelectedColor = colorValue;
+          d3.selectAll(".comColortoChange")
+              .attr("stroke", lineColor["Composition"]);
+          d3.select("#comMarkerLegend")
+              .attr("stroke", lineColor["Composition"])
+              .attr("fill", lineColor["Composition"]);
+          d3.select("#compositionMarker")
+              .attr("stroke", lineColor["Composition"])
+              .attr("fill", lineColor["Composition"]);
+          lineColor["RelationGroup"] = colorFillArray[colorValue];
+          groupSelectedColor = colorValue;
+          d3.selectAll(".groupColortoChange")
+              .attr("stroke", lineColor["RelationGroup"]);
+          d3.selectAll(".edgeColortoChange")
+              .attr("stroke", colorValue);
           mouseout();
         });
 
