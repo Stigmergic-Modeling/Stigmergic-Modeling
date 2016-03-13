@@ -1927,6 +1927,9 @@ define(function (require, exports, module) {
         // create if not exists 按钮
         $(document).on('change', '#stigmod-addatt-create-class-chkbx', handleCreateIfNotExistsChkbx);
 
+        // 撤销推荐采纳
+        $(document).on('click', '#stigmod-modal-addattribute span.stigmod-adopting-rec-hint', handleCancelRecAdoption);
+
         // 输入框中每输入一个字符，过滤一次推荐栏的内容
         $input.on('keyup', handleFilterRec);
 
@@ -1935,8 +1938,19 @@ define(function (require, exports, module) {
 
             // 首先处理“自动新建不存在的类作为类型”的问题
             var typeName = $('#stigmod-addatt-type').find('td > input[type=text]:visible:not([readonly])').val();
-            if (stateOfPage.createClassIfNotExists && !icm.doesNodeExist(0, typeName)) {  // 允许“自动新建不存在的类作为类型”，且类不在 ICM 中
-                widget.fire('autoAddTypeClass', [typeName, 'FRONTID_' + new ObjectId().toString(), 'fresh']);  // 暂时先用 fresh 创建 TODO 可区分 fresh 和 binding
+            if (stateOfPage.createClassIfNotExists  // 允许“自动新建不存在的类作为类型”
+                && !/^(int|float|string|boolean)$/.test(typeName)  // 且不是内置类
+                && !icm.doesNodeExist(0, typeName)) {  // 且类不在 ICM 中
+
+                var typeClassId, typeClassAddingType;
+                if (widget.adoptingRec) {  // 若 attribute 是绑定创建，则类型类也自动绑定创建
+                    typeClassId = $.grep(widget.recommendation.data, function(o) {return o.id === widget.adoptedAttrId})[0].typeClassId;  // 获取类型类的ID
+                    typeClassAddingType = 'binding';
+                } else {  // 若 attribute 不是绑定创建，则类型类也自动不绑定创建
+                    typeClassId = 'FRONTID_' + new ObjectId().toString();
+                    typeClassAddingType = 'fresh';
+                }
+                widget.fire('autoAddTypeClass', [typeName, typeClassId, typeClassAddingType]);  // 区分 fresh 和 binding
             }
 
             // 之后再正常建立 attribute
@@ -1992,6 +2006,7 @@ define(function (require, exports, module) {
 
             widget.adoptingRec = false;
             widget.adoptedAttrId = '';
+            $(this).find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
             widget.fire('init');
 
             stateOfPage.createClassIfNotExists = false;  // 默认不允许在 type 类不存在时自动新建该类
@@ -2012,6 +2027,12 @@ define(function (require, exports, module) {
         function handleCreateIfNotExistsChkbx() {
             stateOfPage.createClassIfNotExists = !!$(this).is(':checked');  // 将勾选状态映射到 stateOfPage 的属性上
             $(this).closest('tr').find('td > input').trigger('keyup');  // 重新触发 type 输入框的输入合法性检查
+        }
+
+        // 处理：撤销推荐采纳
+        function handleCancelRecAdoption() {
+            widget.adoptingRec = false;
+            $('#stigmod-modal-addattribute').find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
         }
 
         // 处理：过滤推荐栏的内容
@@ -2060,6 +2081,7 @@ define(function (require, exports, module) {
         // 绑定id
         this.adoptingRec = true;
         this.adoptedAttrId = attrModel.id;
+        $('#stigmod-modal-addattribute').find('span.stigmod-adopting-rec-hint').show();  // adopting recommendation 提示显示
     };
 
     // 初始化推荐栏
@@ -2121,7 +2143,7 @@ define(function (require, exports, module) {
                     $compo.tooltip('destroy');  // 首先要清除旧的提示
                     $compo.tooltip({
                         animation: false,
-                        title: 'Relation type can not be void.',
+                        title: 'Relationship type can not be void.',
                         placement: 'top',
                         trigger: 'manual'
                         //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
@@ -2790,7 +2812,8 @@ define(function (require, exports, module) {
         var elem, popover = '', key,
                 hiddenList = {  // 屏蔽掉功能字段
                     'id': true,
-                    'ref': true
+                    'ref': true,
+                    'typeClassId': true
                 };
 
         // item 不为空时才进行转换
