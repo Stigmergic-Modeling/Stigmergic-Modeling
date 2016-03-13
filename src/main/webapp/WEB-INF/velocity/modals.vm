@@ -6,7 +6,10 @@
 
         <div class="modal-content modal-normal modal-normal-animation">
             <div class="modal-header">
-                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'CLASS'</h4>
+                <h4 class="modal-title text-center" id="myModalLabel">
+                    Add a new 'CLASS'
+                    <span class="stigmod-adopting-rec-hint stigmod-a-pseudo-nounderline">&nbsp;(&nbsp;Adopting Rec&nbsp;<i class="fa fa-hand-lizard-o"></i>&nbsp;Click to cancel&nbsp;)</span>
+                </h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="stigmod-addclass-name">

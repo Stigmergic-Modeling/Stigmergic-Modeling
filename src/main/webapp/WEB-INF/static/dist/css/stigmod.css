@@ -252,6 +252,17 @@ blockquote {
   text-decoration: underline;
 }
 
+/* 无下划线伪链接类 */
+.stigmod-a-pseudo-nounderline {
+  color: #428bca;
+  text-decoration: none;
+  cursor: pointer;
+}
+.stigmod-a-pseudo-nounderline:hover {
+  color: #2a6496;
+  text-decoration: none;
+}
+
 /* 无下划线连接类 */
 .stigmod-a-nounderline:hover {
   text-decoration: none;

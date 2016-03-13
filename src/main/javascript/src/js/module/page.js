@@ -1697,6 +1697,9 @@ define(function (require, exports, module) {
         // modal 显示前复位
         $(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
 
+        // 撤销推荐采纳
+        $(document).on('click', '#stigmod-modal-addclass span.stigmod-adopting-rec-hint', handleCancelRecAdoption);
+
         // 输入框中每输入一个字符，过滤一次推荐栏的内容
         this.$input.on('keyup', handleFilterRec);
 
@@ -1739,16 +1742,24 @@ define(function (require, exports, module) {
 
                 widget.adoptingRec = false;
                 widget.adoptedClassId = '';
+                $(this).find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
 
             } else {  // 有预存信息，用预存信息填表（意味着进入绑定模式），并清除预存信息
                 widget.setInputWgtValue(widget.preInfo);
                 widget.preInfo = null;
+                $(this).find('span.stigmod-adopting-rec-hint').show();  // adopting recommendation 提示显示
             }
 
             widget.fire('init');
 
             //// 刷新 modal 推荐栏
             //widget.initRecWgt(icm, ccm);
+        }
+
+        // 处理：撤销推荐采纳
+        function handleCancelRecAdoption() {
+            widget.adoptingRec = false;
+            $('#stigmod-modal-addclass').find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
         }
 
         // 处理：过滤推荐栏的内容
@@ -1772,6 +1783,8 @@ define(function (require, exports, module) {
         // 绑定id
         this.adoptingRec = true;
         this.adoptedClassId = classModel.id;
+
+        $('#stigmod-modal-addclass').find('span.stigmod-adopting-rec-hint').show();  // adopting recommendation 提示显示
     };
 
     // 初始化推荐栏
