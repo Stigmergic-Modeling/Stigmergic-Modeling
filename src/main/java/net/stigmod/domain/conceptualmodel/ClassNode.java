@@ -42,7 +42,7 @@ public class ClassNode extends AbstractVertex {
     private Set<ClassToValueEdge> ctvEdges = new HashSet<>();
 
     public ClassNode(){
-//        super();
+        super();
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;

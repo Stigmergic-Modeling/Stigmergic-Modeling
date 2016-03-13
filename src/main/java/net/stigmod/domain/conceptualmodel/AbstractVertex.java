@@ -17,4 +17,8 @@ import java.util.Set;
  * @version 2016/3/4
  */
 public abstract class AbstractVertex extends AbstractConceptualModelElement implements Vertex {
+
+    public AbstractVertex() {
+        super();
+    }
 }

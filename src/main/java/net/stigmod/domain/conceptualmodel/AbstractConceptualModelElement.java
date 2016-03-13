@@ -27,9 +27,12 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
     @Property
     protected Set<String> icmSet = new HashSet<>();
 
-//    public AbstractConceptualModelElement() {
-//        this.icmSet = new HashSet<>();
-//    }
+    @Property
+    protected Boolean isNewlyCreated;  // 用于区分是否被融合算法处理过
+
+    public AbstractConceptualModelElement() {
+        this.isNewlyCreated = true;
+    }
 
     // 添加 icm id
     public void addIcmId(Long icmId) {
