@@ -112,6 +112,10 @@ define(function (require, exports, module) {
         this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
         this.addAttributeDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
 
+        this.addAttributeDlgWgt.on('autoAddTypeClass', 'addClass', this.icm);  // [自动新建类型类]时更新icm模型!!
+        this.addAttributeDlgWgt.on('autoAddTypeClass', 'refreshLeftColAndActivateButDoNotJump', this);  // 新建类时更新页面显示（只刷新左侧栏以显示新建的类）
+        this.addAttributeDlgWgt.on('autoAddTypeClass', 'updateRightCol', this);// 确认新建类后，更新右侧推荐栏（要点是去掉刚刚加入ICM的类）
+
         // addRelation对话框
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
         this.addRelationDlgWgt.init(this.icm, this.ccm, this.stateOfPage);
@@ -294,6 +298,16 @@ define(function (require, exports, module) {
         $(document)
                 .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
                 .trigger('click');
+    };
+
+    // 刷新左侧栏、激活item（当前页面状态所标定的类）、但不跳转到新的middleCol （防止中间栏刷新）
+    Page.prototype.refreshLeftColAndActivateButDoNotJump = function () {
+        this.leftColWgt.refresh(this.icm);
+
+        // 重新激活但不跳转
+        $(document)
+            .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + this.stateOfPage.clazz + ']')
+            .closest('a').addClass('active')
     };
 
     // 刷新中间栏
@@ -627,6 +641,8 @@ define(function (require, exports, module) {
             var $editComponent = $root.find('.stigmod-clickedit-edit');
 
             $root.find('.tooltip').remove();  // 每次进入编辑状态时都清掉旧的 tooltip
+
+            stateOfPage.createClassIfNotExists = false;  // 修改时，一直不允许自动新建不存在的类为属性
 
             if ('title' === caseEdit) { // 中间栏标题的特别处理
                 var originalTitle = $originalTextElem.text();
@@ -1882,7 +1898,7 @@ define(function (require, exports, module) {
                     source: substringMatcher(icm, ccm, stateOfPage, 'attributeInCCM', 6)
                 });
 
-        this.initInputWgts();
+        this.initInputWgts(stateOfPage);
 
         var widget = this;
 
@@ -1895,14 +1911,24 @@ define(function (require, exports, module) {
         // add attribute 和 add relation 的 modal 中 checkbox 的动作
         $(document).on('change', '#stigmod-modal-addattribute input[type="checkbox"]', handleAddAttrChkBox);
 
+        // create if not exists 按钮
+        $(document).on('change', '#stigmod-addatt-create-class-chkbx', handleCreateIfNotExistsChkbx);
+
         // 输入框中每输入一个字符，过滤一次推荐栏的内容
         $input.on('keyup', handleFilterRec);
 
         // 处理：点击 addattribute 确认按钮
         function handleAddAttrOk() {
-            var $visibleInputs = $(this).closest('#stigmod-modal-addattribute')
-                    .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
 
+            // 首先处理“自动新建不存在的类作为类型”的问题
+            var typeName = $('#stigmod-addatt-type').find('td > input[type=text]:visible:not([readonly])').val();
+            if (stateOfPage.createClassIfNotExists && !icm.doesNodeExist(0, typeName)) {  // 允许“自动新建不存在的类作为类型”，且类不在 ICM 中
+                widget.fire('autoAddTypeClass', [typeName, 'FRONTID_' + new ObjectId().toString(), 'fresh']);  // 暂时先用 fresh 创建 TODO 可区分 fresh 和 binding
+            }
+
+            // 之后再正常建立 attribute
+            var $visibleInputs = $(this).closest('#stigmod-modal-addattribute')
+                .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
             if (checkInputs(icm, $visibleInputs, stateOfPage)) {
                 var attrId = widget.adoptingRec ? widget.adoptedAttrId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
@@ -1955,7 +1981,7 @@ define(function (require, exports, module) {
             widget.adoptedAttrId = '';
             widget.fire('init');
 
-
+            stateOfPage.createClassIfNotExists = false;  // 默认不允许在 type 类不存在时自动新建该类
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -1969,6 +1995,12 @@ define(function (require, exports, module) {
             }
         }
 
+        // 处理：create if not exists 按钮
+        function handleCreateIfNotExistsChkbx() {
+            stateOfPage.createClassIfNotExists = !!$(this).is(':checked');  // 将勾选状态映射到 stateOfPage 的属性上
+            $(this).closest('tr').find('td > input').trigger('keyup');  // 重新触发 type 输入框的输入合法性检查
+        }
+
         // 处理：过滤推荐栏的内容
         function handleFilterRec() {
             widget.recommendation.filter($(this).val());
@@ -1976,7 +2008,7 @@ define(function (require, exports, module) {
     };
 
     // 初始化该Dialog组件中的Input组件
-    AttributeDialogWgt.prototype.initInputWgts = function () {
+    AttributeDialogWgt.prototype.initInputWgts = function (stateOfPage) {
         var attribute;
         attribute = this.attribute = {};  // attribute中收编所有的property
 
@@ -2385,6 +2417,8 @@ define(function (require, exports, module) {
         this.addAttrRel.direction = 0;   // 增加 attribute 或 relation 时 插入的方向 （0: up, 1: down
 
         this.windowResizeMutex = 0;      // 为防止窗口大小变化时频繁执行某些操作，设置一个锁
+
+        this.createClassIfNotExists = false;
 
         _.makePublisher(this);
     }
@@ -2891,6 +2925,7 @@ define(function (require, exports, module) {
      ** ---------------------- */
 
     // 获取输入内容合法性检查结果
+    // stateOfPage 中保存一些标志位，包括 createClassIfNotExists，用于判断是否允许自动新建类作为关系或属性的类型。
     function getInputCheckResult(model, inputCase, input, stateOfPage) {
 
         var pattern = null;
@@ -2952,9 +2987,18 @@ define(function (require, exports, module) {
             // 类型名
             case 'type-add':
             case 'type-modify':
-                pattern = /^(int|float|string|boolean)$/;  // build-in types
-                if (!pattern.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是类
-                    return 'Valid Type: A class or built-in type ("int" / "float" / "string" / "boolean").';
+                var patternType = /^(int|float|string|boolean)$/;  // build-in types
+                var patternClass = /^[A-Z][A-Za-z]*$/;
+                if (!patternType.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是ICM中已有类
+                    if (stateOfPage.createClassIfNotExists) {  // 允许自动新建类作为关系或属性的类型
+                        if (!patternClass.test(input)) {
+                            return 'Valid Format: English letters, with initials in capitals.';
+                        } else {
+                            return 'valid';  // 会有其他代码处理“自动新建类作为关系或属性的类型”
+                        }
+                    } else {  // 不允许新建类作为关系或属性的类型
+                        return 'Valid Type: A class or built-in type ("int" / "float" / "string" / "boolean").';
+                    }
                 } else {  // 合法
                     return 'valid';
                 }

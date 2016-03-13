@@ -256,6 +256,7 @@ blockquote {
 .stigmod-a-nounderline:hover {
   text-decoration: none;
 }
+
 /* 蓝色文字 */
 .stigmod-blue-text {
   color: #428bca;
@@ -264,6 +265,14 @@ blockquote {
 /* 高亮文字背景 */
 .stigmod-highlight {
   background-color: #ffff76;
+}
+
+/* 一些 modal 中 creat-if-not-exists checkbox 的样式 */
+.stigmod-modal-create-class-chkbx {
+  color: #777;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* 点击编辑组件在页面加载时隐藏 */

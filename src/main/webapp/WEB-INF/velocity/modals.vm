@@ -171,7 +171,13 @@
                                 </tr>
                                 <tr id="stigmod-addatt-type" stigmod-addatt-case="text">
                                     <td>type</td>
-                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="type-add" value=""></td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="type-add" value="">
+                                        <label class="stigmod-modal-create-class-chkbx">
+                                            <input id="stigmod-addatt-create-class-chkbx" type="checkbox" name="checkbox" value="create-class">
+                                            create if not exists
+                                        </label>
+                                    </td>
+
                                 </tr>
                                 <tr id="stigmod-addatt-multiplicity" stigmod-addatt-case="text">
                                     <td>multiplicity</td>
