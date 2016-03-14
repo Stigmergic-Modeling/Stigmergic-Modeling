@@ -2264,7 +2264,8 @@ define(function (require, exports, module) {
 
         // 处理：过滤推荐栏的内容
         function handleFilterRec() {
-            widget.recommendation.filter($(this).find('a').text());
+            //widget.recommendation.filter($(this).find('a').text());
+            // （ICM中存在的）两个类之间关系的推荐不做过滤
         }
     };
 
@@ -2273,8 +2274,8 @@ define(function (require, exports, module) {
         var relation;
         relation = this.relation = {};  // relation中收编所有的property
 
-        // dropdown输入  TODO: 如果以后有自动修改type的需求，这里再写起来
-        //relation.type = new DropdownInputWgt('#stigmod-addrel-type');  // 单个框
+        // dropdown输入
+        relation.type = new DropdownInputWgt('#stigmod-addrel-type');  // 单个框
 
         // 文本输入
         relation.name = new TextInputWgt('#stigmod-addrel-type');  // 单个框、没有开关(与type组件共用同一个id)
@@ -2307,11 +2308,18 @@ define(function (require, exports, module) {
             }
         }
 
-        // 处理单框组件 (type, name)
+        // 处理单框组件 (name)
         if (relationModel.name) {
             this.relation.name.turnOn([relationModel.name]);
         } else {
             this.relation.name.turnOn(['']);
+        }
+
+        // 处理单框组件 (type)
+        if (relationModel.type) {
+            this.relation.type.turnOn([relationModel.type]);
+        } else {
+            this.relation.type.turnOn(['']);
         }
 
         // 绑定id
@@ -2606,7 +2614,6 @@ define(function (require, exports, module) {
      * 下拉框（Bootstrap中的dropdown组件）输入组件
      * @constructor
      */
-    // TODO 修改设置值和初始化的操作细节
     function DropdownInputWgt() {
         InputWgt.apply(this, arguments);
         this.init();
@@ -2617,29 +2624,19 @@ define(function (require, exports, module) {
     DropdownInputWgt.prototype.init = function () {
         var wrapper = this.element;
 
-        this.tds = wrapper.find('td');  // 表格中的td元素，第一个td是不含input的名字
-        this.number = this.tds.length - 1;  // 有效td个数
+        this.dropdownElements = wrapper.find('.dropdown');  // dropdown 元素
+        this.number = this.dropdownElements.length;  // dropdown 元素个数
     };
 
     // 为组件设置值
     DropdownInputWgt.prototype.setValue = function (value) {  // value 是一个数组，即使只有一个参数
-        var i, radio;
+        var i, el;
 
-        for (i = 1; i - 1 < this.number; i++) {  // i从1开始，只看有效的td
-            radio = this.tds.eq(i).find('input');
+        for (i = 0; i < this.number; i++) {
+            el = this.dropdownElements.eq(i);
 
-            if ('True' === value[i - 1]) {
-                radio.eq(0).prop({'checked': true});  // 一定要用prop() | 因为attr()不好使，其仅在第一次执行时有用
-                radio.eq(1).removeAttr('checked');
-
-            } else if ('False' === value[i - 1]) {
-                radio.eq(0).removeAttr('checked');
-                radio.eq(1).prop({'checked': true});
-
-            } else {
-                radio.eq(0).removeAttr('checked');
-                radio.eq(1).removeAttr('checked');
-            }
+            // 填写 dropdown 按钮
+            el.find('button').text(value[i]);
         }
     };
 
@@ -2866,8 +2863,8 @@ define(function (require, exports, module) {
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
 
-        // 初始时不显示
-        this.filter('');
+        //// 初始时不显示
+        //this.filter('');
 
         // 处理：点击填表
         function fillInBlanks(event) {
