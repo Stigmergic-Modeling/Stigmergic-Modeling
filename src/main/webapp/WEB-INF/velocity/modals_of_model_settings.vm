@@ -1,0 +1,23 @@
+<!-- Are you sure to delete model? -->
+<div class="modal fade" id="stigmod-modal-delete-model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center stigmod-red-text">Delete Model</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 text-center">
+                        <span>You are deleting the whole model '<span class="stigmod-modal-delete-name">${currentIcm.getName()}</span>' permenantly. Are you sure to delete it?</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-danger stigmod-btn-modal-bottom" id="stigmod-btn-delete">Remove</button>
+                    <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

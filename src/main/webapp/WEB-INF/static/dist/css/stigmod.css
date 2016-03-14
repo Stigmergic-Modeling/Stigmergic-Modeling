@@ -273,9 +273,24 @@ blockquote {
   color: #428bca;
 }
 
+/* 红色文字 */
+.stigmod-red-text {
+  color: #a94442;
+}
+
+/* 巨大文字 */
+.stigmod-huge-text {
+  font-size: 80px;
+}
+
 /* 高亮文字背景 */
 .stigmod-highlight {
   background-color: #ffff76;
+}
+
+/* 隐藏按钮 */
+#hidden-submit-button {
+  display: none;
 }
 
 /* 一些 modal 中 creat-if-not-exists checkbox 的样式 */
@@ -661,6 +676,11 @@ fieldset[disabled] .stigmod-input {
 #stigmod-modal-remove .modal-body .stigmod-modal-remove-name {
   font-weight: 500;
   color: #428bca;
+}
+
+#stigmod-modal-delete-model .stigmod-modal-delete-name {
+  font-weight: 500;
+  color: #a94442;
 }
 
 /* modelview 的虚外框 */

@@ -1158,5 +1158,5 @@
 
 
 #set ($jsFile = "workspace")
-#parse ("modals.vm")
+#parse ("modals_of_workspace.vm")
 #parse ("footer.vm")

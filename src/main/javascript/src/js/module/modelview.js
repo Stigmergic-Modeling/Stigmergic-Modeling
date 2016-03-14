@@ -829,7 +829,7 @@ define(function(require, exports, module) {
               //.append("span")
               //.attr("style", "width: 80")
               .append("img")
-              .attr("src", "/src/img/" + singleType + ".png")
+              .attr("src", "/static/dist/img/" + singleType + ".png")
               .attr("height", 180);
         }
       }
@@ -855,14 +855,14 @@ define(function(require, exports, module) {
 
         d3.select("#relation")
             .append("img")
-            .attr("src", "/src/img/" + type + ".png")
+            .attr("src", "/static/dist/img/" + type + ".png")
             .attr("height", 180);
       }
 
 
       //d3.select("#relationGroup")
       //    .append("img")
-      //    .attr("src", "/src/img/" + type + ".png")
+      //    .attr("src", "/static/dist/img/" + type + ".png")
       //    .attr("height", 180);
 
       d3.select("#multi")
@@ -963,7 +963,7 @@ define(function(require, exports, module) {
         //for(singleRelation in relationGroup) {
         //  var singleType = edge.group[singleRelation].type;
         //  d3.select("#singleRelation").append("img")
-        //      .attr("src", "/src/img/" + singleType + ".png")
+        //      .attr("src", "/static/dist/img/" + singleType + ".png")
         //      .attr("height", 180);
         //}
         //d3.select("#relationGroupDetail").classed("hidden", false);

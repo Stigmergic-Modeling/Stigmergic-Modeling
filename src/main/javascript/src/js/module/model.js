@@ -971,7 +971,7 @@ define(function (require, exports, module) {
                             if (3 !== arguments.length) {
                                 throw new SyntaxError('doesNodeExist(): The third argument is required when testing an attribute.');
                             }
-                            this.getSubModel([0, name, 0, additionalName]);
+                            this.getSubModel([0, additionalName, 0, name]);  // additionalName 是类名，不要与 name (attribute name) 颠倒顺序
                             break;
 
                         default:
