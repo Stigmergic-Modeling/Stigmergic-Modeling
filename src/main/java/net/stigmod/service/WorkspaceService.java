@@ -16,6 +16,7 @@ import net.stigmod.domain.info.CcmDetail;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
+import net.stigmod.domain.system.CollectiveConceptualModel;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.repository.node.*;
 import net.stigmod.repository.relationship.*;
@@ -37,9 +38,6 @@ public class WorkspaceService {
 //    private Neo4jOperations neo4jTemplate;
 
     @Autowired
-    private IndividualConceptualModelRepository icmRepository;
-
-    @Autowired
     private ClassNodeRepository classNodeRepository;
 
     @Autowired
@@ -48,15 +46,6 @@ public class WorkspaceService {
     @Autowired
     private ValueNodeRepository valueNodeRepository;
 
-//    @Autowired
-//    private ClassToVEdgeRepository c2vEdgeRepository;
-//
-//    @Autowired
-//    private RelationToCEdgeRepository r2cEdgeRepository;
-//
-//    @Autowired
-//    private RelationToVEdgeRepository r2vEdgeRepository;
-//
     @Autowired
     private VertexRepository vertexRepository;
 
@@ -65,6 +54,12 @@ public class WorkspaceService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private CollectiveConceptualModelRepository ccmRepository;
+
+    @Autowired
+    private IndividualConceptualModelRepository icmRepository;
 
 
 
@@ -901,6 +896,28 @@ public class WorkspaceService {
                                 "to [" + propertyValueE0 + "-" + propertyValueE1 + "] " +
                                 "in relationship [" + relationshipId.toString() + "] " +
                                 "of relationshipGroup [" + relationshipGroupName + "] successfully.");
+
+                        break;
+                    }
+                    default:
+                        throw new IllegalArgumentException("Operation " + opV + " " + opO + " is not supported");  // NOT ALLOWED
+                }
+                break;
+            case "UPD":
+                switch (opO) {
+                    case "NUM": {  // update numbers 操作序列结束的标志
+
+                        Long classNumInCcm = classNodeRepository.getClassNumInCcm(ccmId);
+                        Long classNumInIcm = classNodeRepository.getClassNumInIcm(icmId);
+                        Long relationshipNumInCcm = relationNodeRepository.getRelationshipNumInCcm(ccmId);
+                        Long relationshipNumInIcm = relationNodeRepository.getRelationshipNumInIcm(icmId);
+
+                        CollectiveConceptualModel ccm = ccmRepository.findOne(ccmId);
+                        ccm.updateNums(classNumInCcm, relationshipNumInCcm);
+                        ccmRepository.save(ccm);
+
+                        icm.updateNums(classNumInIcm, relationshipNumInIcm);
+                        icmRepository.save(icm);
 
                         break;
                     }

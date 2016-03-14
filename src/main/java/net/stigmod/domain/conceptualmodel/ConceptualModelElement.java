@@ -21,6 +21,10 @@ public interface ConceptualModelElement {
 
     void setId(Long id);
 
+    Boolean getIsSettled();
+
+    void setIsSettled(Boolean isSettled);
+
     void removeIcmId(Long icmId);
 
     void removeIcmSetFromSet(Set<Long> otherIcmSet);

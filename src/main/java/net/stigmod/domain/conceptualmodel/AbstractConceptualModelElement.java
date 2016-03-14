@@ -28,10 +28,10 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
     protected Set<String> icmSet = new HashSet<>();
 
     @Property
-    protected Boolean isNewlyCreated;  // 用于区分是否被融合算法处理过
+    protected Boolean isSettled;  // 用于区分是否已经被 CCM 融合算法处理完毕
 
     public AbstractConceptualModelElement() {
-        this.isNewlyCreated = true;
+        this.isSettled = false;  // 新建的元素，默认需要被 CCM 融合算法处理
     }
 
     // 添加 icm id
@@ -84,5 +84,13 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
 
     public long countIcmNum() {
         return this.icmSet.size();
+    }
+
+    public Boolean getIsSettled() {
+        return isSettled;
+    }
+
+    public void setIsSettled(Boolean isSettled) {
+        this.isSettled = isSettled;
     }
 }

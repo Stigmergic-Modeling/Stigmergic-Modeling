@@ -108,4 +108,14 @@ public interface RelationNodeRepository extends GraphRepository<RelationNode>{
             "RETURN id(relationship)")
     List<Long> getAllRelationshipIdsRelatedToClass(@Param("icmId") Long icmId,
                                                    @Param("className") String className);
+
+    @Query("MATCH (relationship:Relationship {ccmId: {ccmId}}) " +
+            "WHERE size(relationship.icmSet) > 0 " +
+            "RETURN count(relationship)")
+    Long getRelationshipNumInCcm(@Param("ccmId") Long ccmId);
+
+    @Query("MATCH (relationship:Relationship) " +
+            "WHERE toString({icmId}) IN relationship.icmSet " +
+            "RETURN count(relationship)")
+    Long getRelationshipNumInIcm(@Param("icmId") Long icmId);
 }

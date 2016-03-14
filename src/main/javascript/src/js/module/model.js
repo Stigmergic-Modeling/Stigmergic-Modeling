@@ -739,6 +739,7 @@ define(function (require, exports, module) {
             // 清空日志
             Model.prototype.clearLog = function () {
 
+                this.operationLog.push([Date.now(), 'UPD', 'NUM']);  // 清空日志前加入结束标志（通知后端更新模型数据）
                 this.operationLogHistory.push([Date.now(), this.operationLog]); // 保存 log 的历史，便于回滚
                 this.operationLog = [];  // 清空当前 log
             };

@@ -45,8 +45,8 @@ public class WorkspacePageData extends AbstractPageData {
             String name = icm.getName();
             String description = icm.getDescription();
             Date updateDate = icm.getUpdateDate();
-            int classNum = icm.getClassNum();
-            int relationshipNum = icm.getRelationshipNum();
+            Long classNum = icm.getClassNum();
+            Long relationshipNum = icm.getRelationshipNum();
 
             models.add(new IcmBrief(id, name, description, updateDate, classNum, relationshipNum));
         }
