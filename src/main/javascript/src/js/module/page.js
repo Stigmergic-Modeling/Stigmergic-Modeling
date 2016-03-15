@@ -79,6 +79,7 @@ define(function (require, exports, module) {
         setTimeout(function() {
             page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
             page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
+            page.rightColWgt.relationRec.on('openDialog', 'openDialog', page);
         }, 2000);
 
 
@@ -390,6 +391,7 @@ define(function (require, exports, module) {
     Page.prototype.updateRightCol = function () {
         this.rightColWgt.init(this.icm, this.ccm, this.stateOfPage);
         this.rightColWgt.classRec.on('openDialog', 'openDialog', this);
+        this.rightColWgt.relationRec.on('openDialog', 'openDialog', this);
     };
 
 
@@ -1468,9 +1470,9 @@ define(function (require, exports, module) {
         var widget = this;
 
         widget.classRec = new RightColClassRecWgt('#stigmod-rcmd-class');
-        //widget.relationRec = new RightColRelationRecWgt('#stigmod-rcmd-relation');
+        widget.relationRec = new RightColRelationRecWgt('#stigmod-rcmd-relation');
         widget.classRec.init(icm, ccm);
-        //widget.relationRec.init(icm, ccm);
+        widget.relationRec.init(icm, ccm);
     };
 
 
@@ -2102,6 +2104,9 @@ define(function (require, exports, module) {
 
         this.adoptingRec = false;  // 标志位，用于标志是否采纳推荐
         this.adoptedRelationId = '';  // 所采纳推荐属性的ID
+
+        this.preInfo = null;  // 预存信息，一般由右侧推荐栏的 item click 产生
+        this.$input = $('#stigmod-addrelation-input');
     }
     _.extend(RelationDialogWgt, DialogWgt);
 
@@ -2199,27 +2204,36 @@ define(function (require, exports, module) {
 
         // 处理：modal 显示前复位
         function handleMdlAddRel() {
-            $(this).find('input[type=text]').val('');
-            $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
-            $(this).find('input[type=checkbox]').removeAttr('checked');
-            $(this).find('input[value=role]').prop('checked', true); // 保留role项的选中状态
-            $(this).find('input[value=multiplicity]').prop('checked', true); // 保留multiplicity项的选中状态
-            $(this).find('tr').hide();
-            $(this).find('tr:nth-child(1) button').text('');
-            $(this).find('tr:nth-child(2) input').removeAttr('disabled');
-            $(this).find('tr:nth-child(4) input').removeAttr('disabled');
 
-            var nameOfBothEnds = stateOfPage.clazz.split('-'); // 获得关系两端的类名
+            if (!widget.preInfo) {  // 没有预存信息，正常初始化
+                $(this).find('input[type=text]').val('');
+                $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
+                $(this).find('input[type=checkbox]').removeAttr('checked');
+                $(this).find('input[value=role]').prop('checked', true); // 保留role项的选中状态
+                $(this).find('input[value=multiplicity]').prop('checked', true); // 保留multiplicity项的选中状态
+                $(this).find('tr').hide();
+                $(this).find('tr:nth-child(1) button').text('');
+                $(this).find('tr:nth-child(2) input').removeAttr('disabled');
+                $(this).find('tr:nth-child(4) input').removeAttr('disabled');
 
-            $(this).find('tr:nth-child(3) > td:nth-child(2) > input').val(nameOfBothEnds[0]); // 将类名填入
-            $(this).find('tr:nth-child(3) > td:nth-child(3) > input').val(nameOfBothEnds[1]); // 将类名填入
-            $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示type项
-            $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示role项
-            $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
-            $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
+                var nameOfBothEnds = stateOfPage.clazz.split('-'); // 获得关系两端的类名
 
-            widget.adoptingRec = false;
-            widget.adoptedRelationId = '';
+                $(this).find('tr:nth-child(3) > td:nth-child(2) > input').val(nameOfBothEnds[0]); // 将类名填入
+                $(this).find('tr:nth-child(3) > td:nth-child(3) > input').val(nameOfBothEnds[1]); // 将类名填入
+                $(this).find('tr:nth-child(1)').css('display', 'table-row'); // 显示type项
+                $(this).find('tr:nth-child(2)').css('display', 'table-row'); // 显示role项
+                $(this).find('tr:nth-child(3)').css('display', 'table-row'); // 显示class项
+                $(this).find('tr:nth-child(4)').css('display', 'table-row'); // 显示multiplicity项
+
+                widget.adoptingRec = false;
+                widget.adoptedRelationId = '';
+
+            } else {  // 有预存信息，用预存信息填表（意味着进入绑定模式），并清除预存信息
+                widget.setInputWgtValue(widget.preInfo);
+                widget.preInfo = null;
+            }
+
+
             widget.fire('init');
 
             // 刷新 modal 推荐栏
@@ -2332,6 +2346,16 @@ define(function (require, exports, module) {
         this.recommendation = new RelationRecWgt('#stigmod-modal-rec-relation');
         this.recommendation.init(icm, ccm, stateOfPage);
         this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
+    };
+
+    // 打开对话框（覆盖超类的方法）
+    RelationDialogWgt.prototype.open = function (relationModel) {
+
+        // 预存信息
+        this.preInfo = relationModel;
+
+        // 真正打开对话框
+        this.superOpen();
     };
 
 
@@ -2838,8 +2862,8 @@ define(function (require, exports, module) {
 
     // 初始化
     RelationRecWgt.prototype.init = function (icm, ccm, stateOfPage) {
-        this.data = ccm.getRelations(icm, stateOfPage.clazz);
-        console.log('this.data(getRelations)', this.data);
+        this.data = ccm.getRelationsByRelGrp(icm, stateOfPage.clazz);
+        console.log('this.data(getRelationsByRelGrp)', this.data);
 
         var data = this.data,
                 $container = this.element.empty(),
@@ -2897,7 +2921,7 @@ define(function (require, exports, module) {
 
 
     /**
-     * 右侧栏中的Class推荐组件
+     * 右侧栏中的 Class 推荐组件
      * @constructor
      */
     function RightColClassRecWgt() {
@@ -2911,7 +2935,7 @@ define(function (require, exports, module) {
         console.log('this.data(getClasses)', this.data);
         this.element.find('[data-toggle="popover"]').popover('destroy');  // 在清空元素前销毁可能存在的旧popover
 
-        this.data.splice(5, Number.MAX_VALUE);  // 截取前10个，显示到推荐栏
+        this.data.splice(5, Number.MAX_VALUE);  // 截取前 5 个，显示到推荐栏
         var data = this.data,
                 $container = this.element.empty(),
                 template = this.templateWgt.t,
@@ -2945,6 +2969,59 @@ define(function (require, exports, module) {
             //var classId = $(this).attr('data-id');
             var i = $(this).attr('data-i');
             widget.fire('openDialog', ['addClassDlgWgt', data[i]]);
+        }
+    };
+
+
+    /**
+     * 右侧栏中的 Relationship 推荐组件
+     * @constructor
+     */
+    function RightColRelationRecWgt() {
+        RelationRecWgt.apply(this, arguments);
+    }
+    _.extend(RightColRelationRecWgt, RelationRecWgt);
+
+    // 初始化（覆盖 RelationRecWgt 中的 init）
+    RightColRelationRecWgt.prototype.init = function (icm, ccm) {
+        this.data = ccm.getRelations(icm);
+        console.log('this.data(getPossibleRelations)', this.data);
+        this.element.find('[data-toggle="popover"]').popover('destroy');  // 在清空元素前销毁可能存在的旧popover
+
+        this.data.splice(5, Number.MAX_VALUE);  // 截取前 5 个，显示到推荐栏
+        var data = this.data,
+            $container = this.element.empty(),
+            template = this.templateWgt.t,
+            widget = this,
+            i, len, $item, popover;
+
+        for (i = 0, len = data.length; i < len; i++) {
+            $item = template.newElement().appendTo($container);
+            $item.find('.tag').text(data[i].name);  // 填入名字
+            $item.attr('data-i', i);  // 做标记，用于处理点击
+            //$item.attr('data-id', data[i].id);  // 做标记，用于处理点击
+            //$item.attr('data-name', data[i].name);  // 做标记，用于处理点击
+
+            popover = this.getPopover(data[i]);
+            $item.attr('data-content', popover);
+            $item.attr('title', 'RELATIONSIHP : ' + data[i].type);
+
+            // 点击打开对话框
+            $item.on('click', openDiag);
+        }
+
+        // 重新激活所有的 popover
+        this.element.find('[data-toggle="popover"]').popover();
+
+        // 初始时不显示
+        //this.filter('');
+
+        // 处理：点击打开对话框
+        function openDiag(event) {
+            //var className = $(this).attr('data-name');
+            //var classId = $(this).attr('data-id');
+            var i = $(this).attr('data-i');
+            widget.fire('openDialog', ['addRelationDlgWgt', data[i]]);
         }
     };
 

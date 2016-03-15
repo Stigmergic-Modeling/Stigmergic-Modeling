@@ -802,10 +802,11 @@ define(function (require, exports, module) {
      * @param relgrpName
      * @returns {Array}
      */
-    CCM.prototype.getRelations = function (icm, relgrpName) {
+    CCM.prototype.getRelationsByRelGrp = function (icm, relgrpName) {
+        var ccm = this;
         var relation, res, tmpObj, property, i, j,
                 relationIdsInICM ={};  // icm中该class中的relation ID，用于去重
-        var relgrpId = relgrpName2Id(relgrpName);
+        var relgrpId = relgrpName2Id(icm, relgrpName);
 
         for (relation in icm[1][relgrpName][0]) {
             if (icm[1][relgrpName][0].hasOwnProperty(relation)) {
@@ -817,11 +818,137 @@ define(function (require, exports, module) {
             return [];
         }
 
-        var relationshipIds = this.relgrp[relgrpId].relationship;
-        res = [];
-        for (i = 0; i < relationshipIds.length; i++) {
-            var relationshipInfo = this.relationship[relationshipIds[i]];
-            tmpObj = {
+        // 获取 ICM 中 class 的 ID 和 CCM 引用数 （或 ICM className）
+        var classIdsInICM = {};
+        for (var className in icm[2].clazz) {
+            if (icm[2].clazz.hasOwnProperty(className)) {
+                var clazz = icm[2].clazz[className];
+                classIdsInICM[clazz.id] = className;  // 记录 classId 和其 ICM className
+            }
+        }
+
+        return extractRelationshipInfo(ccm, this.relgrp[relgrpId].relationship, relationIdsInICM, classIdsInICM);
+
+        function relgrpName2Id(icm, relgrpName) {
+            var clazz = relgrpName.split('-');
+            var id0 = icm[2]['clazz'][clazz[0]].id;
+            var id1 = icm[2]['clazz'][clazz[1]].id;
+
+            // 对于ID，也是小的在左侧
+            if (id0 < id1) {
+                return id0 + '-' + id1;
+            } else {
+                return id1 + '-' + id0;
+            }
+
+        }
+    };
+
+
+    CCM.prototype.getRelations = function (icm) {
+
+        var ccm = this;
+        var classIdsInICM ={};
+        var attributeIdsInICM ={};
+        var relationIdsInICM = {};
+
+        // 获取 ICM 中 class 和 attribute 的 ID 和 CCM 引用数 （或 ICM className）
+        for (var className in icm[2].clazz) {
+            if (icm[2].clazz.hasOwnProperty(className)) {
+                var clazz = icm[2].clazz[className];
+                classIdsInICM[clazz.id] = className;  // 记录 classId 和其 ICM className
+                for (var attributeName in clazz.attribute) {
+                    if (clazz.attribute.hasOwnProperty(attributeName)) {
+                        var attributeId = clazz.attribute[attributeName];
+                        attributeIdsInICM[attributeId] = ccm.relationship[attributeId].ref;  // 记录 attributeId 和其 CCM 引用数
+                    }
+                }
+            }
+        }
+
+        // 获取 ICM 中 relationship 的 ID 和 CCM 引用数
+        for (var relgrpName in icm[1]) {
+            if (icm[1].hasOwnProperty(relgrpName)) {
+                var relationGroup = icm[1][relgrpName];
+                for (var relationId in relationGroup[0]) {
+                    if (relationGroup[0].hasOwnProperty(relationId)) {
+                        relationIdsInICM[relationId] = ccm.relationship[relationId].ref;  // 记录 relationId 和其 CCM 引用数
+                    }
+                }
+            }
+        }
+
+        var candidateRelationship = {};  // 用对象而不是数组可防止获取的 relationshipId 重复
+
+        // 构造 relationship 推荐候选集
+        for (var relationshipGroup in ccm.relgrp) {
+            if (ccm.relgrp.hasOwnProperty(relationshipGroup)) {
+                var classId = relationshipGroup.split('-');
+
+                if (classId[0] in classIdsInICM && classId[1] in classIdsInICM) {  // 两端的类都已在 ICM 中存在
+                    for (var i = 0; i < ccm.relgrp[relationshipGroup].relationship.length; i++) {
+                        var relationshipId = ccm.relgrp[relationshipGroup].relationship[i];
+
+                        // 过滤掉已经存在于 ICM 中的关系（可能以 attribute 形式存在，这样的也要滤掉）
+                        if (!(relationshipId in attributeIdsInICM) && !(relationshipId in relationIdsInICM)) {
+                            candidateRelationship[relationshipId] = ccm.relationship[relationshipId].ref;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 将候选集转换成对象数组，并排序、提取、返回值
+        var recommendedRelationship = [];
+        for (relationshipId in candidateRelationship) {
+            if (candidateRelationship.hasOwnProperty(relationshipId)) {
+                recommendedRelationship.push({
+                    name: relationshipId,  // 这个实际是 ID，写成 name 是为了使用排序函数
+                    ref: candidateRelationship[relationshipId]
+                })
+            }
+        }
+        var recommendedRelationshipIdSorted = getRecommendNames(recommendedRelationship);
+
+        return extractRelationshipInfo(ccm, recommendedRelationshipIdSorted, relationIdsInICM, classIdsInICM);
+    };
+
+    /**
+     * 对象数组比较函数
+     * @param key
+     * @returns {Function}
+     */
+    function compareBy(key) {
+        return function(a, b) {
+            if (a[key] < b[key]) return 1;  // 小的排在前面
+            if (a[key] > b[key]) return -1;
+            return 0;
+        }
+    }
+
+    /**
+     * 获取用于 typeahead 显示的数组
+     * @param namesObjArray
+     * @returns {*}
+     */
+    function getRecommendNames(namesObjArray) {
+        return namesObjArray.sort(compareBy('ref')).map(function(o) {return o.name});
+    }
+
+    /**
+     * 根据 relationship ID 从 CCM 中提取 relationship Information 用于推荐显示
+     * @param ccm
+     * @param relationshipIds
+     * @param relationIdsInICM
+     * @param classIdNameMapping
+     * @returns {Array}
+     */
+    function extractRelationshipInfo(ccm, relationshipIds, relationIdsInICM, classIdNameMapping) {
+
+        var res = [];
+        for (var i = 0; i < relationshipIds.length; i++) {
+            var relationshipInfo = ccm.relationship[relationshipIds[i]];
+            var tmpObj = {
                 id: relationshipIds[i],  // 记录id，用于采用推荐时绑定
                 ref: relationshipInfo.ref
             };
@@ -846,9 +973,8 @@ define(function (require, exports, module) {
                 type: '',
                 ref: 0
             };
-            for (j = 0; j < relType.length; j++) {
+            for (var j = 0; j < relType.length; j++) {
                 if (relationshipInfo.type[relType[j]]) {
-                    //console.log('relationshipInfo[relType[j]]', relationshipInfo.type[relType[j]]);
                     if (relationshipInfo.type[relType[j]].ref > maxType.ref) {
                         maxType.type = relType[j];
                         maxType.ref = relationshipInfo.type[relType[j]].ref;
@@ -859,7 +985,7 @@ define(function (require, exports, module) {
 
             // 构造用于显示的 relationship
             var tmpProp = null;
-            for (property in relationshipInfo.property) {
+            for (var property in relationshipInfo.property) {
                 if (relationshipInfo.property.hasOwnProperty(property)) {
 
                     // 获取 E0 端引用数最高的 property value
@@ -896,7 +1022,7 @@ define(function (require, exports, module) {
                     tmpProp = maxPropE0.value + '-' + maxPropE1.value;
 
                     if (property === 'clazz') {  // 对clazz特性特殊处理，将id变换为name
-                        tmpObj['class'] = clazzIds2Names(tmpProp);  // TODO 此处函数换为可以映射 CCM id-name 的版本
+                        tmpObj['class'] = clazzIds2Names(tmpProp, classIdNameMapping);
                     } else {
                         tmpObj[property] = tmpProp;
                     }
@@ -911,55 +1037,10 @@ define(function (require, exports, module) {
         return res;
 
         // 辅助函数
-        function relgrpName2Id(relgrpName) {
-            var clazz = relgrpName.split('-');
-            var id0 = icm[2]['clazz'][clazz[0]].id;
-            var id1 = icm[2]['clazz'][clazz[1]].id;
-
-            // 对于ID，也是小的在左侧
-            if (id0 < id1) {
-                return id0 + '-' + id1;
-            } else {
-                return id1 + '-' + id0;
-            }
-
-        }
-        function clazzIds2Names(clazzIds) {
+        function clazzIds2Names(clazzIds, classIdNameMapping) {
             var id = clazzIds.split('-');
-            var clazz = relgrpName.split('-');
-            var id0 = icm[2]['clazz'][clazz[0]].id;
-            //var id1 = icm[2]['clazz'][clazz[1]].id;
-            if (id0 == id[0]) {  // id0 是 number 类型，这里用 ==（ 而不是 === ） 可直接与 string 类型的 id[] 判断相等性
-                return relgrpName;
-            } else if (id0 == id[1]) {  // id0 是 number 类型，这里用 ==（ 而不是 === ） 可直接与 string 类型的 id[] 判断相等性
-                return clazz[1] + '-' + clazz[0];
-            } else {
-                return 'error-error';
-            }
-        }
-    };
-
-    /**
-     * 对象数组比较函数
-     * @param key
-     * @returns {Function}
-     */
-    function compareBy(key) {
-        return function(a, b) {
-            if (a[key] < b[key]) return 1;  // 小的排在前面
-            if (a[key] > b[key]) return -1;
-            return 0;
+            return classIdNameMapping[id[0]] + '-' + classIdNameMapping[id[1]];
         }
     }
-
-    /**
-     * 获取用于 typeahead 显示的数组
-     * @param namesObjArray
-     * @returns {*}
-     */
-    function getRecommendNames(namesObjArray) {
-        return namesObjArray.sort(compareBy('ref')).map(function(o) {return o.name});
-    }
-
 
 });
