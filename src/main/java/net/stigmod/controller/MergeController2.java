@@ -76,7 +76,7 @@ public class MergeController2 {
             for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 //        classNodeRepository.save(classNodeList.get(0),-1);
             try {
-                migrateHandler.migrateInit(0l);
+                migrateHandler.migrateInit(0l,classNodeList,relationNodeList,valueNodeList);
                 migrateHandler.migrateHandler();
                 migrateHandler.migrateEnd();
             }catch(Exception e) {

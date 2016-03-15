@@ -9,16 +9,8 @@
 
 package net.stigmod.service.migrateService;
 
-import net.stigmod.domain.conceptualmodel.ClassNode;
-import net.stigmod.domain.conceptualmodel.RelationNode;
-import net.stigmod.domain.conceptualmodel.ValueNode;
-import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
-import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
-import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
-import net.stigmod.repository.node.ClassNodeRepository;
-import net.stigmod.repository.node.RelationNodeRepository;
-import net.stigmod.repository.node.ValueNodeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.stigmod.domain.conceptualmodel.*;
+import net.stigmod.util.WordSimilaritys;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -172,13 +164,94 @@ public class EntropyHandlerImpl implements EntropyHandler{
      * @param myMap:以某个节点的边名为key,value是对应边的用户集合
      * @return 熵值
      */
-    public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap, int nodeSum) {
-        double entropy = computeMapBiEntropy(myMap);
+    public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap , Vertex vertex , int nodeSum) {
+        double entropy = 0.0;
+        entropy = computeMapBiEntropy(myMap,vertex);
         entropy *= nodeSum;
         return entropy;
     }
 
-    public Double computeMapBiEntropy(Map<String,List<Set<Long>>> myMap) {
+    public Double computeSimulateMigrateCNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, Set<Long>> ctvNodeMap
+            , ClassNode classNode , int nodeSum) {//这个函数主要是处理模拟迁移的的目标节点的熵值计算
+        double entropy = 0.0;
+        double biEntropy = 0.0;
+        biEntropy += computeMapBiEntropy(myMap,classNode);//由于这种迁移是map中不包含name边,所以不用担心冲突
+
+        List<Integer> vNodeLocList = new ArrayList<>();
+        List<Double> probList = new ArrayList<>();
+        int realNum = 0;
+        int uSum = 0;
+        for(int loc : ctvNodeMap.keySet()) {
+            int curSize = ctvNodeMap.get(loc).size();
+            if(curSize==0) continue;
+            realNum++;
+            uSum+=curSize;
+            vNodeLocList.add(loc);
+            probList.add((double) curSize);
+        }
+
+        double tagE = computeCNodeBiEntropyWithSimilarity(vNodeLocList,probList,uSum,realNum);
+        biEntropy += tagE;
+        entropy = biEntropy * nodeSum;
+        return entropy;
+    }
+
+    public Double computeMapBiEntropy(Map<String, List<Set<Long>>> myMap , Vertex vertex) {
+        double entropy = 0.0;
+
+        if(myMap.containsKey("name") && vertex.getClass()==ClassNode.class) {
+            entropy += computeCNodeMapBiEntropyWithSimilarity(((ClassNode) vertex).getCtvEdges());
+            myMap.remove("name");
+        }
+        entropy += computeMapBiEntropyForNoramlNode(myMap);
+        return entropy;
+    }
+
+    private Double computeCNodeMapBiEntropyWithSimilarity(Set<ClassToValueEdge> ctvEdges) {
+        //edges有可能是ctv,也有可能是rtv类型的,当前指的是ctv的
+        List<ClassToValueEdge> ctvEdgeList = new ArrayList<>(ctvEdges);
+        List<Integer> vNodeLocList = new ArrayList<>();
+        List<Double> probList = new ArrayList<>();
+        int edgeNum = ctvEdgeList.size();
+        int uSum = 0;
+
+        int realNum = 0;//替代edgeName的,因为含有0边
+        for(int i=0; i<edgeNum; i++) {
+            ClassToValueEdge ctvEdge = ctvEdgeList.get(i);
+            int curEdgeSize = ctvEdge.getIcmSet().size();
+            if(curEdgeSize == 0) continue;
+            realNum++;
+            vNodeLocList.add(ctvEdge.getEnder().getLoc());
+            uSum += curEdgeSize;
+            probList.add((double)curEdgeSize);//这里面存储的是整数,因此在待会算概率的时候要除以uSum
+        }
+
+        double tagE = computeCNodeBiEntropyWithSimilarity(vNodeLocList,probList,uSum,realNum);
+        return tagE;
+    }
+
+    private Double computeCNodeBiEntropyWithSimilarity(List<Integer> vNodeLocList,List<Double> probList,int uSum,int realNum) {
+        double tagE = 0.0;
+        for(int i=0; i<realNum; i++) probList.set(i,probList.get(i)/uSum);//由于这里的probList不是真正的概率,还要除以总数
+
+        for(int i=0; i<realNum; i++) {
+            double curP = probList.get(i);//这是p(xi)
+            double sum = curP;
+            for(int j=0; j<realNum; j++) {
+                if(i==j) continue;
+                sum += probList.get(j)*WordSimilaritys.vNodeSimList.get(vNodeLocList.get(i)).get(vNodeLocList.get(j));//节点i与节点j的相似度
+            }
+            double logp = Math.log(sum)/Math.log(2);
+            tagE += curP*logp;
+        }
+        tagE = -tagE;
+        tagE = tagE * uSum;
+        return tagE;
+    }
+
+
+
+    private Double computeMapBiEntropyForNoramlNode(Map<String,List<Set<Long>>> myMap) {
         double entropy=0.0;
         for(String key : myMap.keySet()) {//这里的每一个key是种类型的边(比如name)
             List<Set<Long>> valuelist=myMap.get(key);
@@ -214,7 +287,6 @@ public class EntropyHandlerImpl implements EntropyHandler{
             //resMap中包含有边的分布
             int u_num=userSet.size();
             double tagE=0.0;
-
             List<List<Long>> ulists=new ArrayList<>();
             List<List<Integer>> edgeIdLists=new ArrayList<>();
             for(String str : resMap.keySet()) {
@@ -321,7 +393,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             if(classNode.isInitEntropy()) {//如果他是刚被初始化的节点,那么这个节点的熵值必须重新算出,否则不用再计算了
                 classNode.setIsInitEntropy(false);//标注这个节点已经被初始化过了,不再是初始节点了
                 double cNodeBiEntropy =
-                        computeMapBiEntropy(getMapForClassNode(classNode.getCtvEdges(), classNode.getRtcEdges()));
+                        computeMapBiEntropy(getMapForClassNode(classNode.getCtvEdges(), classNode.getRtcEdges()),classNode);
                 if(Double.compare(0.0,cNodeBiEntropy) != 0) {
                     System.out.println("Its a Error for classNode in function initCNodeListEntropy , EntropyHandlerImpl class");
                 }
@@ -338,7 +410,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             if(relationNode.isInitEntropy()) {
                 relationNode.setIsInitEntropy(false);
                 double rNodeBiEntropy =
-                        computeMapBiEntropy(getMapForRelationNode(relationNode.getRtcEdges(), relationNode.getRtvEdges()));
+                        computeMapBiEntropy(getMapForRelationNode(relationNode.getRtcEdges(), relationNode.getRtvEdges()),relationNode);
                 if(Double.compare(0.0,rNodeBiEntropy) != 0) {
                     System.out.println("Its a Error for relationNode in function initRNodeListEntropy , EntropyHandlerImpl class");
                 }
@@ -354,7 +426,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             if(valueNode.isInitEntropy()) {
                 valueNode.setIsInitEntropy(false);
                 double vNodeBiEntropy =
-                        computeMapBiEntropy(getMapForValueNode(valueNode.getCtvEdges(), valueNode.getRtvEdges()));
+                        computeMapBiEntropy(getMapForValueNode(valueNode.getCtvEdges(), valueNode.getRtvEdges()),valueNode);
 //                valueNode.setOrgEntropyValue(vNodeBiEntropy/valueNode.getIcmSet().size());
                 valueNode.setBiEntropyValue(vNodeBiEntropy);
             }else ;

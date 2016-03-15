@@ -35,6 +35,7 @@ public class ValueNode extends AbstractVertex {
     private double postBiEntropyValue;
     private boolean isInitEntropy;
     private Long ccmId;
+    private int loc;
 
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<>();
@@ -176,6 +177,14 @@ public class ValueNode extends AbstractVertex {
 
     public void setRtvEdges(Set<RelationToValueEdge> rtvEdges) {
         this.rtvEdges = rtvEdges;
+    }
+
+    public int getLoc() {
+        return loc;
+    }
+
+    public void setLoc(int loc) {
+        this.loc = loc;
     }
 
     //    public double getOrgEntropyValue() {

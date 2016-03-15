@@ -104,7 +104,7 @@ public class MigrateUtil {
 
         //完成了oldNodeMap和newNodeMap的连接
         double oldEntropy=valueNode.getBiEntropyValue()*oldNodeNum;
-        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , valueNode , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -147,20 +147,6 @@ public class MigrateUtil {
                 }
             }
         }
-
-//        for(RelationToValueEdge rtvEdge:rtvEdges) {
-//            if(rtvEdge.getStarter().getLoc()==sourceListId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
-//                String edgeName=rtvEdge.getName();
-//                String port=rtvEdge.getPort();
-//                if(edgeNameAndPortVMap.containsKey(edgeName)) {
-//                    edgeNameAndPortVMap.get(edgeName).add(port);
-//                }else {
-//                    Set<String> set=new HashSet<>();
-//                    set.add(port);
-//                    edgeNameAndPortVMap.put(edgeName,set);
-//                }
-//            }
-//        }
 
         //完成了edgeNameAndPortMap的初始化工作
 
@@ -205,14 +191,6 @@ public class MigrateUtil {
             String edgeName=rtvEdge.getName();
             Set<Long> tmpUserSet=new HashSet<>(rtvEdge.getIcmSet());//该边的用户数
             Set<Long> newTmpUserSet=new HashSet<>(tmpUserSet);
-//            if(rtvEdge.getStarter().getLoc()==sourceListId&&rtvEdge.getIcmSet().contains(oneIcmId)) {
-//                newTmpUserSet.removeAll(icmSet);//是一条由sourceClass指向ValueNode的边
-//            }else if(rtvEdge.getStarter().getLoc()==targetListId&&edgeNameAndPortVMap.keySet().contains(edgeName)
-//                    &&edgeNameAndPortVMap.get(edgeName).contains(port)){
-//                //起点是目标节点,且原有节点中有一条和该边同名的边
-//                newTmpUserSet.addAll(icmSet);
-//                edgeNameAndPortVMap.get(edgeName).remove(port);//在我们的map里移除这个port
-//            }
 
             if(newNodeMap.containsKey(edgeName)) {
                 newNodeMap.get(edgeName).add(newTmpUserSet);
@@ -223,22 +201,11 @@ public class MigrateUtil {
             }
         }
 
-//        if(edgeNameAndPortVMap!=null) {
-//            for(String edgeName:edgeNameAndPortVMap.keySet()) {
-//                Set<String> portSet=edgeNameAndPortVMap.get(edgeName);
-//                if(portSet.size()==0) continue;
-//                for(String innerPort:portSet) {
-//                    Set<Long> set=new HashSet<>(icmSet);
-//                    newNodeMap.get(edgeName).add(set);
-//                }
-//            }
-//        }
-
         //两部分都完成
         //完成了oldNodeMap和newNodeMap的建立
 //        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
         double oldEntropy=relationNode.getBiEntropyValue()*oldNodeNum;
-        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , relationNode , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -332,7 +299,7 @@ public class MigrateUtil {
         //完成了oldNodeMap和newNodeMap的建立
 //        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
         double oldEntropy=valueNode.getBiEntropyValue()*oldNodeNum;
-        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , valueNode , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;
@@ -426,7 +393,7 @@ public class MigrateUtil {
 //        double oldEntropy=entropyHandler.compueteMapEntropy(oldNodeMap , oldNodeNum);
         double oldEntropy=classNode.getBiEntropyValue()*oldNodeNum;
 //        Map<String,List<Set<Long>>> tmpMap=entropyHandler.getMapForClassNode(classNode.getCtvEdges(),classNode.getRtcEdges());
-        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , newNodeNum);
+        double newEntropy=entropyHandler.computeMapEntropy(newNodeMap , classNode , newNodeNum);
         res=newEntropy-oldEntropy;
         if(Double.compare(res,0.0)==0) res=0.0;
         return res;

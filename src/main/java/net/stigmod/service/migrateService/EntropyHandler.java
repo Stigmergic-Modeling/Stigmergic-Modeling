@@ -9,12 +9,7 @@
 
 package net.stigmod.service.migrateService;
 
-import net.stigmod.domain.conceptualmodel.ClassNode;
-import net.stigmod.domain.conceptualmodel.RelationNode;
-import net.stigmod.domain.conceptualmodel.ValueNode;
-import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
-import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
-import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
+import net.stigmod.domain.conceptualmodel.*;
 
 import java.util.List;
 import java.util.Map;
@@ -37,9 +32,12 @@ public interface EntropyHandler {
     public Map<String,List<Set<Long>>> getMapForRelationNode(Set<RelationToClassEdge> rtcEdges,Set<RelationToValueEdge> rtvEdges);
     public Map<String,List<Set<Long>>> getMapForValueNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToValueEdge> rtvEdges);
 
-    public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap, int nodeSum);
+    public Double computeMapEntropy(Map<String, List<Set<Long>>> myMap , Vertex vertex , int nodeSum);
 
-    public Double computeMapBiEntropy(Map<String,List<Set<Long>>> myMap);
+    public Double computeMapBiEntropy(Map<String,List<Set<Long>>> myMap , Vertex vertex);
+
+    public Double computeSimulateMigrateCNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, Set<Long>> ctvNodeMap
+            , ClassNode classNode , int nodeSum);
 
     public Double initNodeListEntropy(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
                                     List<ValueNode> valueNodeList , int nodeSum);
