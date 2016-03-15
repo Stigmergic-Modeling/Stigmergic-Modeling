@@ -16,6 +16,7 @@ import net.stigmod.domain.system.User;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,7 +34,7 @@ public class WorkspacePageData extends AbstractPageData {
     public IcmDetail model;
     public Set<IcmBrief> models;
 
-    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, Set<IndividualConceptualModel> icms, Long ccmId, IcmDetail icmDetail) {
+    public WorkspacePageData(User user, IndividualConceptualModel currentIcm, List<IndividualConceptualModel> icms, Long ccmId, IcmDetail icmDetail) {
         this.userName = user.getName();
         this.ccmId = ccmId;
         this.icmId = currentIcm.getId();

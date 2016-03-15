@@ -16,7 +16,7 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * ICM Repository
@@ -32,13 +32,14 @@ public interface IndividualConceptualModelRepository extends GraphRepository<Ind
 //            "RETURN icm")
 //    IndividualConceptualModel findIndividualConceptualModel(long userId, String modelName);
 
-    @Query( "MATCH (user:User)-[:OWNS]->(icm:ICM)" +
-            "WHERE ID(user) = {userId}" +
-            "RETURN icm")
-    Set<IndividualConceptualModel> getAllIcmsOfUser(@Param("userId") Long userId);
+    @Query( "MATCH (user:User)-[:OWNS]->(icm:ICM) " +
+            "WHERE ID(user) = {userId} " +
+            "RETURN icm " +
+            "ORDER BY icm.name")
+    List<IndividualConceptualModel> getAllIcmsOfUser(@Param("userId") Long userId);
 
-    @Query( "MATCH (user:User)-[:OWNS]->(icm:ICM)" +
-            "WHERE ID(user) = {userId} AND icm.name = {icmName}" +
+    @Query( "MATCH (user:User)-[:OWNS]->(icm:ICM) " +
+            "WHERE ID(user) = {userId} AND icm.name = {icmName} " +
             "RETURN icm")
     IndividualConceptualModel getIcmOfUserByName(@Param("userId") Long userId, @Param("icmName") String icmName);
 }

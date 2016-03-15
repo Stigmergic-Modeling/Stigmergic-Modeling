@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -87,7 +88,7 @@ public class ModelService {
 
     // 获取某用户的所有 ICM
     @Transactional
-    public Set<IndividualConceptualModel> getAllIcmsOfUser(User user) {
+    public List<IndividualConceptualModel> getAllIcmsOfUser(User user) {
         return icmRepo.getAllIcmsOfUser(user.getId());
     }
 

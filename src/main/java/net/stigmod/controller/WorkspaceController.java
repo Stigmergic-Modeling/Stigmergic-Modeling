@@ -32,6 +32,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Set;
 
 
@@ -77,7 +78,7 @@ public class WorkspaceController {
 
         try {
             IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
-            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            List<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
             Long ccmId = modelService.getCcmIdOfIcm(currentIcm.getId());  // 获取 ICM 对应的 CCM 的 ID
             IcmDetail icmDetail = workspaceService.getIcmDetail(currentIcm.getId());  // 获取 ICM 实际内容
             PageData pageData = new WorkspacePageData(user, currentIcm, icms, ccmId, icmDetail);
@@ -139,7 +140,7 @@ public class WorkspaceController {
 
         try {
             IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
-            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            List<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
             CollectiveConceptualModel currentCcm = modelService.getCcmOfUserByIcmId(currentIcm.getId());
 
             model.addAttribute("currentIcm", currentIcm);

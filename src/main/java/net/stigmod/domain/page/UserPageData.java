@@ -11,9 +11,7 @@ package net.stigmod.domain.page;
 
 import net.stigmod.domain.system.IndividualConceptualModel;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User page data object
@@ -23,12 +21,12 @@ import java.util.Set;
  */
 public class UserPageData extends AbstractPageData {
 
-    private Set<Icm> models;
+    private List<Icm> models;
 
     public UserPageData() {}
 
-    public UserPageData(Set<IndividualConceptualModel> icms) {
-        this.models = new HashSet<>();
+    public UserPageData(List<IndividualConceptualModel> icms) {
+        this.models = new ArrayList<>();
         for (IndividualConceptualModel icm : icms) {
             Long id = icm.getId();
             String name = icm.getName();

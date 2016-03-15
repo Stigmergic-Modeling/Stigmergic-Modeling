@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -259,7 +260,7 @@ public class UserController {
         model.addAttribute("title", "Model Settings");
 
         try {
-            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            List<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
             model.addAttribute("icms", icms);
         } catch (Exception e) {
             e.printStackTrace();
@@ -286,7 +287,7 @@ public class UserController {
 
         try {
             IndividualConceptualModel currentIcm = modelService.getIcmOfUserByName(user, icmName);
-            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            List<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
             model.addAttribute("currentIcm", currentIcm);
             model.addAttribute("icms", icms);
         } catch (Exception e) {
@@ -327,7 +328,7 @@ public class UserController {
 
         try {
             IndividualConceptualModel currentIcm = modelService.getIcmById(id);
-            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            List<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
             model.addAttribute("currentIcm", currentIcm);
             model.addAttribute("icms", icms);
         } catch (Exception e) {
@@ -366,7 +367,7 @@ public class UserController {
         }
 
         try {
-            Set<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
+            List<IndividualConceptualModel> icms = modelService.getAllIcmsOfUser(user);
             model.addAttribute("icms", icms);
         } catch (Exception e) {
             e.printStackTrace();
