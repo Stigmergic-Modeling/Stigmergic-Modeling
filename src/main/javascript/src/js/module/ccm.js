@@ -808,9 +808,11 @@ define(function (require, exports, module) {
                 relationIdsInICM ={};  // icm中该class中的relation ID，用于去重
         var relgrpId = relgrpName2Id(icm, relgrpName);
 
-        for (relation in icm[1][relgrpName][0]) {
-            if (icm[1][relgrpName][0].hasOwnProperty(relation)) {
-                relationIdsInICM[relation] = true;  // 构造 relationIdsInICM
+        if (icm[1][relgrpName]) {  // 该 relationship group 可能尚不存在（由全局推荐获得）
+            for (relation in icm[1][relgrpName][0]) {
+                if (icm[1][relgrpName][0].hasOwnProperty(relation)) {
+                    relationIdsInICM[relation] = true;  // 构造 relationIdsInICM
+                }
             }
         }
 

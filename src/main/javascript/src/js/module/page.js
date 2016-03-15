@@ -127,6 +127,9 @@ define(function (require, exports, module) {
         this.addRelationDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
         this.addRelationDlgWgt.on('addRelation', 'updateRightCol', this);// 确认新建属性后，更新右侧推荐栏（要点是去掉刚刚加入ICM的属性）
 
+        this.addRelationDlgWgt.on('addRelGrp', 'addRelGrp', this.icm);  // 新建关系组时更新icm模型（由自动建关系组的行为触发）
+        this.addRelationDlgWgt.on('addRelGrp', 'refreshLeftColAndActivateAndJump', this);  // 新建关系组时更新页面显示（由自动建关系组的行为触发）
+
         // removeConfirm对话框
         this.removeConfirmDlgWgt = new RemoveConfirmDialogWgt('#stigmod-modal-remove');
         this.removeConfirmDlgWgt.init(this.icm, this.stateOfPage);
@@ -2106,6 +2109,7 @@ define(function (require, exports, module) {
         this.adoptedRelationId = '';  // 所采纳推荐属性的ID
 
         this.preInfo = null;  // 预存信息，一般由右侧推荐栏的 item click 产生
+        this.relgrpName = "";  // 从 preInfo 中获取 relationship group 的名字（之后 preInfo 被清空），用于自动新建 relationship group
         this.$input = $('#stigmod-addrelation-input');
     }
     _.extend(RelationDialogWgt, DialogWgt);
@@ -2160,7 +2164,30 @@ define(function (require, exports, module) {
                 }
             }
 
-            if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {
+            if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {  // 合法
+
+                // 若 relationship group 尚不存在，则首先新建 relationship group
+                if (!icm[1][stateOfPage.clazz]) {
+                    var relationGroupName = widget.relgrpName;
+
+                    // 更新页面状态
+                    widget.fire('pageStateChanged', {
+                        flagCRG: 1,
+                        flagDepth: 0,
+                        clazz: relationGroupName,
+                        addAttrRel: {  // 提前更新 relationship 插入时需要的位置信息（由于没有真正点击中间栏的 Add a new relationship 按钮）
+                            position: '@',
+                            direction: 0
+                        }
+                    });
+
+                    // 更新模型和显示
+                    widget.fire('addRelGrp', relationGroupName);
+                    $('#stigmod-nav-left-scroll').find('span[stigmod-nav-left-tag=' + relationGroupName + ']')
+                        .parent()[0].scrollIntoView();  // 滚动使该元素显示在视口中
+                }
+
+                // relationship group 存在，或刚刚建好，开始新建 relationship
                 var relationId = widget.adoptingRec ? widget.adoptedRelationId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
 
@@ -2205,6 +2232,9 @@ define(function (require, exports, module) {
         // 处理：modal 显示前复位
         function handleMdlAddRel() {
 
+            // 刷新 modal 推荐栏
+            widget.initRecWgt(icm, ccm, stateOfPage, widget.preInfo.relgrpName);
+
             if (!widget.preInfo) {  // 没有预存信息，正常初始化
                 $(this).find('input[type=text]').val('');
                 $(this).find('input[type=radio][value=True]').prop('checked', true);  // 单选框都默认勾选 True
@@ -2230,14 +2260,12 @@ define(function (require, exports, module) {
 
             } else {  // 有预存信息，用预存信息填表（意味着进入绑定模式），并清除预存信息
                 widget.setInputWgtValue(widget.preInfo);
+                widget.relgrpName = widget.preInfo.relgrpName;  // 保存名称，用于自动新建 relationship group
                 widget.preInfo = null;
             }
 
 
             widget.fire('init');
-
-            // 刷新 modal 推荐栏
-            widget.initRecWgt(icm, ccm, stateOfPage);
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -2342,14 +2370,20 @@ define(function (require, exports, module) {
     };
 
     // 初始化推荐栏
-    RelationDialogWgt.prototype.initRecWgt = function (icm, ccm, stateOfPage) {
+    RelationDialogWgt.prototype.initRecWgt = function (icm, ccm, stateOfPage, relgrpName) {
         this.recommendation = new RelationRecWgt('#stigmod-modal-rec-relation');
-        this.recommendation.init(icm, ccm, stateOfPage);
+        this.recommendation.init(icm, ccm, stateOfPage, relgrpName);
         this.recommendation.on('itemClicked', 'setInputWgtValue', this);  // 条目被点击时，将该条目的数据填入表中
     };
 
     // 打开对话框（覆盖超类的方法）
     RelationDialogWgt.prototype.open = function (relationModel) {
+
+        // 加入 relationship group 的名称
+        var classNames = relationModel.class.split('-');
+        relationModel.relgrpName = classNames[0] < classNames[1]
+                ? relationModel.class
+                : classNames[1] + '-' + classNames[0];
 
         // 预存信息
         this.preInfo = relationModel;
@@ -2861,8 +2895,11 @@ define(function (require, exports, module) {
     _.extend(RelationRecWgt, RecommendationWgt);
 
     // 初始化
-    RelationRecWgt.prototype.init = function (icm, ccm, stateOfPage) {
-        this.data = ccm.getRelationsByRelGrp(icm, stateOfPage.clazz);
+    RelationRecWgt.prototype.init = function (icm, ccm, stateOfPage, relgrpName) {
+        if (!relgrpName) {  // 若没有传入 relgrpName，则从 statOfPage 中获取（此时是局部推荐，否则是全局推荐）
+            relgrpName = stateOfPage.clazz;
+        }
+        this.data = ccm.getRelationsByRelGrp(icm, relgrpName);
         console.log('this.data(getRelationsByRelGrp)', this.data);
 
         var data = this.data,
