@@ -1145,6 +1145,18 @@
     </a>
 </script>
 
+<script type="text/template" id="template-modal-rec-rel">
+    <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="" data-placement="left" data-html="true" data-content="">
+        <span class="tag-class-0"></span>
+        <span class="tag-type" style="font-family: 'Lucida Console';"></span>
+        <span class="tag-class-1"></span>
+    <span class="pull-right stigmod-hovershow-cont">
+      <span class="fa fa-plus">
+      </span>
+    </span>
+    </a>
+</script>
+
 <script type="text/template" id="template-modal-rec-backup">
     <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="Course" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">
         Courses (Name)

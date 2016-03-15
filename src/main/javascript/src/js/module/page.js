@@ -80,7 +80,7 @@ define(function (require, exports, module) {
             page.rightColWgt.init(page.icm, page.ccm, page.stateOfPage);
             page.rightColWgt.classRec.on('openDialog', 'openDialog', page);
             page.rightColWgt.relationRec.on('openDialog', 'openDialog', page);
-        }, 2000);
+        }, 1000);
 
 
         // 顶部栏(网站导航条之下)
@@ -121,7 +121,7 @@ define(function (require, exports, module) {
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
         this.addRelationDlgWgt.init(this.icm, this.ccm, this.stateOfPage);
         this.addRelationDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系时更新页面状态
-        this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建关系时更新icm模型
+        //this.addRelationDlgWgt.on('addRelation', 'addRelation', this.icm);  // 新建关系时更新icm模型 （已在组件内部执行）
         this.addRelationDlgWgt.on('addPropOfR', 'addPropOfR', this.icm);  // 新建关系时更新icm模型
         this.addRelationDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建关系时局部更新中间栏
         this.addRelationDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
@@ -2223,6 +2223,7 @@ define(function (require, exports, module) {
                 });
 
                 widget.fire('insertNewItem', relationId);
+                widget.fire('addRelation');  // 触发右侧栏刷新
                 widget.close(); // 关闭当前 modal
 
                 enableSave();
@@ -2231,9 +2232,10 @@ define(function (require, exports, module) {
 
         // 处理：modal 显示前复位
         function handleMdlAddRel() {
+            var relgrpName = widget.preInfo ? widget.preInfo.relgrpName : null;
 
             // 刷新 modal 推荐栏
-            widget.initRecWgt(icm, ccm, stateOfPage, widget.preInfo.relgrpName);
+            widget.initRecWgt(icm, ccm, stateOfPage, relgrpName);
 
             if (!widget.preInfo) {  // 没有预存信息，正常初始化
                 $(this).find('input[type=text]').val('');
@@ -2260,7 +2262,7 @@ define(function (require, exports, module) {
 
             } else {  // 有预存信息，用预存信息填表（意味着进入绑定模式），并清除预存信息
                 widget.setInputWgtValue(widget.preInfo);
-                widget.relgrpName = widget.preInfo.relgrpName;  // 保存名称，用于自动新建 relationship group
+                widget.relgrpName = relgrpName;  // 保存名称，用于自动新建 relationship group
                 widget.preInfo = null;
             }
 
@@ -2910,7 +2912,7 @@ define(function (require, exports, module) {
 
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
-            $item.find('.tag').text(data[i].type);  // 填入名字
+            $item.find('.tag').text(data[i].type);  // 填入关系类型
             $item.attr('data-i', i);  // 做标记，用于处理点击
 
             popover = this.getPopover(data[i]);
@@ -3016,6 +3018,7 @@ define(function (require, exports, module) {
      */
     function RightColRelationRecWgt() {
         RelationRecWgt.apply(this, arguments);
+        this.addTemplateWidget({t: '#template-modal-rec-rel'});  // 右侧 relationship 推荐栏使用 特别 的模板
     }
     _.extend(RightColRelationRecWgt, RelationRecWgt);
 
@@ -3034,7 +3037,28 @@ define(function (require, exports, module) {
 
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
-            $item.find('.tag').text(data[i].name);  // 填入名字
+
+            // 构造用于展示的关系名
+            var className = data[i].class.split('-');
+            var type;
+            switch (data[i].type) {
+                case 'Generalization':
+                    type = ' ◁——— ';
+                    break;
+                case 'Composition':
+                    type = ' ◆——— ';
+                    break;
+                case 'Aggregation':
+                    type = ' ◇——— ';
+                    break;
+                case 'Association':
+                    type = ' ———— ';
+                    break;
+            }
+            $item.find('.tag-class-0').text(className[0]);
+            $item.find('.tag-type').text(type);
+            $item.find('.tag-class-1').text(className[1]);
+
             $item.attr('data-i', i);  // 做标记，用于处理点击
             //$item.attr('data-id', data[i].id);  // 做标记，用于处理点击
             //$item.attr('data-name', data[i].name);  // 做标记，用于处理点击
