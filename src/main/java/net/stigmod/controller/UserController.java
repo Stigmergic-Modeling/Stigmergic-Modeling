@@ -109,16 +109,19 @@ public class UserController {
             modelService.createIcmClean(user, name, description);
             return "redirect:/" + name + "/workspace";
 
-        } catch(Exception e) {
-            logger.info("createIcmClean fail");
+        } catch (IllegalArgumentException ie) {  // 重名
+            model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
+        }  catch(Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("title", "New Model");
-            model.addAttribute("user", user);
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            return "new_model";
+            model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
         }
+        PageData pageData = new NewModelPageData(modelService.getAllCcms());
+        model.addAttribute("data", pageData.toJsonString());
+        model.addAttribute("title", "New Model");
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        return "new_model";
     }
 
     // POST 新建模型（继承新建方式）
@@ -133,16 +136,19 @@ public class UserController {
             modelService.createIcmInherited(user, name, description, ccmId);
             return "redirect:/" + name + "/workspace";
 
-        } catch(Exception e) {
-            logger.info("createIcmInherited fail");
+        } catch (IllegalArgumentException ie) {  // 重名
+            model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
+        }  catch(Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("title", "New Model");
-            model.addAttribute("user", user);
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            return "new_model";
+            model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
         }
+        PageData pageData = new NewModelPageData(modelService.getAllCcms());
+        model.addAttribute("data", pageData.toJsonString());
+        model.addAttribute("title", "New Model");
+        model.addAttribute("user", user);
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+        return "new_model";
     }
 
     // GET 用户设置 profile 页面
@@ -188,7 +194,7 @@ public class UserController {
             model.addAttribute("success", "User profile updated successfully.");
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "User profile updating fail. (Error: " + e.getMessage() + " )");
+            model.addAttribute("error", "User profile updating failed. (Error: " + e.getMessage() + " )");
         }
 
         return "user_settings";
@@ -319,11 +325,13 @@ public class UserController {
         model.addAttribute("title", "Specific Model Settings");
 
         try {
-            modelService.updateIcmInfo(id, name, description);
+            modelService.updateIcmInfo(user.getId(), id, name, description);
             model.addAttribute("success", "Model information updated successfully.");
+        } catch (IllegalArgumentException ie) {  // 重名
+            model.addAttribute("error", "Model information updating failed. (Error: " + ie.getMessage() + " )");
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "Model information updating fail. (Error: " + e.getMessage() + " )");
+            model.addAttribute("error", "Model information updating failed. (Error: " + e.getMessage() + " )");
         }
 
         try {
@@ -363,7 +371,7 @@ public class UserController {
             model.addAttribute("success", "Model information delete successfully.");
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "Model information delete fail. (Error: " + e.getMessage() + " )");
+            model.addAttribute("error", "Model information deletion failed. (Error: " + e.getMessage() + " )");
         }
 
         try {

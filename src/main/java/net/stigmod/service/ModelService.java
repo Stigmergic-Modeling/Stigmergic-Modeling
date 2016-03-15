@@ -52,6 +52,9 @@ public class ModelService {
     @Transactional
     public void createIcmClean(User user, String name, String description) {
 
+        // 保证新名称不与用户已有 ICM 名称重复
+        this.checkIcmDuplication(user.getId(), 0L, name, "new");
+
         // 新建 ICM
         IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
         icm.addUser(user);
@@ -67,6 +70,9 @@ public class ModelService {
     // 继承新建 Model
     @Transactional
     public void createIcmInherited(User user, String name, String description, Long ccmId) {
+
+        // 保证新名称不与用户已有 ICM 名称重复
+        this.checkIcmDuplication(user.getId(), 0L, name, "new");
 
         // 新建 ICM
         IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
@@ -112,9 +118,11 @@ public class ModelService {
 
     // 更新 ICM 信息
     @Transactional
-    public void updateIcmInfo(Long id, String name, String description) {
+    public void updateIcmInfo(Long userId, Long id, String name, String description) {
 
-        // TODO 保证新名称不与用户已有 ICM 名称重复
+        // 保证新名称不与用户已有 ICM 名称重复
+        this.checkIcmDuplication(userId, id, name, "modify");
+
         IndividualConceptualModel icm = icmRepo.findOne(id);
         icm.setName(name);
         icm.setDescription(description);
@@ -151,5 +159,18 @@ public class ModelService {
     @Transactional
     public IndividualConceptualModel getIcmById(Long id) {
         return icmRepo.findOne(id);
+    }
+
+    // 保证新名称不与用户已有 ICM 名称重复
+    private void checkIcmDuplication(Long userId, Long id, String name, String type) {
+        List<Number> icmIdsTakenTheName = icmRepo.getByNameAndUserId(userId, name);
+        for (Number icmIdTakenTheName : icmIdsTakenTheName) {
+
+            // 若是新建，则有一个重名都不行
+            // 若是修改，允许当前 ICM 名称不变，但不允许和该用户其他 ICM 重名
+            if (type.equals("new") || icmIdTakenTheName.longValue() != id) {
+                throw new IllegalArgumentException("You already have a model name as " + name);
+            }
+        }
     }
 }
