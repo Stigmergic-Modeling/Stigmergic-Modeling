@@ -50,6 +50,7 @@ public class RelationToClassEdge extends AbstractEdge {
     }
 
     public RelationToClassEdge(String port, String name, RelationNode starter, ClassNode ender) {
+        super();
         this.name = name;
         this.starter=starter;
         this.ender=ender;
@@ -62,6 +63,7 @@ public class RelationToClassEdge extends AbstractEdge {
     }
 
     public RelationToClassEdge(Long ccmId, Long icmId, String port, String name, RelationNode starter, ClassNode ender) {
+        super();
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
         this.port = port;

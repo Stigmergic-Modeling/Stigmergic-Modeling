@@ -112,6 +112,10 @@ define(function (require, exports, module) {
         this.addAttributeDlgWgt.on('insertNewItem', 'insertNewMiddleItem', this);  // 新建属性时局部更新中间栏
         this.addAttributeDlgWgt.on('init', 'getUpdatedCCM', this);  // 对话框弹出时向后端请求更新ccm
 
+        this.addAttributeDlgWgt.on('autoAddTypeClass', 'addClass', this.icm);  // [自动新建类型类]时更新icm模型!!
+        this.addAttributeDlgWgt.on('autoAddTypeClass', 'refreshLeftColAndActivateButDoNotJump', this);  // 新建类时更新页面显示（只刷新左侧栏以显示新建的类）
+        this.addAttributeDlgWgt.on('autoAddTypeClass', 'updateRightCol', this);// 确认新建类后，更新右侧推荐栏（要点是去掉刚刚加入ICM的类）
+
         // addRelation对话框
         this.addRelationDlgWgt = new RelationDialogWgt('#stigmod-modal-addrelation');
         this.addRelationDlgWgt.init(this.icm, this.ccm, this.stateOfPage);
@@ -294,6 +298,16 @@ define(function (require, exports, module) {
         $(document)
                 .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + name + ']')
                 .trigger('click');
+    };
+
+    // 刷新左侧栏、激活item（当前页面状态所标定的类）、但不跳转到新的middleCol （防止中间栏刷新）
+    Page.prototype.refreshLeftColAndActivateButDoNotJump = function () {
+        this.leftColWgt.refresh(this.icm);
+
+        // 重新激活但不跳转
+        $(document)
+            .find('#stigmod-pg-workspace #stigmod-nav-left-scroll .panel .list-group span[stigmod-nav-left-tag=' + this.stateOfPage.clazz + ']')
+            .closest('a').addClass('active')
     };
 
     // 刷新中间栏
@@ -627,6 +641,8 @@ define(function (require, exports, module) {
             var $editComponent = $root.find('.stigmod-clickedit-edit');
 
             $root.find('.tooltip').remove();  // 每次进入编辑状态时都清掉旧的 tooltip
+
+            stateOfPage.createClassIfNotExists = false;  // 修改时，一直不允许自动新建不存在的类为属性
 
             if ('title' === caseEdit) { // 中间栏标题的特别处理
                 var originalTitle = $originalTextElem.text();
@@ -1681,6 +1697,9 @@ define(function (require, exports, module) {
         // modal 显示前复位
         $(document).on('show.bs.modal', '#stigmod-modal-addclass', handleMdlAddClass);
 
+        // 撤销推荐采纳
+        $(document).on('click', '#stigmod-modal-addclass span.stigmod-adopting-rec-hint', handleCancelRecAdoption);
+
         // 输入框中每输入一个字符，过滤一次推荐栏的内容
         this.$input.on('keyup', handleFilterRec);
 
@@ -1723,16 +1742,24 @@ define(function (require, exports, module) {
 
                 widget.adoptingRec = false;
                 widget.adoptedClassId = '';
+                $(this).find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
 
             } else {  // 有预存信息，用预存信息填表（意味着进入绑定模式），并清除预存信息
                 widget.setInputWgtValue(widget.preInfo);
                 widget.preInfo = null;
+                $(this).find('span.stigmod-adopting-rec-hint').show();  // adopting recommendation 提示显示
             }
 
             widget.fire('init');
 
             //// 刷新 modal 推荐栏
             //widget.initRecWgt(icm, ccm);
+        }
+
+        // 处理：撤销推荐采纳
+        function handleCancelRecAdoption() {
+            widget.adoptingRec = false;
+            $('#stigmod-modal-addclass').find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
         }
 
         // 处理：过滤推荐栏的内容
@@ -1756,6 +1783,8 @@ define(function (require, exports, module) {
         // 绑定id
         this.adoptingRec = true;
         this.adoptedClassId = classModel.id;
+
+        $('#stigmod-modal-addclass').find('span.stigmod-adopting-rec-hint').show();  // adopting recommendation 提示显示
     };
 
     // 初始化推荐栏
@@ -1882,7 +1911,7 @@ define(function (require, exports, module) {
                     source: substringMatcher(icm, ccm, stateOfPage, 'attributeInCCM', 6)
                 });
 
-        this.initInputWgts();
+        this.initInputWgts(stateOfPage);
 
         var widget = this;
 
@@ -1895,14 +1924,38 @@ define(function (require, exports, module) {
         // add attribute 和 add relation 的 modal 中 checkbox 的动作
         $(document).on('change', '#stigmod-modal-addattribute input[type="checkbox"]', handleAddAttrChkBox);
 
+        // create if not exists 按钮
+        $(document).on('change', '#stigmod-addatt-create-class-chkbx', handleCreateIfNotExistsChkbx);
+
+        // 撤销推荐采纳
+        $(document).on('click', '#stigmod-modal-addattribute span.stigmod-adopting-rec-hint', handleCancelRecAdoption);
+
         // 输入框中每输入一个字符，过滤一次推荐栏的内容
         $input.on('keyup', handleFilterRec);
 
         // 处理：点击 addattribute 确认按钮
         function handleAddAttrOk() {
-            var $visibleInputs = $(this).closest('#stigmod-modal-addattribute')
-                    .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
 
+            // 首先处理“自动新建不存在的类作为类型”的问题
+            var typeName = $('#stigmod-addatt-type').find('td > input[type=text]:visible:not([readonly])').val();
+            if (stateOfPage.createClassIfNotExists  // 允许“自动新建不存在的类作为类型”
+                && !/^(int|float|string|boolean)$/.test(typeName)  // 且不是内置类
+                && !icm.doesNodeExist(0, typeName)) {  // 且类不在 ICM 中
+
+                var typeClassId, typeClassAddingType;
+                if (widget.adoptingRec) {  // 若 attribute 是绑定创建，则类型类也自动绑定创建
+                    typeClassId = $.grep(widget.recommendation.data, function(o) {return o.id === widget.adoptedAttrId})[0].typeClassId;  // 获取类型类的ID
+                    typeClassAddingType = 'binding';
+                } else {  // 若 attribute 不是绑定创建，则类型类也自动不绑定创建
+                    typeClassId = 'FRONTID_' + new ObjectId().toString();
+                    typeClassAddingType = 'fresh';
+                }
+                widget.fire('autoAddTypeClass', [typeName, typeClassId, typeClassAddingType]);  // 区分 fresh 和 binding
+            }
+
+            // 之后再正常建立 attribute
+            var $visibleInputs = $(this).closest('#stigmod-modal-addattribute')
+                .find('input[type=text]:visible:not([readonly])');  // :not([readonly]) 是为了屏蔽 typeahead 插件的影响
             if (checkInputs(icm, $visibleInputs, stateOfPage)) {
                 var attrId = widget.adoptingRec ? widget.adoptedAttrId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
@@ -1953,9 +2006,10 @@ define(function (require, exports, module) {
 
             widget.adoptingRec = false;
             widget.adoptedAttrId = '';
+            $(this).find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
             widget.fire('init');
 
-
+            stateOfPage.createClassIfNotExists = false;  // 默认不允许在 type 类不存在时自动新建该类
         }
 
         // 处理：add attribute 和 add relation 的 modal 中 checkbox 的动作
@@ -1969,6 +2023,18 @@ define(function (require, exports, module) {
             }
         }
 
+        // 处理：create if not exists 按钮
+        function handleCreateIfNotExistsChkbx() {
+            stateOfPage.createClassIfNotExists = !!$(this).is(':checked');  // 将勾选状态映射到 stateOfPage 的属性上
+            $(this).closest('tr').find('td > input').trigger('keyup');  // 重新触发 type 输入框的输入合法性检查
+        }
+
+        // 处理：撤销推荐采纳
+        function handleCancelRecAdoption() {
+            widget.adoptingRec = false;
+            $('#stigmod-modal-addattribute').find('span.stigmod-adopting-rec-hint').hide();  // adopting recommendation 提示隐藏
+        }
+
         // 处理：过滤推荐栏的内容
         function handleFilterRec() {
             widget.recommendation.filter($(this).val());
@@ -1976,7 +2042,7 @@ define(function (require, exports, module) {
     };
 
     // 初始化该Dialog组件中的Input组件
-    AttributeDialogWgt.prototype.initInputWgts = function () {
+    AttributeDialogWgt.prototype.initInputWgts = function (stateOfPage) {
         var attribute;
         attribute = this.attribute = {};  // attribute中收编所有的property
 
@@ -2015,6 +2081,7 @@ define(function (require, exports, module) {
         // 绑定id
         this.adoptingRec = true;
         this.adoptedAttrId = attrModel.id;
+        $('#stigmod-modal-addattribute').find('span.stigmod-adopting-rec-hint').show();  // adopting recommendation 提示显示
     };
 
     // 初始化推荐栏
@@ -2076,7 +2143,7 @@ define(function (require, exports, module) {
                     $compo.tooltip('destroy');  // 首先要清除旧的提示
                     $compo.tooltip({
                         animation: false,
-                        title: 'Relation type can not be void.',
+                        title: 'Relationship type can not be void.',
                         placement: 'top',
                         trigger: 'manual'
                         //container: 'div'  // 应对 tooltip 的出现导致 btn 格式变化的问题
@@ -2385,6 +2452,8 @@ define(function (require, exports, module) {
         this.addAttrRel.direction = 0;   // 增加 attribute 或 relation 时 插入的方向 （0: up, 1: down
 
         this.windowResizeMutex = 0;      // 为防止窗口大小变化时频繁执行某些操作，设置一个锁
+
+        this.createClassIfNotExists = false;
 
         _.makePublisher(this);
     }
@@ -2743,7 +2812,8 @@ define(function (require, exports, module) {
         var elem, popover = '', key,
                 hiddenList = {  // 屏蔽掉功能字段
                     'id': true,
-                    'ref': true
+                    'ref': true,
+                    'typeClassId': true
                 };
 
         // item 不为空时才进行转换
@@ -2891,6 +2961,7 @@ define(function (require, exports, module) {
      ** ---------------------- */
 
     // 获取输入内容合法性检查结果
+    // stateOfPage 中保存一些标志位，包括 createClassIfNotExists，用于判断是否允许自动新建类作为关系或属性的类型。
     function getInputCheckResult(model, inputCase, input, stateOfPage) {
 
         var pattern = null;
@@ -2952,9 +3023,18 @@ define(function (require, exports, module) {
             // 类型名
             case 'type-add':
             case 'type-modify':
-                pattern = /^(int|float|string|boolean)$/;  // build-in types
-                if (!pattern.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是类
-                    return 'Valid Type: A class or built-in type ("int" / "float" / "string" / "boolean").';
+                var patternType = /^(int|float|string|boolean)$/;  // build-in types
+                var patternClass = /^[A-Z][A-Za-z]*$/;
+                if (!patternType.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是ICM中已有类
+                    if (stateOfPage.createClassIfNotExists) {  // 允许自动新建类作为关系或属性的类型
+                        if (!patternClass.test(input)) {
+                            return 'Valid Format: English letters, with initials in capitals.';
+                        } else {
+                            return 'valid';  // 会有其他代码处理“自动新建类作为关系或属性的类型”
+                        }
+                    } else {  // 不允许新建类作为关系或属性的类型
+                        return 'Valid Type: A class or built-in type ("int" / "float" / "string" / "boolean").';
+                    }
                 } else {  // 合法
                     return 'valid';
                 }

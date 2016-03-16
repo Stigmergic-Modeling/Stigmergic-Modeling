@@ -9,10 +9,9 @@
 
 package net.stigmod.domain.system;
 
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -23,10 +22,7 @@ import java.util.*;
  * @author 	    Shijun Wang
  */
 @NodeEntity(label = "ICM")
-public class IndividualConceptualModel {
-
-    @GraphId
-    private Long id;
+public class IndividualConceptualModel extends AbstractConceptualModel {
 
     // A user owns many ICMs
     @Relationship(type = "OWNS", direction = Relationship.INCOMING)
@@ -36,12 +32,10 @@ public class IndividualConceptualModel {
     @Relationship(type = "IN", direction = Relationship.OUTGOING)
     private Set<CollectiveConceptualModel> ccms = new HashSet<>();
 
-    private String name;
-    private String description;
-    private Date updateDate;
-    private int classNum;
-    private int relationshipNum;
+    @Property
     private List<String> frontIdList;  // 与 backIdList 一起记录 id mapping
+
+    @Property
     private List<String> backIdList;  // 与 frontIdList 一起记录 id mapping （若为 List<Long> 类型，则会导致bug，原因暂时不明）
 
     public IndividualConceptualModel() {
@@ -52,12 +46,8 @@ public class IndividualConceptualModel {
         this(name, description, new Date());
     }
 
-    public IndividualConceptualModel(String name, String description, Date updateDate) {
-        this.name = name;
-        this.description = description;
-        this.updateDate = updateDate;
-        this.classNum = 0;
-        this.relationshipNum = 0;
+    public IndividualConceptualModel(String name, String description, Date date) {
+        super(name, description, date);
         this.frontIdList = new ArrayList<>();
         this.backIdList = new ArrayList<>();
     }
@@ -118,14 +108,6 @@ public class IndividualConceptualModel {
         this.ccms.remove(ccm);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Set<User> getUsers() {
         return users;
     }
@@ -140,46 +122,6 @@ public class IndividualConceptualModel {
 
     public void setCcms(Set<CollectiveConceptualModel> ccms) {
         this.ccms = ccms;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public int getClassNum() {
-        return classNum;
-    }
-
-    public void setClassNum(int classNum) {
-        this.classNum = classNum;
-    }
-
-    public int getRelationshipNum() {
-        return relationshipNum;
-    }
-
-    public void setRelationshipNum(int relationshipNum) {
-        this.relationshipNum = relationshipNum;
     }
 
     public List<String> getFrontIdList() {

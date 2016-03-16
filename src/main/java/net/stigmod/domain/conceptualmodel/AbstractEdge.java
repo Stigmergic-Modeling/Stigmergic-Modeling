@@ -24,6 +24,10 @@ public abstract class AbstractEdge extends AbstractConceptualModelElement implem
 
     protected int loc;
 
+    public AbstractEdge() {
+        super();
+    }
+
     public void updateDisplayName() {
         this.displayName = this.port.equals("") ? this.name : this.port + '.' + this.name;
     }

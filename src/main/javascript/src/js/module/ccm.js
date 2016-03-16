@@ -765,8 +765,11 @@ define(function (require, exports, module) {
                             propertyValue = propertyValue.slice(1);
                         } else {  // 对非内置类型，由 class ID 获取引用数最高的 class name
 
+                            // 插入一个特别属性，记录类型的类ID，用于“自动创建类型类”功能的类绑定
+                            tmpObj['typeClassId'] = propertyValue;
+
                             // 由于ccm.getClasses()方法会在页面初始化后被调用，因此下面用到的 icm.temp 和 ccm.temp 中的 id-name 映射已经被初始化了
-                            if (propertyValue in icm.temp.classIdNameMapping) {  // 在 ICM 中，直接去该用户对其的命名
+                            if (propertyValue in icm.temp.classIdNameMapping) {  // 在 ICM 中，直接取该用户对其的命名
                                 propertyValue = icm.temp.classIdNameMapping[propertyValue];
                             } else if (propertyValue in ccm.temp.classIdNameMapping) {  // 在 CCM 中且不为“禁止推荐的类”，取引用数最高的名字
                                 propertyValue = ccm.temp.classIdNameMapping[propertyValue];
@@ -774,6 +777,8 @@ define(function (require, exports, module) {
                                 propertyValue = '';
                             }
                         }
+                    } else {
+                        propertyName = property;
                     }
 
                     // 将特性加入属性对象

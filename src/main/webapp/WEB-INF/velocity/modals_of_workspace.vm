@@ -6,7 +6,10 @@
 
         <div class="modal-content modal-normal modal-normal-animation">
             <div class="modal-header">
-                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'CLASS'</h4>
+                <h4 class="modal-title text-center" id="myModalLabel">
+                    Add a new 'CLASS'
+                    <span class="stigmod-adopting-rec-hint stigmod-a-pseudo-nounderline"></span>
+                </h4>
             </div>
             <div class="modal-body">
                 <div class="row" id="stigmod-addclass-name">
@@ -119,7 +122,10 @@
 
         <div class="modal-content modal-normal modal-normal-animation">
             <div class="modal-header">
-                <h4 class="modal-title text-center" id="myModalLabel">Add a new 'ATTRIBUTE'</h4>
+                <h4 class="modal-title text-center" id="myModalLabel">
+                    Add a new 'ATTRIBUTE'
+                    <span class="stigmod-adopting-rec-hint stigmod-a-pseudo-nounderline"></span>
+                </h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -171,7 +177,13 @@
                                 </tr>
                                 <tr id="stigmod-addatt-type" stigmod-addatt-case="text">
                                     <td>type</td>
-                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="type-add" value=""></td>
+                                    <td><input type="text" class="stigmod-input" stigmod-inputcheck="type-add" value="">
+                                        <label class="stigmod-modal-create-class-chkbx">
+                                            <input id="stigmod-addatt-create-class-chkbx" type="checkbox" name="checkbox" value="create-class">
+                                            create if not exists
+                                        </label>
+                                    </td>
+
                                 </tr>
                                 <tr id="stigmod-addatt-multiplicity" stigmod-addatt-case="text">
                                     <td>multiplicity</td>
@@ -534,11 +546,9 @@
                     <div id = "relationDetail">
                     </div>
                 </div>
-                <!--<div id="relationGroupDetail" class="hidden">-->
-                <!--<div id="singleRelation"></div>-->
-                <!--</div>-->
 
-                <div id = "legend">
+                <!--图例-->
+                <div id = "legend" class = "hidden">
                     <div id = "Class">
                         <svg width = "130" height = "24">
                             <circle id = "classLegend" cursor="pointer" cx = "12" cy = "12" r="10" stroke="#46A39E" fill="#30B6AF"/>
@@ -553,33 +563,96 @@
                         </svg>
                     </div>
 
-                    <div id = "Relation">
+                    <div id = "AllNodes">
+                        <svg width = "130" height = "24">
+                            <circle id = "allNodesLegend" cursor="pointer" cx = "12" cy = "12" r="10" stroke="grey" fill="white"/>
+                            <text x="35" y = "19">All Nodes</text>
+                        </svg>
+
+                    </div>
+
+                    <div>
                         <svg width = "150" height = "24">
-                            <line id = "relationLegend" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#DFE1E3" stroke-width="2"/>
-                            <text x="35" y = "19">Relationship</text>
+                            <line id = "associationLegend" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#BABDBC" stroke-width="2"/>
+                            <text x="35" y = "19">Association</text>
                         </svg>
                     </div>
+
+                    <div>
+                        <svg width = "150" height = "24">
+                            <defs>
+                                <marker id="aggMarker" markerUnits="userSpaceOnUse" viewBox="-10 -5 20 10" markerWidth="12" markerHeight="12" refX="10" refY="0" orient="auto">
+                                    <path class = "aggColortoChange" stroke-width="1.5" d="M0,-5L10,0L0,5L-10,0Z" fill="#fff" stroke="#BABDBC"></path>
+                                </marker>
+                            </defs>
+                            <line id = "aggregationLegend" class = "aggColortoChange" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#BABDBC" stroke-width="1" marker-end="url(#aggMarker)"/>
+                            <text x="35" y = "19">Aggregation</text>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <svg width = "150" height = "24">
+                            <marker id="genMarker" markerunits="userSpaceOnUse" viewbox="-5 -5 15 10" markerwidth="12" markerheight="12" refx="10" refy="0" orient="auto">
+                                <path class = "genColortoChange" stroke-width="1" d="M0,-5L10,0L0,5Z" fill="#fff" stroke="#BABDBC"></path>
+                            </marker>
+                            <line id = "generalizationLegend" class = "genColortoChange" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#DFE1E3" stroke-width="1" marker-end="url(#genMarker)"/>
+                            <text x="35" y = "19">Generalization</text>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <svg width = "150" height = "24">
+                            <defs>
+                                <marker id="comMarker" markerUnits="userSpaceOnUse" viewBox="-10 -5 20 10" markerWidth="12" markerHeight="12" refX="10" refY="0" orient="auto">
+                                    <path id = "comMarkerLegend" stroke-width="1" d="M0,-5L10,0L0,5L-10,0Z" fill="#BABDBC" stroke="#BABDBC"></path>
+                                </marker>
+                            </defs>
+                            <line id = "compositionLegend" class = "comColortoChange" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#DFE1E3" stroke-width="1" marker-end="url(#comMarker)"/>
+                            <text x="35" y = "19">Composition</text>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <svg width = "150" height = "24">
+                            <line id = "groupLegend" class = "groupColortoChange" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#BABDBC" stroke-width="3"/>
+                            <line x1="2" y1="15" x2="22" y2="15" stroke="#FFF" stroke-width="1"/>
+                            <text x="35" y = "19">Relation Group</text>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <svg width = "150" height = "24">
+                            <defs>
+                                <marker id="edgeMarker" markerUnits="userSpaceOnUse" viewBox="0 -5 10 10" markerWidth="7" markerHeight="7" refX="10" refY="0" orient="auto">
+                                    <path class = "edgeColortoChange" stroke-width="1.5" d="M0,-5L10,0L0,5" fill="none" stroke="#BABDBC"></path>
+                                </marker>
+                            </defs>
+                            <line id = "edgeLegend" class = "edgeColortoChange" x1="2" y1="15" x2="22" y2="15" cursor="pointer" stroke="#BABDBC" stroke-width="1" marker-end="url(#edgeMarker)"/>
+                            <text x="35" y = "19">All Relations</text>
+                        </svg>
+                    </div>
+
                 </div>
-                <!--<div id = "legendOption" class="hidden">-->
-                <!--<svg width = "250" height = "30">-->
-                <!--<circle id = "optionCircle" cx = "17" cy = "18" r="5" stroke="#46A39E" fill="#30B6AF"/>-->
-                <!--<text id="optionText" x="40" y = "23" fill="#DCDEE0">Class</text>-->
-                <!--<circle id = "closeOption" cursor="pointer" cx="240" cy="10" r="3" fill="red"/>-->
-                <!--</svg>-->
-                <!--<hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>-->
+                <div id = "legendFold" >
+                    <svg id = "showLegend" width = "25" height = "25" cursor="pointer">
+                        <line id = "associationLegend" x1="4" y1="16" x2="20" y2="16" stroke="white" stroke-width="3"/>
+                        <line id = "associationLegend" x1="4" y1="11" x2="20" y2="11" stroke="white" stroke-width="3"/>
+                        <line id = "associationLegend" x1="4" y1="6" x2="20" y2="6" stroke="white" stroke-width="3"/>
+                    </svg>
 
-                <!--<svg width = "200" height = "30">-->
-                <!--<text x="12" y = "23" fill="#DCDEE0">Caption: </text>-->
-                <!--<text id="optionCaption" x="75" y = "23" fill="white">ClassName</text>-->
-                <!--</svg>-->
-                <!--<hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>-->
+                    <svg id = "hiddenLegend" width = "25" height = "25" cursor="pointer" class = "hidden">
+                        <line id = "associationLegend" x1="4" y1="16" x2="20" y2="16" stroke="#999" stroke-width="3"/>
+                        <line id = "associationLegend" x1="4" y1="11" x2="20" y2="11" stroke="#999" stroke-width="3"/>
+                        <line id = "associationLegend" x1="4" y1="6" x2="20" y2="6" stroke="#999" stroke-width="3"/>
+                    </svg>
 
-                <!--<svg width = "200" height = "30">-->
-                <!--<text x="12" y = "23" fill="#DCDEE0">Color: </text>-->
-                <!--<text id="optionColor" x="75" y = "23" fill="white">Green </text>-->
-                <!--</svg>-->
-                <!--</div>-->
-                <div id = "nodeLegendOption" class = "hidden">
+                    <svg width = "100" height = "25">
+                        <text id = "legendText" x = "30" y = "17" fill = "white" font-weight = "bold">LEGEND</text>
+                    </svg>
+                </div>
+
+                <!--配置框for点-->
+                <div id = "nodeLegendOption" class = "hidden legendOption">
                     <svg width = "250" height = "35">
                         <circle id = "optionCircle" cx = "17" cy = "21" r="5" stroke="#46A39E" fill="#30B6AF"/>
                         <text id="optionText" x="40" y = "26" fill="#DCDEE0">Class</text>
@@ -615,10 +688,47 @@
 
                 </div>
 
-                <div id = "linkLegendOption" class = "hidden">
+                <div id = "allnodeLegendOption" class = "hidden legendOption">
                     <svg width = "250" height = "35">
-                        <line id = "optionLine" x1="10" y1="20" x2="30" y2="20" stroke="#DFE1E3" stroke-width="2"/>
-                        <text id="relationOptionText" x="40" y = "26" fill="#DCDEE0">Relation</text>
+                        <circle id = "allnodeCircle" cx = "17" cy = "21" r="5" stroke="grey" fill="white"/>
+                        <text id="allnodeText" x="40" y = "26" fill="#DCDEE0">All Nodes</text>
+                    </svg>
+
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 12px">Caption: </span>
+                        <select id = "allcaptionSelect" style="margin-left:10px">
+                            <option value="1">ClassName</option>
+                            <option value="0">None</option>
+                        </select>
+                    </div>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "allcolorSelect" style="margin-left:10px">
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="grey">Grey</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!--配置框for关系-->
+                <div id = "assLegendOption" class = "hidden legendOption">
+                    <svg width = "250" height = "35">
+                        <line id = "assOptionLine" x1="10" y1="20" x2="30" y2="20" stroke="#BABDBC" stroke-width="2"/>
+                        <text x="40" y = "26" fill="#DCDEE0">Association</text>
                     </svg>
 
                     <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
@@ -627,11 +737,142 @@
 
                     <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
                         <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
-                        <select id = "relationColorSelect" style="margin-left:10px">
+                        <select id = "assColorSelect" style="margin-left:10px">
+                            <option value="grey">Grey</option>
                             <option value="green">Green</option>
                             <option value="blue">Blue</option>
                             <option value="yellow">Yellow</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div id = "aggLegendOption" class = "hidden legendOption">
+                    <svg width = "250" height = "35">
+                        <defs>
+                            <marker id="aggOptionMarker" markerUnits="userSpaceOnUse" viewBox="-10 -5 20 10" markerWidth="12" markerHeight="12" refX="10" refY="0" orient="auto">
+                                <path class = "aggColortoChange" stroke-width="1.5" d="M0,-5L10,0L0,5L-10,0Z" fill="black" stroke="#BABDBC"></path>
+                            </marker>
+                        </defs>
+                        <line class = "aggColortoChange" x1="10" y1="20" x2="30" y2="20" stroke="#BABDBC" stroke-width="1" marker-end="url(#aggOptionMarker)"/>
+                        <text x="40" y = "26" fill="#DCDEE0">Aggregation</text>
+                    </svg>
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "aggColorSelect" style="margin-left:10px">
                             <option value="grey">Grey</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div id = "genLegendOption" class = "hidden legendOption">
+                    <svg width = "250" height = "35">
+                        <marker id="genOptionMarker" markerunits="userSpaceOnUse" viewbox="-5 -5 15 10" markerwidth="12" markerheight="12" refx="10" refy="0" orient="auto">
+                            <path class = "genColortoChange" stroke-width="1" d="M0,-5L10,0L0,5Z" fill="black" stroke="#BABDBC"></path>
+                        </marker>
+                        <line class = "genColortoChange" x1="10" y1="20" x2="30" y2="20" stroke="#BABDBC" stroke-width="1" marker-end="url(#genOptionMarker)"/>
+                        <text x="40" y = "26" fill="#DCDEE0">Generalization</text>
+                    </svg>
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "genColorSelect" style="margin-left:10px">
+                            <option value="grey">Grey</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div id = "comLegendOption" class = "hidden legendOption">
+                    <svg width = "250" height = "35">
+                        <line  class = "comColortoChange" x1="10" y1="20" x2="30" y2="20" stroke="#BABDBC" stroke-width="1" marker-end="url(#comMarker)"/>
+                        <text x="40" y = "26" fill="#BABDBC">Composition</text>
+                    </svg>
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "comColorSelect" style="margin-left:10px">
+                            <option value="grey">Grey</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div id = "groupLegendOption" class = "hidden legendOption">
+                    <svg width = "250" height = "35">
+                        <line class = "groupColortoChange" x1="10" y1="20" x2="30" y2="20" stroke="#BABDBC" stroke-width="3"/>
+                        <line x1="10" y1="20" x2="30" y2="20" stroke="black" stroke-width="1"/>
+                        <text x="40" y = "26" fill="#DCDEE0">Relation Group</text>
+                    </svg>
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "groupColorSelect" style="margin-left:10px">
+                            <option value="grey">Grey</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="orange">Orange</option>
+                            <option value="purple">Purple</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div id = "edgeLegendOption" class = "hidden legendOption">
+                    <svg width = "250" height = "35">
+                        <line class = "edgeColortoChange" x1="10" y1="20" x2="30" y2="20" stroke="#BABDBC" stroke-width="1" marker-end="url(#edgeMarker)"/>
+                        <text x="40" y = "26" fill="#DCDEE0">All Relations</text>
+                    </svg>
+
+                    <button type="button" class="close" style = "position:relative; top: -30px; right: 5px;color: white;">&times;</button>
+
+                    <hr style="margin:0px;height:1px;border:none;border-top:1px solid #85888D;"/>
+
+                    <div style = "font-size:15px; height:35px; vertical-align:middle; line-height:35px">
+                        <span style="color: #DCDEE0; margin-left: 28px">Color: </span>
+                        <select id = "allColorSelect" style="margin-left:10px">
+                            <option value="grey">Grey</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
                             <option value="orange">Orange</option>
                             <option value="purple">Purple</option>
                             <option value="red">Red</option>

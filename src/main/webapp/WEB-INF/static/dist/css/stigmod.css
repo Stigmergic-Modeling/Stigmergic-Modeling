@@ -252,18 +252,53 @@ blockquote {
   text-decoration: underline;
 }
 
+/* 无下划线伪链接类 */
+.stigmod-a-pseudo-nounderline {
+  color: #428bca;
+  text-decoration: none;
+  cursor: pointer;
+}
+.stigmod-a-pseudo-nounderline:hover {
+  color: #2a6496;
+  text-decoration: none;
+}
+
 /* 无下划线连接类 */
 .stigmod-a-nounderline:hover {
   text-decoration: none;
 }
+
 /* 蓝色文字 */
 .stigmod-blue-text {
   color: #428bca;
 }
 
+/* 红色文字 */
+.stigmod-red-text {
+  color: #a94442;
+}
+
+/* 巨大文字 */
+.stigmod-huge-text {
+  font-size: 80px;
+}
+
 /* 高亮文字背景 */
 .stigmod-highlight {
   background-color: #ffff76;
+}
+
+/* 隐藏按钮 */
+#hidden-submit-button {
+  display: none;
+}
+
+/* 一些 modal 中 creat-if-not-exists checkbox 的样式 */
+.stigmod-modal-create-class-chkbx {
+  color: #777;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* 点击编辑组件在页面加载时隐藏 */
@@ -641,6 +676,11 @@ fieldset[disabled] .stigmod-input {
 #stigmod-modal-remove .modal-body .stigmod-modal-remove-name {
   font-weight: 500;
   color: #428bca;
+}
+
+#stigmod-modal-delete-model .stigmod-modal-delete-name {
+  font-weight: 500;
+  color: #a94442;
 }
 
 /* modelview 的虚外框 */
@@ -1419,26 +1459,12 @@ span.twitter-typeahead .tt-hint {
   z-index:10001;
   /*pointer-events: none;*/
 }
-/*#relationGroupDetail {*/
-  /*position: absolute;*/
-  /*right: auto;*/
-  /*left: 350px;*/
-  /*top: 150px;*/
-  /*width: auto;*/
-  /*height: auto;*/
-  /*background-color: none;*/
-  /*cursor: move;*/
-  /*z-index:10001;*/
-  /*border: 1px solid #999;*/
-  /*border-radius: 5px;*/
-  /*padding: 0px 10px;*/
-  /*/!*pointer-events: none;*!/*/
-/*}*/
+
 #legend {
   position: absolute;
   right: 50px;
   left: auto;
-  bottom: 30px;
+  bottom: 70px;
   width: 200px;
   height: auto;
   border: 1px solid #999;
@@ -1446,7 +1472,20 @@ span.twitter-typeahead .tt-hint {
   z-index:10001;
   padding: 8px;
 }
-#nodeLegendOption {
+#legendFold {
+  position: absolute;
+  right: 50px;
+  left: auto;
+  bottom: 30px;
+  width: 200px;
+  height: 40px;
+  border: 1px solid #999;
+  border-radius: 5px;
+  z-index:10001;
+  padding: 8px;
+  background-color: #999;
+}
+.legendOption {
   position: absolute;
   right: 50px;
   left: auto;
@@ -1461,20 +1500,6 @@ span.twitter-typeahead .tt-hint {
   z-index:10001;
 }
 
-#linkLegendOption {
-  position: absolute;
-  right: 50px;
-  left: auto;
-  top: 30px;
-  width: 250px;
-  height: auto;
-  /*border: 1px solid #999;*/
-  /*fill: black;*/
-  opacity: 0.8;
-  background-color: black;
-  border-radius: 5px;
-  z-index:10001;
-}
 
 #tooltip.hidden {
   display: none;

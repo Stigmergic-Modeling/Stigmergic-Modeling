@@ -739,6 +739,7 @@ define(function (require, exports, module) {
             // 清空日志
             Model.prototype.clearLog = function () {
 
+                this.operationLog.push([Date.now(), 'UPD', 'NUM']);  // 清空日志前加入结束标志（通知后端更新模型数据）
                 this.operationLogHistory.push([Date.now(), this.operationLog]); // 保存 log 的历史，便于回滚
                 this.operationLog = [];  // 清空当前 log
             };
@@ -970,7 +971,7 @@ define(function (require, exports, module) {
                             if (3 !== arguments.length) {
                                 throw new SyntaxError('doesNodeExist(): The third argument is required when testing an attribute.');
                             }
-                            this.getSubModel([0, name, 0, additionalName]);
+                            this.getSubModel([0, additionalName, 0, name]);  // additionalName 是类名，不要与 name (attribute name) 颠倒顺序
                             break;
 
                         default:

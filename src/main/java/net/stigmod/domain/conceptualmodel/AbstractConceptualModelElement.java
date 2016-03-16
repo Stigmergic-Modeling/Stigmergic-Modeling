@@ -27,9 +27,12 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
     @Property
     protected Set<String> icmSet = new HashSet<>();
 
-//    public AbstractConceptualModelElement() {
-//        this.icmSet = new HashSet<>();
-//    }
+    @Property
+    protected Boolean isSettled;  // 用于区分是否已经被 CCM 融合算法处理完毕
+
+    public AbstractConceptualModelElement() {
+        this.isSettled = false;  // 新建的元素，默认需要被 CCM 融合算法处理
+    }
 
     // 添加 icm id
     public void addIcmId(Long icmId) {
@@ -81,5 +84,13 @@ public abstract class AbstractConceptualModelElement implements ConceptualModelE
 
     public long countIcmNum() {
         return this.icmSet.size();
+    }
+
+    public Boolean getIsSettled() {
+        return isSettled;
+    }
+
+    public void setIsSettled(Boolean isSettled) {
+        this.isSettled = isSettled;
     }
 }

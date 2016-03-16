@@ -72,12 +72,12 @@
                                     <td>Description</td>
                                     <td>${currentIcm.getDescription()}</td>
                                 </tr>
-##                                <tr>
-##                                    <td>Creation Date</td>
-##                                    <td><%= modelInfo.icm.creationDate %></td>
-##                                </tr>
                                 <tr>
-                                    <td>Update Date</td>
+                                    <td>Creation Date</td>
+                                    <td>${currentIcm.getCreationDate()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Update Date</td>
                                     <td>${currentIcm.getUpdateDate()}</td>
                                 </tr>
                                 <tr>
@@ -112,12 +112,12 @@
                                     <td>Description</td>
                                     <td>${currentIcm.getDescription()}</td>
                                 </tr>
-##                                <tr>
-##                                    <td>Creation Date</td>
-##                                    <td><%= modelInfo.ccm.creationDate %></td>
-##                                </tr>
                                 <tr>
-                                    <td>Update Date</td>
+                                    <td>Creation Date</td>
+                                    <td>${currentCcm.getCreationDate()}</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Update Date</td>
                                     <td>${currentCcm.getUpdateDate()}</td>
                                 </tr>
                                 <tr>

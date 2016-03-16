@@ -77,7 +77,8 @@
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <input type="hidden" class="stigmod-input stigmod-input-lg" name="id" value="${currentIcm.getId()}" />
                             <p>Once you delete a model, there is no going back. Please be certain.</p>
-                            <button type="submit" class="btn btn-danger">Delete model</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#stigmod-modal-delete-model">Delete model</button>
+                            <button type="submit" class="btn btn-danger" id="hidden-submit-button">Hidden Real Submit Button</button>
                         </form>
                     </div>
                 </div>
@@ -86,5 +87,6 @@
     </div>
 </div>
 
-#set ($jsFile = "index")
+#set ($jsFile = "model_settings")
+#parse ("modals_of_model_settings.vm")
 #parse ("footer.vm")

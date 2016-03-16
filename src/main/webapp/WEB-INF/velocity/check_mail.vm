@@ -8,6 +8,7 @@
     <div class="text-center">
         <hr />
         <br />
+        <div class="stigmod-blue-text stigmod-huge-text"><i class="fa fa-paper-plane"></i></div>
         <br />
 
         <h4 class="stigmod-blue-text">A confirmation email has been sent to <strong>${mail}</strong>.</h4>

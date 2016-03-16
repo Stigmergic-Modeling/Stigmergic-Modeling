@@ -49,6 +49,7 @@ public class ClassToValueEdge extends AbstractEdge {
     }
 
     public ClassToValueEdge(String name, ClassNode starter, ValueNode ender) {
+        super();
         this.port="";
         this.name = name;
         this.starter=starter;
@@ -57,6 +58,7 @@ public class ClassToValueEdge extends AbstractEdge {
     }
 
     public ClassToValueEdge(String port, String name, ClassNode starter, ValueNode ender) {
+//        super();
         this.starter = starter;
         this.ender = ender;
         this.name = name;
@@ -65,6 +67,7 @@ public class ClassToValueEdge extends AbstractEdge {
     }
 
     public ClassToValueEdge(Long ccmId, Long icmId, String name, ClassNode starter, ValueNode ender) {
+        super();
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
         this.port = "";

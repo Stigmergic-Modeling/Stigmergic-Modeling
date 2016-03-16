@@ -21,10 +21,10 @@ public class IcmBrief {
     public String name;
     public String description;
     public Date update;
-    public int classNum;
-    public int relNum;
+    public Long classNum;
+    public Long relNum;
 
-    public IcmBrief(Long id, String name, String description, Date updateDate, int classNum, int relationshipNum) {
+    public IcmBrief(Long id, String name, String description, Date updateDate, Long classNum, Long relationshipNum) {
         this.id = id;
         this.name = name;
         this.description = description;

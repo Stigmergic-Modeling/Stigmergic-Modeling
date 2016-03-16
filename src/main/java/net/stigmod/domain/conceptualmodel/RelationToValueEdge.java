@@ -61,6 +61,7 @@ public class RelationToValueEdge extends AbstractEdge {
     }
 
     public RelationToValueEdge(Long ccmId, Long icmId, String port, String name, RelationNode starter, ValueNode ender) {
+        super();
         this.ccmId = ccmId;
         this.icmSet.add(icmId.toString());
         this.port = port;

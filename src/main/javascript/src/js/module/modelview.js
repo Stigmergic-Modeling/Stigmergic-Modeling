@@ -15,19 +15,24 @@ define(function(require, exports, module) {
     var width = $container[0].clientWidth - 30;
     var height = $container[0].clientHeight - 80;  // 80px 包含了各种 margin padding
 
-    var colorFillArray = {green: "#30B6AF", yellow: "#FCC940", blue: "#4356C0", grey:"#DFE1E3",
+
+    var colorFillArray = {green: "#30B6AF", yellow: "#FCC940", blue: "#4356C0", grey:"#BABDBC",
                           orange: "#F25A29", purple: "#AD62CE", red: "#FF6C7C"};
-    var colorStrokeArray = {green: "#46A39E", yellow: "#F3BA25", blue: "#3445A2", grey:"#D4D6D7",
+    var colorStrokeArray = {green: "#46A39E", yellow: "#F3BA25", blue: "#3445A2", grey:"#888888",
                             orange: "#DC4717", purple: "#9453B1", red: "#EB5D6C"};
 
     var selectedColor = "#005499";  //选择之后圈和连线的颜色
-    var lineColor = "#BABDBC";      //连线的颜色
+    var lineColor = {Association:"#BABDBC", Aggregation:"#BABDBC", Composition:"#BABDBC",
+                    Generalization:"#BABDBC", RelationGroup:"#BABDBC"};      //连线的颜色
     var strokeColor = ["#46A39E", "#F3BA25"];    //不选择时圈的颜色
     var fillColor = ["#30B6AF", "#FCC940"];      //点的颜色
     var nameNotSelectedFill = "#999"; //名字的颜色
 
     var lineWidth = 1;              //连线的宽度
     var lineSelectedWidth = 2;      //连线被选择之后的宽度
+    var groupLineWidth = 3;
+    var groupPathWidth = 1;
+    var groupLineSelectedWidth = 5;
 
     /**
      *  将模型数据转换为展示 model view 所需的格式
@@ -52,7 +57,10 @@ define(function(require, exports, module) {
       myclass.attribute = myAttribute;
       if(myclass.name === "Week" || myclass.name === "Date" || myclass.name === "DayOfWeek"
         || myclass.name === "Title" || myclass.name === "Semester" || myclass.name === "CourseCharacter"
-        || myclass.name === "Time")
+        || myclass.name === "Time" || myclass.name === "RentStatus" || myclass.name === "CDType"
+          || myclass.name === "Gender" || myclass.name === "State" || myclass.name === "CDClass"
+          || myclass.name === "RentalState" || myclass.name === "Post" || myclass.name === "PayMethod"
+       || myclass.name === "Category")
         myclass.classtype = 1;
       else
         myclass.classtype = 0;
@@ -170,15 +178,6 @@ define(function(require, exports, module) {
       // .call(force.drag().on("drag", function(d) { drag() }));
 
 
-    //设置图例
-    //d3.select("#Enumeration")
-    //    .append("svg:circle")
-    //    .attr("r", 5)
-    //    .attr("fill", fillColor[0])
-    //    .attr("stroke", strokeColor[0]);
-    //d3.select("#Enumeration")
-    //    .append("p")
-    //    .text("Enumeration");
 
 
     //节点添加文本，文本内容为节点名称
@@ -212,11 +211,11 @@ define(function(require, exports, module) {
       .attr("refY", 0)
       .attr("orient", "auto")
       .append("svg:path")
-        .attr("class", "marker")
+        .attr("class", "genColortoChange")
         .attr("stroke-width", lineWidth)
         .attr("d", "M0,-5L10,0L0,5Z")
         .attr("fill", "#fff")
-        .attr("stroke", lineColor);
+        .attr("stroke", lineColor["Generalization"]);
 
     //连线高亮时的Generalization箭头
     var genMarkerHover = defs.append("marker")
@@ -246,11 +245,11 @@ define(function(require, exports, module) {
       .attr("refY", 0)
       .attr("orient", "auto")
       .append("svg:path")
-        .attr("class", "marker")
-        .attr("stroke-width", lineWidth)
+        .attr("class", "aggColortoChange")
+        .attr("stroke-width", 1.5)
         .attr("d", "M0,-5L10,0L0,5L-10,0Z")
         .attr("fill", "#fff")
-        .attr("stroke", lineColor);
+        .attr("stroke", lineColor["Aggregation"]);
 
     //连线高亮时的Aggregation箭头
     var aggreMarkerHover = defs.append("marker")
@@ -279,12 +278,11 @@ define(function(require, exports, module) {
       .attr("refY", 0)
       .attr("orient", "auto")
       .append("svg:path")
-        .attr("class", "marker")
         .attr("id", "compositionMarker")
         .attr("stroke-width", lineWidth)
         .attr("d", "M0,-5L10,0L0,5L-10,0Z")
-        .attr("fill", lineColor)
-        .attr("stroke", lineColor);
+        .attr("fill", lineColor["Composition"])
+        .attr("stroke", lineColor["Composition"]);
 
     //连线高亮时的Composition箭头
     var comMarkerHover = defs.append("marker")
@@ -366,8 +364,15 @@ define(function(require, exports, module) {
         .attr("fill", "#666")
         .attr("opacity", 1);
       link.selectAll("line")
-        .attr("stroke", lineColor)
-        .attr("stroke-width", lineWidth)
+        .attr("stroke", function(d) {
+            return lineColor[d.type];
+          })
+        .attr("stroke-width", function(d){
+            if(d.type === "RelationGroup")
+              return groupLineWidth;
+            else
+              return lineWidth;
+      })
         .attr("marker-end", function(d) {
           return "url(#" + d.type + ")";
         });                            
@@ -430,14 +435,21 @@ define(function(require, exports, module) {
           return selectedColor;
         }
         else
-          return lineColor;
+          return lineColor[edge.type];
       });
 
       myline.attr("stroke-width", function(edge) {
         if (edge.source === node || edge.target === node) {
-          return lineSelectedWidth;
-        } else
-          return lineWidth;
+          if(edge.type === "RelationGroup")
+            return groupLineSelectedWidth;
+          else
+            return lineSelectedWidth;
+        } else {
+          if(edge.type === "RelationGroup")
+            return groupLineWidth;
+          else
+            return lineWidth;
+        }
       });
 
       myline.attr("marker-end", function(edge) {
@@ -503,14 +515,21 @@ define(function(require, exports, module) {
         if (myedge === edge) {
           return selectedColor;
         } else
-          return lineColor;
+          return lineColor[myedge.type];
       });
 
       myline.attr("stroke-width", function(myedge) {
         if (myedge === edge) {
-          return lineSelectedWidth;
-        } else
-          return lineWidth;
+          if(myedge.type === "RelationGroup")
+            return groupLineSelectedWidth;
+          else
+            return lineSelectedWidth;
+        } else {
+          if(myedge.type === "RelationGroup")
+            return groupLineWidth;
+          else
+            return lineWidth;
+        }
       });
 
       myline.attr("marker-end", function(myedge) {
@@ -810,7 +829,7 @@ define(function(require, exports, module) {
               //.append("span")
               //.attr("style", "width: 80")
               .append("img")
-              .attr("src", "/src/img/" + singleType + ".png")
+              .attr("src", "/static/dist/img/" + singleType + ".png")
               .attr("height", 180);
         }
       }
@@ -836,14 +855,14 @@ define(function(require, exports, module) {
 
         d3.select("#relation")
             .append("img")
-            .attr("src", "/src/img/" + type + ".png")
+            .attr("src", "/static/dist/img/" + type + ".png")
             .attr("height", 180);
       }
 
 
       //d3.select("#relationGroup")
       //    .append("img")
-      //    .attr("src", "/src/img/" + type + ".png")
+      //    .attr("src", "/static/dist/img/" + type + ".png")
       //    .attr("height", 180);
 
       d3.select("#multi")
@@ -944,7 +963,7 @@ define(function(require, exports, module) {
         //for(singleRelation in relationGroup) {
         //  var singleType = edge.group[singleRelation].type;
         //  d3.select("#singleRelation").append("img")
-        //      .attr("src", "/src/img/" + singleType + ".png")
+        //      .attr("src", "/static/dist/img/" + singleType + ".png")
         //      .attr("height", 180);
         //}
         //d3.select("#relationGroupDetail").classed("hidden", false);
@@ -1016,16 +1035,82 @@ define(function(require, exports, module) {
         }
       });
 
+
+    //根据relation类型的不同绑定箭头
+
+    var myline = link.append("line")
+      .attr("class", function(d) {
+        return "link " + d.type;
+      })
+      .attr("marker-end", function(d) {
+        return "url(#" + d.type + ")";
+      })
+      .attr("stroke", function(d) {
+          return lineColor[d.type]
+        })
+      .attr("stroke-width", function(d) {
+          if(d.type === "RelationGroup")
+            return groupLineWidth;
+          else
+            return lineWidth;
+        });
+
+    var path = link.append("path")
+        .attr("class", "relationPath")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", function(d) {
+          if(d.type === "RelationGroup")
+            return groupPathWidth;
+          else
+            return 20;
+        })
+        .attr("opacity", function(d) {
+          if(d.type === "RelationGroup")
+            return 100;
+          else
+            return 0.0;
+        })
+        .attr("cursor", "pointer");
+
+
+    path.on("click", function(d) {
+      d3.event.stopPropagation(); //截断svg的click事件
+      clickEdge(d);
+    })
+    //高亮当前节点及其连线，但仍然显示上一次点击的节点信息
+    .on("mouseover", function(d) {
+      mouseoverEdge(d);
+    })
+    // 鼠标移走时高亮上一次点击节点及其连线，显示上一次点击的节点信息
+    .on("mouseout", function(d) {
+      mouseout();
+    });
+
+    //载入页面时高亮当前选中的类
+    if(currentClass !== ''){
+      for(var j = 0; j < dataset.nodes.length; j ++){
+        if(dataset.nodes[j].name === currentClass){
+          clickNode(dataset.nodes[j]);
+          break;
+        }
+      }
+    }
+
+
     var selectedLegend = "";
     var classSelectedColor = "green";
     var enumerationSelectedColor = "yellow";
     var classSelectedCaption = "1";
     var enumerationSelectedCaption = "1";
-    var relationSelectedColor = "grey";
+    var assSelectedColor = "grey";
+    var genSelectedColor = "grey";
+    var comSelectedColor = "grey";
+    var aggSelectedColor = "grey";
+    var groupSelectedColor = "grey";
 
     d3.select("#classLegend")
         .on("click", function(){
-          d3.select("#linkLegendOption").classed("hidden", true);
+          d3.selectAll(".legendOption").classed("hidden", true);
           selectedLegend = "Class";
           d3.event.stopPropagation();
           d3.select("#optionText").text("Class");
@@ -1040,7 +1125,7 @@ define(function(require, exports, module) {
         });
     d3.select("#enumerationLegend")
         .on("click",function(){
-          d3.select("#linkLegendOption").classed("hidden", true);
+          d3.selectAll(".legendOption").classed("hidden", true);
           selectedLegend = "Enumeration";
           d3.select("#optionText").text("Enumeration");
           d3.select("#optionCircle")
@@ -1052,28 +1137,101 @@ define(function(require, exports, module) {
           document.getElementById("captionSelect").value = enumerationSelectedCaption;
         });
 
-    d3.select("#relationLegend")
+    d3.select("#allNodesLegend")
         .on("click",function(){
-          d3.select("#nodeLegendOption").classed("hidden", true);
-          selectedLegend = "Relation";
-          d3.select("#relationOptionText").text("Relation");
-          d3.select("#optionLine")
-              .attr("stroke",lineColor);
-          d3.select("#linkLegendOption").classed("hidden", false);
-          document.getElementById("relationColorSelect").value = relationSelectedColor;
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "allNodes";
+          //d3.select("#optionColor").text("Yellow");
+          d3.select("#allnodeLegendOption").classed("hidden", false);
+        });
+
+    d3.select("#associationLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "Association";
+          //d3.select("#relationOptionText").text("Relation");
+          //d3.select("#optionLine")
+          //    .attr("stroke",lineColor[]);
+          d3.select("#assLegendOption").classed("hidden", false);
+          document.getElementById("assColorSelect").value = assSelectedColor;
 
         });
 
+    d3.select("#aggregationLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "Aggregation";
+          //d3.select("#relationOptionText").text("Relation");
+          //d3.select("#optionLine")
+          //    .attr("stroke",lineColor);
+          d3.select("#aggLegendOption").classed("hidden", false);
+          document.getElementById("aggColorSelect").value = aggSelectedColor;
+
+        });
+    d3.select("#generalizationLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "Generalization";
+          d3.select("#genLegendOption").classed("hidden", false);
+          document.getElementById("genColorSelect").value = genSelectedColor;
+
+        });
+    d3.select("#compositionLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "Composition";
+          d3.select("#comLegendOption").classed("hidden", false);
+          document.getElementById("comColorSelect").value = comSelectedColor;
+
+        });
+
+    d3.select("#groupLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "RelationGroup";
+          d3.select("#groupLegendOption").classed("hidden", false);
+          document.getElementById("groupColorSelect").value = groupSelectedColor;
+
+        });
+
+    d3.select("#edgeLegend")
+        .on("click",function(){
+          d3.selectAll(".legendOption").classed("hidden", true);
+          selectedLegend = "AllRelation";
+          d3.select("#edgeLegendOption").classed("hidden", false);
+          //document.getElementById("groupColorSelect").value = groupSelectedColor;
+
+        });
+
+
+
     d3.selectAll(".close")
         .on("click", function(){
-          d3.select("#nodeLegendOption").classed("hidden", true);
-          d3.select("#linkLegendOption").classed("hidden", true);
+          d3.selectAll(".legendOption").classed("hidden", true);
+        });
+
+    d3.select("#showLegend")
+        .on("click", function(){
+          d3.select("#legendFold").style("background-color", "white");
+          d3.select("#legendText").attr("fill", "#999");
+          d3.select("#legend").classed("hidden", false);
+          d3.select("#showLegend").classed("hidden", true);
+          d3.select("#hiddenLegend").classed("hidden", false);
+        });
+
+    d3.select("#hiddenLegend")
+        .on("click", function(){
+          d3.select("#legendFold").style("background-color", "#999");
+          d3.select("#legendText").attr("fill", "white");
+          d3.select("#legend").classed("hidden", true);
+          d3.select("#hiddenLegend").classed("hidden", true);
+          d3.select("#showLegend").classed("hidden", false);
         });
 
 
 
     d3.select("#colorSelect")
-      .on("change", function(){
+        .on("change", function(){
           var colorValue = document.getElementById("colorSelect").value;
           if(selectedLegend === "Class"){
             classSelectedColor = colorValue;
@@ -1095,7 +1253,35 @@ define(function(require, exports, module) {
               .attr("fill", colorFillArray[colorValue])
               .attr("stroke", colorStrokeArray[colorValue]);
           mouseout();
-      });
+        });
+
+    d3.select("#allcolorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("allcolorSelect").value;
+            classSelectedColor = colorValue;
+            fillColor[0] = colorFillArray[colorValue];
+            strokeColor[0] = colorStrokeArray[colorValue];
+            d3.select("#classLegend")
+                .attr("fill", colorFillArray[colorValue])
+                .attr("stroke", colorStrokeArray[colorValue]);
+            enumerationSelectedColor = colorValue;
+            fillColor[1] = colorFillArray[colorValue];
+            strokeColor[1] = colorStrokeArray[colorValue];
+            d3.select("#enumerationLegend")
+                .attr("fill", colorFillArray[colorValue])
+                .attr("stroke", colorStrokeArray[colorValue]);
+          d3.selectAll(".circle")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          d3.select("#allnodeCircle")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          d3.select("#allNodesLegend")
+              .attr("fill", colorFillArray[colorValue])
+              .attr("stroke", colorStrokeArray[colorValue]);
+          mouseout();
+        });
+
 
     d3.select("#captionSelect")
         .on("change", function(){
@@ -1144,64 +1330,114 @@ define(function(require, exports, module) {
           }
           mouseout();
         });
-    d3.select("#relationColorSelect")
+
+    d3.select("#allcaptionSelect")
         .on("change", function(){
-          var colorValue = document.getElementById("relationColorSelect").value;
-          lineColor = colorFillArray[colorValue];
-          d3.select("#relationLegend")
-              .attr("stroke", lineColor);
-          d3.select("#optionLine")
-              .attr("stroke", lineColor);
-          d3.selectAll(".marker")
-              .attr("stroke", lineColor);
-          d3.select("#compositionMarker")
-              .attr("fill", lineColor);
+          var captionValue = document.getElementById("allcaptionSelect").value;
+          myname.text(function(d) {
+            if(captionValue == 1)
+              return d.name;
+            else
+              return "";
+          })
+          classSelectedCaption = captionValue;
+          enumerationSelectedCaption = captionValue;
           mouseout();
         });
 
+    d3.select("#assColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("assColorSelect").value;
+          lineColor["Association"] = colorFillArray[colorValue];
+          assSelectedColor = colorValue;
+          d3.select("#associationLegend")
+              .attr("stroke", lineColor["Association"]);
+          d3.select("#assOptionLine")
+              .attr("stroke", lineColor["Association"]);
+          mouseout();
+        });
 
+    d3.select("#aggColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("aggColorSelect").value;
+          lineColor["Aggregation"] = colorFillArray[colorValue];
+          aggSelectedColor = colorValue;
+          d3.selectAll(".aggColortoChange")
+              .attr("stroke", lineColor["Aggregation"]);
+          mouseout();
+        });
 
-    //根据relation类型的不同绑定箭头
+    d3.select("#genColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("genColorSelect").value;
+          lineColor["Generalization"] = colorFillArray[colorValue];
+          genSelectedColor = colorValue;
+          d3.selectAll(".genColortoChange")
+              .attr("stroke", lineColor["Generalization"]);
+          mouseout();
+        });
 
-    var myline = link.append("line")
-      .attr("class", function(d) {
-        return "link " + d.type;
-      })
-      .attr("marker-end", function(d) {
-        return "url(#" + d.type + ")";
-      })
-      .attr("stroke", lineColor)
-      .attr("stroke-width", lineWidth);
+    d3.select("#comColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("comColorSelect").value;
+          lineColor["Composition"] = colorFillArray[colorValue];
+          comSelectedColor = colorValue;
+          d3.selectAll(".comColortoChange")
+              .attr("stroke", lineColor["Composition"]);
+          d3.select("#comMarkerLegend")
+              .attr("stroke", lineColor["Composition"])
+              .attr("fill", lineColor["Composition"]);
+          d3.select("#compositionMarker")
+              .attr("stroke", lineColor["Composition"])
+              .attr("fill", lineColor["Composition"]);
+          mouseout();
+        });
 
-    var path = link.append("path")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 20)
-      .attr("opacity", 0.0)
-      .attr("cursor", "pointer");
+    d3.select("#groupColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("groupColorSelect").value;
+          lineColor["RelationGroup"] = colorFillArray[colorValue];
+          groupSelectedColor = colorValue;
+          d3.selectAll(".groupColortoChange")
+              .attr("stroke", lineColor["RelationGroup"]);
+          mouseout();
+        });
 
-
-    path.on("click", function(d) {      
-      d3.event.stopPropagation(); //截断svg的click事件
-      clickEdge(d);
-    })
-    //高亮当前节点及其连线，但仍然显示上一次点击的节点信息
-    .on("mouseover", function(d) {
-      mouseoverEdge(d);
-    })
-    // 鼠标移走时高亮上一次点击节点及其连线，显示上一次点击的节点信息
-    .on("mouseout", function(d) {
-      mouseout();
-    });
-
-    //载入页面时高亮当前选中的类
-    if(currentClass !== ''){
-      for(var j = 0; j < dataset.nodes.length; j ++){
-        if(dataset.nodes[j].name === currentClass){
-          clickNode(dataset.nodes[j]);
-          break;
-        }
-      }
-    }
+    d3.select("#allColorSelect")
+        .on("change", function(){
+          var colorValue = document.getElementById("allColorSelect").value;
+          lineColor["Association"] = colorFillArray[colorValue];
+          assSelectedColor = colorValue;
+          d3.select("#associationLegend")
+              .attr("stroke", lineColor["Association"]);
+          d3.select("#assOptionLine")
+              .attr("stroke", lineColor["Association"]);
+          lineColor["Aggregation"] = colorFillArray[colorValue];
+          aggSelectedColor = colorValue;
+          d3.selectAll(".aggColortoChange")
+              .attr("stroke", lineColor["Aggregation"]);
+          lineColor["Generalization"] = colorFillArray[colorValue];
+          genSelectedColor = colorValue;
+          d3.selectAll(".genColortoChange")
+              .attr("stroke", lineColor["Generalization"]);
+          lineColor["Composition"] = colorFillArray[colorValue];
+          comSelectedColor = colorValue;
+          d3.selectAll(".comColortoChange")
+              .attr("stroke", lineColor["Composition"]);
+          d3.select("#comMarkerLegend")
+              .attr("stroke", lineColor["Composition"])
+              .attr("fill", lineColor["Composition"]);
+          d3.select("#compositionMarker")
+              .attr("stroke", lineColor["Composition"])
+              .attr("fill", lineColor["Composition"]);
+          lineColor["RelationGroup"] = colorFillArray[colorValue];
+          groupSelectedColor = colorValue;
+          d3.selectAll(".groupColortoChange")
+              .attr("stroke", lineColor["RelationGroup"]);
+          d3.selectAll(".edgeColortoChange")
+              .attr("stroke", colorValue);
+          mouseout();
+        });
 
 
     //Every time the simulation "ticks", this will be called

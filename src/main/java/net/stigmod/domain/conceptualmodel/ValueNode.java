@@ -44,7 +44,7 @@ public class ValueNode extends AbstractVertex {
     private Set<RelationToValueEdge> rtvEdges =new HashSet<>();
 
     public ValueNode(){
-//        super();
+        super();
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;

@@ -9,7 +9,6 @@
 
 package net.stigmod.domain.system;
 
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -25,10 +24,7 @@ import java.util.Set;
  * @author 	    Shijun Wang
  */
 @NodeEntity(label = "CCM")
-public class CollectiveConceptualModel {
-
-    @GraphId
-    private Long id;
+public class CollectiveConceptualModel extends AbstractConceptualModel {
 
     @Property
     Set<Long> classNodesId = new HashSet<>();
@@ -43,12 +39,6 @@ public class CollectiveConceptualModel {
     @Relationship(type = "IN", direction = Relationship.INCOMING)
     private Set<IndividualConceptualModel> icms = new HashSet<>();
 
-    private String name;
-    private String description;
-    private Date updateDate;
-    private int classNum;
-    private int relationshipNum;
-
     public CollectiveConceptualModel() {
         this("","");
     }
@@ -57,12 +47,8 @@ public class CollectiveConceptualModel {
         this(name, description, new Date());
     }
 
-    public CollectiveConceptualModel(String name, String description, Date updateDate) {
-        this.name = name;
-        this.description = description;
-        this.updateDate = updateDate;
-        this.classNum = 0;
-        this.relationshipNum = 0;
+    public CollectiveConceptualModel(String name, String description, Date date) {
+        super(name, description, date);
     }
 
     /**
@@ -79,54 +65,6 @@ public class CollectiveConceptualModel {
      */
     public void removeIcm(IndividualConceptualModel icm) {
         this.icms.remove(icm);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public int getClassNum() {
-        return classNum;
-    }
-
-    public void setClassNum(int classNum) {
-        this.classNum = classNum;
-    }
-
-    public int getRelationshipNum() {
-        return relationshipNum;
-    }
-
-    public void setRelationshipNum(int relationshipNum) {
-        this.relationshipNum = relationshipNum;
     }
 
     public Set<Long> getClassNodesId() {

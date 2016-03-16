@@ -7,18 +7,11 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.domain.conceptualmodel;
-
-import java.util.HashSet;
-import java.util.Set;
+package net.stigmod.domain.system;
 
 /**
  * @author Shijun Wang
- * @version 2016/3/4
+ * @version 2016/3/14
  */
-public abstract class AbstractVertex extends AbstractConceptualModelElement implements Vertex {
-
-    public AbstractVertex() {
-        super();
-    }
+public interface ConceptualModel {
 }

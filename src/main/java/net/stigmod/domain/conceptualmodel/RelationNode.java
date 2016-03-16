@@ -36,7 +36,7 @@ public class RelationNode extends AbstractVertex {
     private Long ccmId;
 
     public RelationNode() {
-//        super();
+        super();
 //        this.orgEntropyValue = 0;
         this.biEntropyValue = 0;
         this.postBiEntropyValue = 0;

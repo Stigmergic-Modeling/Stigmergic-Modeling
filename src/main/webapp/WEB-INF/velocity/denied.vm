@@ -1,15 +1,16 @@
 #parse ("header.vm")
 
-<div class="row">
-    <div class="col-xs-12">
-        <div id="stigmod-indexpage">
-            <h2 class="text-center">ACCESS DENIED</h2>
-            <br />
-            <p class="text-center">
-                <a class="btn btn-default" onclick="history.go(-1);" role="button">Return</a>
-            </p>
-        </div>
-    </div>
+<div class="text-center">
+    <hr />
+    <br />
+    <div class="stigmod-blue-text stigmod-huge-text"><span class="glyphicon glyphicon-ban-circle"></span></div>
+    <h4 class="stigmod-blue-text">ACCESS DENIED</h4>
+    <br />
+    <p>
+        <a class="btn btn-default" onclick="history.go(-1);" role="button">Return</a>
+    </p>
+    <br />
+
 </div>
 
 #set ($jsFile = "index")

@@ -18,10 +18,10 @@
             <span class="fa fa-sitemap"></span>
         </button>
         <button type="button" class="btn btn-default stigmod-model-save-btn" disabled>
-            <span class="glyphicon glyphicon-upload"></span>
+            <i class="fa fa-refresh"></i>
         </button>
         <button type="button" class="btn btn-default stigmod-exit-full-screen-btn">
-            <span class="glyphicon glyphicon-resize-small"></span>
+            <i class="fa fa-compress"></i>
         </button>
     </div>
     <!-- 顶部项目名称栏 -->
@@ -52,7 +52,7 @@
         <div class="col-xs-4">
       <span class="pull-right stigmod-btn-left" id="stigmod-model-info">
         <a href="/${currentIcm.getName()}/info" class="stigmod-a-nounderline">
-            <span class="glyphicon glyphicon-stats"></span>&nbsp;
+            <span class="fa fa-bar-chart"></span>&nbsp;
             Model Info
         </a>
       </span>
@@ -66,7 +66,7 @@
             <span class="pull-right stigmod-btn-left">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
       <span class="pull-right stigmod-btn-left stigmod-enter-full-screen-btn">
         <span class="stigmod-a-pseudo stigmod-a-nounderline">
-          <span class="glyphicon glyphicon-fullscreen"></span>&nbsp;
+          <i class="fa fa-arrows-alt"></i>&nbsp;
           Full Screen
         </span>
       </span>
@@ -1139,7 +1139,7 @@
     <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="" data-placement="left" data-html="true" data-content="">
         <span class="tag"></span>
     <span class="pull-right stigmod-hovershow-cont">
-      <span class="fa fa-hand-lizard-o">
+      <span class="fa fa-plus">
       </span>
     </span>
     </a>
@@ -1149,7 +1149,7 @@
     <a href="#" class="list-group-item stigmod-hovershow-trig" data-container="body" data-toggle="popover" data-trigger="hover" title="Course" data-placement="left" data-html="true" data-content="<p>date : Date</p><p>time : Time</p><p>teacher : String</p><p>place : String number</p><p>Student : int</p>">
         Courses (Name)
     <span class="pull-right stigmod-hovershow-cont">
-      <span class="fa fa-magnet">
+      <span class="fa fa-plus">
       </span>
     </span>
     </a>
@@ -1158,5 +1158,5 @@
 
 
 #set ($jsFile = "workspace")
-#parse ("modals.vm")
+#parse ("modals_of_workspace.vm")
 #parse ("footer.vm")
