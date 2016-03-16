@@ -9,7 +9,12 @@
 
 package net.stigmod.service.migrateService;
 
+import net.stigmod.domain.conceptualmodel.ClassNode;
+import net.stigmod.domain.conceptualmodel.RelationNode;
+import net.stigmod.domain.conceptualmodel.ValueNode;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 
@@ -21,7 +26,8 @@ public interface MigrateHandler {
 
     public void migrateHandler();
 
-    public void migrateInit(Long modelId);
+    public void migrateInit(Long modelId,List<ClassNode> classNodeList1,List<RelationNode> relationNodeList1,
+                            List<ValueNode> valueNodeList1);
 
     public void migrateEnd();
 

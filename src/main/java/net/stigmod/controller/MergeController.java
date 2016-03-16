@@ -50,27 +50,24 @@ public class MergeController {
     @ResponseBody
     private String dealPreMergeDate() throws IOException{
         String path = "/Users/fukai/Desktop/58";
-        if(!isStart) {
-            this.isStart = true;
-            List<ClassNode> classNodeList=new ArrayList<>();
-            List<RelationNode> relationNodeList=new ArrayList<>();
-            List<ValueNode> valueNodeList=new ArrayList<>();
+        List<ClassNode> classNodeList=new ArrayList<>();
+        List<RelationNode> relationNodeList=new ArrayList<>();
+        List<ValueNode> valueNodeList=new ArrayList<>();
 
-            readFile(path,classNodeList,relationNodeList,valueNodeList);
+        readFile(path,classNodeList,relationNodeList,valueNodeList);
 
-            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 //        classNodeRepository.save(classNodeList.get(0),-1);
-            try {
-                migrateHandler.migrateInit(0l);
-                migrateHandler.migrateHandler();
-                migrateHandler.migrateEnd();
-            }catch(Exception e) {
-                e.printStackTrace();
-            }finally {
-                this.isStart = false;
-            }
+        try {
+            migrateHandler.migrateInit(0l,classNodeList,relationNodeList,valueNodeList);
+            migrateHandler.migrateHandler();
+            migrateHandler.migrateEnd();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }finally {
+            this.isStart = false;
         }
         return "Hello World";
     }
