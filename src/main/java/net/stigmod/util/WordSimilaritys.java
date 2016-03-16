@@ -55,12 +55,9 @@ public class WordSimilaritys {
         for(int i=0;i<vSize;i++) {
             List<Double> simList = new ArrayList<>();
             for(int j=0;j<vSize;j++) {
-                if(i>=j) simList.add(0.0);
-                else {
-                    List<String> sourceNameList = nameList.get(i);
-                    List<String> targetNameList = nameList.get(j);
-                    simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
-                }
+                List<String> sourceNameList = nameList.get(i);
+                List<String> targetNameList = nameList.get(j);
+                simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
             }
             vNodeSimilarityList.add(simList);
         }

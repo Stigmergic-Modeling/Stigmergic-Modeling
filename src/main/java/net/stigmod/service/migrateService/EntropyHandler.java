@@ -39,6 +39,9 @@ public interface EntropyHandler {
     public Double computeSimulateMigrateCNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, Set<Long>> ctvNodeMap
             , ClassNode classNode , int nodeSum);
 
+    public Double computeSimulateMigrateRNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, List<Set<Long>>> rtvNodeMap
+            , RelationNode relationNode , int nodeSum);
+
     public Double initNodeListEntropy(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
                                     List<ValueNode> valueNodeList , int nodeSum);
 
