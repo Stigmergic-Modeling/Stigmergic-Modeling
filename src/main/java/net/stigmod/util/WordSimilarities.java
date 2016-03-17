@@ -12,6 +12,8 @@ package net.stigmod.util;
 import edu.sussex.nlp.jws.JWS;
 import edu.sussex.nlp.jws.WuAndPalmer;
 import net.stigmod.domain.conceptualmodel.ValueNode;
+import net.stigmod.util.config.Config;
+import net.stigmod.util.config.ConfigLoader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,12 +24,16 @@ import java.util.List;
  * @author Kai Fu
  * @version 2016/3/13
  */
-public class WordSimilaritys {
+public class WordSimilarities {
+
+    private Config config = ConfigLoader.load();
+    private String path = config.getWordNetPath();
+
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
     public WuAndPalmer wup;
 
-    public void initWuAndPalmer(String path) {
-        JWS ws = new JWS(path, "3.0");
+    public void initWuAndPalmer() {
+        JWS ws = new JWS(this.path, "3.0");
         wup = ws.getWuAndPalmer();
         System.out.println("Wu & palmer\n");
     }

@@ -26,6 +26,7 @@ public class Config {
     private String port;
     private Neo4j neo4j;
     private MailServer mailServer;
+    private String wordNetPath;
 
     public String getHost() {
         return host;
@@ -61,5 +62,14 @@ public class Config {
     @XmlElement
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
+    }
+
+    public String getWordNetPath() {
+        return wordNetPath;
+    }
+
+    @XmlElement
+    public void setWordNetPath(String wordNetPath) {
+        this.wordNetPath = wordNetPath;
     }
 }

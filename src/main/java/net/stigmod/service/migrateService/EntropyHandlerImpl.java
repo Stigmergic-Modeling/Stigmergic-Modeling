@@ -10,7 +10,7 @@
 package net.stigmod.service.migrateService;
 
 import net.stigmod.domain.conceptualmodel.*;
-import net.stigmod.util.WordSimilaritys;
+import net.stigmod.util.WordSimilarities;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -267,7 +267,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
             double sum = curP;
             for(int j=0; j<realNum; j++) {
                 if(i==j) continue;
-                sum += probList.get(j)*WordSimilaritys.vNodeSimList.get(vNodeLocList.get(i)).get(vNodeLocList.get(j));//节点i与节点j的相似度
+                sum += probList.get(j)* WordSimilarities.vNodeSimList.get(vNodeLocList.get(i)).get(vNodeLocList.get(j));//节点i与节点j的相似度
             }
             double logp = Math.log(sum)/Math.log(2);
             tagE += curP*logp;
@@ -495,17 +495,17 @@ public class EntropyHandlerImpl implements EntropyHandler{
             System.out.println(">2 , 这是一个错误,理论上不可能出现!!!");
         }
         if(fSize==2&&sSize==2) {
-            double sim1 = (WordSimilaritys.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(0)) +
-                    WordSimilaritys.vNodeSimList.get(firstLocSet.get(1)).get(secLocSet.get(1))) / 2;
-            double sim2 = (WordSimilaritys.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(1)) +
-                    WordSimilaritys.vNodeSimList.get(firstLocSet.get(1)).get(secLocSet.get(0))) / 2;
+            double sim1 = (WordSimilarities.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(0)) +
+                    WordSimilarities.vNodeSimList.get(firstLocSet.get(1)).get(secLocSet.get(1))) / 2;
+            double sim2 = (WordSimilarities.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(1)) +
+                    WordSimilarities.vNodeSimList.get(firstLocSet.get(1)).get(secLocSet.get(0))) / 2;
             return Math.max(sim1,sim2);
         }else if(fSize==1&&sSize==2) {
-            double sim1 = WordSimilaritys.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(0));
-            double sim2 = WordSimilaritys.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(1));
+            double sim1 = WordSimilarities.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(0));
+            double sim2 = WordSimilarities.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(1));
             return Math.max(sim1,sim2);
         }else if(fSize==1&&sSize==1) {
-            return WordSimilaritys.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(0));
+            return WordSimilarities.vNodeSimList.get(firstLocSet.get(0)).get(secLocSet.get(0));
         }
         System.out.println("<1 , 这是一个错误,理论上不可能出现!!!");
         return 0.0;//其实其他情况不可能发生

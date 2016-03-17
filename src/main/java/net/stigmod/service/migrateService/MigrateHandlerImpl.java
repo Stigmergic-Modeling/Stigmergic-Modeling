@@ -1,15 +1,9 @@
 
 package net.stigmod.service.migrateService;
 
-import edu.sussex.nlp.jws.JWS;
-import edu.sussex.nlp.jws.WuAndPalmer;
 import net.stigmod.domain.conceptualmodel.*;
-import net.stigmod.domain.system.CollectiveConceptualModel;
 import net.stigmod.repository.node.*;
-import net.stigmod.repository.relationship.ClassToVEdgeRepository;
-import net.stigmod.repository.relationship.RelationToCEdgeRepository;
-import net.stigmod.repository.relationship.RelationToVEdgeRepository;
-import net.stigmod.util.WordSimilaritys;
+import net.stigmod.util.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +47,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private List<ValueNode> valueNodeList;
 
-    private WordSimilaritys wordSimilaritys;
+    private WordSimilarities wordSimilarities;
 
     private int nodeSum;
 
@@ -94,13 +88,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         this.systemEntropy = 0.0;
 
-        this.wordSimilaritys = new WordSimilaritys();
-        this.wordSimilaritys.initWuAndPalmer("/Users/fukai/Desktop/wordnet");
+        this.wordSimilarities = new WordSimilarities();
+        this.wordSimilarities.initWuAndPalmer();
 
         setLocForList();
 
-        WordSimilaritys.vNodeSimList.clear();
-        WordSimilaritys.vNodeSimList = this.wordSimilaritys.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
+        WordSimilarities.vNodeSimList.clear();
+        WordSimilarities.vNodeSimList = this.wordSimilarities.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
     }
 
     public void migrateEnd() {

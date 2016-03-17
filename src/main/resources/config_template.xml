@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <host>YourWebsiteHost</host>
+    <port>YourWebsitePort</port>
+    <neo4j>
+        <host>YourNeo4jHost</host>
+        <port>YourNeo4jPort</port>
+        <username>YourNeo4jUsername</username>
+        <password>YourNeo4jPassword</password>
+    </neo4j>
+    <mailServer>
+        <host>YourSmtpMailServerHost</host>
+        <port>YourSmtpMailServerPort</port>
+        <username>YourSmtpMailServerUsername</username>
+        <password>YourSmtpMailServerPassword</password>
+    </mailServer>
+    <wordNetPath>YourWordNetAbsolutePath</wordNetPath>
+</config>
