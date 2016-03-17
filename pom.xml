@@ -1,20 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.springapp</groupId>
-    <artifactId>Cafe</artifactId>
+    <groupId>pkuseidr</groupId>
+    <artifactId>stigmod</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Cafe</name>
+    <name>stigmod</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>4.1.4.RELEASE</spring.version>
         <spring-data-neo4j.version>4.0.0.RELEASE</spring-data-neo4j.version>
-        <!--<spring-data-neo4j.version>4.1.0.M1</spring-data-neo4j.version>-->
         <spring-security.version>4.0.0.RELEASE</spring-security.version>
         <neo4j.version>2.3.0</neo4j.version>
-        <edu.sussex.version>0.11-beta</edu.sussex.version>
     </properties>
 
     <dependencies>
@@ -132,41 +130,34 @@
         </dependency>
 
         <!-- JSON -->
+
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.4</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>edu.mit</groupId>-->
-            <!--<artifactId>jwi</artifactId>-->
-            <!--<version>2.2.3</version>-->
-        <!--</dependency>-->
+        <!-- WordNet Similarities -->
 
-        <!--<dependency>-->
-            <!--<groupId>edu.sussex.nlp</groupId>-->
-            <!--<artifactId>jws</artifactId>-->
-            <!--<version>11</version>-->
-            <!--<scope>system</scope>-->
-            <!--<systemPath>${project.basedir}/src/main/resources/repo/edu/sussex/nlp/jws/11/jws-11.jar</systemPath>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>edu.mit</groupId>
+            <artifactId>mit-jwi</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.sussex.nlp</groupId>
+            <artifactId>sussex-nlp-jws</artifactId>
+            <version>0.11-beta</version>
+        </dependency>
+
+
+
     </dependencies>
 
-    <!-- For SDN 4.1.0.M1 -->
-    <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>spring-milestones</id>-->
-            <!--<name>Spring Milestones</name>-->
-            <!--<url>http://repo.spring.io/milestone</url>-->
-            <!--<snapshots>-->
-                <!--<enabled>false</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
-    <!--</repositories>-->
 
     <build>
-        <finalName>Cafe</finalName>
+        <finalName>stigmod</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -178,6 +169,7 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
+
             <!--<plugin>-->
                 <!--<artifactId>maven-surefire-plugin</artifactId>-->
                 <!--<configuration>-->
@@ -186,6 +178,46 @@
                     <!--</includes>-->
                 <!--</configuration>-->
             <!--</plugin>-->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>install-external-mit-jwi</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <file>${project.basedir}/extra-libs/edu.mit.jwi_2.1.4.jar</file>
+                            <repositoryLayout>default</repositoryLayout>
+                            <groupId>edu.mit</groupId>
+                            <artifactId>mit-jwi</artifactId>
+                            <version>2.1.4</version>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>install-external-sussex-nlp-jws</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <file>${project.basedir}/extra-libs/edu.sussex.nlp.jws.beta.11.jar</file>
+                            <repositoryLayout>default</repositoryLayout>
+                            <groupId>edu.sussex.nlp</groupId>
+                            <artifactId>sussex-nlp-jws</artifactId>
+                            <version>0.11-beta</version>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
