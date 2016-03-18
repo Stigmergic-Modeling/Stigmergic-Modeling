@@ -118,6 +118,8 @@ public class UserController {
         PageData pageData = new NewModelPageData(modelService.getAllCcms());
         model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "New Model");
+        model.addAttribute("nameClean", name);
+        model.addAttribute("descriptionClean", description);
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
@@ -145,6 +147,8 @@ public class UserController {
         PageData pageData = new NewModelPageData(modelService.getAllCcms());
         model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "New Model");
+        model.addAttribute("nameInherited", name);
+        model.addAttribute("descriptionInherited", description);
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);

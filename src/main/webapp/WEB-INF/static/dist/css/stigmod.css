@@ -151,7 +151,7 @@ blockquote {
 
 /* 工具名称使用Gothic字体 */
 .stigmod-websitename {
-  font-family: "Adobe Gothic Std";
+  font-weight: bold;
 }
 
 .stigmod-websitefooter {

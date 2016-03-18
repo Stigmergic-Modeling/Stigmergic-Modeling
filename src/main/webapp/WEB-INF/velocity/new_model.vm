@@ -24,12 +24,16 @@
                             </dl>
                             <dl>
                                 <dt>Name</dt>
-                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name"
+                                    #if (${nameInherited})
+                                        value="${nameInherited}"
+                                    #end
+                                /></dd>
                             </dl>
                             <dl>
                                 <dt>Description</dt>
                                 <dd>
-                                    <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
+                                    <textarea type="text" class="stigmod-input stigmod-textarea" name="description">#if(${descriptionInherited})${descriptionInherited}#end</textarea>
                                 </dd>
                             </dl>
                             <button type="submit" class="btn btn-warning">Create</button>
@@ -50,12 +54,16 @@
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <dl>
                                 <dt>Name</dt>
-                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" /></dd>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name"
+                                    #if (${nameClean})
+                                           value="${nameClean}"
+                                    #end
+                                /></dd>
                             </dl>
                             <dl>
                                 <dt>Description</dt>
                                 <dd>
-                                    <textarea type="text" class="stigmod-input stigmod-textarea" name="description"></textarea>
+                                    <textarea type="text" class="stigmod-input stigmod-textarea" name="description">#if(${descriptionClean})${descriptionClean}#end</textarea>
                                 </dd>
                             </dl>
                             <button type="submit" class="btn btn-default" id="stigmod-update-pf-btn">Create</button>

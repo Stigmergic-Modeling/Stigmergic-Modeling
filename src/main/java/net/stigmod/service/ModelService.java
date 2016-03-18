@@ -50,7 +50,14 @@ public class ModelService {
 
     // 全新新建 Model
     @Transactional
-    public void createIcmClean(User user, String name, String description) {
+    public void createIcmClean(User user, String name, String description) throws IllegalArgumentException  {
+
+        if (name.equals("")) {
+            throw new IllegalArgumentException("Model name can not be empty.");
+        }
+        if (description.equals("")) {
+            throw new IllegalArgumentException("Model description can not be empty.");
+        }
 
         // 保证新名称不与用户已有 ICM 名称重复
         this.checkIcmDuplication(user.getId(), 0L, name, "new");
@@ -69,7 +76,17 @@ public class ModelService {
 
     // 继承新建 Model
     @Transactional
-    public void createIcmInherited(User user, String name, String description, Long ccmId) {
+    public void createIcmInherited(User user, String name, String description, Long ccmId) throws IllegalArgumentException {
+
+        if (ccmId == null) {
+            throw new IllegalArgumentException("You must choose one Collective Conceptual Model to be inherited.");
+        }
+        if (name.equals("")) {
+            throw new IllegalArgumentException("Model name can not be empty.");
+        }
+        if (description.equals("")) {
+            throw new IllegalArgumentException("Model description can not be empty.");
+        }
 
         // 保证新名称不与用户已有 ICM 名称重复
         this.checkIcmDuplication(user.getId(), 0L, name, "new");
