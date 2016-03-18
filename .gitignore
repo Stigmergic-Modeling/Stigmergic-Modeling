@@ -1,12 +1,11 @@
 .idea/
-logs/
-node_modules/
-mongodb/
 src/main/javascript/node_modules/
 src/main/javascript/build/
 src/main/javascript/build2/
 src/main/webapp/WEB-INF/static/dist/js/
 src/main/resources/config.xml
+src/main/resources/config_develop.xml
+src/main/resources/config_deploy.xml
 *.swp
 *.swo
 *.cmd
