@@ -10,6 +10,7 @@
 package net.stigmod.controller;
 
 import net.stigmod.domain.system.User;
+import net.stigmod.service.migrateService.MigrateService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -17,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import net.stigmod.repository.node.UserRepository;
 
@@ -39,11 +39,22 @@ public class StigModController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    MigrateService migrateService;
+
     private final static Logger logger = LoggerFactory.getLogger(StigModController.class);
 
     // front page
     @RequestMapping(value="/", method = RequestMethod.GET)
     public String index(ModelMap model) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "index");
@@ -53,12 +64,28 @@ public class StigModController {
     // about this web app
     @RequestMapping(value="/about", method = RequestMethod.GET)
     public String about(ModelMap model) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "about");
         return "about";
+    }
+
+    // about this web app
+    @RequestMapping(value="/testFusion/{ccmId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String testFusion(@PathVariable("ccmId") Long ccmId) {
+        migrateService.migrateAlgorithmImpls(ccmId);
+        return "Fusion Finished";
     }
 
     // favicon

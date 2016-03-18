@@ -55,7 +55,7 @@ public class MigrateServiceImpl implements MigrateService{
 
     private Long modelId;
 
-    boolean isRunning = false;
+    private boolean isRunning = false;
 
     public boolean migrateAlgorithmImpls(Long modelId) {
         if(!isRunning) {
@@ -148,5 +148,9 @@ public class MigrateServiceImpl implements MigrateService{
             ValueNode vNode = valueNodeList.get(i);
             vNode.setLoc(i);
         }
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 }

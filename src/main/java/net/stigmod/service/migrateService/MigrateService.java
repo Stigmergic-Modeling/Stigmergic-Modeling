@@ -11,8 +11,12 @@ package net.stigmod.service.migrateService;
 
 /**
  * @author Kai Fu
+ * @author Shijun Wang
  * @version 2016/3/18
  */
 public interface MigrateService {
-    public boolean migrateAlgorithmImpls(Long modelId);
+
+    boolean migrateAlgorithmImpls(Long modelId);
+
+    boolean isRunning();
 }

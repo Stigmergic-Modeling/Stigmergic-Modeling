@@ -18,6 +18,7 @@
         <security:intercept-url pattern="/favicon.ico" access="permitAll"/>
         <security:intercept-url pattern="/preMerge" access="permitAll"/> <!-- 测试用 -->
         <security:intercept-url pattern="/SimulateMerge" access="permitAll"/> <!-- 测试用 -->
+        <security:intercept-url pattern="/testFusion/*" access="permitAll"/> <!-- 测试用 -->
         <security:intercept-url pattern="/apple-touch-icon-precomposed.png" access="permitAll"/>  <!-- for Safari -->
         <security:intercept-url pattern="/apple-touch-icon.png" access="permitAll"/>  <!-- for Safari -->
         <security:intercept-url pattern="/about" access="permitAll"/>

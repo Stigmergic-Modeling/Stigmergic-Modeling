@@ -21,6 +21,7 @@ import net.stigmod.domain.page.WorkspacePageData;
 import net.stigmod.repository.node.UserRepository;
 import net.stigmod.service.ModelService;
 import net.stigmod.service.WorkspaceService;
+import net.stigmod.service.migrateService.MigrateService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -59,11 +60,22 @@ public class WorkspaceController {
     @Autowired
     WorkspaceService workspaceService;
 
+    @Autowired
+    MigrateService migrateService;
+
     private final static Logger logger = LoggerFactory.getLogger(WorkspaceController.class);
 
     // GET Workspace 页面
     @RequestMapping(value = "/{icmName}/workspace", method = RequestMethod.GET)
     public String workspace(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -103,6 +115,13 @@ public class WorkspaceController {
     @RequestMapping(value = "/{icmName}/workspace", method = RequestMethod.POST)
     @ResponseBody
     public ModelingResponse workspace(@PathVariable String icmName, @RequestBody String modelingOperationLogJsonString) {
+
+        if (migrateService.isRunning()) {  // ！！特别注意，若正在融合，则返特定 message，这时后端没有保存模型，前端要进行回滚！！
+            ModelingResponse mr = new ModelingResponse();
+            mr.addMessage("service unavailable");
+            return mr;
+        }
+
         try {
             return workspaceService.syncModelingOperations(modelingOperationLogJsonString);
         } catch (Exception e) {
@@ -126,6 +145,14 @@ public class WorkspaceController {
     // GET ModelInfo 页面
     @RequestMapping(value = "/{icmName}/info", method = RequestMethod.GET)
     public String modelInfo(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token

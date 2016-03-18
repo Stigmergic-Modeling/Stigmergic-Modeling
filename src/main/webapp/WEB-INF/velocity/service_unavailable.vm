@@ -1,0 +1,17 @@
+#parse ("header.vm")
+
+<div class="text-center">
+    <hr />
+    <br />
+    <div class="stigmod-blue-text stigmod-huge-text"><i class="fa fa-cog fa-spin"></i></div>
+    <h3 class="stigmod-blue-text">Service Unavailable</h3>
+    <h4 class="stigmod-blue-text">when the model merging algorithm is running on the server</h4>
+    <br />
+    <h4 class="stigmod-blue-text">Please try again later :)</h4>
+    <br />
+    <br />
+
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

@@ -12,6 +12,7 @@ package net.stigmod.controller;
 import net.stigmod.domain.system.User;
 import net.stigmod.repository.node.UserRepository;
 import net.stigmod.service.MailService;
+import net.stigmod.service.migrateService.MigrateService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
@@ -51,11 +52,22 @@ public class AuthController {
     @Autowired
     MailService mailService;
 
+    @Autowired
+    MigrateService migrateService;
+
     private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     // sign up page GET
     @RequestMapping(value="/signup", method = RequestMethod.GET)
     public String reg(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign Up");
@@ -77,6 +89,13 @@ public class AuthController {
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
             ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
 
         try {
             String verificationId = userRepository.register(name, mail, password, passwordRepeat);
@@ -109,6 +128,13 @@ public class AuthController {
     @RequestMapping(value="/signup/verify", method = RequestMethod.GET)
     public String regVerify(@RequestParam(value = "id") String id, ModelMap model, HttpServletRequest request) {
 
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         try {
             userRepository.registerVerify(id);
             return "redirect:/user";  // 激活账户成功
@@ -136,6 +162,14 @@ public class AuthController {
                             @RequestParam("verificationId") String verificationId,
                             @RequestParam("confirmType") String confirmType,
                             ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Check Mail");
@@ -158,6 +192,14 @@ public class AuthController {
                                   @RequestParam("verificationId") String verificationId,
                                   @RequestParam("confirmType") String confirmType,
                                   ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Check Mail");
@@ -197,6 +239,13 @@ public class AuthController {
     @RequestMapping(value = "/forget", method = RequestMethod.GET)
     public String forget(ModelMap model, HttpServletRequest request) {
 
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         if (csrfToken != null) {
@@ -212,6 +261,13 @@ public class AuthController {
     // 用户忘记密码页面 POST
     @RequestMapping(value = "/forget", method = RequestMethod.POST)
     public String doForget(@RequestParam("mail") String mail, ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
 
         try {
             String verificationId = userRepository.forgetPassword(mail);
@@ -241,6 +297,13 @@ public class AuthController {
     @RequestMapping(value = "/forget/verify", method = RequestMethod.GET)
     public String forgetVerify(@RequestParam(value = "id") String id, ModelMap model, HttpServletRequest request) {
 
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         try {
             User user = userRepository.resetPasswordVerify(id);
             model.addAttribute("verificationId", user.getVerificationId());  // 将 ID 加入 resetpassword 页面的 GET 参数
@@ -267,6 +330,13 @@ public class AuthController {
     @RequestMapping(value = "/resetpassword", method = RequestMethod.GET)
     public String resetPassword(@RequestParam("verificationId") String verificationId,  ModelMap model, HttpServletRequest request) {
 
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         if (csrfToken != null) {
@@ -287,6 +357,13 @@ public class AuthController {
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
             ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
 
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
@@ -314,6 +391,14 @@ public class AuthController {
     // sign in page GET  (POST route is taken care of by Spring-Security)
     @RequestMapping(value="/signin", method = RequestMethod.GET)
     public String login(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign In");
@@ -330,6 +415,7 @@ public class AuthController {
     // sign out
     @RequestMapping(value="/signout", method = RequestMethod.GET)
     public String logout (HttpServletRequest request, HttpServletResponse response) {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null){
             new SecurityContextLogoutHandler().logout(request, response, auth);
@@ -340,6 +426,14 @@ public class AuthController {
     // Denied page GET
     @RequestMapping(value="/denied", method = RequestMethod.GET)
     public String reg(ModelMap model) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Denied");

@@ -17,6 +17,7 @@ import net.stigmod.domain.page.PageData;
 import net.stigmod.domain.page.UserPageData;
 import net.stigmod.repository.node.UserRepository;
 import net.stigmod.service.ModelService;
+import net.stigmod.service.migrateService.MigrateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.stigmod.util.config.Config;
@@ -54,11 +55,22 @@ public class UserController {
     @Autowired
     ModelService modelService;
 
+    @Autowired
+    MigrateService migrateService;
+
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     // GET 用户主页面（模型列表）
     @RequestMapping(value = "/user", method = RequestMethod.GET)
     public String profile(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -80,6 +92,14 @@ public class UserController {
     // GET 新建模型的页面
     @RequestMapping(value = "/newmodel", method = RequestMethod.GET)
     public String newModel(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -103,6 +123,14 @@ public class UserController {
     public String doNewModelClean(@RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
                                   @RequestParam(value = "description") String description,
                                   ModelMap model) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         try {
@@ -132,6 +160,14 @@ public class UserController {
                                       @RequestParam(value = "description") String description,
                                       @RequestParam(value = "id") Long ccmId,
                                       ModelMap model) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         try {
@@ -158,6 +194,14 @@ public class UserController {
     // GET 用户设置 profile 页面
     @RequestMapping(value = "/user/settings/profile", method = RequestMethod.GET)
     public String settingsProfile(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -180,6 +224,14 @@ public class UserController {
                                     @RequestParam(value = "url") String url,
                                     ModelMap model,
                                     HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -207,6 +259,14 @@ public class UserController {
     // GET 用户设置 account 页面
     @RequestMapping(value = "/user/settings/account", method = RequestMethod.GET)
     public String settingsAccount(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -228,6 +288,14 @@ public class UserController {
                                                 @RequestParam(value = "new-password") String newPassword,
                                                 @RequestParam(value = "new-password-repeat") String newPasswordRepeat,
                                                 ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         try {
@@ -256,6 +324,14 @@ public class UserController {
     // GET 用户设置 model 页面
     @RequestMapping(value = "/user/settings/model", method = RequestMethod.GET)
     public String settingsModel(ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -282,6 +358,14 @@ public class UserController {
     // GET 用户设置 model specific 页面
     @RequestMapping(value = "/user/settings/model/{icmName}", method = RequestMethod.GET)
     public String settingsModelSpecific(@PathVariable String icmName, ModelMap model, HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -315,6 +399,14 @@ public class UserController {
                                                 @RequestParam(value = "description") String description,
                                                 ModelMap model,
                                                 HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
@@ -357,6 +449,14 @@ public class UserController {
                                                 @RequestParam(value = "id") Long id,
                                                 ModelMap model,
                                                 HttpServletRequest request) {
+
+        if (migrateService.isRunning()) {
+            model.addAttribute("host", host);
+            model.addAttribute("port", port);
+            model.addAttribute("title", "Service Unavailable");
+            return "service_unavailable";
+        }
+
         final User user = userRepository.getUserFromSession();
 
         // CSRF token
