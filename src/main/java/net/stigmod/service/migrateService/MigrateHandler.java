@@ -26,9 +26,7 @@ public interface MigrateHandler {
 
     public void migrateHandler();
 
-    public void migrateInit(Long modelId,List<ClassNode> classNodeList1,List<RelationNode> relationNodeList1,
-                            List<ValueNode> valueNodeList1);
-
-    public void migrateEnd();
+    public void migrateInit(Long modelId,List<ClassNode> cNodeList,List<RelationNode> rNodeList,
+                            List<ValueNode> vNodeList);
 
 }

@@ -14,6 +14,7 @@ import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
 import net.stigmod.service.migrateService.MigrateHandler;
+import net.stigmod.service.migrateService.MigrateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,11 +41,9 @@ public class MergeController {
     ValueNodeRepository valueNodeRepository;
 
     @Autowired
-    MigrateHandler migrateHandler;
+    MigrateService migrateService;
 
     long modelId=0;
-
-    boolean isStart = false;
 
     @RequestMapping(value="/preMerge", method = RequestMethod.GET)
     @ResponseBody
@@ -59,17 +58,16 @@ public class MergeController {
         for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
         for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
         for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
-//        classNodeRepository.save(classNodeList.get(0),-1);
+
+        boolean isRunning = false;
         try {
-            migrateHandler.migrateInit(0l,classNodeList,relationNodeList,valueNodeList);
-            migrateHandler.migrateHandler();
-            migrateHandler.migrateEnd();
+            isRunning =migrateService.migrateAlgorithmImpls(0l,"/Users/fukai/Desktop/wordnet");
         }catch(Exception e) {
             e.printStackTrace();
-        }finally {
-            this.isStart = false;
         }
-        return "Hello World";
+        if(isRunning) return "Hello World ~!";
+        else return "Algorithm is not running ~!";
+
     }
 
     private void readFile(String path,List<ClassNode> classNodeList,List<RelationNode> relationNodeList,

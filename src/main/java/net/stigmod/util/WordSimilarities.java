@@ -30,16 +30,15 @@ public class WordSimilarities {
     private String path = config.getWordNetPath();
 
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
-    public WuAndPalmer wup;
+    public static WuAndPalmer wup;
 
-    public void initWuAndPalmer() {
-        JWS ws = new JWS(this.path, "3.0");
+    public static void initWuAndPalmer(String path) {
+        JWS ws = new JWS(path, "3.0");
         wup = ws.getWuAndPalmer();
         System.out.println("Wu & palmer\n");
     }
 
-    public List<List<Double>> getVNodeSimListByName(List<ValueNode> valueNodeList) {
-        List<List<Double>> vNodeSimilarityList = new ArrayList<>();
+    public static void getVNodeSimListByName(List<ValueNode> valueNodeList) {
 
         int vSize = valueNodeList.size();
         List<List<String>> nameList = new ArrayList<>();
@@ -65,12 +64,11 @@ public class WordSimilarities {
                 List<String> targetNameList = nameList.get(j);
                 simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
             }
-            vNodeSimilarityList.add(simList);
+            vNodeSimList.add(simList);
         }
-        return vNodeSimilarityList;
     }
 
-    private Double getMaxSimForNameList(List<String> sourceNameList,List<String> targetNameList) {
+    private static Double getMaxSimForNameList(List<String> sourceNameList,List<String> targetNameList) {
         double maxSim = 0.0;
         try {
             StringBuffer sourceFullNameWithBlank = new StringBuffer();
@@ -124,7 +122,7 @@ public class WordSimilarities {
         return maxSim;
     }
 
-    class NameSimilarity {
+    static class NameSimilarity {
         String sourceName;
         String targetName;
         double similarity;

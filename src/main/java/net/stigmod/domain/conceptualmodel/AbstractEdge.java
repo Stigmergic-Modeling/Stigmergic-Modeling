@@ -22,8 +22,6 @@ public abstract class AbstractEdge extends AbstractConceptualModelElement implem
     protected String name;
     protected String displayName;
 
-    protected int loc;
-
     public AbstractEdge() {
         super();
     }
@@ -50,13 +48,6 @@ public abstract class AbstractEdge extends AbstractConceptualModelElement implem
         this.updateDisplayName();
     }
 
-    public int getLoc() {
-        return loc;
-    }
-
-    public void setLoc(int loc) {
-        this.loc = loc;
-    }
 
     public String getDisplayName() {
         return displayName;

@@ -19,17 +19,17 @@ import java.util.*;
 @Service
 public class MigrateHandlerImpl implements MigrateHandler {
 
-    @Autowired
-    private ClassNodeRepository classNodeRepository;
-
-    @Autowired
-    private RelationNodeRepository relationNodeRepository;
-
-    @Autowired
-    private ValueNodeRepository valueNodeRepository;
-
-    @Autowired
-    private VertexRepository vertexRepository;
+//    @Autowired
+//    private ClassNodeRepository classNodeRepository;
+//
+//    @Autowired
+//    private RelationNodeRepository relationNodeRepository;
+//
+//    @Autowired
+//    private ValueNodeRepository valueNodeRepository;
+//
+//    @Autowired
+//    private VertexRepository vertexRepository;
 
     @Autowired
     private MigrateUtil migrateUtil;
@@ -57,56 +57,52 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private double systemEntropy;
 
-    private int curLocId;
+//    private int curLocId;
 
     /**
      * 初始化
      * @param modelId (the id is ccm id)
      * 每次执行migrateHandler进行融合操作之前,都需要执行一次migrateInit方法(当然该方法自动在migrateHandler中被调用)
      */
-    public void migrateInit(Long modelId,List<ClassNode> classNodeList1,List<RelationNode> relationNodeList1,
-                            List<ValueNode> valueNodeList1) {
+    public void migrateInit(Long modelId,List<ClassNode> cNodeList,List<RelationNode> rNodeList,
+                            List<ValueNode> vNodeList) {
         //获取ccm中各种node的数据
         this.modelId = modelId;
 
-        classNodeList = new ArrayList<>();
-        relationNodeList = new ArrayList<>();
-        valueNodeList = new ArrayList<>();
-
-//        initConvertList();这个待会要恢复
-        this.classNodeList = classNodeList1;
-        this.relationNodeList = relationNodeList1;
-        this.valueNodeList = valueNodeList1;
+        this.classNodeList = cNodeList;
+        this.relationNodeList = rNodeList;
+        this.valueNodeList = vNodeList;
 
         this.nodeSum=(classNodeList.size()+relationNodeList.size()+valueNodeList.size());
-//        curIdLoc=((long)(classNodeList.size()+relationNodeList.size()+valueNodeList.size())*1000);//这个到时候肯定要删除
-
-        //初始化isStable函数
         this.isStable=false;
-
-        this.curLocId = 100;
-
         this.systemEntropy = 0.0;
 
-        this.wordSimilarities = new WordSimilarities();
-        this.wordSimilarities.initWuAndPalmer();
-
-        setLocForList();
-
-        WordSimilarities.vNodeSimList.clear();
-        WordSimilarities.vNodeSimList = this.wordSimilarities.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
+//        this.wordSimilarities = new WordSimilarities();
+//        this.wordSimilarities.initWuAndPalmer();
+//        setLocForList();
+//        initConvertList();//这个待会要恢复
+//        this.nodeSum=(classNodeList.size()+relationNodeList.size()+valueNodeList.size());
+//        //初始化isStable函数
+//        this.isStable=false;
+////        this.curLocId = 100;
+//        this.systemEntropy = 0.0;
+//        this.wordSimilaritys = new WordSimilaritys();
+//        this.wordSimilaritys.initWuAndPalmer("/Users/fukai/Desktop/wordnet");
+//        setLocForList();
+//        WordSimilaritys.vNodeSimList.clear();
+//        WordSimilaritys.vNodeSimList = this.wordSimilaritys.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
     }
 
-    public void migrateEnd() {
-        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
-        System.out.println("算法运行结束!");
-
-        this.classNodeList.clear();
-        this.relationNodeList.clear();
-        this.valueNodeList.clear();
-    }
+//    public void migrateEnd() {
+//        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+//        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+//        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+//        System.out.println("算法运行结束!");
+//
+//        this.classNodeList.clear();
+//        this.relationNodeList.clear();
+//        this.valueNodeList.clear();
+//    }
 
     public void migrateInitForTest(List<ClassNode> classNodeList , List<RelationNode> relationNodeList ,
                                    List<ValueNode> valueNodeList , int loc) {
@@ -117,9 +113,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
         this.isStable=false;
         this.nodeSum=(classNodeList.size()+relationNodeList.size()+valueNodeList.size());
         this.systemEntropy = 0.0;
-        this.curLocId = loc++;
-
-        setLocForList();
+//        this.curLocId = loc++;
+//        setLocForList();
     }
 
     @Override
@@ -669,7 +664,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 tmpCtvEdge.setIcmSet(tTmpSet);
                 tmpCtvEdge.setIsChanged(true);
                 tmpCtvEdge.setIcmSetPreCopy(new HashSet<Long>());
-                tmpCtvEdge.setLoc(curLocId++);
+//                tmpCtvEdge.setLoc(curLocId++);
                 targetClassNode.getCtvEdges().add(tmpCtvEdge);
                 valueNode.getCtvEdges().add(tmpCtvEdge);
 //                classToVEdgeRepository.save(tmpCtvEdge);//classToVEdgeRepository这个
@@ -711,7 +706,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 tTmpSet.addAll(icmSet);
                 RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,relationNode,targetClassNode);
                 tmpRtcEdge.setIcmSet(tTmpSet);
-                tmpRtcEdge.setLoc(curLocId++);
+//                tmpRtcEdge.setLoc(curLocId++);
                 targetClassNode.getRtcEdges().add(tmpRtcEdge);
                 tmpRtcEdge.setIsChanged(true);
                 tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
@@ -1341,7 +1336,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 RelationToValueEdge tmpRtvEdge=new RelationToValueEdge(port,edgeName,targetRelationNode,valueNode);
                 tmpRtvEdge.setIcmSet(tTmpSet);
                 tmpRtvEdge.setIsChanged(true);
-                tmpRtvEdge.setLoc(curLocId++);
+//                tmpRtvEdge.setLoc(curLocId++);
                 tmpRtvEdge.setIcmSetPreCopy(new HashSet<Long>());
                 targetRelationNode.getRtvEdges().add(tmpRtvEdge);//我觉得这句话可以去掉的
                 valueNode.getRtvEdges().add(tmpRtvEdge);//这句应该也可以去掉的
@@ -1383,7 +1378,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 Set<Long> tTmpSet=new HashSet<>(icmSet);
                 RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,targetRelationNode,classNode);
                 tmpRtcEdge.setIcmSet(tTmpSet);
-                tmpRtcEdge.setLoc(curLocId++);
+//                tmpRtcEdge.setLoc(curLocId++);
                 tmpRtcEdge.setIsChanged(true);
                 tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
                 targetRelationNode.getRtcEdges().add(tmpRtcEdge);
@@ -1843,24 +1838,24 @@ public class MigrateHandlerImpl implements MigrateHandler {
     }
 
 
-    private void setLocForList() {
-        int cNodeSize = classNodeList.size();
-        int rNodeSize = relationNodeList.size();
-        int vNodeSize = valueNodeList.size();
-
-        for(int i=0;i<classNodeList.size();i++) {
-            ClassNode cNode = classNodeList.get(i);
-            cNode.setLoc(i);
-        }
-        for(int i=0;i<relationNodeList.size();i++) {
-            RelationNode rNode =relationNodeList.get(i);
-            rNode.setLoc(i);
-        }
-        for(int i=0;i<valueNodeList.size();i++) {
-            ValueNode vNode = valueNodeList.get(i);
-            vNode.setLoc(i);
-        }
-    }
+//    private void setLocForList() {
+//        int cNodeSize = classNodeList.size();
+//        int rNodeSize = relationNodeList.size();
+//        int vNodeSize = valueNodeList.size();
+//
+//        for(int i=0;i<classNodeList.size();i++) {
+//            ClassNode cNode = classNodeList.get(i);
+//            cNode.setLoc(i);
+//        }
+//        for(int i=0;i<relationNodeList.size();i++) {
+//            RelationNode rNode =relationNodeList.get(i);
+//            rNode.setLoc(i);
+//        }
+//        for(int i=0;i<valueNodeList.size();i++) {
+//            ValueNode vNode = valueNodeList.get(i);
+//            vNode.setLoc(i);
+//        }
+//    }
 
     protected void removeNullEdgeForClassNode(int sourceCNodeListId) {
         ClassNode sourceCNode = classNodeList.get(sourceCNodeListId);
@@ -2068,32 +2063,32 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
-    private void initConvertList() {
-        List<Long> cIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Class"));
-        List<Long> rIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Relationship"));
-        List<Long> vIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Value"));
-
-        Iterable<ClassNode> cNodeIter = classNodeRepository.findAll(cIdList,1);
-        Iterable<RelationNode> rNodeIter = relationNodeRepository.findAll(rIdList,1);
-        Iterable<ValueNode> vNodeIter = valueNodeRepository.findAll(vIdList,1);
-
-        Iterator<ClassNode> cIter = cNodeIter.iterator();
-        Iterator<RelationNode> rIter = rNodeIter.iterator();
-        Iterator<ValueNode> vIter = vNodeIter.iterator();
-
-        while(cIter.hasNext()) {
-            classNodeList.add(cIter.next());
-        }
-        while(rIter.hasNext()) relationNodeList.add(rIter.next());
-        while(vIter.hasNext()) valueNodeList.add(vIter.next());
-    }
-
-    private List<Long> convertDetail(List<Vertex> list) {
-        List<Long> newList = new ArrayList<>();
-        for(Vertex vertex : list) {
-            newList.add(vertex.getId());
-        }
-        return newList;
-    }
+//    private void initConvertList() {
+//        List<Long> cIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Class"));
+//        List<Long> rIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Relationship"));
+//        List<Long> vIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Value"));
+//
+//        Iterable<ClassNode> cNodeIter = classNodeRepository.findAll(cIdList,1);
+//        Iterable<RelationNode> rNodeIter = relationNodeRepository.findAll(rIdList,1);
+//        Iterable<ValueNode> vNodeIter = valueNodeRepository.findAll(vIdList,1);
+//
+//        Iterator<ClassNode> cIter = cNodeIter.iterator();
+//        Iterator<RelationNode> rIter = rNodeIter.iterator();
+//        Iterator<ValueNode> vIter = vNodeIter.iterator();
+//
+//        while(cIter.hasNext()) {
+//            classNodeList.add(cIter.next());
+//        }
+//        while(rIter.hasNext()) relationNodeList.add(rIter.next());
+//        while(vIter.hasNext()) valueNodeList.add(vIter.next());
+//    }
+//
+//    private List<Long> convertDetail(List<Vertex> list) {
+//        List<Long> newList = new ArrayList<>();
+//        for(Vertex vertex : list) {
+//            newList.add(vertex.getId());
+//        }
+//        return newList;
+//    }
 
 }
