@@ -57,7 +57,7 @@ public class MigrateServiceImpl implements MigrateService{
 
     boolean isRunning = false;
 
-    public boolean migrateAlgorithmImpls(Long modelId,String path) {
+    public boolean migrateAlgorithmImpls(Long modelId) {
         if(!isRunning) {
             isRunning = true;
             migrateDataInit(modelId);

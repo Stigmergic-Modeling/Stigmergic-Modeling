@@ -78,7 +78,7 @@ public class MergeController2 {
 
             boolean isRunning = false;
             try {
-                isRunning =migrateService.migrateAlgorithmImpls(0l,"/Users/fukai/Desktop/wordnet");
+                isRunning =migrateService.migrateAlgorithmImpls(0l);
             }catch(Exception e) {
                 e.printStackTrace();
             }
