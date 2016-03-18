@@ -60,7 +60,7 @@ public class MigrateServiceImpl implements MigrateService{
     public boolean migrateAlgorithmImpls(Long modelId,String path) {
         if(!isRunning) {
             isRunning = true;
-            migrateDataInit(modelId,path);
+            migrateDataInit(modelId);
             migrateDeal();
             migrateDataStore();
             isRunning = false;
@@ -70,7 +70,7 @@ public class MigrateServiceImpl implements MigrateService{
         }
     }
 
-    private void migrateDataInit(Long modelId,String path) {//path默认为"/Users/fukai/Desktop/wordnet"
+    private void migrateDataInit(Long modelId) {//path默认为"/Users/fukai/Desktop/wordnet"
         //获取ccm中各种node的数据
         this.modelId = modelId;
 
@@ -80,7 +80,7 @@ public class MigrateServiceImpl implements MigrateService{
 
         initConvertList();//初始化了classNodeList,relationNodeList以及valueNodeList
 
-        WordSimilarities.initWuAndPalmer(path);
+        WordSimilarities.initWuAndPalmer();
         setLocForList();
         WordSimilarities.vNodeSimList.clear();//先清空一下
         WordSimilarities.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数

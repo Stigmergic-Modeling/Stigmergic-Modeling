@@ -26,13 +26,12 @@ import java.util.List;
  */
 public class WordSimilarities {
 
-    private Config config = ConfigLoader.load();
-    private String path = config.getWordNetPath();
-
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
     public static WuAndPalmer wup;
 
-    public static void initWuAndPalmer(String path) {
+    public static void initWuAndPalmer() {
+        Config config = ConfigLoader.load();
+        String path = config.getWordNetPath();
         JWS ws = new JWS(path, "3.0");
         wup = ws.getWuAndPalmer();
         System.out.println("Wu & palmer\n");
