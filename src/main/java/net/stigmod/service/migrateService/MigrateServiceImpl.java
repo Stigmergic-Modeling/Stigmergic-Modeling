@@ -57,17 +57,12 @@ public class MigrateServiceImpl implements MigrateService{
 
     boolean isRunning = false;
 
-    public boolean migrateAlgorithmImpls(Long modelId) {
-        if(!isRunning) {
-            isRunning = true;
-            migrateDataInit(modelId);
-            migrateDeal();
-            migrateDataStore();
-            isRunning = false;
-            return true;
-        }else {
-            return false;//表示没有执行该算法
-        }
+    public synchronized void migrateAlgorithmImpls(Long modelId) {
+        isRunning = true;
+        migrateDataInit(modelId);
+        migrateDeal();
+        migrateDataStore();
+        isRunning = false;
     }
 
     private void migrateDataInit(Long modelId) {//path默认为"/Users/fukai/Desktop/wordnet"
@@ -148,5 +143,9 @@ public class MigrateServiceImpl implements MigrateService{
             ValueNode vNode = valueNodeList.get(i);
             vNode.setLoc(i);
         }
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 }

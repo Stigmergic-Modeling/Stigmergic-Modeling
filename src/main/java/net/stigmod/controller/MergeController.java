@@ -59,15 +59,16 @@ public class MergeController {
         for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
         for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 
-        boolean isRunning = false;
-        try {
-            isRunning =migrateService.migrateAlgorithmImpls(0l);
-        }catch(Exception e) {
-            e.printStackTrace();
+        boolean isRunning = migrateService.isRunning();
+        if(isRunning) return "Algorithm is running ~!";
+        else {
+            try {
+                migrateService.migrateAlgorithmImpls(0l);
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+            return "Hello World ~!";
         }
-        if(isRunning) return "Hello World ~!";
-        else return "Algorithm is not running ~!";
-
     }
 
     private void readFile(String path,List<ClassNode> classNodeList,List<RelationNode> relationNodeList,
