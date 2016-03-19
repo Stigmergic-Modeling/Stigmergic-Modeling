@@ -11,9 +11,11 @@ package net.stigmod.service;
 
 import net.stigmod.service.migrateService.MigrateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,28 +25,35 @@ import java.util.List;
 @Service
 public class SessionService {
 
-    private SessionRegistry sessionRegistry;
-
     @Autowired
     private MigrateService migrateService;
+    private SessionRegistry sessionRegistry;  // 通过 XML 配置注入 bean，用以获取当前在线人数
 
-    private boolean alreadyRun = false;
+    private boolean alreadyRunAfterAllUsersOffline = false;
 
+    /**
+     * 定时任务，在需要融合时执行融合算法
+     */
+    @Scheduled(fixedDelay = 60000L)  // 60s 检查一次是否“有必要”并“可以”执行融合算法
     public void checkMerging() {
-        System.out.println("checkMerging");
+        long onlineUserNum = this.getOnlineUserNumber();
 
-        if (this.getOnlineUserNumber() > 0) {  // 当前有用户在建模，等待所有用户完成操作后再执行融合算法
-            alreadyRun = false;
+        System.out.println("[ " + new Date().toString() + " ] checking if merging necessary and feasible... (total online user number: " + onlineUserNum + ")");
+
+        // “有必要”但“不可以”执行融合算法
+        if (onlineUserNum > 0) {  // 当前有用户在建模，等待所有用户完成操作后再执行融合算法
+            alreadyRunAfterAllUsersOffline = false;  // 用户在线，等用户下线后有必要再跑一遍融合算法
             return;
         }
 
-        if (alreadyRun || migrateService.isRunning()) {
+        // “没必要”执行融合算法
+        if (alreadyRunAfterAllUsersOffline || migrateService.isRunning()) {
             return;
         }
 
-        alreadyRun = false;
-        migrateService.migrateAlgorithmImpls(282L);
-        alreadyRun = true;
+        // “有必要”并“可以”执行融合算法
+        migrateService.migrateAlgorithmImpls(282L);  // 第一版实现，只关心指定 CCM 的融合
+        alreadyRunAfterAllUsersOffline = true;
     }
 
     /**

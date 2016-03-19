@@ -8,8 +8,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.server.Neo4jServer;
@@ -42,7 +40,7 @@ public class Application extends Neo4jConfiguration {
 
     @Override
     @Bean
-    @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+//    @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)   // commented to make neo4j session work in @Scheduled tasks
     public Session getSession() throws Exception {
         return super.getSession();
     }
