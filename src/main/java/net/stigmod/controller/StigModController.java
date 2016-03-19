@@ -10,6 +10,7 @@
 package net.stigmod.controller;
 
 import net.stigmod.domain.system.User;
+import net.stigmod.service.SessionService;
 import net.stigmod.service.migrateService.MigrateService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
@@ -41,6 +42,9 @@ public class StigModController {
 
     @Autowired
     MigrateService migrateService;
+
+    @Autowired
+    SessionService sessionService;
 
     private final static Logger logger = LoggerFactory.getLogger(StigModController.class);
 
@@ -83,9 +87,10 @@ public class StigModController {
     // about this web app
     @RequestMapping(value="/testFusion/{ccmId}", method = RequestMethod.GET)
     @ResponseBody
-    public String testFusion(@PathVariable("ccmId") Long ccmId) {
-        migrateService.migrateAlgorithmImpls(ccmId);
-        return "Fusion Finished";
+    public long testFusion(@PathVariable("ccmId") Long ccmId) {
+//        migrateService.migrateAlgorithmImpls(ccmId);
+        return sessionService.getOnlineUserNumber();
+//        return "Fusion Finished";
     }
 
     // favicon

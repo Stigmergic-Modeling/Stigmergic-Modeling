@@ -3,10 +3,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:security="http://www.springframework.org/schema/security"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <context:annotation-config/>
     <security:global-method-security secured-annotations="enabled">
@@ -45,6 +45,11 @@
         <!--<security:csrf/>-->
         <!--<security:csrf disabled="true"/>-->
 
+        <security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
+        <!--<security:custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />-->
+
+        <security:session-management session-authentication-strategy-ref="sas"/>
+
     </security:http>
 
     <security:authentication-manager>
@@ -54,5 +59,36 @@
             </security:password-encoder>
         </security:authentication-provider>
     </security:authentication-manager>
+
+
+    <!-- For concurrent session support -->
+
+    <bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+        <constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+        <constructor-arg name="expiredUrl" value="/session-expired.htm" />
+    </bean>
+
+    <bean id="sas" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+                    <constructor-arg ref="sessionRegistry"/>
+                    <property name="maximumSessions" value="1" />
+                    <property name="exceptionIfMaximumExceeded" value="true" />
+                </bean>
+                <bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
+                </bean>
+                <bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+                    <constructor-arg ref="sessionRegistry"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+    <bean id="sessionService" class="net.stigmod.service.SessionService">
+        <property name="sessionRegistry" ref="sessionRegistry"/>
+    </bean>
 
 </beans>

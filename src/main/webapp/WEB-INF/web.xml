@@ -18,6 +18,9 @@
         </param-value>
     </context-param>
 
+
+    <!-- LISTENERS -->
+
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
@@ -25,6 +28,16 @@
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
+
+    <!-- For concurrent session support -->
+    <listener>
+        <listener-class>
+            org.springframework.security.web.session.HttpSessionEventPublisher
+        </listener-class>
+    </listener>
+
+
+    <!-- FILTERS -->
 
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
@@ -35,6 +48,8 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+
+    <!-- SERVLETS -->
 
     <servlet>
         <servlet-name>StigMod</servlet-name>
@@ -47,6 +62,6 @@
     </servlet-mapping>
 
     <session-config>
-        <session-timeout>60</session-timeout>
+        <session-timeout>1</session-timeout>
     </session-config>
 </web-app>

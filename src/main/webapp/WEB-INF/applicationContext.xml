@@ -15,24 +15,4 @@
     <context:spring-configured/>
     <tx:annotation-driven mode="proxy"/>
 
-    <!--&lt;!&ndash; 以下为了邮件发送功能 &ndash;&gt;-->
-    <!--<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">-->
-        <!--<property name="host" value="smtp.sina.com" />-->
-        <!--<property name="port" value="25" />-->
-        <!--&lt;!&ndash;<property name="username" value="stigmod" />&ndash;&gt;-->
-        <!--&lt;!&ndash;<property name="password" value="seidr1726" />&ndash;&gt;-->
-        <!--<xi:include href="emailAccount.xml" parse="xml" xpointer="xpointer(//property[@name='username'])"/>-->
-        <!--<xi:include href="emailAccount.xml" parse="xml" xpointer="xpointer(//property[@name='password'])"/>-->
-        <!--<property name="javaMailProperties">-->
-            <!--<props>-->
-                <!--<prop key="mail.transport.protocol">smtp</prop>-->
-                <!--<prop key="mail.smtp.auth">true</prop>-->
-                <!--<prop key="mail.debug">false</prop>-->
-            <!--</props>-->
-        <!--</property>-->
-    <!--</bean>-->
-    <!--<bean id="registrationService" class="net.stigmod.service.SimpleRegistrationService">-->
-        <!--<property name="mailSender" ref="mailSender"/>-->
-    <!--</bean>-->
-
 </beans>
