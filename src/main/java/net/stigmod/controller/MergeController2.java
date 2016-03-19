@@ -49,8 +49,6 @@ public class MergeController2 {
 
     long modelId=0;
 
-    boolean isStart = false;
-
     //这些nodeNum记录了对应节点数目
     int vNodeNum = 37;
     int cNodeNum = 8;
@@ -63,29 +61,27 @@ public class MergeController2 {
     @ResponseBody
     private String dealPreMergeDate() throws IOException {
         String path = "/Users/fukai/Desktop/58";
-        if(!isStart) {
-            this.isStart = true;
-            List<ClassNode> classNodeList=new ArrayList<>();
-            List<RelationNode> relationNodeList=new ArrayList<>();
-            List<ValueNode> valueNodeList=new ArrayList<>();
+        List<ClassNode> classNodeList=new ArrayList<>();
+        List<RelationNode> relationNodeList=new ArrayList<>();
+        List<ValueNode> valueNodeList=new ArrayList<>();
 
-            this.PersonNum = 5;
-            initSimulateTest(classNodeList,relationNodeList,valueNodeList);
+        this.PersonNum = 5;
+        initSimulateTest(classNodeList,relationNodeList,valueNodeList);
 
-            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 
-            boolean isRunning = false;
+        boolean isRunning = migrateService.isRunning();
+        if(isRunning) return "Algorithm is running ~!";
+        else {
             try {
-                isRunning =migrateService.migrateAlgorithmImpls(0l);
+                migrateService.migrateAlgorithmImpls(0l);
             }catch(Exception e) {
                 e.printStackTrace();
             }
-            if(isRunning) return "Hello World ~!";
-            else return "Algorithm is not running ~!";
+            return "Hello World ~!";
         }
-        return "Hello World";
     }
 
     private void initSimulateTest(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
