@@ -9,7 +9,10 @@
 
 package net.stigmod.controller;
 
+import net.stigmod.domain.system.SystemInfo;
 import net.stigmod.domain.system.User;
+import net.stigmod.repository.node.SystemInfoRepository;
+import net.stigmod.service.ModelService;
 import net.stigmod.service.SessionService;
 import net.stigmod.service.migrateService.MigrateService;
 import net.stigmod.util.config.Config;
@@ -17,11 +20,15 @@ import net.stigmod.util.config.ConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import net.stigmod.repository.node.UserRepository;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Handle StigMod base requests
@@ -46,6 +53,12 @@ public class StigModController {
     @Autowired
     SessionService sessionService;
 
+    @Autowired
+    ModelService modelService;
+
+    @Autowired
+    SystemInfoRepository sysRepo;
+
     private final static Logger logger = LoggerFactory.getLogger(StigModController.class);
 
     // front page
@@ -61,7 +74,7 @@ public class StigModController {
 
         model.addAttribute("host", host);
         model.addAttribute("port", port);
-        model.addAttribute("title", "index");
+        model.addAttribute("title", "Index");
         return "index";
     }
 
@@ -80,7 +93,7 @@ public class StigModController {
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
-        model.addAttribute("title", "about");
+        model.addAttribute("title", "About");
         return "about";
     }
 
@@ -92,6 +105,74 @@ public class StigModController {
         return sessionService.getOnlineUserNumber();
 //        return "Fusion Finished";
     }
+
+
+    // admin page GET
+    @RequestMapping(value="/nimda/{password}", method = RequestMethod.GET)
+    public String admin(@PathVariable("password") String password, ModelMap model, HttpServletRequest request) {
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+
+        if (password.equals(config.getAdminPassword())) {
+
+            SystemInfo systemInfo = sysRepo.getSystemInfo();
+            model.addAttribute("activatedCcmName", systemInfo.getActivatedCcmName());
+            model.addAttribute("activatedCcmId", systemInfo.getActivatedCcmId());
+
+            model.addAttribute("ccms", modelService.getAllCcmNamesAndIds());
+            model.addAttribute("title", "Admin");
+            return "admin";
+        } else {
+
+            model.addAttribute("title", "Denied");
+            return "denied";
+        }
+    }
+
+    // admin page POST
+    @RequestMapping(value="/nimda/{password}", method = RequestMethod.POST)
+    public String adminPost(@RequestParam(value = "nameAndId") String nameAndId,
+                            @PathVariable("password") String password, ModelMap model, HttpServletRequest request) {
+
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+
+        if (password.equals(config.getAdminPassword())) {
+
+            try {
+                modelService.setAsActivatedCcm(nameAndId);
+                model.addAttribute("success", "Set " + nameAndId + " as activated CCM successfully.");
+
+                String[] nameAndIdArray = nameAndId.split("-");
+                model.addAttribute("activatedCcmName", nameAndIdArray[0]);
+                model.addAttribute("activatedCcmId", nameAndIdArray[1]);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("error", e.getMessage());
+            }
+
+            model.addAttribute("ccms", modelService.getAllCcmNamesAndIds());
+            model.addAttribute("title", "Admin");
+            return "admin";
+        } else {
+
+            model.addAttribute("title", "Denied");
+            return "denied";
+        }
+    }
+
 
     // favicon
     @RequestMapping("/favicon.ico")

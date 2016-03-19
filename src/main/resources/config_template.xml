@@ -15,4 +15,5 @@
         <password>YourSmtpMailServerPassword</password>
     </mailServer>
     <wordNetPath>YourWordNetAbsolutePath</wordNetPath>
+    <adminPassword>AdminPassword</adminPassword>
 </config>

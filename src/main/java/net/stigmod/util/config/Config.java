@@ -27,6 +27,7 @@ public class Config {
     private Neo4j neo4j;
     private MailServer mailServer;
     private String wordNetPath;
+    private String adminPassword;
 
     public String getHost() {
         return host;
@@ -71,5 +72,14 @@ public class Config {
     @XmlElement
     public void setWordNetPath(String wordNetPath) {
         this.wordNetPath = wordNetPath;
+    }
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    @XmlElement
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
     }
 }

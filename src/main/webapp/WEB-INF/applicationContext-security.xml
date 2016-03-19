@@ -16,6 +16,7 @@
         <security:intercept-url pattern="/" access="isAnonymous()"/>
         <security:intercept-url pattern="/static/**" access="permitAll"/>
         <security:intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <security:intercept-url pattern="/nimda/*" access="permitAll"/>
         <security:intercept-url pattern="/preMerge" access="permitAll"/> <!-- 测试用 -->
         <security:intercept-url pattern="/SimulateMerge" access="permitAll"/> <!-- 测试用 -->
         <security:intercept-url pattern="/testFusion/*" access="permitAll"/> <!-- 测试用 -->

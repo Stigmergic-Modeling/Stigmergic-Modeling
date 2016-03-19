@@ -9,6 +9,8 @@
 
 package net.stigmod.service;
 
+import net.stigmod.domain.system.SystemInfo;
+import net.stigmod.repository.node.SystemInfoRepository;
 import net.stigmod.service.migrateService.MigrateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,6 +29,10 @@ public class SessionService {
 
     @Autowired
     private MigrateService migrateService;
+
+    @Autowired
+    private SystemInfoRepository systemInfoRepository;
+
     private SessionRegistry sessionRegistry;  // 通过 XML 配置注入 bean，用以获取当前在线人数
 
     private boolean alreadyRunAfterAllUsersOffline = false;
@@ -52,7 +58,18 @@ public class SessionService {
         }
 
         // “有必要”并“可以”执行融合算法
-        migrateService.migrateAlgorithmImpls(282L);  // 第一版实现，只关心指定 CCM 的融合
+        SystemInfo systemInfo = systemInfoRepository.getSystemInfo();
+        if (systemInfo == null) {  // 说明系统刚刚初始化
+            systemInfoRepository.save(new SystemInfo());
+            return;
+        }
+
+        Long activatedCcmId = systemInfo.getActivatedCcmId();
+        if (activatedCcmId == -1L) {  // 默认值 -1，说明还没有真正被设置为活跃的 CCM
+            return;
+        }
+
+        migrateService.migrateAlgorithmImpls(activatedCcmId);  // 第一版实现，只关心指定 CCM 的融合
         alreadyRunAfterAllUsersOffline = true;
     }
 

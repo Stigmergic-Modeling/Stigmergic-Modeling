@@ -1,0 +1,50 @@
+#parse ("header.vm")
+<div class="row">
+    <div class="col-xs-4">
+    </div>
+
+    <div class="col-xs-4">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <span class="fa fa-cubes"></span>
+                <span> CCM Merging Target Setting </span>
+            </div>
+            <div class="panel-body">
+                <p>Currently Stigmergic-Modeling focuses on merging one CCM in a certain period.</p>
+                <hr />
+                <p>
+                    <span>Current activated CCM: </span>
+                    #if (${activatedCcmName})
+                        <span class="stigmod-blue-text">${activatedCcmName}-${activatedCcmId}</span>
+                    #else
+                        <span class="stigmod-blue-text">Not set yet!</span>
+                    #end
+                </p>
+                <div>
+                    <hr />
+                    <form method="post">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <dl>
+                            <dt>New Activated CCM</dt>
+                            <dd>
+                                <select type="text" class="stigmod-input stigmod-input-lg" name="nameAndId">
+                                    <option disabled selected> -- Select a CCM -- </option>
+                                    #foreach (${ccm} in ${ccms})
+                                        <option>${ccm}</option>
+                                    #end
+                                </select>
+                            </dd>
+                        </dl>
+                        <button type="submit" class="btn btn-warning">Set as Activated</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-4">
+    </div>
+</div>
+
+#set ($jsFile = "index")
+#parse ("footer.vm")

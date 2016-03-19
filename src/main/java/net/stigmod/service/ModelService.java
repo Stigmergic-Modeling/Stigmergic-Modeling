@@ -11,9 +11,11 @@ package net.stigmod.service;
 
 import net.stigmod.domain.system.CollectiveConceptualModel;
 import net.stigmod.domain.system.IndividualConceptualModel;
+import net.stigmod.domain.system.SystemInfo;
 import net.stigmod.domain.system.User;
 import net.stigmod.repository.node.CollectiveConceptualModelRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
+import net.stigmod.repository.node.SystemInfoRepository;
 import net.stigmod.repository.node.UserRepository;
 import org.neo4j.ogm.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,7 @@ import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Shijun Wang
@@ -47,6 +46,9 @@ public class ModelService {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private SystemInfoRepository sysRepo;
 
     // 全新新建 Model
     @Transactional
@@ -107,6 +109,37 @@ public class ModelService {
     @Transactional
     public Set<CollectiveConceptualModel> getAllCcms() {
         return ccmRepo.getAllCcms();
+    }
+
+    // 获取所有 CCM 的 name
+    @Transactional
+    public List<String> getAllCcmNames() {
+        return ccmRepo.getAllCcmNames();
+    }
+
+    // 获取所有 CCM 的 name 和 id
+    @Transactional
+    public List<String> getAllCcmNamesAndIds() {
+        List<Map<String, Object>> namesAndIds = ccmRepo.getAllCcmNamesAndIds();
+        List<String> ret = new ArrayList<>();
+        for (Map<String, Object> nameAndId : namesAndIds) {
+            ret.add(nameAndId.get("name") + "-" + nameAndId.get("id"));
+        }
+        return ret;
+    }
+
+    // 设置活跃 CCM
+    @Transactional
+    public void setAsActivatedCcm(String ccmNameAndId) {
+
+        String[] nameAndIdArray = ccmNameAndId.split("-");
+        String ccmName = nameAndIdArray[0];
+        Long ccmId = Long.parseLong(nameAndIdArray[1], 10);
+
+        SystemInfo systemInfo = sysRepo.getSystemInfo();
+        systemInfo.setActivatedCcmName(ccmName);
+        systemInfo.setActivatedCcmId(ccmId);
+        sysRepo.save(systemInfo);
     }
 
     // 获取某用户的所有 ICM
