@@ -73,6 +73,10 @@ public class MigrateServiceImpl implements MigrateService{
         relationNodeList = new ArrayList<>();
         valueNodeList = new ArrayList<>();
 
+//        classNodeList = cNodeList;
+//        relationNodeList = rNodeList;
+//        valueNodeList = vNodeList;
+
         initConvertList();//初始化了classNodeList,relationNodeList以及valueNodeList
 
         WordSimilarities.initWuAndPalmer();

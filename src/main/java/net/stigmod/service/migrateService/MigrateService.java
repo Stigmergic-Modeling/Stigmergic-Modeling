@@ -9,6 +9,12 @@
 
 package net.stigmod.service.migrateService;
 
+import net.stigmod.domain.conceptualmodel.ClassNode;
+import net.stigmod.domain.conceptualmodel.RelationNode;
+import net.stigmod.domain.conceptualmodel.ValueNode;
+
+import java.util.List;
+
 /**
  * @author Kai Fu
  * @author Shijun Wang

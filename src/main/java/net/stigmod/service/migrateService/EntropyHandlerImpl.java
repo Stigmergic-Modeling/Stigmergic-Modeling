@@ -386,20 +386,41 @@ public class EntropyHandlerImpl implements EntropyHandler{
         return rtvMap;
     }
 
-    private void addRTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToValueEdge> rtvEdges) {
+    public void addRTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToValueEdge> rtvEdges) {
+        //存在两个节点间连着两种边的情况
+        Map<String,Set<Long>> tmpMap = new HashMap<>();//key为loc的string,value为用户集合
+        Map<String,String> tmpToName = new HashMap<>();//key为loc的string,value为对应边名
         for(RelationToValueEdge rtvEdge:rtvEdges) {
+            RelationNode rNode = rtvEdge.getStarter();
+            ValueNode vNode = rtvEdge.getEnder();
             String edgeName = rtvEdge.getName();
+
+            String tag = Integer.toString(rNode.getLoc())+"-"+vNode.getLoc()+edgeName;//每次必须要是相同边名的tag才能聚到一起
+            if(tmpMap.containsKey(tag)) {
+                tmpMap.get(tag).addAll(new HashSet<Long>(rtvEdge.getIcmSet()));
+            }else {
+                Set<Long> lset=new HashSet<>();
+                lset.addAll(new HashSet<Long>(rtvEdge.getIcmSet()));
+                tmpMap.put(tag,lset);
+                tmpToName.put(tag,edgeName);
+            }
+        }
+
+        for(String key : tmpMap.keySet()) {
+            Set<Long> uSet = tmpMap.get(key);
+            String edgeName = tmpToName.get(key);
+
             if(myMap.containsKey(edgeName)) {
-                myMap.get(edgeName).add(rtvEdge.getIcmSet());
+                myMap.get(edgeName).add(uSet);
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(rtvEdge.getIcmSet());
+                list.add(uSet);
                 myMap.put(edgeName,list);
             }
         }
     }
 
-    private void addCTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<ClassToValueEdge> ctvEdges) {
+    public void addCTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<ClassToValueEdge> ctvEdges) {
         for(ClassToValueEdge ctvEdge:ctvEdges) {
             String edgeName=ctvEdge.getName();
             if(myMap.containsKey(edgeName)) {
@@ -412,15 +433,32 @@ public class EntropyHandlerImpl implements EntropyHandler{
         }
     }
 
-    private void addRTCElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToClassEdge> rtcEdges) {
-        for(RelationToClassEdge rtcEdge:rtcEdges) {
-            String edgeName = rtcEdge.getName();
+    public void addRTCElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToClassEdge> rtcEdges) {
+        //存在两个节点间连着两种边的情况
+        Map<String,Set<Long>> tmpMap = new HashMap<>();
+        for(RelationToClassEdge rtcEdge : rtcEdges) {
+            RelationNode rNode = rtcEdge.getStarter();
+            ClassNode cNode = rtcEdge.getEnder();
+            String edgeName = rtcEdge.getName();//为了保持一致性,还是做了下区分
+
+            String tag = Integer.toString(rNode.getLoc())+"-"+cNode.getLoc()+edgeName;
+            if(tmpMap.containsKey(tag)) {
+                tmpMap.get(tag).addAll(new HashSet<Long>(rtcEdge.getIcmSet()));
+            }else {
+                Set<Long> lset=new HashSet<>();
+                lset.addAll(new HashSet<Long>(rtcEdge.getIcmSet()));
+                tmpMap.put(tag,lset);
+            }
+        }
+        //我们得到的这个map完全是以relationToclass为核心的,即全部都是class边的
+        String edgeName = "class";
+        for(String key : tmpMap.keySet()) {
             if(myMap.containsKey(edgeName)) {
-                myMap.get(edgeName).add(rtcEdge.getIcmSet());
+                myMap.get(edgeName).add(tmpMap.get(key));
             }else {
                 List<Set<Long>> list=new ArrayList<>();
-                list.add(rtcEdge.getIcmSet());
-                myMap.put(edgeName , list);
+                list.add(tmpMap.get(key));
+                myMap.put(edgeName,list);
             }
         }
     }
