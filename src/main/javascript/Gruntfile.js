@@ -17,42 +17,42 @@ module.exports = function(grunt) {
     },
 
     // For Development
-    concat: {
-        options: {
-            paths: ['..'],
-            include: 'relative'
-        },
-        build2: {
-            expand: true,
-            cwd: 'build/',
-            src: ['js/app/*', 'js/module/*'],
-            dest: '../webapp/WEB-INF/static/dist/'
-        }
-    }
+    //concat: {
+    //    options: {
+    //        paths: ['..'],
+    //        include: 'relative'
+    //    },
+    //    build2: {
+    //        expand: true,
+    //        cwd: 'build/',
+    //        src: ['js/app/*', 'js/module/*'],
+    //        dest: '../webapp/WEB-INF/static/dist/'
+    //    }
+    //}
 
     // For Deployment
 
-    // concat: {
-    //     options: {
-    //         paths: ['..'],
-    //         include: 'relative'
-    //     },
-    //     build2: {
-    //         expand: true,
-    //         cwd: 'build/',
-    //         src: ['js/app/*', 'js/module/*'],
-    //         dest: 'build2/'
-    //     }
-    // },
+     concat: {
+         options: {
+             paths: ['..'],
+             include: 'relative'
+         },
+         build2: {
+             expand: true,
+             cwd: 'build/',
+             src: ['js/app/*', 'js/module/*'],
+             dest: 'build2/'
+         }
+     },
 
-    // uglify: {
-    //   dist: {
-    //     expand: true,
-    //     cwd: 'build2/',
-    //     src: ['js/app/*', 'js/module/*'],
-    //     dest: '../webapp/WEB-INF/static/dist/'
-    //   }
-    // }
+     uglify: {
+       dist: {
+         expand: true,
+         cwd: 'build2/',
+         src: ['js/app/*', 'js/module/*'],
+         dest: '../webapp/WEB-INF/static/dist/'
+       }
+     }
   });
 
   // 加载任务插件
@@ -62,7 +62,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   // 默认任务
-  grunt.registerTask('default', ['transport', 'concat']);
-  // grunt.registerTask('default', ['transport', 'concat', 'uglify']);
+  //grunt.registerTask('default', ['transport', 'concat']);
+   grunt.registerTask('default', ['transport', 'concat', 'uglify']);
 
 };

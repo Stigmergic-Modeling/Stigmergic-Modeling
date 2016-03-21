@@ -282,196 +282,207 @@ define(function (require, exports, module) {
         // CCM ID
         this.ccmId = ccmId;
 
+        // 类 + 属性 ID
+        this.clazz = {};
+
+        // 关系组 + 关系 ID
+        this.relgrp = {};
+
+        // 关系 + 属性
+        this.relationship = {};
+
+
         // 示例数据
-        this.clazz = {
-            "101": {
-                "name": {
-                    "A": {"ref": 1},
-                    "B": {"ref": 1},
-                    "C": {"ref": 1}
-                },
-                "attribute": ["201"],
-                "ref": 1
-            },
-            "102": {
-                "name": {
-                    "D": {"ref": 1},
-                    "E": {"ref": 1},
-                    "F": {"ref": 1}
-                },
-                "attribute": ["202", "203"],
-                "ref": 1
-            }
-        };
-
-        this.relgrp = {
-            "101-102": {  // 规则：把 ID 小的放在前面
-                "relationship": ["204"]
-            }
-        };
-
-        this.relationship = {
-            "201": {  // 每个 attribute 可能在多个 class 中出现
-                "type": {
-                    "Composition": {"ref": 1},
-                    "Attribute": {"ref": 1}
-                },
-                "name": {
-                    "hasA": {"ref": 1}
-                },
-                "property": {
-                    "role": {
-                        "E0": {
-                            "whole": {"ref": 1}
-                        },
-                        "E1": {
-                            "part": {"ref": 1}
-                        }
-                    },
-                    "clazz": {
-                        "E0": {
-                            "101": {"ref": 1}
-                        },
-                        "E1": {
-                            "102": {"ref": 1},
-                            "_string": {"ref": 2}
-                        }
-                    },
-                    "multiplicity": {
-                        "E0": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1},
-                            "1..*": {"ref": 1}
-                        },
-                        "E1": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1}
-                        }
-                    }
-                },
-                "ref": 1
-            },
-            "202": {
-                "type": {
-                    "Composition": {"ref": 1},
-                    "Attribute": {"ref": 1}
-                },
-                "name": {
-                    "hasA": {"ref": 1}
-                },
-                "property": {
-                    "role": {
-                        "E0": {
-                            "whole": {"ref": 1}
-                        },
-                        "E1": {
-                            "part": {"ref": 1}
-                        }
-                    },
-                    "clazz": {
-                        "E0": {
-                            "101": {"ref": 1}
-                        },
-                        "E1": {
-                            "102": {"ref": 1},
-                            "_string": {"ref": 2}
-                        }
-                    },
-                    "multiplicity": {
-                        "E0": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1},
-                            "1..*": {"ref": 1}
-                        },
-                        "E1": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1}
-                        }
-                    }
-                },
-                "ref": 1
-            },
-            "203": {
-                "type": {
-                    "Composition": {"ref": 1},
-                    "Attribute": {"ref": 1}
-                },
-                "name": {
-                    "hasA": {"ref": 1}
-                },
-                "property": {
-                    "role": {
-                        "E0": {
-                            "whole": {"ref": 1}
-                        },
-                        "E1": {
-                            "part": {"ref": 1}
-                        }
-                    },
-                    "clazz": {
-                        "E0": {
-                            "101": {"ref": 1}
-                        },
-                        "E1": {
-                            "102": {"ref": 1},
-                            "_string": {"ref": 2}
-                        }
-                    },
-                    "multiplicity": {
-                        "E0": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1},
-                            "1..*": {"ref": 1}
-                        },
-                        "E1": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1}
-                        }
-                    }
-                },
-                "ref": 1
-            },
-            "204": {
-                "type": {
-                    "Composition": {"ref": 1},
-                    "Attribute": {"ref": 1}
-                },
-                "name": {
-                    "hasA": {"ref": 1}
-                },
-                "property": {
-                    "role": {
-                        "E0": {
-                            "whole": {"ref": 1}
-                        },
-                        "E1": {
-                            "part": {"ref": 1}
-                        }
-                    },
-                    "clazz": {
-                        "E0": {
-                            "101": {"ref": 1}
-                        },
-                        "E1": {
-                            "102": {"ref": 1},
-                            "_string": {"ref": 2}
-                        }
-                    },
-                    "multiplicity": {
-                        "E0": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1},
-                            "1..*": {"ref": 1}
-                        },
-                        "E1": {
-                            "1": {"ref": 1},
-                            "*": {"ref": 1}
-                        }
-                    }
-                },
-                "ref": 2
-            }
-        };
+        //
+        //this.clazz = {
+        //    "101": {
+        //        "name": {
+        //            "A": {"ref": 1},
+        //            "B": {"ref": 1},
+        //            "C": {"ref": 1}
+        //        },
+        //        "attribute": ["201"],
+        //        "ref": 1
+        //    },
+        //    "102": {
+        //        "name": {
+        //            "D": {"ref": 1},
+        //            "E": {"ref": 1},
+        //            "F": {"ref": 1}
+        //        },
+        //        "attribute": ["202", "203"],
+        //        "ref": 1
+        //    }
+        //};
+        //
+        //this.relgrp = {
+        //    "101-102": {  // 规则：把 ID 小的放在前面
+        //        "relationship": ["204"]
+        //    }
+        //};
+        //
+        //this.relationship = {
+        //    "201": {  // 每个 attribute 可能在多个 class 中出现
+        //        "type": {
+        //            "Composition": {"ref": 1},
+        //            "Attribute": {"ref": 1}
+        //        },
+        //        "name": {
+        //            "hasA": {"ref": 1}
+        //        },
+        //        "property": {
+        //            "role": {
+        //                "E0": {
+        //                    "whole": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "part": {"ref": 1}
+        //                }
+        //            },
+        //            "clazz": {
+        //                "E0": {
+        //                    "101": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "102": {"ref": 1},
+        //                    "_string": {"ref": 2}
+        //                }
+        //            },
+        //            "multiplicity": {
+        //                "E0": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1},
+        //                    "1..*": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1}
+        //                }
+        //            }
+        //        },
+        //        "ref": 1
+        //    },
+        //    "202": {
+        //        "type": {
+        //            "Composition": {"ref": 1},
+        //            "Attribute": {"ref": 1}
+        //        },
+        //        "name": {
+        //            "hasA": {"ref": 1}
+        //        },
+        //        "property": {
+        //            "role": {
+        //                "E0": {
+        //                    "whole": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "part": {"ref": 1}
+        //                }
+        //            },
+        //            "clazz": {
+        //                "E0": {
+        //                    "101": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "102": {"ref": 1},
+        //                    "_string": {"ref": 2}
+        //                }
+        //            },
+        //            "multiplicity": {
+        //                "E0": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1},
+        //                    "1..*": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1}
+        //                }
+        //            }
+        //        },
+        //        "ref": 1
+        //    },
+        //    "203": {
+        //        "type": {
+        //            "Composition": {"ref": 1},
+        //            "Attribute": {"ref": 1}
+        //        },
+        //        "name": {
+        //            "hasA": {"ref": 1}
+        //        },
+        //        "property": {
+        //            "role": {
+        //                "E0": {
+        //                    "whole": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "part": {"ref": 1}
+        //                }
+        //            },
+        //            "clazz": {
+        //                "E0": {
+        //                    "101": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "102": {"ref": 1},
+        //                    "_string": {"ref": 2}
+        //                }
+        //            },
+        //            "multiplicity": {
+        //                "E0": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1},
+        //                    "1..*": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1}
+        //                }
+        //            }
+        //        },
+        //        "ref": 1
+        //    },
+        //    "204": {
+        //        "type": {
+        //            "Composition": {"ref": 1},
+        //            "Attribute": {"ref": 1}
+        //        },
+        //        "name": {
+        //            "hasA": {"ref": 1}
+        //        },
+        //        "property": {
+        //            "role": {
+        //                "E0": {
+        //                    "whole": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "part": {"ref": 1}
+        //                }
+        //            },
+        //            "clazz": {
+        //                "E0": {
+        //                    "101": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "102": {"ref": 1},
+        //                    "_string": {"ref": 2}
+        //                }
+        //            },
+        //            "multiplicity": {
+        //                "E0": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1},
+        //                    "1..*": {"ref": 1}
+        //                },
+        //                "E1": {
+        //                    "1": {"ref": 1},
+        //                    "*": {"ref": 1}
+        //                }
+        //            }
+        //        },
+        //        "ref": 2
+        //    }
+        //};
 
     }
 
