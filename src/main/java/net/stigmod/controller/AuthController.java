@@ -135,21 +135,23 @@ public class AuthController {
             return "service_unavailable";
         }
 
+        // CSRF token
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken);
+        }
+
+        model.addAttribute("host", host);
+        model.addAttribute("port", port);
+
         try {
             userRepository.registerVerify(id);
-            return "redirect:/user";  // 激活账户成功
+            model.addAttribute("title", "Sign In");
+            model.addAttribute("success", "Your account has been activated successfully. Please sign in.");
+            return "signin";  // 激活账户成功，进入登录页面
 
         } catch(Exception e) {
             e.printStackTrace();
-
-            // CSRF token
-            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-            if (csrfToken != null) {
-                model.addAttribute("_csrf", csrfToken);
-            }
-
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
             model.addAttribute("title", "Sign Up");
             model.addAttribute("error", e.getMessage());
             return "signup";

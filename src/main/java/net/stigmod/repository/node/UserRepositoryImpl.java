@@ -224,7 +224,8 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
             User.SecurityRole[] roles = {User.SecurityRole.ROLE_USER};
             user.setRoles(roles);
             userRepository.save(user);
-            setUserInSession(user);
+//            setUserInSession(user);  // 修改密码后不自动登录，而是要用户重新登录下
+                                       // 便于准确统计在线人数（直接在这里 set 进 session 的，无法被 spring-security 的 sessionRegistry 捕捉到）
             return user;
         } else {
             throw new UsernameNotFoundException("User does not exist or have already been activated.");
@@ -394,7 +395,8 @@ public class UserRepositoryImpl implements StigmodUserDetailsService {
         user.setEncodedPassword(password);  // 更改密码
         user.resetVerificationId();  // 重置 VID，防止改密码连接被反复使用
         userRepository.save(user);
-//        this.setUserInSession(user);  // 修改密码后不自动登录，而是要用户重新登录下。这样效果比较好。
+//        this.setUserInSession(user);  // 修改密码后不自动登录，而是要用户重新登录下
+                                        // 便于准确统计在线人数（直接在这里 set 进 session 的，无法被 spring-security 的 sessionRegistry 捕捉到）
         return user;
     }
 
