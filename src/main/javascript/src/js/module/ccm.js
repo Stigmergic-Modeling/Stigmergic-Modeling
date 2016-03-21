@@ -862,7 +862,12 @@ define(function (require, exports, module) {
                 for (var attributeName in clazz.attribute) {
                     if (clazz.attribute.hasOwnProperty(attributeName)) {
                         var attributeId = clazz.attribute[attributeName];
-                        attributeIdsInICM[attributeId] = ccm.relationship[attributeId].ref;  // 记录 attributeId 和其 CCM 引用数
+                        if (attributeId in icm[3]) {  // 若有后端 ID 映射，则换成后端 ID
+                            attributeId = icm[3][attributeId];
+                        }
+                        if (attributeId in ccm.relationship) {
+                            attributeIdsInICM[attributeId] = ccm.relationship[attributeId].ref;  // 记录 attributeId 和其 CCM 引用数
+                        }
                     }
                 }
             }
@@ -874,7 +879,12 @@ define(function (require, exports, module) {
                 var relationGroup = icm[1][relgrpName];
                 for (var relationId in relationGroup[0]) {
                     if (relationGroup[0].hasOwnProperty(relationId)) {
-                        relationIdsInICM[relationId] = ccm.relationship[relationId].ref;  // 记录 relationId 和其 CCM 引用数
+                        if (relationId in icm[3]) {  // 若有后端 ID 映射，则换成后端 ID
+                            relationId = icm[3][relationId];
+                        }
+                        if (relationId in ccm.relationship) {
+                            relationIdsInICM[relationId] = ccm.relationship[relationId].ref;  // 记录 relationId 和其 CCM 引用数
+                        }
                     }
                 }
             }

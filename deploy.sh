@@ -14,6 +14,9 @@ mvn tomcat7:redeploy
 mv ./src/main/resources/config.xml ./src/main/resources/config_deploy.xml
 mv ./src/main/resources/config_develop.xml ./src/main/resources/config.xml
 
+# remove old target files again
+rm -rf ./target
+
 # restart tomcat to prevent memory from leaking
 ssh root@115.28.38.84 "$(which bash) -s" << EOF
    /opt/apache-tomcat-8.0.32/bin/catalina.sh stop;
