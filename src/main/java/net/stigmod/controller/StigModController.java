@@ -97,14 +97,14 @@ public class StigModController {
         return "about";
     }
 
-    // about this web app
-    @RequestMapping(value="/testFusion/{ccmId}", method = RequestMethod.GET)
-    @ResponseBody
-    public long testFusion(@PathVariable("ccmId") Long ccmId) {
-//        migrateService.migrateAlgorithmImpls(ccmId);
-        return sessionService.getOnlineUserNumber();
-//        return "Fusion Finished";
-    }
+//    // about this web app
+//    @RequestMapping(value="/testFusion/{ccmId}", method = RequestMethod.GET)
+//    @ResponseBody
+//    public long testFusion(@PathVariable("ccmId") Long ccmId) {
+////        migrateService.migrateAlgorithmImpls(ccmId);
+//        return sessionService.getOnlineUserNumber();
+////        return "Fusion Finished";
+//    }
 
 
     // admin page GET

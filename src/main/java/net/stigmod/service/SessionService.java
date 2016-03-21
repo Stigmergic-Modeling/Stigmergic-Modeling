@@ -35,19 +35,19 @@ public class SessionService {
 
     private SessionRegistry sessionRegistry;  // 通过 XML 配置注入 bean，用以获取当前在线人数
 
-    private boolean alreadyRunAfterAllUsersOffline = false;
+    private boolean alreadyRunAfterAllUsersOffline = false;  // false 初值使得刚刚启动的时候会执行一遍融合（如果已经设置好了活跃 CCM 的话）
 
     /**
      * 定时任务，在需要融合时执行融合算法
      */
-    @Scheduled(fixedDelay = 60000L)  // 60s 检查一次是否“有必要”并“可以”执行融合算法
+    @Scheduled(fixedDelay = 30000L)  // 30s 检查一次是否“有必要”并“可以”执行融合算法
     public void checkMerging() {
         long onlineUserNum = this.getOnlineUserNumber();
 
-        System.out.println("[ " + new Date().toString() + " ] checking if merging necessary and feasible... (total online user number: " + onlineUserNum + ")");
-
         // “有必要”但“不可以”执行融合算法
         if (onlineUserNum > 0) {  // 当前有用户在建模，等待所有用户完成操作后再执行融合算法
+            System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
+                    + onlineUserNum + ". Model merging is necessary. Waiting for its feasibility.");
             alreadyRunAfterAllUsersOffline = false;  // 用户在线，等用户下线后有必要再跑一遍融合算法
             return;
         }
@@ -69,6 +69,8 @@ public class SessionService {
             return;
         }
 
+        System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
+                + onlineUserNum + ". Model merging is feasible.");
         migrateService.migrateAlgorithmImpls(activatedCcmId);  // 第一版实现，只关心指定 CCM 的融合
         alreadyRunAfterAllUsersOffline = true;
     }

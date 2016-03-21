@@ -3,11 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-    <!--<web-app version="2.4"-->
-    <!--xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
-    <!--xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee-->
-    <!--http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">-->
-
 	<display-name>Spring MVC Application</display-name>
 
     <context-param>
@@ -62,6 +57,6 @@
     </servlet-mapping>
 
     <session-config>
-        <session-timeout>30</session-timeout>
+        <session-timeout>10</session-timeout>
     </session-config>
 </web-app>
