@@ -200,6 +200,28 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
+    private void setSettleValueForClassMigrate(int sourceCNodeListId,int targetCNodeListId) {
+        ClassNode sourceCNode = classNodeList.get(sourceCNodeListId);
+        ClassNode targetCNode = classNodeList.get(targetCNodeListId);
+        sourceCNode.setIsSettled(false);
+        targetCNode.setIsSettled(false);
+        for(RelationToClassEdge rtcEdge : sourceCNode.getRtcEdges()) {
+            RelationNode rNode = rtcEdge.getStarter();
+            rNode.setIsSettled(false);
+        }
+    }
+
+    private void setSettleValueForRelationMigrate(int sourceRNodeListId,int targetRNodeListId) {
+        RelationNode sourceRNode = relationNodeList.get(sourceRNodeListId);
+        RelationNode targetRNode = relationNodeList.get(targetRNodeListId);
+        sourceRNode.setIsSettled(false);
+        targetRNode.setIsSettled(false);
+        for(RelationToClassEdge rtcEdge : sourceRNode.getRtcEdges()) {
+            ClassNode cNode = rtcEdge.getEnder();
+            cNode.setIsSettled(false);
+        }
+    }
+
     private void findLowerEntropyLocForClass(Set<Long> icmSet , int sourceClassNodeListId ,
                                              List<Integer> needToFindCNodeListIdSet) {
         //注意,这里的ListId不是Node本身的id,而是classNodeList中该节点的id.
@@ -210,7 +232,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int icmSetSize = icmSet.size();
         boolean isTravseNullNode = false;//标注是否遍历过包含0用户的节点(即空节点)
         List<Integer> haveConNodeIdSet = new ArrayList<>();//有公共用户的节点集合
-
+        boolean sourceCNodeSettleStatus = sourceClassNode.getIsSettled();//该节点是否被融合过的状态
         double testE3 = scanToComputeSystemEntropy();
 
         for(int tmpListId : needToFindCNodeListIdSet) {
@@ -218,15 +240,20 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             boolean targetIsNullFlag = false;
             if(isTravseNullNode && tmpCNode.getIcmSet().size()==0) continue;
-            if(tmpCNode.getIcmSet().size() == 0) {
-                isTravseNullNode = true;
-                targetIsNullFlag = true;
-            }
+
             Set<Long> tmpResSet = new HashSet<>(tmpCNode.getIcmSet());
             tmpResSet.retainAll(icmSet);
             if(tmpResSet.size()!=0) {
                 haveConNodeIdSet.add(tmpCNode.getLoc());
                 continue;
+            }
+
+            boolean tmpCNodeSettleStatus = tmpCNode.getIsSettled();
+            if(sourceCNodeSettleStatus==true&&tmpCNodeSettleStatus==true) continue;//如果两个节点都是属于被settle过的节点,则不需要在进行判断了
+
+            if(tmpCNode.getIcmSet().size() == 0) {
+                isTravseNullNode = true;
+                targetIsNullFlag = true;
             }
 
             double var = simulateMigrateForClass(icmSet , sourceClassNode , tmpCNode , targetIsNullFlag);
@@ -264,6 +291,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             migrateClassNodeForOneStep(icmSet , sourceClassNodeListId , targetClassNodeListId);
             reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
+            setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
             removeNullEdgeForClassNode(sourceClassNodeListId);//删除多余边
             systemEntropy += maxEntropyDecrease;
 
@@ -285,6 +313,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(icmSetSize > 1) {//这段代码是指当用户数大于1时，由于之前的迁移遗漏了部分节点，所以现在要把他们重新遍历
                 for(int listId : haveConNodeIdSet) {
                     ClassNode tmpCNode = classNodeList.get(listId);
+                    boolean tmpCNodeSettleStatus = tmpCNode.getIsSettled();
+                    if(sourceCNodeSettleStatus==true && tmpCNodeSettleStatus==true) continue;
+
                     Set<Long> tmpResSet = new HashSet<>(tmpCNode.getIcmSet());
                     if(tmpResSet.size()==0) continue;
                     tmpResSet.retainAll(curIcmIdSet);//就是获得当前节点与curIcmIdSet中重合的节点数
@@ -295,6 +326,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     if((Double.compare(0.0 , var) > 0 && Math.abs(0.0 - var) > 0.00001)) {
                         migrateClassNodeForOneStep(curResSet , sourceClassNodeListId , tmpCNode.getLoc());
                         reComputeMigrateClassNodeEntropy(sourceClassNodeListId,tmpCNode.getLoc());
+                        setSettleValueForClassMigrate(sourceClassNodeListId,tmpCNode.getLoc());//设置false
                         removeNullEdgeForClassNode(sourceClassNodeListId);//删除多余边
                         systemEntropy += var;
 
@@ -720,10 +752,15 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
 
         List<Integer> thirdPartCNodeListIdSet = migrateUtil.findConClassNodes(targetClassNode);
+        boolean sourceCNodeSettleStatus = sourceClassNode.getIsSettled();
+
 
         //这里的目标是把target上的class节点迁移到otherClassNode上去,看看是否有效果
         for(int tmpListId : thirdPartCNodeListIdSet) {
             ClassNode otherClassNode = classNodeList.get(tmpListId);
+            boolean otherCNodeSettleStatus = otherClassNode.getIsSettled();
+            if(sourceCNodeSettleStatus==true && otherCNodeSettleStatus==true) continue;
+
             boolean targetIsNullFlag = false;
             if(isTravseNUllNode && otherClassNode.getIcmSet().size()==0) continue;
             if(otherClassNode.getIcmSet().size() == 0) {
@@ -787,6 +824,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 systemEntropy = recoverSystemEntropy;
                 this.nodeSum=recoverNodeSum;
             }else {
+                setSettleValueForClassMigrate(targetClassNodeListId,minVarCNodeListId);//设置false
                 removeNullEdgeForClassNode(targetClassNodeListId);
                 System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
                         " ,minVarCNodeListId为:"+minVarCNodeListId+" ,减小熵值为: "+minEntropyDown);
@@ -802,9 +840,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 if(Double.compare(resSimVar,0.0)>=0) {//说明迁移后系统熵值减小,这是成功的
                     if(classNodeList.get(sourceClassNodeListId).getIcmSet().size()==1) this.nodeSum--;
                     if(classNodeList.get(targetClassNodeListId).getIcmSet().size()==0) this.nodeSum++;
+                    setSettleValueForClassMigrate(targetClassNodeListId,minVarCNodeListId);//设置false
                     removeNullEdgeForClassNode(targetClassNodeListId);
                     migrateClassNodeForOneStep(curIdSet,sourceClassNodeListId,targetClassNodeListId);
                     reComputeMigrateClassNodeEntropy(sourceClassNodeListId, targetClassNodeListId);
+                    setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
                     removeNullEdgeForClassNode(sourceClassNodeListId);
                     systemEntropy += simVar;
                     isStable=false;
@@ -825,9 +865,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 //成功,我们需要将souceClass上的icmId用户迁移到targetClass上去
                 if(classNodeList.get(sourceClassNodeListId).getIcmSet().size()==1) this.nodeSum--;
                 if(classNodeList.get(targetClassNodeListId).getIcmSet().size()==0) this.nodeSum++;
+                setSettleValueForClassMigrate(targetClassNodeListId,minVarCNodeListId);//设置false
                 removeNullEdgeForClassNode(targetClassNodeListId);
                 migrateClassNodeForOneStep(curIdSet,sourceClassNodeListId,targetClassNodeListId);
                 reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
+                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
                 removeNullEdgeForClassNode(sourceClassNodeListId);
                 systemEntropy += simVar;
                 isStable=false;
@@ -847,21 +889,27 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int icmSetSize = icmSet.size();
         boolean isNullNode=false;
         List<Integer> haveConNodeIdSet = new ArrayList<>();
+        boolean sourceRNodeSettleStatus = sourceRelationNode.getIsSettled();
 
         for(int tmpListId : needToFindRNodeListIdSet) {
             RelationNode tmpRNode = relationNodeList.get(tmpListId);
 
             boolean targetIsNullFlag = false;
-            if(isNullNode&&tmpRNode.getIcmSet().size()==0) continue;
-            if(tmpRNode.getIcmSet().size()==0) {
-                isNullNode=true;
-                targetIsNullFlag=true;
-            }
+            if(isNullNode && tmpRNode.getIcmSet().size()==0) continue;
+
             Set<Long> tmpResSet = new HashSet<>(tmpRNode.getIcmSet());
             tmpResSet.retainAll(icmSet);
             if(tmpResSet.size()!=0) {
                 haveConNodeIdSet.add(tmpRNode.getLoc());
                 continue;
+            }
+
+            boolean tmpRNodeSettleStatus = tmpRNode.getIsSettled();
+            if(sourceRNodeSettleStatus==true&&tmpRNodeSettleStatus==true) continue;//放在这里,则haveConNodeIdSet中可能包含该类节点
+
+            if(tmpRNode.getIcmSet().size()==0) {
+                isNullNode=true;
+                targetIsNullFlag=true;
             }
 
             double var=simulateMigrateForRelation(icmSet , sourceRelationNode , tmpRNode , targetIsNullFlag);
@@ -887,17 +935,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
 
         if(targetRelationNodeId!=-1) {
-//            if(sourceRelationNodeListId==40)
-//                targetRelationNodeId=62;
-//            else if(sourceRelationNodeListId==115)
-//                targetRelationNodeId=237;
-//            maxEntropyDecrease = simulateMigrateForRelation(icmSet,sourceRelationNode,relationNodeList.get(targetRelationNodeId),false);
-//            //上面仅供测试用
-
             if(sourceRelationNode.getIcmSet().size() - icmSet.size() == 0) this.nodeSum--;
             if(relationNodeList.get(targetRelationNodeId).getIcmSet().size() == 0) this.nodeSum++;
             migrateRelationNodeForOneStep(icmSet, sourceRelationNodeListId, targetRelationNodeId);
             reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,targetRelationNodeId);
+            setSettleValueForRelationMigrate(sourceRelationNodeListId, targetRelationNodeId);//设置false
             removeNullEdgeForRelationNode(sourceRelationNodeListId);
 
             systemEntropy += maxEntropyDecrease;
@@ -919,6 +961,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(icmSetSize > 1) {//这段代码是指当用户数大于1时，由于之前的迁移遗漏了部分节点，所以现在要把他们重新遍历
                 for(int listId : haveConNodeIdSet) {
                     RelationNode tmpRNode = relationNodeList.get(listId);
+                    boolean tmpRNodeSettleStatus = tmpRNode.getIsSettled();
+                    if(sourceRNodeSettleStatus==true && tmpRNodeSettleStatus==true) continue;
+
                     Set<Long> tmpResSet = new HashSet<>(tmpRNode.getIcmSet());
                     if(tmpResSet.size()==0) continue;
                     tmpResSet.retainAll(curIcmIdSet);//就是获得当前节点与curIcmIdSet中重合的节点数
@@ -929,6 +974,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     if((Double.compare(0.0 , var) > 0 && Math.abs(0.0 - var) > 0.00001)) {
                         migrateRelationNodeForOneStep(curResSet , sourceRelationNodeListId , tmpRNode.getLoc());
                         reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,tmpRNode.getLoc());
+                        setSettleValueForRelationMigrate(sourceRelationNodeListId, tmpRNode.getLoc());//设置false
                         removeNullEdgeForRelationNode(sourceRelationNodeListId);//删除多余边
                         systemEntropy += var;
 
@@ -1382,10 +1428,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         //这里的目标是把target上的relation节点迁移到otherRelationNode上去,看看是否有效果
         List<Integer> thirdPartRNodeListIdSet = migrateUtil.findConRelationNodes(targetRelationNode);
+        boolean targetRNodeSettleStatus = targetRelationNode.getIsSettled();
 
         for(Integer tmpListId : thirdPartRNodeListIdSet) {
             RelationNode otherRelationNode = relationNodeList.get(tmpListId);
             if(otherRelationNode.getIcmSet().contains(icmId)) continue;
+            boolean otherRNodeSettleStatus = otherRelationNode.getIsSettled();
+            if(targetRNodeSettleStatus==true && otherRNodeSettleStatus==true) continue;
             boolean targetIsNullFlag = false;
             if(isTravseNUllNode && otherRelationNode.getIcmSet().size() == 0) continue;
             if(otherRelationNode.getIcmSet().size() == 0) {
@@ -1452,6 +1501,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 this.nodeSum=recoverNodeSum;
             }else {
                 isStable=false;
+                setSettleValueForRelationMigrate(targetRelationNodeListId, minVarRNodeId);//设置false
                 removeNullEdgeForRelationNode(targetRelationNodeListId);
                 System.out.println("发生两步迁移操作:首步成功,用户编号:"+icmId+" ,targetRelationNodeListId为:"+
                         targetRelationNodeListId+ " ,minVarRNodeId为:"+minVarRNodeId+" ,减小熵值为: "+minEntropyDown);
@@ -1466,9 +1516,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 if(Double.compare(resSimVar,0.0)>=0 && Math.abs(resSimVar-0.0)>0.00001) {//说明迁移后系统熵值减小,这是成功的
                     if(relationNodeList.get(sourceRelationNodeListId).getIcmSet().size()==1) this.nodeSum--;
                     if(relationNodeList.get(targetRelationNodeListId).getIcmSet().size()==0) this.nodeSum++;
+                    setSettleValueForRelationMigrate(targetRelationNodeListId, minVarRNodeId);//设置false
                     removeNullEdgeForRelationNode(targetRelationNodeListId);
                     migrateRelationNodeForOneStep(icmIdSet, sourceRelationNodeListId, targetRelationNodeListId);
                     reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,targetRelationNodeListId);
+                    setSettleValueForRelationMigrate(sourceRelationNodeListId, targetRelationNodeListId);//设置false
                     removeNullEdgeForRelationNode(sourceRelationNodeListId);
                     systemEntropy += simVar;
                     isStable=false;
@@ -1491,9 +1543,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 //成功,我们需要将souceRelation上的icmId用户迁移到targetRelation上去
                 if(relationNodeList.get(sourceRelationNodeListId).getIcmSet().size()==1) this.nodeSum--;
                 if(relationNodeList.get(targetRelationNodeListId).getIcmSet().size()==0) this.nodeSum++;
+                setSettleValueForRelationMigrate(targetRelationNodeListId, minVarRNodeId);//设置false
                 removeNullEdgeForRelationNode(targetRelationNodeListId);
                 migrateRelationNodeForOneStep(icmIdSet, sourceRelationNodeListId, targetRelationNodeListId);
                 reComputeMigrateRelationNodeEntropy(sourceRelationNodeListId,targetRelationNodeListId);
+                setSettleValueForRelationMigrate(sourceRelationNodeListId, targetRelationNodeListId);//设置false
                 removeNullEdgeForRelationNode(sourceRelationNodeListId);
                 systemEntropy += simVar;
                 isStable=false;

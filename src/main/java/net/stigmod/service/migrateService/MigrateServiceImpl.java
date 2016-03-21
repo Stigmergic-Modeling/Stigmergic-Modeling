@@ -92,9 +92,19 @@ public class MigrateServiceImpl implements MigrateService{
     }
 
     private void migrateDataStore() {
-        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+
+        for(int i=0;i<classNodeList.size();i++) {
+            classNodeList.get(i).setIsSettled(true);//置为true,表示暂时融合完成
+            classNodeRepository.save(classNodeList.get(i),1);
+        }
+        for(int i=0;i<relationNodeList.size();i++) {
+            relationNodeList.get(i).setIsSettled(true);
+            relationNodeRepository.save(relationNodeList.get(i),1);
+        }
+        for(int i=0;i<valueNodeList.size();i++) {
+            valueNodeList.get(i).setIsSettled(true);
+            valueNodeRepository.save(valueNodeList.get(i),1);
+        }
         System.out.println("算法运行结束!");
 
         this.classNodeList.clear();
