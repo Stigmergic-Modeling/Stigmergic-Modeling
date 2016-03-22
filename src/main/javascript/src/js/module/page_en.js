@@ -1533,8 +1533,7 @@ define(function (require, exports, module) {
                 url: '/' + stateOfPage.modelName + '/workspace',
                 type: 'POST',
                 //timeout: 10000,  // 10 秒延迟容忍
-                //data: encodeURI(encodeURI(JSON.stringify(postData))),  // 把数据字符串化以使空数组能正确传递
-                data: encodeURI(JSON.stringify(postData)),  // 把数据字符串化以使空数组能正确传递
+                data: JSON.stringify(postData),  // 把数据字符串化以使空数组能正确传递
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
                     hideMask();
@@ -3105,9 +3104,9 @@ define(function (require, exports, module) {
 
             // 类名
             case 'class-add':
-                pattern = /^.+$/;
+                pattern = /^[A-Z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return 'Valid Format: English letters, with initials in capitals.';
                 } else if (model.doesNodeExist(0, input)) {  // 类名重复
                     return 'Class already exists.';
                 } else {  // 合法
@@ -3115,9 +3114,9 @@ define(function (require, exports, module) {
                 }
                 break;
             case 'class-modify':
-                pattern = /^.+$/;
+                pattern = /^[A-Z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return 'Valid Format: English letters, with initials in capitals.';
                 } else if ((stateOfPage.clazz !== input) && model.doesNodeExist(0, input)) {  // 新类名与【其他】类名重复 (与该类修改前类名重复是允许的)
                     return 'Class already exists.';
                 } else {  // 合法
@@ -3136,9 +3135,9 @@ define(function (require, exports, module) {
 
             // attribute 名
             case 'attribute-add':
-                pattern = /^.+$/;
+                pattern = /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return 'Valid Format: English letters, with the first letter in lowercase.';
                 } else if (model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名重复
                     return 'Attribute name already exists.';
                 } else {  // 合法
@@ -3146,9 +3145,9 @@ define(function (require, exports, module) {
                 }
                 break;
             case 'attribute-modify':
-                pattern = /^.+$/;
+                pattern = /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return 'Valid Format: English letters, with the first letter in lowercase.';
                 } else if ((stateOfPage.attribute !== input) && model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名与其他 attribute 重复
                     return 'Attribute name already exists.';
                 } else {  // 合法
@@ -3160,11 +3159,11 @@ define(function (require, exports, module) {
             case 'type-add':
             case 'type-modify':
                 var patternType = /^(int|float|string|boolean)$/;  // build-in types
-                var patternClass = /^.+$/;
+                var patternClass = /^[A-Z][A-Za-z]*$/;
                 if (!patternType.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是ICM中已有类
                     if (stateOfPage.createClassIfNotExists) {  // 允许自动新建类作为关系或属性的类型
                         if (!patternClass.test(input)) {
-                            return 'Valid Format: 中文字符';
+                            return 'Valid Format: English letters, with initials in capitals.';
                         } else {
                             return 'valid';  // 会有其他代码处理“自动新建类作为关系或属性的类型”
                         }
@@ -3213,9 +3212,9 @@ define(function (require, exports, module) {
             // relation 名
             case 'relation-add':
             case 'relation-modify':
-                pattern = /^.*$/;  // 可为空
+                pattern = /^(|[a-z][A-Za-z]*)$/;  // 可为空
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Format: 中文字符';
+                    return 'Valid Format: NULL or english letters, with the first letter in lowercase.';
                 } else {  // 合法
                     return 'valid';
                 }
@@ -3224,9 +3223,9 @@ define(function (require, exports, module) {
             // relation 两端的角色
             case 'role-add':
             case 'role-modify':
-                pattern = /^.+$/;
+                pattern = /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Format: 中文字符';
+                    return 'Valid Format: English letters, with the first letter in lowercase.';
                 } else {  // 合法
                     return 'valid';
                 }

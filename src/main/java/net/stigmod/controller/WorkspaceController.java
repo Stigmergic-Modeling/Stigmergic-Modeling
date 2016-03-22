@@ -33,6 +33,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Set;
 
@@ -123,7 +124,7 @@ public class WorkspaceController {
         }
 
         try {
-            return workspaceService.syncModelingOperations(modelingOperationLogJsonString);
+            return workspaceService.syncModelingOperations(URLDecoder.decode(modelingOperationLogJsonString, "UTF-8"));
         } catch (Exception e) {
             e.printStackTrace();
             return new ModelingResponse();

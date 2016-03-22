@@ -28,6 +28,7 @@ public class Config {
     private MailServer mailServer;
     private String wordNetPath;
     private String adminPassword;
+    private String language;
 
     public String getHost() {
         return host;
@@ -81,5 +82,14 @@ public class Config {
     @XmlElement
     public void setAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    @XmlElement
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

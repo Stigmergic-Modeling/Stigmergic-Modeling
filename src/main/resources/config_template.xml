@@ -16,4 +16,5 @@
     </mailServer>
     <wordNetPath>YourWordNetAbsolutePath</wordNetPath>
     <adminPassword>AdminPassword</adminPassword>
+    <language>en/cn</language>
 </config>
