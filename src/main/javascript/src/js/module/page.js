@@ -1533,8 +1533,7 @@ define(function (require, exports, module) {
                 url: '/' + stateOfPage.modelName + '/workspace',
                 type: 'POST',
                 //timeout: 10000,  // 10 秒延迟容忍
-                //data: encodeURI(encodeURI(JSON.stringify(postData))),  // 把数据字符串化以使空数组能正确传递
-                data: encodeURI(JSON.stringify(postData)),  // 把数据字符串化以使空数组能正确传递
+                data: encodeURI(JSON.stringify(postData)),  // 把数据字符串化以使空数组能正确传递（加一层 URI 编码以正确传输中文）
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
                     hideMask();
@@ -3105,7 +3104,7 @@ define(function (require, exports, module) {
 
             // 类名
             case 'class-add':
-                pattern = /^.+$/;
+                pattern = /^[\u4e00-\u9fa5]+$/;
                 if (!pattern.test(input)) {  // 格式不合法
                     return 'Valid Format: 中文字符';
                 } else if (model.doesNodeExist(0, input)) {  // 类名重复
@@ -3115,7 +3114,7 @@ define(function (require, exports, module) {
                 }
                 break;
             case 'class-modify':
-                pattern = /^.+$/;
+                pattern = /^[\u4e00-\u9fa5]+$/;
                 if (!pattern.test(input)) {  // 格式不合法
                     return 'Valid Format: 中文字符';
                 } else if ((stateOfPage.clazz !== input) && model.doesNodeExist(0, input)) {  // 新类名与【其他】类名重复 (与该类修改前类名重复是允许的)
@@ -3136,7 +3135,7 @@ define(function (require, exports, module) {
 
             // attribute 名
             case 'attribute-add':
-                pattern = /^.+$/;
+                pattern = /^[\u4e00-\u9fa5]+$/;
                 if (!pattern.test(input)) {  // 格式不合法
                     return 'Valid Format: 中文字符';
                 } else if (model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名重复
@@ -3146,7 +3145,7 @@ define(function (require, exports, module) {
                 }
                 break;
             case 'attribute-modify':
-                pattern = /^.+$/;
+                pattern = /^[\u4e00-\u9fa5]+$/;
                 if (!pattern.test(input)) {  // 格式不合法
                     return 'Valid Format: 中文字符';
                 } else if ((stateOfPage.attribute !== input) && model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名与其他 attribute 重复
@@ -3160,7 +3159,7 @@ define(function (require, exports, module) {
             case 'type-add':
             case 'type-modify':
                 var patternType = /^(int|float|string|boolean)$/;  // build-in types
-                var patternClass = /^.+$/;
+                var patternClass = /^[\u4e00-\u9fa5]+$/;
                 if (!patternType.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是ICM中已有类
                     if (stateOfPage.createClassIfNotExists) {  // 允许自动新建类作为关系或属性的类型
                         if (!patternClass.test(input)) {
@@ -3213,7 +3212,7 @@ define(function (require, exports, module) {
             // relation 名
             case 'relation-add':
             case 'relation-modify':
-                pattern = /^.*$/;  // 可为空
+                pattern = /^[\u4e00-\u9fa5]*$/;  // 可为空
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
                     return 'Valid Format: 中文字符';
                 } else {  // 合法
@@ -3224,7 +3223,7 @@ define(function (require, exports, module) {
             // relation 两端的角色
             case 'role-add':
             case 'role-modify':
-                pattern = /^.+$/;
+                pattern = /^[\u4e00-\u9fa5]+$/;
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
                     return 'Valid Format: 中文字符';
                 } else {  // 合法
