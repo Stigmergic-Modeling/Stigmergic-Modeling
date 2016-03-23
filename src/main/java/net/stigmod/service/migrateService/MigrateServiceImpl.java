@@ -17,7 +17,7 @@ import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
 import net.stigmod.repository.node.VertexRepository;
-import net.stigmod.util.WordSimilarities;
+import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,11 +78,14 @@ public class MigrateServiceImpl implements MigrateService{
 //        valueNodeList = vNodeList;
 
         initConvertList();//初始化了classNodeList,relationNodeList以及valueNodeList
-
-        WordSimilarities.initWuAndPalmer();
         setLocForList();
-        WordSimilarities.vNodeSimList.clear();//先清空一下
-        WordSimilarities.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
+
+//        WordSimilaritiesForEn.initWuAndPalmer();
+//        WordSimilaritiesForEn.vNodeSimList.clear();//先清空一下
+//        WordSimilaritiesForEn.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
+
+        WordSimilarities.vNodeSimList.clear();
+        WordSimilarities.initvNodeSimList(valueNodeList);
 
         migrateHandler.migrateInit(modelId,classNodeList,relationNodeList,valueNodeList);
     }

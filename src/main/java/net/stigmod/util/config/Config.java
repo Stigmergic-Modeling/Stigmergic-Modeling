@@ -27,7 +27,10 @@ public class Config {
     private Neo4j neo4j;
     private MailServer mailServer;
     private String wordNetPath;
+    private String howNetGlossaryPath;
+    private String howNetWholePath;
     private String adminPassword;
+    private Boolean isScheduledTaskOn;  // 用来开启或关闭定时任务
 
     public String getHost() {
         return host;
@@ -74,6 +77,24 @@ public class Config {
         this.wordNetPath = wordNetPath;
     }
 
+    public String getHowNetGlossaryPath() {
+        return howNetGlossaryPath;
+    }
+
+    @XmlElement
+    public void setHowNetGlossaryPath(String howNetGlossaryPath) {
+        this.howNetGlossaryPath = howNetGlossaryPath;
+    }
+
+    public String getHowNetWholePath() {
+        return howNetWholePath;
+    }
+
+    @XmlElement
+    public void setHowNetWholePath(String howNetWholePath) {
+        this.howNetWholePath = howNetWholePath;
+    }
+
     public String getAdminPassword() {
         return adminPassword;
     }
@@ -81,5 +102,14 @@ public class Config {
     @XmlElement
     public void setAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
+    }
+
+    public Boolean getIsScheduledTaskOn() {
+        return isScheduledTaskOn;
+    }
+
+    @XmlElement
+    public void setIsScheduledTaskOn(Boolean isScheduledTaskOn) {
+        this.isScheduledTaskOn = isScheduledTaskOn;
     }
 }

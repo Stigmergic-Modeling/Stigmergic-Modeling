@@ -15,5 +15,8 @@
         <password>YourSmtpMailServerPassword</password>
     </mailServer>
     <wordNetPath>YourWordNetAbsolutePath</wordNetPath>
+    <howNetGlossaryPath>YourHowNetAbsolutePath(glossary.dat)</howNetGlossaryPath>
+    <howNetWholePath>YourHowNetAbsolutePath(WHOLE.DAT)</howNetWholePath>
     <adminPassword>AdminPassword</adminPassword>
+    <isScheduledTaskOn>true</isScheduledTaskOn>
 </config>

@@ -12,6 +12,8 @@ package net.stigmod.service;
 import net.stigmod.domain.system.SystemInfo;
 import net.stigmod.repository.node.SystemInfoRepository;
 import net.stigmod.service.migrateService.MigrateService;
+import net.stigmod.util.config.Config;
+import net.stigmod.util.config.ConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.session.SessionRegistry;
@@ -26,6 +28,9 @@ import java.util.List;
  */
 @Service
 public class SessionService {
+
+    private Config config = ConfigLoader.load();
+    private Boolean isScheduledTaskOn = config.getIsScheduledTaskOn();
 
     @Autowired
     private MigrateService migrateService;
@@ -42,37 +47,40 @@ public class SessionService {
      */
     @Scheduled(fixedDelay = 30000L)  // 30s 检查一次是否“有必要”并“可以”执行融合算法
     public void checkMerging() {
-        long onlineUserNum = this.getOnlineUserNumber();
 
-        // “有必要”但“不可以”执行融合算法
-        if (onlineUserNum > 0) {  // 当前有用户在建模，等待所有用户完成操作后再执行融合算法
+        if (isScheduledTaskOn) {  // 由配置文件控制是否开启定时任务
+            long onlineUserNum = this.getOnlineUserNumber();
+
+            // “有必要”但“不可以”执行融合算法
+            if (onlineUserNum > 0) {  // 当前有用户在建模，等待所有用户完成操作后再执行融合算法
+                System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
+                        + onlineUserNum + ". Model merging is necessary. Waiting for its feasibility.");
+                alreadyRunAfterAllUsersOffline = false;  // 用户在线，等用户下线后有必要再跑一遍融合算法
+                return;
+            }
+
+            // “没必要”执行融合算法
+            if (alreadyRunAfterAllUsersOffline || migrateService.isRunning()) {
+                return;
+            }
+
+            // “有必要”并“可以”执行融合算法
+            SystemInfo systemInfo = systemInfoRepository.getSystemInfo();
+            if (systemInfo == null) {  // 说明系统刚刚初始化
+                systemInfoRepository.save(new SystemInfo());
+                return;
+            }
+
+            Long activatedCcmId = systemInfo.getActivatedCcmId();
+            if (activatedCcmId == -1L) {  // 默认值 -1，说明还没有真正被设置为活跃的 CCM
+                return;
+            }
+
             System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
-                    + onlineUserNum + ". Model merging is necessary. Waiting for its feasibility.");
-            alreadyRunAfterAllUsersOffline = false;  // 用户在线，等用户下线后有必要再跑一遍融合算法
-            return;
+                    + onlineUserNum + ". Model merging is feasible.");
+            migrateService.migrateAlgorithmImpls(activatedCcmId);  // 第一版实现，只关心指定 CCM 的融合
+            alreadyRunAfterAllUsersOffline = true;
         }
-
-        // “没必要”执行融合算法
-        if (alreadyRunAfterAllUsersOffline || migrateService.isRunning()) {
-            return;
-        }
-
-        // “有必要”并“可以”执行融合算法
-        SystemInfo systemInfo = systemInfoRepository.getSystemInfo();
-        if (systemInfo == null) {  // 说明系统刚刚初始化
-            systemInfoRepository.save(new SystemInfo());
-            return;
-        }
-
-        Long activatedCcmId = systemInfo.getActivatedCcmId();
-        if (activatedCcmId == -1L) {  // 默认值 -1，说明还没有真正被设置为活跃的 CCM
-            return;
-        }
-
-        System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
-                + onlineUserNum + ". Model merging is feasible.");
-        migrateService.migrateAlgorithmImpls(activatedCcmId);  // 第一版实现，只关心指定 CCM 的融合
-        alreadyRunAfterAllUsersOffline = true;
     }
 
     /**

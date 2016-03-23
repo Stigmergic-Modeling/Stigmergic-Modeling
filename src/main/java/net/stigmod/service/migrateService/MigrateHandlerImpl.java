@@ -2,8 +2,7 @@
 package net.stigmod.service.migrateService;
 
 import net.stigmod.domain.conceptualmodel.*;
-import net.stigmod.repository.node.*;
-import net.stigmod.util.WordSimilarities;
+//import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +46,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private List<ValueNode> valueNodeList;
 
-    private WordSimilarities wordSimilarities;
+//    private WordSimilaritiesForEn wordSimilaritiesForEn;
+
+//    private WordSimilarities wordSimilarities;
 
     private int nodeSum;
 

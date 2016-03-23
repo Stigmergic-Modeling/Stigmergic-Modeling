@@ -48,20 +48,20 @@ public class MergeController {
     @RequestMapping(value="/preMerge", method = RequestMethod.GET)
     @ResponseBody
     private String dealPreMergeDate() throws IOException{
-        String path = "/Users/fukai/Desktop/58";
-        List<ClassNode> classNodeList=new ArrayList<>();
-        List<RelationNode> relationNodeList=new ArrayList<>();
-        List<ValueNode> valueNodeList=new ArrayList<>();
-
-        readFile(path,classNodeList,relationNodeList,valueNodeList);
-
-        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
-
         boolean isRunning = migrateService.isRunning();
         if(isRunning) return "Algorithm is running ~!";
         else {
+            String path = "/Users/fukai/Desktop/58";
+            List<ClassNode> classNodeList=new ArrayList<>();
+            List<RelationNode> relationNodeList=new ArrayList<>();
+            List<ValueNode> valueNodeList=new ArrayList<>();
+
+            readFile(path,classNodeList,relationNodeList,valueNodeList);
+
+            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+
             try {
                 migrateService.migrateAlgorithmImpls(0l);
             }catch(Exception e) {

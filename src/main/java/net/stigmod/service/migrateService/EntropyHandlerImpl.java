@@ -10,7 +10,7 @@
 package net.stigmod.service.migrateService;
 
 import net.stigmod.domain.conceptualmodel.*;
-import net.stigmod.util.WordSimilarities;
+import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

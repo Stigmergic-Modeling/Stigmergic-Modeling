@@ -7,7 +7,7 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.util;
+package net.stigmod.util.wordsim;
 
 import edu.sussex.nlp.jws.JWS;
 import edu.sussex.nlp.jws.WuAndPalmer;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author Kai Fu
  * @version 2016/3/13
  */
-public class WordSimilarities {
+public class WordSimilaritiesForEn {
 
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
     public static WuAndPalmer wup;
@@ -59,9 +59,12 @@ public class WordSimilarities {
         for(int i=0;i<vSize;i++) {
             List<Double> simList = new ArrayList<>();
             for(int j=0;j<vSize;j++) {
-                List<String> sourceNameList = nameList.get(i);
-                List<String> targetNameList = nameList.get(j);
-                simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
+                if(i==j) simList.add(1.0);
+                else {
+                    List<String> sourceNameList = nameList.get(i);
+                    List<String> targetNameList = nameList.get(j);
+                    simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
+                }
             }
             vNodeSimList.add(simList);
         }
