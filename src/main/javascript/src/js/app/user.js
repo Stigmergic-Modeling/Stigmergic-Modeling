@@ -74,6 +74,7 @@ define(function (require, exports, module) {
             // 填入信息细节
             $compo.prop({id: id});
             $compo.find('.stigmod-modelshow-title > a').prop({href: link}).text(modelInfo[i].name);
+            $compo.find('.stigmod-modelshow-language').text(modelInfo[i].language);
             $compo.find('.stigmod-modelshow-class').text(modelInfo[i].classNum);
             $compo.find('.stigmod-modelshow-relation').text(modelInfo[i].relNum);
             $compo.find('.stigmod-modelshow-description').text(modelInfo[i].description);

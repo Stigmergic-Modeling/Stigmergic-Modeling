@@ -80,6 +80,8 @@
                 <a href=""></a>
             </div>
             <div class="col-xs-3 stigmod-modelshow-info">
+                <i class="fa fa-language"></i>
+                <span class="stigmod-modelshow-language"></span> &nbsp;&nbsp;
                 <span class="glyphicon glyphicon-th-large"></span>
                 <span class="stigmod-modelshow-class"></span> &nbsp;&nbsp;
                 <span class="glyphicon glyphicon-random"></span>

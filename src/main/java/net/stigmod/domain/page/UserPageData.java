@@ -34,8 +34,9 @@ public class UserPageData extends AbstractPageData {
             Date updateDate = icm.getUpdateDate();
             Long classNum = icm.getClassNum();
             Long relationshipNum = icm.getRelationshipNum();
+            String language = icm.getLanguage();
 
-            models.add(new Icm(id, name, description, updateDate, classNum, relationshipNum));
+            models.add(new Icm(id, name, description, updateDate, classNum, relationshipNum, language));
         }
     }
 
@@ -46,16 +47,18 @@ public class UserPageData extends AbstractPageData {
         private Date update;
         private Long classNum;
         private Long relNum;
+        private String language;
 
         public Icm() {}
 
-        public Icm(Long id, String name, String description, Date updateDate, Long classNum, Long relationshipNum) {
+        public Icm(Long id, String name, String description, Date updateDate, Long classNum, Long relationshipNum, String language) {
             this.id = id;
             this.name = name;
             this.description = description;
             this.update = updateDate;
             this.classNum = classNum;
             this.relNum = relationshipNum;
+            this.language = language;
         }
     }
 }
