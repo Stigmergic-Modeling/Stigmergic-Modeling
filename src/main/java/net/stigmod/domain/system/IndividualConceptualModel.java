@@ -39,15 +39,15 @@ public class IndividualConceptualModel extends AbstractConceptualModel {
     private List<String> backIdList;  // 与 frontIdList 一起记录 id mapping （若为 List<Long> 类型，则会导致bug，原因暂时不明）
 
     public IndividualConceptualModel() {
-        this("", "");
+        this("", "", "EN");
     }
 
-    public IndividualConceptualModel(String name, String description) {
-        this(name, description, new Date());
+    public IndividualConceptualModel(String name, String description, String language) {
+        this(name, description, new Date(), language);
     }
 
-    public IndividualConceptualModel(String name, String description, Date date) {
-        super(name, description, date);
+    public IndividualConceptualModel(String name, String description, Date date, String language) {
+        super(name, description, date, language);
         this.frontIdList = new ArrayList<>();
         this.backIdList = new ArrayList<>();
     }

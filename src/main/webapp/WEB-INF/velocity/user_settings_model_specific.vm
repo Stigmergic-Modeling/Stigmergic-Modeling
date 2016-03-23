@@ -51,7 +51,7 @@
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <input type="hidden" class="stigmod-input stigmod-input-lg" name="id" value="${currentIcm.getId()}"/>
                             <dl>
-                                <dt>Name</dt>
+                                <dt>Name (Chinese not supported)</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}"/></dd>
                             </dl>
                             <dl>

@@ -28,6 +28,7 @@ public abstract class AbstractConceptualModel implements ConceptualModel {
     protected Date updateDate;
     protected Long classNum;
     protected Long relationshipNum;
+    protected String language;  // "EN" or "ZH"
 
     public AbstractConceptualModel() {
         this("", "");
@@ -38,12 +39,17 @@ public abstract class AbstractConceptualModel implements ConceptualModel {
     }
 
     public AbstractConceptualModel(String name, String description, Date date) {
+        this(name, description, date, "EN");
+    }
+
+    public AbstractConceptualModel(String name, String description, Date date, String language) {
         this.name = name;
         this.description = description;
         this.creationDate = date;
         this.updateDate = date;
         this.classNum = 0L;
         this.relationshipNum = 0L;
+        this.language = language;
     }
 
     /**
@@ -113,5 +119,13 @@ public abstract class AbstractConceptualModel implements ConceptualModel {
 
     public void setRelationshipNum(Long relationshipNum) {
         this.relationshipNum = relationshipNum;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

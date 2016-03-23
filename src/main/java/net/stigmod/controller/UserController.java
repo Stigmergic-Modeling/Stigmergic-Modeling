@@ -9,6 +9,7 @@
 
 package net.stigmod.controller;
 
+import com.sun.istack.internal.NotNull;
 import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
@@ -121,7 +122,8 @@ public class UserController {
     // POST 新建模型（全新新建方式）
     @RequestMapping(value = "/newmodel/clean", method = RequestMethod.POST)
     public String doNewModelClean(@RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
-                                  @RequestParam(value = "description") String description,
+                                  @RequestParam(value = "description") String descriptionISO,
+                                  @RequestParam(value = "language") String languageISO,
                                   ModelMap model) {
 
         if (migrateService.isRunning()) {
@@ -134,20 +136,33 @@ public class UserController {
         final User user = userRepository.getUserFromSession();
 
         try {
-            modelService.createIcmClean(user, name, description);
-            return "redirect:/" + name + "/workspace";
+            String description = new String(descriptionISO.getBytes("ISO-8859-1"), "UTF-8");
+            String language = new String(languageISO.getBytes("ISO-8859-1"), "UTF-8");
+            String languageDB = language.equals("中文") ? "ZH" : "EN";
 
-        } catch (IllegalArgumentException ie) {  // 重名
-            model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
-        }  catch(Exception e) {
+            try {
+                modelService.createIcmClean(user, name, description, languageDB);
+                return "redirect:/" + name + "/workspace";
+
+            } catch (IllegalArgumentException ie) {  // 重名
+                model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
+            }  catch(Exception e) {
+                e.printStackTrace();
+                model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
+            }
+
+            model.addAttribute("languageClean", language);
+            model.addAttribute("descriptionClean", description);
+
+        } catch (Exception e) {  // 处理转码可能造成的异常
             e.printStackTrace();
             model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
         }
+
         PageData pageData = new NewModelPageData(modelService.getAllCcms());
         model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "New Model");
         model.addAttribute("nameClean", name);
-        model.addAttribute("descriptionClean", description);
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);
@@ -157,8 +172,9 @@ public class UserController {
     // POST 新建模型（继承新建方式）
     @RequestMapping(value = "/newmodel/inherited", method = RequestMethod.POST)
     public String doNewModelInherited(@RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
-                                      @RequestParam(value = "description") String description,
+                                      @RequestParam(value = "description") String descriptionISO,
                                       @RequestParam(value = "id") Long ccmId,
+                                      @RequestParam(value = "language") String languageISO,
                                       ModelMap model) {
 
         if (migrateService.isRunning()) {
@@ -171,20 +187,33 @@ public class UserController {
         final User user = userRepository.getUserFromSession();
 
         try {
-            modelService.createIcmInherited(user, name, description, ccmId);
-            return "redirect:/" + name + "/workspace";
+            String description = new String(descriptionISO.getBytes("ISO-8859-1"), "UTF-8");
+            String language = new String(languageISO.getBytes("ISO-8859-1"), "UTF-8");
+            String languageDB = language.equals("中文") ? "ZH" : "EN";
 
-        } catch (IllegalArgumentException ie) {  // 重名
-            model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
-        }  catch(Exception e) {
+            try {
+                modelService.createIcmInherited(user, name, description, ccmId, languageDB);
+                return "redirect:/" + name + "/workspace";
+
+            } catch (IllegalArgumentException ie) {  // 重名
+                model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
+            }  catch(Exception e) {
+                e.printStackTrace();
+                model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
+            }
+
+            model.addAttribute("languageInherited", language);
+            model.addAttribute("descriptionInherited", description);
+
+        } catch (Exception e) {  // 处理转码可能造成的异常
             e.printStackTrace();
             model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
         }
+
         PageData pageData = new NewModelPageData(modelService.getAllCcms());
         model.addAttribute("data", pageData.toJsonString());
         model.addAttribute("title", "New Model");
         model.addAttribute("nameInherited", name);
-        model.addAttribute("descriptionInherited", description);
         model.addAttribute("user", user);
         model.addAttribute("host", host);
         model.addAttribute("port", port);

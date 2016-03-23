@@ -52,7 +52,7 @@ public class ModelService {
 
     // 全新新建 Model
     @Transactional
-    public void createIcmClean(User user, String name, String description) throws IllegalArgumentException  {
+    public void createIcmClean(User user, String name, String description, String language) throws IllegalArgumentException  {
 
         if (name.equals("")) {
             throw new IllegalArgumentException("Model name can not be empty.");
@@ -65,12 +65,12 @@ public class ModelService {
         this.checkIcmDuplication(user.getId(), 0L, name, "new");
 
         // 新建 ICM
-        IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
+        IndividualConceptualModel icm = new IndividualConceptualModel(name, description, language);
         icm.addUser(user);
         user.addIcm(icm);
 
         // 新建 CCM
-        CollectiveConceptualModel ccm = new CollectiveConceptualModel(name, description);
+        CollectiveConceptualModel ccm = new CollectiveConceptualModel(name, description, language);
         ccm.addIcm(icm);
         icm.addCcm(ccm);
         ccmRepo.save(ccm);
@@ -78,7 +78,7 @@ public class ModelService {
 
     // 继承新建 Model
     @Transactional
-    public void createIcmInherited(User user, String name, String description, Long ccmId) throws IllegalArgumentException {
+    public void createIcmInherited(User user, String name, String description, Long ccmId, String language) throws IllegalArgumentException {
 
         if (ccmId == null) {
             throw new IllegalArgumentException("You must choose one Collective Conceptual Model to be inherited.");
@@ -94,7 +94,7 @@ public class ModelService {
         this.checkIcmDuplication(user.getId(), 0L, name, "new");
 
         // 新建 ICM
-        IndividualConceptualModel icm = new IndividualConceptualModel(name, description);
+        IndividualConceptualModel icm = new IndividualConceptualModel(name, description, language);
         icm.addUser(user);
         user.addIcm(icm);
 
@@ -219,7 +219,7 @@ public class ModelService {
             // 若是新建，则有一个重名都不行
             // 若是修改，允许当前 ICM 名称不变，但不允许和该用户其他 ICM 重名
             if (type.equals("new") || icmIdTakenTheName.longValue() != id) {
-                throw new IllegalArgumentException("You already have a model name as " + name);
+                throw new IllegalArgumentException("You already have a model named as " + name);
             }
         }
     }
