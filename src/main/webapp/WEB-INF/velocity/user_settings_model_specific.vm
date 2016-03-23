@@ -55,6 +55,14 @@
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name" value="${currentIcm.getName()}"/></dd>
                             </dl>
                             <dl>
+                                <dt>Language</dt>
+                                #if ("${currentCcm.getLanguage()}"=="ZH")
+                                    <dd><input type="text" class="stigmod-input stigmod-input-lg" name="language" value="中文" disabled/></dd>
+                                #else
+                                    <dd><input type="text" class="stigmod-input stigmod-input-lg" name="language" value="English" disabled/></dd>
+                                #end
+                            </dl>
+                            <dl>
                                 <dt>Description</dt>
                                 <dd>
                                     <textarea type="text" class="stigmod-input stigmod-textarea" name="description">${currentIcm.getDescription()}</textarea>

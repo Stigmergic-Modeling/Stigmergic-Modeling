@@ -425,7 +425,7 @@ public class UserController {
     public String settingsModelSpecificUpdateGo(@PathVariable String icmName,  // 并不使用这个名字，因为可能不准确
                                                 @RequestParam(value = "id") Long id,
                                                 @RequestParam(value = "name") String name,  // 该名称不能与用户已存在 ICM 重名
-                                                @RequestParam(value = "description") String description,
+                                                @RequestParam(value = "description") String descriptionISO,
                                                 ModelMap model,
                                                 HttpServletRequest request) {
 
@@ -450,13 +450,22 @@ public class UserController {
         model.addAttribute("title", "Specific Model Settings");
 
         try {
-            modelService.updateIcmInfo(user.getId(), id, name, description);
-            model.addAttribute("success", "Model information updated successfully.");
-        } catch (IllegalArgumentException ie) {  // 重名
-            model.addAttribute("error", "Model information updating failed. (Error: " + ie.getMessage() + " )");
-        } catch (Exception e) {
+            String description = new String(descriptionISO.getBytes("ISO-8859-1"), "UTF-8");
+
+            try {
+                modelService.updateIcmInfo(user.getId(), id, name, description);
+                model.addAttribute("success", "Model information updated successfully.");
+
+            } catch (IllegalArgumentException ie) {  // 重名
+                model.addAttribute("error", "Model information updating failed. (Error: " + ie.getMessage() + " )");
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("error", "Model information updating failed. (Error: " + e.getMessage() + " )");
+            }
+
+        } catch (Exception e) {  // 处理转码可能造成的异常
             e.printStackTrace();
-            model.addAttribute("error", "Model information updating failed. (Error: " + e.getMessage() + " )");
+            model.addAttribute("error", "Model creation failed. (Error: " + e.getMessage() + " )");
         }
 
         try {

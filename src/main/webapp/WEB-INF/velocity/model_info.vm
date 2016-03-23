@@ -69,6 +69,16 @@
                                     <td>${currentIcm.getName()}</td>
                                 </tr>
                                 <tr>
+                                    <td>Language</td>
+                                    <td>
+                                        #if ("${currentIcm.getLanguage()}"=="ZH")
+                                            中文
+                                        #else
+                                            English
+                                        #end
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td>Description</td>
                                     <td>${currentIcm.getDescription()}</td>
                                 </tr>
@@ -109,8 +119,18 @@
                                     <td>${currentCcm.getName()}</td>
                                 </tr>
                                 <tr>
+                                    <td>Language</td>
+                                    <td>
+                                        #if ("${currentCcm.getLanguage()}"=="ZH")
+                                            中文
+                                        #else
+                                            English
+                                        #end
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td>Description</td>
-                                    <td>${currentIcm.getDescription()}</td>
+                                    <td>${currentCcm.getDescription()}</td>
                                 </tr>
                                 <tr>
                                     <td>Creation Date</td>
