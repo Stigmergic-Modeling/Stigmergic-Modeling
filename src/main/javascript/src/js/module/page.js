@@ -99,7 +99,7 @@ define(function (require, exports, module) {
 
         // addRelGrp对话框
         this.addRelGrpDlgWgt = new RelGrpDialogWgt('#stigmod-modal-addrelationgroup');
-        this.addRelGrpDlgWgt.init(this.icm);
+        this.addRelGrpDlgWgt.init(this.icm, this.stateOfPage);
         this.addRelGrpDlgWgt.on('pageStateChanged', 'updateState', this.stateOfPage);  // 新建关系组时更新页面状态
         this.addRelGrpDlgWgt.on('addRelGrp', 'addRelGrp', this.icm);  // 新建关系组时更新icm模型
         this.addRelGrpDlgWgt.on('addRelGrp', 'refreshLeftColAndActivateAndJump', this);  // 新建关系组时更新页面显示
@@ -1712,7 +1712,7 @@ define(function (require, exports, module) {
         function handleAddClassOk() {
             var $input = $(this).closest('#stigmod-modal-addclass').find('input[type=text]:not([readonly])');
 
-            if (checkInput(icm, $input)) {  // 仅当输入内容合法后才执行 add 操作
+            if (checkInput(icm, $input, stateOfPage)) {  // 仅当输入内容合法后才执行 add 操作
                 var className = $input.val(),
                         classId = widget.adoptingRec ? widget.adoptedClassId : 'FRONTID_' + new ObjectId().toString(),
                         addingType = widget.adoptingRec ? 'binding' : 'fresh';
@@ -1820,7 +1820,7 @@ define(function (require, exports, module) {
     _.extend(RelGrpDialogWgt, DialogWgt);
 
     // 事件监听初始化
-    RelGrpDialogWgt.prototype.init = function (icm) {
+    RelGrpDialogWgt.prototype.init = function (icm, stateOfPage) {
 
         var widget = this;
 
@@ -1858,7 +1858,7 @@ define(function (require, exports, module) {
                 }
             }
 
-            if (checkInputs(icm, $inputs) && isValidRelationGroup(icm, $(this).closest('.modal-footer'), relationGroupName)) {
+            if (checkInputs(icm, $inputs, stateOfPage) && isValidRelationGroup(icm, $(this).closest('.modal-footer'), relationGroupName)) {
 
                 // 更新页面状态
                 widget.fire('pageStateChanged', {
@@ -2507,6 +2507,7 @@ define(function (require, exports, module) {
         this.ccmId = stateRawData.ccmId;        // dataPassedIn 通过后端的模板传入
         this.modelID = stateRawData.icmId;      // dataPassedIn 通过后端的模板传入
         this.modelName = stateRawData.icmName;  // dataPassedIn 通过后端的模板传入
+        this.modelLanguage = stateRawData.icmLanguage;  // dataPassedIn 通过后端的模板传入
 
         this.flagCRG = 0;        // 0: class, 1: relationGroup
         this.flagDepth = 0;      // for class: (0: class, 1: attribute, 2: propertyOfA) for relationGroup: (0: relationGroup, 1: relation, 2: propertyOfR)
@@ -3099,14 +3100,16 @@ define(function (require, exports, module) {
     // stateOfPage 中保存一些标志位，包括 createClassIfNotExists，用于判断是否允许自动新建类作为关系或属性的类型。
     function getInputCheckResult(model, inputCase, input, stateOfPage) {
 
+        var isChineseModel = stateOfPage.modelLanguage === 'ZH';
+
         var pattern = null;
         switch (inputCase) {
 
             // 类名
             case 'class-add':
-                pattern = /^[\u4e00-\u9fa5]+$/;
+                pattern = isChineseModel ? /^[\u4e00-\u9fa5]+$/ : /^[A-Z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: English letters, with initials in capitals.';
                 } else if (model.doesNodeExist(0, input)) {  // 类名重复
                     return 'Class already exists.';
                 } else {  // 合法
@@ -3114,9 +3117,9 @@ define(function (require, exports, module) {
                 }
                 break;
             case 'class-modify':
-                pattern = /^[\u4e00-\u9fa5]+$/;
+                pattern = isChineseModel ? /^[\u4e00-\u9fa5]+$/ : /^[A-Z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: English letters, with initials in capitals.';
                 } else if ((stateOfPage.clazz !== input) && model.doesNodeExist(0, input)) {  // 新类名与【其他】类名重复 (与该类修改前类名重复是允许的)
                     return 'Class already exists.';
                 } else {  // 合法
@@ -3135,9 +3138,9 @@ define(function (require, exports, module) {
 
             // attribute 名
             case 'attribute-add':
-                pattern = /^[\u4e00-\u9fa5]+$/;
+                pattern = isChineseModel ? /^[\u4e00-\u9fa5]+$/ : /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: English letters, with the first letter in lowercase.';
                 } else if (model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名重复
                     return 'Attribute name already exists.';
                 } else {  // 合法
@@ -3145,9 +3148,9 @@ define(function (require, exports, module) {
                 }
                 break;
             case 'attribute-modify':
-                pattern = /^[\u4e00-\u9fa5]+$/;
+                pattern = isChineseModel ? /^[\u4e00-\u9fa5]+$/ : /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 格式不合法
-                    return 'Valid Format: 中文字符';
+                    return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: English letters, with the first letter in lowercase.';
                 } else if ((stateOfPage.attribute !== input) && model.doesNodeExist(2, input, stateOfPage.clazz)) {  // attribute 名与其他 attribute 重复
                     return 'Attribute name already exists.';
                 } else {  // 合法
@@ -3159,11 +3162,11 @@ define(function (require, exports, module) {
             case 'type-add':
             case 'type-modify':
                 var patternType = /^(int|float|string|boolean)$/;  // build-in types
-                var patternClass = /^[\u4e00-\u9fa5]+$/;
+                var patternClass = isChineseModel ? /^[\u4e00-\u9fa5]+$/ : /^[A-Z][A-Za-z]*$/;
                 if (!patternType.test(input) && !(model.doesNodeExist(0, input))) {  // 不是内置类型，也不是ICM中已有类
                     if (stateOfPage.createClassIfNotExists) {  // 允许自动新建类作为关系或属性的类型
                         if (!patternClass.test(input)) {
-                            return 'Valid Format: 中文字符';
+                            return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: English letters, with initials in capitals.';
                         } else {
                             return 'valid';  // 会有其他代码处理“自动新建类作为关系或属性的类型”
                         }
@@ -3212,9 +3215,9 @@ define(function (require, exports, module) {
             // relation 名
             case 'relation-add':
             case 'relation-modify':
-                pattern = /^[\u4e00-\u9fa5]*$/;  // 可为空
+                pattern = isChineseModel ? /^[\u4e00-\u9fa5]*$/ : /^(|[a-z][A-Za-z]*)$/;  // 可为空
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Format: 中文字符';
+                    return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: NULL or english letters, with the first letter in lowercase.';
                 } else {  // 合法
                     return 'valid';
                 }
@@ -3223,9 +3226,9 @@ define(function (require, exports, module) {
             // relation 两端的角色
             case 'role-add':
             case 'role-modify':
-                pattern = /^[\u4e00-\u9fa5]+$/;
+                pattern = isChineseModel ? /^[\u4e00-\u9fa5]+$/ : /^[a-z][A-Za-z]*$/;
                 if (!pattern.test(input)) {  // 不是内置类型，也不是类
-                    return 'Valid Format: 中文字符';
+                    return isChineseModel ? 'Valid Format: 中文字符' : 'Valid Format: English letters, with the first letter in lowercase.';
                 } else {  // 合法
                     return 'valid';
                 }

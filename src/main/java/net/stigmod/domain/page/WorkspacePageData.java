@@ -31,6 +31,7 @@ public class WorkspacePageData extends AbstractPageData {
     public Long ccmId;
     public Long icmId;
     public String icmName;
+    public String icmLanguage;
     public IcmDetail model;
     public Set<IcmBrief> models;
 
@@ -39,8 +40,10 @@ public class WorkspacePageData extends AbstractPageData {
         this.ccmId = ccmId;
         this.icmId = currentIcm.getId();
         this.icmName = currentIcm.getName();
+        this.icmLanguage = currentIcm.getLanguage();
         this.model = icmDetail;
         this.models = new HashSet<>();
+
         for (IndividualConceptualModel icm : icms) {
             Long id = icm.getId();
             String name = icm.getName();
@@ -48,8 +51,9 @@ public class WorkspacePageData extends AbstractPageData {
             Date updateDate = icm.getUpdateDate();
             Long classNum = icm.getClassNum();
             Long relationshipNum = icm.getRelationshipNum();
+            String language = icm.getLanguage().equals("ZH") ? "中文" : "English";
 
-            models.add(new IcmBrief(id, name, description, updateDate, classNum, relationshipNum));
+            models.add(new IcmBrief(id, name, description, updateDate, classNum, relationshipNum, language));
         }
 
 
