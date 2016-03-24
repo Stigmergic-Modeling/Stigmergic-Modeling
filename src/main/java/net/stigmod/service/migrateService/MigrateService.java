@@ -25,4 +25,6 @@ public interface MigrateService {
     void migrateAlgorithmImpls(Long modelId);
 
     boolean isRunning();
+
+    public void setIsRunning(boolean isRunning);
 }

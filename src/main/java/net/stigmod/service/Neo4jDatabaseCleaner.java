@@ -10,6 +10,7 @@
 package net.stigmod.service;
 
 import org.neo4j.ogm.session.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,10 +20,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class Neo4jDatabaseCleaner {
 
-//    @Autowired
-//    Session session;
+    @Autowired
+    Session session;
 
-    public void cleanDb(Session session) {
-//        session.execute("MATCH n OPTIONAL MATCH n-[r]-m delete n,r,m");
+    public void cleanDb() {
+        session.execute("MATCH n OPTIONAL MATCH n-[r]-m delete n,r,m");
     }
 }

@@ -33,6 +33,11 @@ public class WordSimilaritiesForCh {
         int vSize = valueNodeList.size();
 //        List<String> nameList = new ArrayList<>();
         for(int i=0;i<vSize;i++) {
+            String fullName = valueNodeList.get(i).getName();
+            WordSimilarityForCh.isHaveWord(fullName);
+        }
+
+        for(int i=0;i<vSize;i++) {
             List<Double> simList = new ArrayList<>();
             String fullName = valueNodeList.get(i).getName();
             for(int j=0;j<vSize;j++) {

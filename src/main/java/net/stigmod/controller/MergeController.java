@@ -13,6 +13,7 @@ import net.stigmod.domain.conceptualmodel.*;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
+import net.stigmod.service.Neo4jDatabaseCleaner;
 import net.stigmod.service.migrateService.MigrateHandler;
 import net.stigmod.service.migrateService.MigrateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class MergeController {
     @Autowired
     MigrateService migrateService;
 
+    @Autowired
+    Neo4jDatabaseCleaner neo4jDatabaseCleaner;
+
     long modelId=0;
 
     @RequestMapping(value="/preMerge", method = RequestMethod.GET)
@@ -51,6 +55,8 @@ public class MergeController {
         boolean isRunning = migrateService.isRunning();
         if(isRunning) return "Algorithm is running ~!";
         else {
+            neo4jDatabaseCleaner.cleanDb();
+            migrateService.setIsRunning(true);
             String path = "/Users/fukai/Desktop/58";
             List<ClassNode> classNodeList=new ArrayList<>();
             List<RelationNode> relationNodeList=new ArrayList<>();
@@ -67,6 +73,7 @@ public class MergeController {
             }catch(Exception e) {
                 e.printStackTrace();
             }
+            migrateService.setIsRunning(false);
             return "Hello World ~!";
         }
     }

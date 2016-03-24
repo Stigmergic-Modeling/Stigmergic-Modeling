@@ -253,6 +253,12 @@ public class WordSimilarityForCh {
         return 0;
     }
 
+    public static void isHaveWord(String word) {
+        if(!ALLWORDS.containsKey(word)) {
+            System.out.println("单词: "+word+" 没有被收录");
+        }
+    }
+
     /**
      * 计算两个词语的相似度
      */
@@ -269,8 +275,11 @@ public class WordSimilarityForCh {
             }
             return max;
         }
-        System.out.println("其中有词没有被收录");
-        return 0.0;
+        if(word1.equals(word2)) return 1.0;
+        else return 0.0;
+//        if(!ALLWORDS.containsKey(word1))System.out.println("单词: "+word1+" 没有被收录");
+//        if(!ALLWORDS.containsKey(word2))System.out.println("单词: "+word2+" 没有被收录");
+
     }
 
     /**

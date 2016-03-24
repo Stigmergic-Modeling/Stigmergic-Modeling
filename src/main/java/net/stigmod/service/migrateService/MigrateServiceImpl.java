@@ -17,6 +17,7 @@ import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
 import net.stigmod.repository.node.VertexRepository;
+import net.stigmod.util.generatemodel.Apriori;
 import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,9 +111,20 @@ public class MigrateServiceImpl implements MigrateService{
         }
         System.out.println("算法运行结束!");
 
+//        migrateEndAndConstructCCM();
+
         this.classNodeList.clear();
         this.relationNodeList.clear();
         this.valueNodeList.clear();
+    }
+
+    /**
+     * 这个函数只有在我需要构造出一个融合后的个体概念模型时才需要使用
+     */
+    private void migrateEndAndConstructCCM() {
+        Apriori apriori = new Apriori();
+        apriori.convertNodeToRecords(classNodeList,relationNodeList);
+        apriori.fpGrowthImpl();
     }
 
     private void initConvertList() {
@@ -164,5 +176,9 @@ public class MigrateServiceImpl implements MigrateService{
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
     }
 }
