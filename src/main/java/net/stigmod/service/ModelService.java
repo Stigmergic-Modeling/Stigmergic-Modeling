@@ -203,6 +203,7 @@ public class ModelService {
         recycleBinUser.addIcm(icm);
         icm.setName(newName);
         icmRepo.save(icm);
+        userRepo.save(user);  // 确保删除结果及时更新到数据库
     }
 
     // 由 ICM ID 获取 ICM
