@@ -22,7 +22,8 @@ define(function (require, exports, module) {
             userName: dataPassedIn.userName,
             ccmId: dataPassedIn.ccmId,
             icmId: dataPassedIn.icmId,
-            icmName: dataPassedIn.icmName
+            icmName: dataPassedIn.icmName,
+            icmLanguage: dataPassedIn.icmLanguage
         };
         var page = new Page(pageInfo, dataPassedIn.model);
         page.init();

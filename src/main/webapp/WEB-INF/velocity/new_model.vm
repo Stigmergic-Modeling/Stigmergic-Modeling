@@ -14,6 +14,11 @@
                         <form action="/newmodel/inherited" method="post">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <input type="hidden" name="id"/>
+                            <input type="hidden" name="language"
+                                #if (${languageInherited})
+                                   value="${languageInherited}"
+                                #end
+                                /></dd>  <!-- 用于提交信息 -->
                             <dl>
                                 <dt>Collective Concept Model</dt>
                                 <dd>
@@ -23,7 +28,15 @@
                                 </dd>
                             </dl>
                             <dl>
-                                <dt>Name</dt>
+                                <dt>Language</dt>
+                                <dd><input type="text" class="stigmod-input stigmod-input-lg" name="language_shown"
+                                    #if (${languageInherited})
+                                           value="${languageInherited}"
+                                    #end
+                                    disabled /></dd> <!-- 仅用于显示 -->
+                            </dl>
+                            <dl>
+                                <dt>Name (Chinese not supported)</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name"
                                     #if (${nameInherited})
                                         value="${nameInherited}"
@@ -53,7 +66,21 @@
                         <form action="/newmodel/clean" method="post">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <dl>
-                                <dt>Name</dt>
+                                <dt>Language</dt>
+                                <dd>
+                                    <select type="text" class="stigmod-input stigmod-input-lg" name="language">
+                                        #if (${languageClean} && "${languageClean}"=="中文")
+                                            <option> English </option>
+                                            <option selected> 中文 </option>
+                                        #else
+                                            <option selected> English </option>
+                                            <option> 中文 </option>
+                                        #end
+                                    </select>
+                                </dd>
+                            </dl>
+                            <dl>
+                                <dt>Name (Chinese not supported)</dt>
                                 <dd><input type="text" class="stigmod-input stigmod-input-lg" name="name"
                                     #if (${nameClean})
                                            value="${nameClean}"

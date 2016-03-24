@@ -96,10 +96,13 @@ define(function (require, exports, module) {
         var name = $(this).val();
         var id = ccmInfo[name]['id'];
         var description = ccmInfo[name]['description'];
+        var language = ccmInfo[name]['language'];
 
         // 在 icm 信息栏中填入 ccm 的信息
         $(this).closest('form').find('input[name=id]').val(id);
         $(this).closest('form').find('input[name=name]').val(name);
+        $(this).closest('form').find('input[name=language_shown]').val(language);
+        $(this).closest('form').find('input[name=language]').val(language);
         $(this).closest('form').find('textarea[name=description]').text(description);
     }
 

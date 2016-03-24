@@ -40,15 +40,15 @@ public class CollectiveConceptualModel extends AbstractConceptualModel {
     private Set<IndividualConceptualModel> icms = new HashSet<>();
 
     public CollectiveConceptualModel() {
-        this("","");
+        this("","", "EN");
     }
 
-    public CollectiveConceptualModel(String name, String description) {
-        this(name, description, new Date());
+    public CollectiveConceptualModel(String name, String description, String language) {
+        this(name, description, new Date(), language);
     }
 
-    public CollectiveConceptualModel(String name, String description, Date date) {
-        super(name, description, date);
+    public CollectiveConceptualModel(String name, String description, Date date, String language) {
+        super(name, description, date, language);
     }
 
     /**

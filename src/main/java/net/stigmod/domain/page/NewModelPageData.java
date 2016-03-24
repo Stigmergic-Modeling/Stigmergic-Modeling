@@ -33,19 +33,22 @@ public class NewModelPageData extends AbstractPageData {
             Long id = ccm.getId();
             String key = ccm.getName();
             String description = ccm.getDescription();
-            this.ccmInfo.put(key, new Ccm(id, description));
+            String language = ccm.getLanguage().equals("ZH") ? "中文" : "English";
+            this.ccmInfo.put(key, new Ccm(id, description, language));
         }
     }
 
     class Ccm {
         private Long id;
         private String description;
+        private String language;
 
         public Ccm() {}
 
-        public Ccm(Long id, String description) {
+        public Ccm(Long id, String description, String language) {
             this.id = id;
             this.description = description;
+            this.language = language;
         }
     }
 }

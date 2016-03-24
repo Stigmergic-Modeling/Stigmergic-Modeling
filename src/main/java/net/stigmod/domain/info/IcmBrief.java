@@ -23,13 +23,15 @@ public class IcmBrief {
     public Date update;
     public Long classNum;
     public Long relNum;
+    public String language;
 
-    public IcmBrief(Long id, String name, String description, Date updateDate, Long classNum, Long relationshipNum) {
+    public IcmBrief(Long id, String name, String description, Date updateDate, Long classNum, Long relationshipNum, String language) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.update = updateDate;
         this.classNum = classNum;
         this.relNum = relationshipNum;
+        this.language = language;
     }
 }
