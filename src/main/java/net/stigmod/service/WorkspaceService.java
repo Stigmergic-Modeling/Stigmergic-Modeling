@@ -414,6 +414,7 @@ public class WorkspaceService {
                             // 获取 class node
                             ClassNode classNode = classNodeRepository.findOne(Long.parseLong(classId, 10));
                             classNode.addIcmId(icmId);
+                            classNode.setIsSettled(false);  // 有待融合算法进一步处理
                             classNodeRepository.save(classNode);
 
                             // 获取 c2v edge
@@ -476,6 +477,8 @@ public class WorkspaceService {
 
                         if (!isFreshCreation) {  // 绑定创建
                             r2cEdge.addIcmId(icmId);
+                            relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+                            classNode.setIsSettled(false);  // 有待融合算法进一步处理
                         } else {                 // 全新创建
                             relationNode.addR2CEdge(r2cEdge);
                             classNode.addR2CEdge(r2cEdge);
@@ -522,6 +525,7 @@ public class WorkspaceService {
                         assert relationNode != null;
                         if (!isFreshCreation) {
                             relationNode.addIcmId(icmId);
+                            relationNode.setIsSettled(false);  // 有待融合算法进一步处理
                         }
                         relationNodeRepository.save(relationNode);
 
@@ -675,6 +679,7 @@ public class WorkspaceService {
                             }
                         }
                         classNode.removeIcmId(icmId);
+                        classNode.setIsSettled(false);  // 有待融合算法进一步处理
                         classNodeRepository.save(classNode);
 
                         // 删除相应的 Order 节点
@@ -794,6 +799,7 @@ public class WorkspaceService {
                             classNode.addC2VEdge(c2vEdge);
                             valueNode.addC2VEdge(c2vEdge);
                         }
+                        classNode.setIsSettled(false);  // 有待融合算法进一步处理
                         classNodeRepository.save(classNode);
 
                         // 修改 Attribute Order 节点（如果存在的话）
@@ -840,6 +846,7 @@ public class WorkspaceService {
                             this.modifyAttributeProperty(ccmId, icmId, relationNode, propertyName, propertyValueE1);
                         }
 
+                        relationNode.setIsSettled(false);  // 有待融合算法进一步处理
                         relationNodeRepository.save(relationNode);
                         modelingResponse.addMessage("Modify property [" + propertyName + "] " +
                                 "to [" + propertyValueE1 + "] " +
@@ -890,6 +897,7 @@ public class WorkspaceService {
                             default:  // 其他 property
                                 this.modifyRelationshipProperty(ccmId, icmId, relationNode, propertyName, propertyValueE0, propertyValueE1);
                         }
+                        relationNode.setIsSettled(false);  // 有待融合算法进一步处理
                         relationNodeRepository.save(relationNode);
 
                         modelingResponse.addMessage("Modify property [" + propertyName + "] " +
@@ -1063,6 +1071,7 @@ public class WorkspaceService {
         ClassToValueEdge c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
         classNode.addC2VEdge(c2vEdge);
         valueNode.addC2VEdge(c2vEdge);
+        classNode.setIsSettled(false);  // 有待融合算法进一步处理
         edgeRepository.save(c2vEdge); // 保存
         classNodeRepository.save(classNode);  // 边和端点分别保存下，防止保存不及时
         valueNodeRepository.save(valueNode);  // 边和端点分别保存下，防止保存不及时
@@ -1119,6 +1128,8 @@ public class WorkspaceService {
             relationNode.addR2CEdge(r2cEdge);
             classNode.addR2CEdge(r2cEdge);
         }
+        relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+        classNode.setIsSettled(false);  // 有待融合算法进一步处理
         edgeRepository.save(r2cEdge);  // 若用 neo4jTemplate.save()，则可能导致保存不及时
         relationNodeRepository.save(relationNode);  // 边和端点分别保存下，防止保存不及时
         classNodeRepository.save(classNode);  // 边和端点分别保存下，防止保存不及时
@@ -1156,6 +1167,7 @@ public class WorkspaceService {
             relationNode.addR2VEdge(r2trueEdge);
             valueNode.addR2VEdge(r2trueEdge);
         }
+        relationNode.setIsSettled(false);  // 有待融合算法进一步处理
         edgeRepository.save(r2trueEdge);  // 若用 neo4jTemplate.save()，则可能导致保存不及时
         relationNodeRepository.save(relationNode);  // 边和端点分别保存下，防止保存不及时
         valueNodeRepository.save(valueNode);  // 边和端点分别保存下，防止保存不及时
@@ -1247,6 +1259,7 @@ public class WorkspaceService {
             r2vEdgeE1.getEnder().removeIcmIdIfNoEdgeAttachedInIcm(icmId);
         }
 
+        relationNode.setIsSettled(false);  // 有待融合算法进一步处理
         relationNodeRepository.save(relationNode);
     }
 
@@ -1287,6 +1300,7 @@ public class WorkspaceService {
 
         // 删除 relationship 节点本身
         relationNode.removeIcmId(icmId);
+        relationNode.setIsSettled(false);  // 有待融合算法进一步处理
         relationNodeRepository.save(relationNode);
     }
 
@@ -1403,6 +1417,7 @@ public class WorkspaceService {
         valueNode.addIcmId(icmId);
         c2vEdge.addIcmId(icmId);
         classNode.addIcmId(icmId);
+        classNode.setIsSettled(false);  // 有待融合算法进一步处理
         r2cEdge.addIcmId(icmId);
     }
 
@@ -1599,6 +1614,8 @@ public class WorkspaceService {
         r2cEdge1.removeIcmId(icmId);
         ClassNode classNode0 = r2cEdge0.getEnder();
         ClassNode classNode1 = r2cEdge1.getEnder();
+        classNode0.setIsSettled(false);  // 有待融合算法进一步处理
+        classNode1.setIsSettled(false);  // 有待融合算法进一步处理
         boolean e0AlreadyInCcm = false;
         boolean e1AlreadyInCcm = false;
 

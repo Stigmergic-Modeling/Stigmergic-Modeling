@@ -40,7 +40,7 @@ public class SessionService {
 
     private SessionRegistry sessionRegistry;  // 通过 XML 配置注入 bean，用以获取当前在线人数
 
-    private boolean alreadyRunAfterAllUsersOffline = false;  // false 初值使得刚刚启动的时候会执行一遍融合（如果已经设置好了活跃 CCM 的话）
+    private boolean alreadyRunAfterAllUsersOffline = true;  // true 初值使得刚刚启动的时候不会执行融合
 
     /**
      * 定时任务，在需要融合时执行融合算法

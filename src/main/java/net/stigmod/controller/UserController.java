@@ -9,8 +9,6 @@
 
 package net.stigmod.controller;
 
-import com.sun.istack.internal.NotNull;
-import net.stigmod.domain.info.IcmDetail;
 import net.stigmod.domain.system.IndividualConceptualModel;
 import net.stigmod.domain.system.User;
 import net.stigmod.domain.page.NewModelPageData;
@@ -31,10 +29,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Handle user related page requests
@@ -142,7 +140,7 @@ public class UserController {
 
             try {
                 modelService.createIcmClean(user, name, description, languageDB);
-                return "redirect:/" + name + "/workspace";
+                return "redirect:/" + UriUtils.encodePathSegment(name, "UTF-8") + "/workspace";  // 要对 name 进行 URI 编码（目前在开发机上可有可无，在服务器上很重要）
 
             } catch (IllegalArgumentException ie) {  // 重名
                 model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
@@ -193,7 +191,7 @@ public class UserController {
 
             try {
                 modelService.createIcmInherited(user, name, description, ccmId, languageDB);
-                return "redirect:/" + name + "/workspace";
+                return "redirect:/" + UriUtils.encodePathSegment(name, "UTF-8") + "/workspace";  // 要对 name 进行 URI 编码
 
             } catch (IllegalArgumentException ie) {  // 重名
                 model.addAttribute("error", "Model creation failed. (Error: " + ie.getMessage() + " )");
