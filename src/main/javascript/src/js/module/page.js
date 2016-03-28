@@ -3356,7 +3356,7 @@ define(function (require, exports, module) {
         $('.stigmod-model-save').hide();
         $('.stigmod-model-saved').hide();
         $('.stigmod-model-saving').show();
-        $('.stigmod-model-save-btn').attr({'disabled': ''});
+        $('.stigmod-model-save-btn').attr({'disabled': ''}).find('i').addClass('fa-spin');
     }
 
     // 使能保存按钮
@@ -3364,7 +3364,7 @@ define(function (require, exports, module) {
         $('.stigmod-model-saving').hide();
         $('.stigmod-model-saved').hide();
         $('.stigmod-model-save').show();
-        $('.stigmod-model-save-btn').removeAttr('disabled');
+        $('.stigmod-model-save-btn').removeAttr('disabled').find('i').removeClass('fa-spin');
     }
 
     // 显式已保存（保存功能仍是失能状态）
@@ -3372,6 +3372,7 @@ define(function (require, exports, module) {
         $('.stigmod-model-save').hide();
         $('.stigmod-model-saving').hide();
         $('.stigmod-model-saved').show();
+        $('.stigmod-model-save-btn').attr({'disabled': ''}).find('i').removeClass('fa-spin');
     }
 
     // addrelation 和 modifyrelation 下拉菜单中的核心处理函数
