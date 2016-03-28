@@ -1133,6 +1133,10 @@ fieldset[disabled] .stigmod-input {
 .stigmod-model-saved {
   color: #ccc;
 }
+/* 正在保存时的存盘按钮 */
+.stigmod-model-saving {
+  display: none;
+}
 
 /* 悬浮窗 */
 #stigmod-nav-float {

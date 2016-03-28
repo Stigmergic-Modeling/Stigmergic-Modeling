@@ -82,6 +82,21 @@ define(function (require, exports, module) {
             page.rightColWgt.relationRec.on('openDialog', 'openDialog', page);
         }, 1000);
 
+        // 记录用户是否仍在活跃
+        this.lastActionTime = new Date().getTime();
+        $(document).on('click', function () {
+            page.lastActionTime = new Date().getTime();
+        });
+
+        // 每隔 XX s 进行一次自动保存
+        var saveInterval = 60000;
+        setInterval(function() {
+            var noActiveTime = new Date().getTime() - page.lastActionTime;
+            console.log('saveInterval : ' + saveInterval + ' | noActiveTime : ' + noActiveTime);
+            if (noActiveTime < saveInterval + 10000) {  // 10s 的余量
+                page.headerWgt.save();  // 若用户仍在此页面活跃，则自动保存（主要目的是保持 session，同时可兼顾保存功能）
+            }
+        }, saveInterval);
 
         // 顶部栏(网站导航条之下)
         this.headerWgt = new HeaderWgt('#stigmod-header');
@@ -1493,7 +1508,7 @@ define(function (require, exports, module) {
         var widget = this;
 
         // 点击保存按钮
-        $(document).on('click', '.stigmod-model-save, .stigmod-model-save-btn', handleClkSave);
+        $(document).on('click autosave', '.stigmod-model-save, .stigmod-model-save-btn', handleClkSave);
 
         // 点击进入全屏
         $(document).on('click', '.stigmod-enter-full-screen-btn', handleClkEnterFS);
@@ -1536,7 +1551,8 @@ define(function (require, exports, module) {
                 data: encodeURI(JSON.stringify(postData)),  // 把数据字符串化以使空数组能正确传递（加一层 URI 编码以正确传输中文）
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
-                    hideMask();
+                    //hideMask();
+                    showSaved();
                     console.log('messages :');
                     for (var i = 0; i < msg.messages.length; i++) {
                         console.log(msg.messages[i]);
@@ -1545,7 +1561,8 @@ define(function (require, exports, module) {
                 },
                 error: function (jqXHR, textStatus) {
                     // TODO：回滚 icm 的 log？
-                    hideMask();
+                    //hideMask();
+                    showSaved();
 
                     if (textStatus === "timeout") {
                         console.log('AJAX: Call has timed out'); // Handle the timeout
@@ -1555,7 +1572,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            showMask();
+            //showMask();
             disableSave();
         }
 
@@ -1619,6 +1636,11 @@ define(function (require, exports, module) {
             $('.stigmod-loader').hide();
             $('.stigmod-loader-text').hide();
         }
+    };
+
+    // 用于自动保存
+    HeaderWgt.prototype.save = function () {
+        $('.stigmod-model-save').trigger('autosave');  // 用自定义的 autosave 时间，而不是 click 事件，避免刷新用户“最近一次操作的时间”
     };
 
 
@@ -2524,6 +2546,10 @@ define(function (require, exports, module) {
 
         this.createClassIfNotExists = false;
 
+        //this.saveState = 'saved';  // saved | toBeSaved | saving
+
+        this.isActive = true;
+
         _.makePublisher(this);
     }
 
@@ -3328,15 +3354,24 @@ define(function (require, exports, module) {
     // 失能保存按钮
     function disableSave() {
         $('.stigmod-model-save').hide();
-        $('.stigmod-model-saved').show();
+        $('.stigmod-model-saved').hide();
+        $('.stigmod-model-saving').show();
         $('.stigmod-model-save-btn').attr({'disabled': ''});
     }
 
     // 使能保存按钮
     function enableSave() {
-        $('.stigmod-model-save').show();
+        $('.stigmod-model-saving').hide();
         $('.stigmod-model-saved').hide();
+        $('.stigmod-model-save').show();
         $('.stigmod-model-save-btn').removeAttr('disabled');
+    }
+
+    // 显式已保存（保存功能仍是失能状态）
+    function showSaved() {
+        $('.stigmod-model-save').hide();
+        $('.stigmod-model-saving').hide();
+        $('.stigmod-model-saved').show();
     }
 
     // addrelation 和 modifyrelation 下拉菜单中的核心处理函数
