@@ -395,7 +395,7 @@ public class AuthController {
 
     // sign in page GET  (POST route is taken care of by Spring-Security)
     @RequestMapping(value="/signin", method = RequestMethod.GET)
-    public String login(ModelMap model, HttpServletRequest request) {
+    public String login(@RequestParam(value = "login_error", required = false)String login_error, ModelMap model, HttpServletRequest request) {
 
         if (migrateService.isRunning()) {
             model.addAttribute("host", host);
@@ -407,6 +407,10 @@ public class AuthController {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign In");
+
+        if (login_error != null) {
+            model.addAttribute("error", "Sign in failed. Perhaps you have used a wrong email address or wrong password.");
+        }
 
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
