@@ -61,6 +61,9 @@ public class ModelService {
             throw new IllegalArgumentException("Model description can not be empty.");
         }
 
+        // 保证新名称不与已有 CCM 名称重复
+        this.checkCcmDuplication(name);
+
         // 保证新名称不与用户已有 ICM 名称重复
         this.checkIcmDuplication(user.getId(), 0L, name, "new");
 
@@ -222,6 +225,15 @@ public class ModelService {
             if (type.equals("new") || icmIdTakenTheName.longValue() != id) {
                 throw new IllegalArgumentException("You already have a model named as " + name);
             }
+        }
+    }
+
+    // 保证新名称不与已有 CCM 名称重复
+    private void checkCcmDuplication(String name) {
+        List<CollectiveConceptualModel> ccms = ccmRepo.findByName(name);
+
+        if (!ccms.isEmpty()) {
+            throw new IllegalArgumentException("The CCM name [" + name + "]  has been taken.");
         }
     }
 }
