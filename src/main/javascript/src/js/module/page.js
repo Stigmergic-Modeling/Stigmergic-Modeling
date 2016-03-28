@@ -1132,7 +1132,7 @@ define(function (require, exports, module) {
             var $roleModify = $root.find('.stigmod-rel-prop-role').find('.stigmod-input');
             var $multiplicityModify = $root.find('.stigmod-rel-prop-multiplicity').find('.stigmod-input');
 
-            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify);
+            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify, stateOfPage);
 
             event.preventDefault();
         }
@@ -2290,7 +2290,7 @@ define(function (require, exports, module) {
             var $roleModify = $root.find('#stigmod-addrel-role').find('.stigmod-input');
             var $multiplicityModify = $root.find('#stigmod-addrel-multiplicity').find('.stigmod-input');
 
-            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify);
+            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify, stateOfPage);
 
             event.preventDefault();
         }
@@ -3340,13 +3340,22 @@ define(function (require, exports, module) {
     }
 
     // addrelation 和 modifyrelation 下拉菜单中的核心处理函数
-    function ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify) {
+    function ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify, stateOfPage) {
+
+        var isChineseModel = stateOfPage.modelLanguage === 'ZH';
+        var roleFather = isChineseModel ? '父' : 'father';
+        var roleChild = isChineseModel ? '子' : 'child';
+        var roleWhole = isChineseModel ? '整体' : 'whole';
+        var rolePart = isChineseModel ? '部分' : 'part';
+        var roleOwner = isChineseModel ? '拥有者' : 'owner';
+        var roleOwnee = isChineseModel ? '被拥有者' : 'ownee';
+
         switch (reltype) {
             case 'Generalization':
                 $btn.text('Generalization');
                 $nameModify.css({'display': 'none'}).tooltip('destroy');
-                $roleModify.eq(0).val('father').tooltip('destroy');
-                $roleModify.eq(1).val('child').tooltip('destroy');
+                $roleModify.eq(0).val(roleFather).tooltip('destroy');
+                $roleModify.eq(1).val(roleChild).tooltip('destroy');
                 $multiplicityModify.eq(0).attr({'disabled': ''}).val('1').tooltip('destroy');
                 $multiplicityModify.eq(1).attr({'disabled': ''}).val('1').tooltip('destroy');
                 break;
@@ -3354,8 +3363,8 @@ define(function (require, exports, module) {
             case 'Composition':
                 $btn.text('Composition');
                 $nameModify.css({'display': 'block'}).tooltip('destroy');
-                $roleModify.eq(0).val('whole').tooltip('destroy');
-                $roleModify.eq(1).val('part').tooltip('destroy');
+                $roleModify.eq(0).val(roleWhole).tooltip('destroy');
+                $roleModify.eq(1).val(rolePart).tooltip('destroy');
                 $multiplicityModify.eq(0).attr({'disabled': ''}).val('1').tooltip('destroy');
                 $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
                 break;
@@ -3363,8 +3372,8 @@ define(function (require, exports, module) {
             case 'Aggregation':
                 $btn.text('Aggregation');
                 $nameModify.css({'display': 'block'}).tooltip('destroy');
-                $roleModify.eq(0).val('owner').tooltip('destroy');
-                $roleModify.eq(1).val('ownee').tooltip('destroy');
+                $roleModify.eq(0).val(roleOwner).tooltip('destroy');
+                $roleModify.eq(1).val(roleOwnee).tooltip('destroy');
                 $multiplicityModify.eq(0).removeAttr('disabled').val('').tooltip('destroy');
                 $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
                 break;
