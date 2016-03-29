@@ -2789,7 +2789,7 @@ define(function (require, exports, module) {
 
     // 初始化
     ClassRecWgt.prototype.init = function (icm, ccm) {
-        this.data = ccm.getClasses(icm);
+        this.data = ccm.getClassesMultiName(icm);  // 同一 ID 的类可能出现多次，有几个名字出现几次（不包括 ICM 中已有的名字）
         //console.log('this.data(getClasses)', this.data);
 
         var data = this.data,

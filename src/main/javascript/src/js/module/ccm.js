@@ -594,7 +594,7 @@ define(function (require, exports, module) {
     };
 
     /**
-     * 获取 CCM 中所有的类（及其 attributes 的基本信息，即属性名和属性类型）
+     * 获取 CCM 中所有的类，用于整体页面右侧栏中，【同一 ID 的类不会出现多次】（及其 attributes 的基本信息，即属性名和属性类型）
      * @param icm
      * @returns {Array}
      */
@@ -709,6 +709,150 @@ define(function (require, exports, module) {
         icm.temp.classIdNameMapping = classIdNameMappingInCCM;  // 更新每个 CCM class node 中引用数最高的名字
 
         return classes;
+    };
+
+    /**
+     * 获取 CCM 中所有的类，用于 Add Class modal 右侧栏中，【同一 ID 的类可能出现多次，有几个名字出现几次（不包括 ICM 中已有的名字）】
+     * （及其 attributes 的基本信息，即属性名和属性类型）
+     * @param icm
+     * @returns {Array}
+     */
+    CCM.prototype.getClassesMultiName = function(icm) {
+        var classCluster, maxRef, names, className, tmpObj,
+            clazz, classes = [],
+            cName,
+            classInICM = icm[2]['clazz'],
+            classNamesInICM = {},  // icm中class名，用于去重
+            classIdsInICM ={};  // icm中classID，用于去重
+        var ccm = this;
+        var classIdNameMappingInICM = {};  // 用于记录每个 ICM class node 中用户所选的名字
+        var classIdNameMappingInCCM = {};  // 用于记录每个 CCM class node 中引用数最高的名字
+
+        for (cName in icm[0]) {
+            if (icm[0].hasOwnProperty(cName)) {
+                classNamesInICM[cName] = true;  // 构造 classNamesInICM
+            }
+        }
+
+        for (cName in classNamesInICM) {
+            if (classNamesInICM.hasOwnProperty(cName)) {
+                var id = classInICM[cName].id;
+                classIdsInICM[id] = true;  // 构造 classIdsInICM
+                classIdNameMappingInICM[id] = cName;  // 用于记录每个 ICM class node 中用户所选的名字
+            }
+        }
+
+        // 第一遍，先提取所有可能被推荐的（与 ICM 不同id且不同名，名指引用数最高的名）CCM 类的 id, name, ref
+        for (classCluster in this.clazz) {
+            if (this.clazz.hasOwnProperty(classCluster)) {
+
+                // 获取引用数最多的名字（后端传来的数据中已经过滤掉内置类型）
+                clazz = {};
+                clazz.id = classCluster;  // 记录id，用于采用推荐时绑定
+                maxRef = 0;
+                names = this.clazz[classCluster].name;
+                for (className in names) {
+                    if (names.hasOwnProperty(className)) {
+                        if (names[className].ref > maxRef) {
+                            maxRef = names[className].ref;
+                            clazz.name = className;
+                        }
+                    }
+                }
+                if (clazz.id in classIdsInICM) {
+                    continue;  // 与当前 ICM class ID 相同的 CCM class 不会被推荐
+                }
+                classIdNameMappingInCCM[clazz.id] = clazz.name;  // 用于记录每个 ICM class node 中引用数最高的名字
+                classes.push(clazz);
+            }
+        }
+
+        // 第二遍，提取可能被推荐类的属性（属性名和属性类型）
+        for (var i = 0; i < classes.length; i++) {
+
+            clazz = classes[i];
+            var attributeIds = this.clazz[clazz.id].attribute;
+            clazz.attribute = [];
+            for (var j = 0; j < attributeIds.length; j++) {
+                var attributeInfo = this.relationship[attributeIds[j]];
+                var attributeNames = attributeInfo.property.role.E1;
+                var attributeTypes = attributeInfo.property.clazz.E1;
+
+                // 获取该 attribute 引用数
+                tmpObj = {};
+                tmpObj.ref = attributeInfo.ref;
+
+                // 获取该 attribute 引用数最高的名称
+                maxRef = 0;
+                for (var attributeName in attributeNames) {
+                    if (attributeNames.hasOwnProperty(attributeName)) {
+                        if (attributeNames[attributeName].ref > maxRef) {
+                            tmpObj.name = attributeName;
+                            maxRef = attributeNames[attributeName].ref;
+                        }
+                    }
+                }
+
+                // 获取该 attribute 引用数最高的类型（如果存在的话）
+                if (!$.isEmptyObject(attributeTypes)) {
+
+                    // 获取最大引用数 type 的 id
+                    maxRef = 0;
+                    var attTypeId = '';
+                    for (var attributeTypeClassId in attributeTypes) {
+                        if (attributeTypes.hasOwnProperty(attributeTypeClassId)) {
+                            if (attributeTypes[attributeTypeClassId].ref > maxRef) {
+                                attTypeId = attributeTypeClassId;
+                                maxRef = attributeTypes[attributeTypeClassId].ref;
+                            }
+                        }
+                    }
+
+                    // 由 class id 获取 class name
+                    if ('_' === attTypeId.charAt(0)) {  // 内置类，attributeIds 实际内容为 '_string' 等
+                        tmpObj.type = attTypeId.slice(1);
+                    } else {
+                        if (attTypeId in classIdNameMappingInICM) {  // 在 ICM 中，直接去该用户对其的命名
+                            tmpObj.type = classIdNameMappingInICM[attTypeId];
+                        } else if (attTypeId in classIdNameMappingInCCM) {  // 在 CCM 中且不为“禁止推荐的类”，取引用数最高的名字
+                            tmpObj.type = classIdNameMappingInCCM[attTypeId];
+                        } else {  // 禁止推荐的类 TODO: 这里如何处理有待考察
+                            tmpObj.type = '';
+                        }
+                    }
+                }
+                clazz.attribute.push(tmpObj);
+            }
+        }
+        ccm.temp.classIdNameMapping = classIdNameMappingInCCM;  // 更新每个 ICM class node 中用户所选的名字
+        icm.temp.classIdNameMapping = classIdNameMappingInCCM;  // 更新每个 CCM class node 中引用数最高的名字
+
+        // 第三遍，复制有多个名字的类为多份
+        var classesTobeReturned = [];
+        var classNum = classes.length;
+        for (i = 0; i < classNum; i++) {
+            clazz = classes[i];
+            names = this.clazz[clazz.id].name;
+
+            for (className in names) {  // 将该类以不同名称加入到最终结果中
+                if (names.hasOwnProperty(className)) {
+
+                    // 与当前 ICM class 名称相同的 CCM class 不会被推荐 （但可能以其他名字被推荐）
+                    if (className in classNamesInICM) {
+                        continue;
+                    }
+
+                    // 换名
+                    classes[i].name = className;
+
+                    // 深拷贝到结果数组中
+                    var newObject = $.extend(true, {}, classes[i]);
+                    classesTobeReturned.push(newObject);
+                }
+            }
+        }
+
+        return classesTobeReturned;
     };
 
     /**
