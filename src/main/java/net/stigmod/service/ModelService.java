@@ -9,10 +9,7 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.system.CollectiveConceptualModel;
-import net.stigmod.domain.system.IndividualConceptualModel;
-import net.stigmod.domain.system.SystemInfo;
-import net.stigmod.domain.system.User;
+import net.stigmod.domain.system.*;
 import net.stigmod.repository.node.CollectiveConceptualModelRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import net.stigmod.repository.node.SystemInfoRepository;
@@ -72,6 +69,10 @@ public class ModelService {
         icm.addUser(user);
         user.addIcm(icm);
 
+        // 新建 ICM 的操作序列储存容器
+        ModelingOperations modOps = new ModelingOperations(icm);
+        icm.addModelingOps(modOps);
+
         // 新建 CCM
         CollectiveConceptualModel ccm = new CollectiveConceptualModel(name, description, language);
         ccm.addIcm(icm);
@@ -100,6 +101,10 @@ public class ModelService {
         IndividualConceptualModel icm = new IndividualConceptualModel(name, description, language);
         icm.addUser(user);
         user.addIcm(icm);
+
+        // 新建 ICM 的操作序列储存容器
+        ModelingOperations modOps = new ModelingOperations(icm);
+        icm.addModelingOps(modOps);
 
         // 获取 CCM
         CollectiveConceptualModel ccm = ccmRepo.getCcmById(ccmId);

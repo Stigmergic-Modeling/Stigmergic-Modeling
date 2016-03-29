@@ -18,6 +18,7 @@ import net.stigmod.domain.info.ModelingOperationLog;
 import net.stigmod.domain.info.ModelingResponse;
 import net.stigmod.domain.system.CollectiveConceptualModel;
 import net.stigmod.domain.system.IndividualConceptualModel;
+import net.stigmod.domain.system.ModelingOperations;
 import net.stigmod.repository.node.*;
 import net.stigmod.repository.relationship.*;
 import net.stigmod.util.Util;
@@ -61,6 +62,8 @@ public class WorkspaceService {
     @Autowired
     private IndividualConceptualModelRepository icmRepository;
 
+    @Autowired
+    private ModelingOperationsRepository modOpsRepository;
 
 
     /**
@@ -70,8 +73,12 @@ public class WorkspaceService {
      * @return 要返回给前端的 Response
      */
     public ModelingResponse syncModelingOperations(String molJsonString) {
-        ModelingOperationLog mol = constructMOL(molJsonString);
-        return executeMOL(mol);
+        ModelingOperationLog mol = this.constructMOL(molJsonString);
+        if (mol.log.size() <= 1) {  // log 长度小于等于 1 说明没有前端操作需要执行或保存（其中一条日志是 UPD NUM）
+            return new ModelingResponse();
+        }
+        this.storeModOps(mol);
+        return this.executeMOL(mol);
     }
 
     /**
@@ -326,6 +333,16 @@ public class WorkspaceService {
         }
 
         return modelingResponse;
+    }
+
+    /**
+     * 存储建模序列
+     * @param mol 建模日志
+     */
+    private void storeModOps(ModelingOperationLog mol) {
+        ModelingOperations modOps = modOpsRepository.getModOpsByIcmId(mol.icmId);
+        modOps.addOperations(mol.log);
+        modOpsRepository.save(modOps);
     }
 
     /**
