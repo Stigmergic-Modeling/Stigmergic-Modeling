@@ -2798,6 +2798,7 @@ define(function (require, exports, module) {
                 widget = this,
                 i, len, $item, popover;
 
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的第一个元素，使 .list-group-item:first-child 样式失效
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
             $item.find('.tag').text(data[i].name);  // 填入名字
@@ -2810,6 +2811,7 @@ define(function (require, exports, module) {
             // 点击填表
             $item.on('click', fillInBlanks);
         }
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的最后一个元素，使 .list-group-item:last-child 样式失效
 
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
@@ -2865,6 +2867,7 @@ define(function (require, exports, module) {
                 widget = this,
                 i, len, $item, popover;
 
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的第一个元素，使 .list-group-item:first-child 样式失效
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
             $item.find('.tag').text(data[i].name);  // 填入名字
@@ -2877,6 +2880,7 @@ define(function (require, exports, module) {
             // 点击填表
             $item.on('click', fillInBlanks);
         }
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的最后一个元素，使 .list-group-item:last-child 样式失效
 
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
@@ -2937,6 +2941,7 @@ define(function (require, exports, module) {
                 widget = this,
                 i, len, $item, popover;
 
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的第一个元素，使 .list-group-item:first-child 样式失效
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
             $item.find('.tag').text(data[i].type);  // 填入关系类型
@@ -2949,6 +2954,7 @@ define(function (require, exports, module) {
             // 点击填表
             $item.on('click', fillInBlanks);
         }
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的最后一个元素，使 .list-group-item:last-child 样式失效
 
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
