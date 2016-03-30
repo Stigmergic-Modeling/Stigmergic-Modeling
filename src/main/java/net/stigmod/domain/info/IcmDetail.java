@@ -55,7 +55,16 @@ public class IcmDetail {
 
     // 添加一个关系关系（若其归属的关系组尚未存在，则首先添加关系组，再添加关系）
     public void addRelationship(Long relationshipId, Map<String, List<String>> propertyAndValues) {  // type 和 name 合并在 key 为 “name” 的 propertyAndValues 中
-        String relationshipGroupName = makeRelationshipGroupName(propertyAndValues.get("class").get(0), propertyAndValues.get("class").get(1));
+        String relationshipGroupName;
+        try {
+            relationshipGroupName = makeRelationshipGroupName(propertyAndValues.get("class").get(0), propertyAndValues.get("class").get(1));
+        } catch (NullPointerException ex) {
+            System.out.println("!! propertyAndValues: " + propertyAndValues);
+            System.out.println("!! propertyAndValues.get(\"class\"): " + propertyAndValues.get("class"));
+            System.out.println("!! propertyAndValues.get(\"class\").get(0): " + propertyAndValues.get("class").get(0));
+            System.out.println("!! propertyAndValues.get(\"class\").get(1): " + propertyAndValues.get("class").get(1));
+            throw ex;
+        }
         if (!this.relationshipGroups.containsKey(relationshipGroupName)) {
             this.relationshipGroups.put(relationshipGroupName, new RelationshipGroup());
         }
@@ -78,7 +87,24 @@ public class IcmDetail {
     // 添加 relationship 的顺序 List
     public void addRelationshipOrders(List<Order> orders) {
         for (Order order : orders) {
-            this.relationshipGroups.get(order.getName()).orderInIcm.order = order.getOrderList();
+            String orderName = order.getName();
+            try {
+                System.out.println("!! this.relationshipGroups.get(orderName): " + this.relationshipGroups.get(orderName));
+                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm: " + this.relationshipGroups.get(orderName).orderInIcm);
+                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm.order: " + this.relationshipGroups.get(orderName).orderInIcm.order);
+                if (this.relationshipGroups.containsKey(orderName)) {  // 类两端的类的先后顺序，前端和后端一致
+                    this.relationshipGroups.get(orderName).orderInIcm.order = order.getOrderList();
+
+                } else {  // 类两端的类的先后顺序，前端和后端不一致，需要重新构造名称
+                    String[] className = orderName.split("-");
+                    String reverseOrderName = className[1] + "-" + className[0];
+                    System.out.println("!! reverseOrderName: " + reverseOrderName);
+                    this.relationshipGroups.get(reverseOrderName).orderInIcm.order = order.getOrderList();
+                }
+            } catch (NullPointerException ex) {
+                System.out.println("!! NullPointerException caused by Relationship Group: " + orderName);
+                throw ex;
+            }
         }
     }
 

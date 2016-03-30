@@ -1069,7 +1069,7 @@ public class WorkspaceService {
             if (!classNodes.isEmpty()) {  // ICM 中有类节点，直接返回
                 return new Pair<>(classNodes.get(0), true);
             } else {
-                classNodes = classNodeRepository.getAllByName(ccmId, className);
+                classNodes = classNodeRepository.getAllByName(ccmId, icmId, className);
                 if (!classNodes.isEmpty()) {  // CCM 中有类节点，将 icmId 加入后返回
 //                    ClassNode classNode = this.findTheMostReferencedElement(classNodes);
                     ClassNode classNode = classNodes.get(0);
