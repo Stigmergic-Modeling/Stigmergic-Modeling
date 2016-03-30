@@ -82,7 +82,7 @@ public class SessionService {
 
             System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
                     + onlineUserNum + ". Model merging is feasible.");
-            migrateService.migrateAlgorithmImpls(activatedCcmId, new ArrayList<ClassNode>(), new ArrayList<RelationNode>(),new ArrayList<ValueNode>());  // 第一版实现，只关心指定 CCM 的融合
+            migrateService.migrateAlgorithmImpls(activatedCcmId);
             alreadyRunAfterAllUsersOffline = true;
         }
     }

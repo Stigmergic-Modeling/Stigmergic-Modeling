@@ -68,15 +68,15 @@ public class MergeController2 {
         this.PersonNum = 5;
         initSimulateTest(classNodeList,relationNodeList,valueNodeList);
 
-//        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-//        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-//        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 
         boolean isRunning = migrateService.isRunning();
         if(isRunning) return "Algorithm is running ~!";
         else {
             try {
-                migrateService.migrateAlgorithmImpls(0l,classNodeList,relationNodeList,valueNodeList);
+                migrateService.migrateAlgorithmImpls(0l);
             }catch(Exception e) {
                 e.printStackTrace();
             }
