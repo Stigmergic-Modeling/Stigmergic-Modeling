@@ -58,27 +58,29 @@ public class MigrateServiceImpl implements MigrateService{
 
     private boolean isRunning = false;
 
-    public synchronized void migrateAlgorithmImpls(Long modelId) {
+    public synchronized void migrateAlgorithmImpls(Long modelId,List<ClassNode> cNodeList,List<RelationNode> rNodeList,
+                                                   List<ValueNode> vNodeList) {
         isRunning = true;
-        migrateDataInit(modelId);
+        migrateDataInit(modelId,cNodeList,rNodeList,vNodeList);
         migrateDeal();
-        migrateDataStore();
+//        migrateDataStore();
         isRunning = false;
     }
 
-    private void migrateDataInit(Long modelId) {//path默认为"/Users/fukai/Desktop/wordnet"
+    private void migrateDataInit(Long modelId,List<ClassNode> cNodeList,List<RelationNode> rNodeList,
+                                 List<ValueNode> vNodeList) {//path默认为"/Users/fukai/Desktop/wordnet"
         //获取ccm中各种node的数据
         this.modelId = modelId;
 
-        classNodeList = new ArrayList<>();
-        relationNodeList = new ArrayList<>();
-        valueNodeList = new ArrayList<>();
+//        classNodeList = new ArrayList<>();
+//        relationNodeList = new ArrayList<>();
+//        valueNodeList = new ArrayList<>();
 
-//        classNodeList = cNodeList;
-//        relationNodeList = rNodeList;
-//        valueNodeList = vNodeList;
+        classNodeList = cNodeList;
+        relationNodeList = rNodeList;
+        valueNodeList = vNodeList;
 
-        initConvertList();//初始化了classNodeList,relationNodeList以及valueNodeList
+//        initConvertList();//初始化了classNodeList,relationNodeList以及valueNodeList
         setLocForList();
 
 //        WordSimilaritiesForEn.initWuAndPalmer();

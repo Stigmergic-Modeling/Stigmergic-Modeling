@@ -22,7 +22,8 @@ import java.util.List;
  */
 public interface MigrateService {
 
-    void migrateAlgorithmImpls(Long modelId);
+    void migrateAlgorithmImpls(Long modelId,List<ClassNode> cNodeList,List<RelationNode> rNodeList,
+                               List<ValueNode> vNodeList);
 
     boolean isRunning();
 

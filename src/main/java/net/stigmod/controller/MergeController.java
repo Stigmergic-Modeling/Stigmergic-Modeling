@@ -64,12 +64,12 @@ public class MergeController {
 
             readFile(path,classNodeList,relationNodeList,valueNodeList);
 
-            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+//            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+//            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+//            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 
             try {
-                migrateService.migrateAlgorithmImpls(0l);
+                migrateService.migrateAlgorithmImpls(0l,classNodeList,relationNodeList,valueNodeList);
             }catch(Exception e) {
                 e.printStackTrace();
             }
