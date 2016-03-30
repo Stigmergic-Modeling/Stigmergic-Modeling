@@ -1559,7 +1559,7 @@ define(function (require, exports, module) {
                     }
                     icm.updateIdMapping(msg.idMappings);  // 更新 ID Mapping
                 },
-                error: function (jqXHR, textStatus) {
+                error: function (jqXHR, textStatus, errorThrown) {
                     // TODO：回滚 icm 的 log？
                     //hideMask();
                     showSaved();
@@ -1567,7 +1567,10 @@ define(function (require, exports, module) {
                     if (textStatus === "timeout") {
                         console.log('AJAX: Call has timed out'); // Handle the timeout
                     } else {
-                        console.log('AJAX: Another error was returned (textStatus: '+ textStatus + ')'); // Handle other error type
+                        console.log('AJAX: ErrorThrown: '+ errorThrown); // Handle other error type
+                        if (errorThrown === 'Method Not Allowed') {
+                            alert('Your session has expired (10 minutes no action). Please sign in again.');
+                        }
                     }
                 }
             });
