@@ -15,6 +15,7 @@ import net.stigmod.domain.conceptualmodel.ValueNode;
 import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
 import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
 import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
+import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -399,6 +400,21 @@ public class MigrateUtil {
     }
 
     /**
+     * 这个函数是用来找出classNode中哪些用户指向同一个值节点,但过滤掉了用户数为1的情况,交由后面来解决
+     * @param cNode
+     * @return
+     */
+    protected  List<Set<Long>> getTheUserSetToConValueNodeForClassNode(ClassNode cNode) {
+        List<Set<Long>> resList = new ArrayList<>();
+        for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+            if(ctvEdge.getIcmSet().size()<=1) continue;
+            Set<Long> vUSet = new HashSet<>(ctvEdge.getIcmSet());
+            resList.add(vUSet);
+        }
+        return resList;
+    }
+
+    /**
      * 这个函数是用来找出classNode中哪些用户的边完全相同的
      * @param cNode
      * @return 一个map结构,主要就是相同边的用户集合
@@ -476,12 +492,32 @@ public class MigrateUtil {
     }
 
     //返回与cNode有相交节点的所有classNode的ListId编号
-    protected List<Integer> findConClassNodes(ClassNode cNode) {
+    protected List<Integer> findConClassNodes(ClassNode cNode,List<ValueNode> valueNodeList) {
         List<Integer> classNodeListIdSet = new ArrayList<>();
+        List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
+        List<Integer> vNodeListIdSet = new ArrayList<>();
 
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
             if(ctvEdge.getIcmSet().size() == 0) continue;
             ValueNode vNode = ctvEdge.getEnder();
+            vNodeSimListIdSet.add(vNode.getLoc());
+            vNodeListIdSet.add(vNode.getLoc());
+        }
+
+        //除了ctv和rtc的之外,还要考虑因为value节点相似而带来的额外的ctv
+        for(int vloc : vNodeSimListIdSet) {
+            List<Double> vSim = WordSimilarities.vNodeSimList.get(vloc);
+            int vSize = vSim.size();
+            for(int i=0;i<vSize;i++) {
+                if(i==vloc) continue;
+                if(Double.compare(vSim.get(i),0.5)>=0) {
+                    vNodeListIdSet.add(i);
+                }
+            }
+        }
+
+        for(int vNodeLocId : vNodeListIdSet) {
+            ValueNode vNode = valueNodeList.get(vNodeLocId);
             //获得了当前cNode连接的一个vNode,接下来获取到该vNode连接的所有cNode
             for(ClassToValueEdge ctvEdge2 : vNode.getCtvEdges()) {
                 if(ctvEdge2.getIcmSet().size() == 0) continue;
@@ -505,23 +541,47 @@ public class MigrateUtil {
                 }
             }
         }
+
         Collections.sort(classNodeListIdSet, new Comparator<Integer>() {
             @Override
             public int compare(Integer o1, Integer o2) {
-                return o1-o2;
+                return o1 - o2;
             }
         });
         return classNodeListIdSet;
     }
 
-    protected List<Integer> findConRelationNodes(RelationNode rNode) {
+    protected List<Integer> findConRelationNodes(RelationNode rNode,List<ValueNode> valueNodeList) {
         List<Integer> relationNodeListIdSet = new ArrayList<>();
+        List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
+        List<Integer> vNodeListIdSet = new ArrayList<>();
 
         for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-            if(rtvEdge.getIcmSet().size() == 0) continue;
+            if (rtvEdge.getIcmSet().size() == 0) continue;
             ValueNode vNode = rtvEdge.getEnder();
-            if(vNode.getName().equals("1")||vNode.getName().equals("2")||vNode.getName().equals("*")
-                    ||vNode.getName().equals("1..*")||vNode.getName().equals("true")) continue;
+            if(vNode.getName().equals("1")||vNode.getName().equals("0..1")||vNode.getName().equals("2")||
+                    vNode.getName().equals("*") ||vNode.getName().equals("1..*")||vNode.getName().equals("true"))
+                continue;
+            vNodeSimListIdSet.add(vNode.getLoc());
+            vNodeListIdSet.add(vNode.getLoc());
+        }
+
+        for(int vloc : vNodeSimListIdSet) {
+            List<Double> vSim = WordSimilarities.vNodeSimList.get(vloc);
+            int vSize = vSim.size();
+            for(int i=0;i<vSize;i++) {
+                if(i==vloc) continue;
+                if(Double.compare(vSim.get(i),0.5)>=0) {
+                    vNodeListIdSet.add(i);
+                }
+            }
+        }
+
+        for(int vNodeLocId : vNodeListIdSet) {
+            ValueNode vNode = valueNodeList.get(vNodeLocId);
+            if(vNode.getName().equals("1")||vNode.getName().equals("0..1")||vNode.getName().equals("2")||
+                    vNode.getName().equals("*") ||vNode.getName().equals("1..*")||vNode.getName().equals("true"))
+                continue;
             for(RelationToValueEdge rtvEdge2 : vNode.getRtvEdges()) {
                 if(rtvEdge2.getIcmSet().size() == 0) continue;
                 RelationNode otherRNode = rtvEdge2.getStarter();

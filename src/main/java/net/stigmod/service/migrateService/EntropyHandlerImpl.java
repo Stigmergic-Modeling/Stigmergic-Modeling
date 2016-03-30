@@ -33,6 +33,13 @@ public class EntropyHandlerImpl implements EntropyHandler{
 //    @Autowired
 //    private ValueNodeRepository valueNodeRepository;
 
+    private double rtcWeight = 1.0;
+    private double roleWeight = 1.0;
+    private double nameWeight = 1.0;
+    private double multiWeight = 0.4;
+    private double otherAttrWeight = 0.2;
+
+
     /**
      * @target 主要是获取ClassNode节点的边的Map
      * @param ctvEdges :出边
@@ -41,7 +48,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
      */
     public Map<String,List<Set<Long>>> getMapForClassNode(Set<ClassToValueEdge> ctvEdges,Set<RelationToClassEdge> rtcEdges) {
         Map<String,List<Set<Long>>> myMap=new HashMap<>();
-        if((ctvEdges==null||ctvEdges.size()==0)&&(rtcEdges==null||rtcEdges.size()==0)) return myMap;
+        if((ctvEdges==null || ctvEdges.size()==0) && (rtcEdges==null || rtcEdges.size()==0)) return myMap;
         addCTVElementToMap(myMap,ctvEdges);
         addRTCElementToMap(myMap,rtcEdges);
         return myMap;
@@ -89,195 +96,29 @@ public class EntropyHandlerImpl implements EntropyHandler{
         return entropy;
     }
 
-    public Double computeSimulateMigrateCNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, Set<Long>> ctvNodeMap
-            , ClassNode classNode , int nodeSum) {//这个函数主要是处理模拟迁移的的目标节点的熵值计算
-        double entropy = 0.0;
-        double biEntropy = 0.0;
-        biEntropy += computeMapBiEntropy(myMap, classNode);//由于这种迁移是map中不包含name边,所以不用担心冲突
-
-        List<Integer> vNodeLocList = new ArrayList<>();
-        List<Double> probList = new ArrayList<>();
-        int realNum = 0;
-        int uSum = 0;
-        for(int loc : ctvNodeMap.keySet()) {
-            int curSize = ctvNodeMap.get(loc).size();
-            if(curSize==0) continue;
-            realNum++;
-            uSum+=curSize;
-            vNodeLocList.add(loc);
-            probList.add((double) curSize);
-        }
-
-        double tagE = computeCNodeBiEntropyWithSimilarity(vNodeLocList,probList,uSum,realNum);
-        biEntropy += tagE;
-        entropy = biEntropy * nodeSum;
-        return entropy;
-    }
-
-    public Double computeSimulateMigrateRNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, List<Set<Long>>> rtvNodeMap
-            , RelationNode relationNode , int nodeSum) {//这个函数主要是处理模拟迁移的的目标节点的熵值计算
-        //mymap中包含了除role之外的其他的Map
-        double entropy = 0.0;
-        double biEntropy = 0.0;
-        biEntropy += computeMapBiEntropy(myMap, relationNode);//由于这种迁移是map中不包含role边,所以不用担心冲突
-
-        biEntropy += computeRNodeMapBiEntropyWithSimilarity(rtvNodeMap);
-        entropy = biEntropy * nodeSum;
-        return entropy;
-    }
-
+    /**
+     * 对于任何一个要计算熵值的节点而言,都要去判断是否是可能包含相似度的情况
+     * @param myMap
+     * @param vertex
+     * @return
+     */
     public Double computeMapBiEntropy(Map<String, List<Set<Long>>> myMap , Vertex vertex) {
         double entropy = 0.0;
 
         if(myMap.containsKey("name") && vertex.getClass()==ClassNode.class) {
-            entropy += computeCNodeMapBiEntropyWithSimilarity(((ClassNode) vertex).getCtvEdges());
+            double tmpEntropy = computeCNodeMapBiEntropyWithSimilarity(((ClassNode) vertex).getCtvEdges());
+            entropy += tmpEntropy * nameWeight;//添加权重
             myMap.remove("name");
         }else if(myMap.containsKey("role") && vertex.getClass()==RelationNode.class) {
             List<Set<Long>> roleList = myMap.get("role");
             Map<Integer,List<Set<Long>>> rtvMap = convertRoleListToRVMap((RelationNode)vertex);
-            entropy += computeRNodeMapBiEntropyWithSimilarity(rtvMap);
+            double tmpEntropy = computeRNodeMapBiEntropyWithSimilarity(rtvMap);
+            entropy += tmpEntropy * roleWeight;
             myMap.remove("role");
         }
-        entropy += computeMapBiEntropyForNoramlNode(myMap);
+        entropy += computeMapBiEntropyForNoramlNode(myMap);//至于其他的随机变量,则在该函数内部处理
         return entropy;
     }
-
-    private Double computeRNodeMapBiEntropyWithSimilarity(Map<Integer,List<Set<Long>>> rtvMap) {//对于relation节点,这里面的rtv仅限于name为role的情况,rtv的每一种可能两个端口
-        double biEntropy = 0.0;
-        //这里面的Key是value节点的loc,value是对应的边的用户数
-        Set<Long> uSet = new HashSet<>();
-        List<Set<Long>> uList = new ArrayList<>();
-        List<Integer> uLocList = new ArrayList<>();//这个和ulist对应的.
-        for(Integer curLoc : rtvMap.keySet()) {
-            List<Set<Long>> curList = rtvMap.get(curLoc);//获取到这个节点的用户集合
-            int listSize = curList.size();
-            for(int i=0;i<listSize;i++) {
-                uSet.addAll(new HashSet<Long>(curList.get(i)));
-                if(curList.get(i).size()!=0) {//如果这个集合不为0
-                    uList.add(new HashSet<Long>(curList.get(i)));
-                    uLocList.add(curLoc);
-                }
-            }
-        }
-
-        int uListNum = uList.size();
-        //uSet中获取了所有用户的集合
-        int uSum = uSet.size();//所有的用户数
-        Iterator<Long> iter = uSet.iterator();
-        Map<String,Set<Long>> icmMap = new HashMap<>();
-        Map<String,List<Integer>> locMap = new HashMap<>();//对应loc的map,与icmMap一一对应
-        while(iter.hasNext()) {
-            Long curIcm = iter.next();
-            StringBuffer bf = new StringBuffer();
-            for(int i=0;i<uListNum;i++) {
-                if(i!=uListNum-1&&uList.get(i).contains(curIcm)) bf.append(uLocList.get(i)+"-");
-                else if(i==uListNum-1&&uList.get(i).contains(curIcm)) bf.append(uLocList.get(i));
-            }
-
-            String bfStr = bf.toString();
-            if(icmMap.containsKey(bfStr)) {
-                icmMap.get(bfStr).add(curIcm);
-            }else {
-                Set<Long> cSet = new HashSet<>();
-                cSet.add(curIcm);
-                icmMap.put(bfStr,cSet);
-            }
-        }
-        //获得了所有用户的针对节点的分布,这个很重要
-        for(String str : icmMap.keySet()) {
-            List<Integer> locList = new ArrayList<>();
-            String[] sts = str.split("-");
-            for(int i=0;i<sts.length;i++) {
-                if(!sts[i].equals("")) locList.add(Integer.parseInt(sts[i]));//将对应loc加入到locList中去
-            }
-            locMap.put(str,locList);
-        }//获取到所有loc对节点的分布
-
-        int distributeNum = icmMap.keySet().size();//分布数
-        List<String> distributeStrList = new ArrayList<>(icmMap.keySet());
-        List<Double> probList = new ArrayList<>();//每个分布的概率
-        for(int i=0;i<distributeNum;i++) {
-            String curStr = distributeStrList.get(i);
-            Set<Long> curIcmSet = icmMap.get(curStr);
-            double curP = (double)curIcmSet.size()/uSum;
-            probList.add(curP);//表示这个分布的概率
-        }
-
-        List<List<Double>> simList = new ArrayList<>();
-        for(int i=0;i<distributeNum;i++) {
-            List<Double> innerSimList = new ArrayList<>();
-            for(int j=0;j<distributeNum;j++) {
-                if(i>=j) innerSimList.add(0.0);
-                else {
-                    double realSim = computeWordSimWithList(locMap.get(distributeStrList.get(i)),
-                            locMap.get(distributeStrList.get(j)));
-                    innerSimList.add(realSim);
-                }
-            }
-            simList.add(innerSimList);
-        }//得出了相似度矩阵
-
-        double tmpBiEntropy = 0.0;
-        for(int i=0;i<distributeNum;i++) {
-            double firstP = probList.get(i);
-            double sumP = firstP;
-            //公式为log(pi+pj*Sim)
-            for(int j=0;j<distributeNum;j++) {
-                if(i==j) continue;
-                double secP = probList.get(j);
-                if(i<j) sumP += secP * simList.get(i).get(j);
-                else sumP += secP * simList.get(j).get(i);
-            }
-            double logp = Math.log(sumP)/Math.log(2);
-            tmpBiEntropy += firstP * logp;
-        }
-        biEntropy = -tmpBiEntropy;
-        return biEntropy;
-    }
-
-    private Double computeCNodeMapBiEntropyWithSimilarity(Set<ClassToValueEdge> ctvEdges) {
-        //edges有可能是ctv,也有可能是rtv类型的,当前指的是ctv的
-        List<ClassToValueEdge> ctvEdgeList = new ArrayList<>(ctvEdges);
-        List<Integer> vNodeLocList = new ArrayList<>();
-        List<Double> probList = new ArrayList<>();
-        int edgeNum = ctvEdgeList.size();
-        int uSum = 0;
-
-        int realNum = 0;//替代edgeName的,因为含有0边
-        for(int i=0; i<edgeNum; i++) {
-            ClassToValueEdge ctvEdge = ctvEdgeList.get(i);
-            int curEdgeSize = ctvEdge.getIcmSet().size();
-            if(curEdgeSize == 0) continue;
-            realNum++;
-            vNodeLocList.add(ctvEdge.getEnder().getLoc());
-            uSum += curEdgeSize;
-            probList.add((double)curEdgeSize);//这里面存储的是整数,因此在待会算概率的时候要除以uSum
-        }
-
-        double tagE = computeCNodeBiEntropyWithSimilarity(vNodeLocList,probList,uSum,realNum);
-        return tagE;
-    }
-
-    private Double computeCNodeBiEntropyWithSimilarity(List<Integer> vNodeLocList,List<Double> probList,int uSum,int realNum) {
-        double tagE = 0.0;
-        for(int i=0; i<realNum; i++) probList.set(i,probList.get(i)/uSum);//由于这里的probList不是真正的概率,还要除以总数
-
-        for(int i=0; i<realNum; i++) {
-            double curP = probList.get(i);//这是p(xi)
-            double sum = curP;
-            for(int j=0; j<realNum; j++) {
-                if(i==j) continue;
-                sum += probList.get(j)* WordSimilarities.vNodeSimList.get(vNodeLocList.get(i)).get(vNodeLocList.get(j));//节点i与节点j的相似度
-            }
-            double logp = Math.log(sum)/Math.log(2);
-            tagE += curP*logp;
-        }
-        tagE = -tagE;
-        tagE = tagE * uSum;
-        return tagE;
-    }
-
-
 
     private Double computeMapBiEntropyForNoramlNode(Map<String,List<Set<Long>>> myMap) {
         double entropy=0.0;
@@ -298,7 +139,7 @@ public class EntropyHandlerImpl implements EntropyHandler{
                 List<Integer> edgeList = new ArrayList<>();
                 for(int i=0;i<valueListSize;i++) {
                     if(valuelist.get(i).contains(uid)) {
-                        stringBuffer.append(i);
+                        stringBuffer.append("-"+i+"-");
                         edgeList.add(i);
                     }
                 }
@@ -365,9 +206,157 @@ public class EntropyHandlerImpl implements EntropyHandler{
             }
             tagE=-tagE;
             tagE=tagE*userSet.size();
+
+            //添加权重的影响
+            if(key.equals("class")) tagE = tagE * rtcWeight;
+            else if(key.equals("multi")) tagE = tagE * multiWeight;
+            else if(key.equals("role")) tagE = tagE * roleWeight;
+            else if(key.equals("name")) tagE = tagE * nameWeight;
+            else tagE = tagE * otherAttrWeight;
             entropy+=tagE;
         }
         return entropy;
+    }
+
+    private Double computeCNodeMapBiEntropyWithSimilarity(Set<ClassToValueEdge> ctvEdges) {
+        //edges有可能是ctv,也有可能是rtv类型的,当前指的是ctv的
+        List<ClassToValueEdge> ctvEdgeList = new ArrayList<>(ctvEdges);
+        List<Integer> vNodeLocList = new ArrayList<>();
+        List<Double> probList = new ArrayList<>();
+        int edgeNum = ctvEdgeList.size();
+        int uSum = 0;
+
+        int realNum = 0;//替代edgeName的,因为含有0边
+        for(int i=0; i<edgeNum; i++) {
+            ClassToValueEdge ctvEdge = ctvEdgeList.get(i);
+            int curEdgeSize = ctvEdge.getIcmSet().size();
+            if(curEdgeSize == 0) continue;
+            realNum++;
+            vNodeLocList.add(ctvEdge.getEnder().getLoc());
+            uSum += curEdgeSize;
+            probList.add((double)curEdgeSize);//这里面存储的是整数,因此在待会算概率的时候要除以uSum
+        }
+
+        double tagE = computeCNodeBiEntropyWithSimilarityDetail(vNodeLocList, probList, uSum, realNum);
+        return tagE;
+    }
+
+    /**
+     * 这个rtv其实只有一个key,就是role
+     * @param rtvMap
+     * @return
+     */
+    private Double computeRNodeMapBiEntropyWithSimilarity(Map<Integer,List<Set<Long>>> rtvMap) {//对于relation节点,这里面的rtv仅限于name为role的情况,rtv的每一种可能两个端口
+        double biEntropy = 0.0;
+        //这里面的Key是value节点的loc,value是对应的边的用户数
+        Set<Long> uSet = new HashSet<>();
+        List<Set<Long>> uList = new ArrayList<>();
+        List<Integer> uLocList = new ArrayList<>();//这个和ulist对应的.
+        for(Integer curLoc : rtvMap.keySet()) {
+            List<Set<Long>> curList = rtvMap.get(curLoc);//获取到这个节点的用户集合
+            int listSize = curList.size();
+            for(int i=0;i<listSize;i++) {
+                uSet.addAll(new HashSet<Long>(curList.get(i)));
+                if(curList.get(i).size()!=0) {//如果这个集合不为0
+                    uList.add(new HashSet<Long>(curList.get(i)));
+                    uLocList.add(curLoc);
+                }
+            }
+        }
+
+        int uListNum = uList.size();
+        //uSet中获取了所有用户的集合
+        int uSum = uSet.size();//所有的用户数
+        Iterator<Long> iter = uSet.iterator();
+        Map<String,Set<Long>> icmMap = new HashMap<>();
+        Map<String,List<Integer>> locMap = new HashMap<>();//对应loc的map,与icmMap一一对应
+        while(iter.hasNext()) {
+            Long curIcm = iter.next();
+            StringBuffer bf = new StringBuffer();
+            for(int i=0;i<uListNum;i++) {
+                if(i!=uListNum-1&&uList.get(i).contains(curIcm)) bf.append(uLocList.get(i)+"-");
+                else if(i==uListNum-1&&uList.get(i).contains(curIcm)) bf.append(uLocList.get(i));
+            }
+
+            String bfStr = bf.toString();
+            if(icmMap.containsKey(bfStr)) {
+                icmMap.get(bfStr).add(curIcm);
+            }else {
+                Set<Long> cSet = new HashSet<>();
+                cSet.add(curIcm);
+                icmMap.put(bfStr,cSet);
+            }
+        }
+        //获得了所有用户的针对节点的分布,这个很重要
+        for(String str : icmMap.keySet()) {
+            List<Integer> locList = new ArrayList<>();
+            String[] sts = str.split("-");
+            for(int i=0;i<sts.length;i++) {
+                if(!sts[i].equals("")) locList.add(Integer.parseInt(sts[i]));//将对应loc加入到locList中去
+            }
+            locMap.put(str,locList);
+        }//获取到所有loc对节点的分布
+
+        int distributeNum = icmMap.keySet().size();//分布数
+        List<String> distributeStrList = new ArrayList<>(icmMap.keySet());
+        List<Double> probList = new ArrayList<>();//每个分布的概率
+        for(int i=0;i<distributeNum;i++) {
+            String curStr = distributeStrList.get(i);
+            Set<Long> curIcmSet = icmMap.get(curStr);
+            double curP = (double)curIcmSet.size()/uSum;
+            probList.add(curP);//表示这个分布的概率
+        }
+
+        List<List<Double>> simList = new ArrayList<>();
+        for(int i=0;i<distributeNum;i++) {
+            List<Double> innerSimList = new ArrayList<>();
+            for(int j=0;j<distributeNum;j++) {
+                if(i>j) innerSimList.add(0.0);
+                else if(i==j) innerSimList.add(1.0);
+                else {
+                    double realSim = computeWordSimWithList(locMap.get(distributeStrList.get(i)),
+                            locMap.get(distributeStrList.get(j)));
+                    innerSimList.add(realSim);
+                }
+            }
+            simList.add(innerSimList);
+        }//得出了相似度矩阵
+
+        double tmpBiEntropy = 0.0;
+        for(int i=0;i<distributeNum;i++) {
+            double firstP = probList.get(i);
+            double sumP = firstP;
+            //公式为log(pi+pj*Sim)
+            for(int j=0;j<distributeNum;j++) {
+                if(i==j) continue;
+                double secP = probList.get(j);
+                if(i<j) sumP += secP * simList.get(i).get(j);
+                else sumP += secP * simList.get(j).get(i);
+            }
+            double logp = Math.log(sumP)/Math.log(2);
+            tmpBiEntropy += firstP * logp;
+        }
+        biEntropy = -tmpBiEntropy;
+        return biEntropy;
+    }
+
+    private Double computeCNodeBiEntropyWithSimilarityDetail(List<Integer> vNodeLocList, List<Double> probList, int uSum, int realNum) {
+        double tagE = 0.0;
+        for(int i=0; i<realNum; i++) probList.set(i,probList.get(i)/uSum);//由于这里的probList不是真正的概率,还要除以总数
+
+        for(int i=0; i<realNum; i++) {
+            double curP = probList.get(i);//这是p(xi)
+            double sum = curP;
+            for(int j=0; j<realNum; j++) {
+                if(i==j) continue;
+                sum += probList.get(j)* WordSimilarities.vNodeSimList.get(vNodeLocList.get(i)).get(vNodeLocList.get(j));//节点i与节点j的相似度
+            }
+            double logp = Math.log(sum)/Math.log(2);
+            tagE += curP*logp;
+        }
+        tagE = -tagE;
+        tagE = tagE * uSum;
+        return tagE;
     }
 
     private Map<Integer,List<Set<Long>>> convertRoleListToRVMap(RelationNode relationNode) {
@@ -385,6 +374,57 @@ public class EntropyHandlerImpl implements EntropyHandler{
         }
         return rtvMap;
     }
+
+    /**
+     * 这是为了记录在模拟迁移过程中classnode由于模拟迁移产生的熵值一致问题
+     * 在计算模拟迁移的节点相似度的时候,也必需要记住添加权重
+     * @param myMap
+     * @param ctvNodeMap
+     * @param classNode
+     * @param nodeSum
+     * @return
+     */
+    public Double computeSimulateMigrateCNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, Set<Long>> ctvNodeMap
+            , ClassNode classNode , int nodeSum) {//这个函数主要是处理模拟迁移的的目标节点的熵值计算
+        double entropy = 0.0;
+        double biEntropy = 0.0;
+        biEntropy += computeMapBiEntropy(myMap, classNode);//由于这种迁移是map中不包含name边,所以不用担心冲突
+
+        List<Integer> vNodeLocList = new ArrayList<>();
+        List<Double> probList = new ArrayList<>();
+        int realNum = 0;
+        int uSum = 0;
+        for(int loc : ctvNodeMap.keySet()) {
+            int curSize = ctvNodeMap.get(loc).size();
+            if(curSize==0) continue;
+            realNum++;
+            uSum+=curSize;
+            vNodeLocList.add(loc);
+            probList.add((double) curSize);
+        }
+
+        double tagE = computeCNodeBiEntropyWithSimilarityDetail(vNodeLocList, probList, uSum, realNum);
+        tagE = tagE * nameWeight;//由于computeCNodeBiEntropyWithSimilarityDetail函数并没有包含权重,因此这里需要
+        biEntropy += tagE;
+        entropy = biEntropy * nodeSum;
+        return entropy;
+    }
+
+    public Double computeSimulateMigrateRNodeMapEntropy(Map<String, List<Set<Long>>> myMap , Map<Integer, List<Set<Long>>> rtvNodeMap
+            , RelationNode relationNode , int nodeSum) {//这个函数主要是处理模拟迁移的的目标节点的熵值计算
+        //mymap中包含了除role之外的其他的Map
+        double entropy = 0.0;
+        double biEntropy = 0.0;
+        biEntropy += computeMapBiEntropy(myMap, relationNode);//由于这种迁移是map中不包含role边,所以不用担心冲突
+
+        double tagE = computeRNodeMapBiEntropyWithSimilarity(rtvNodeMap);
+        tagE = tagE * roleWeight;
+        biEntropy += tagE;
+        entropy = biEntropy * nodeSum;
+        return entropy;
+    }
+
+
 
     public void addRTVElementToMap(Map<String,List<Set<Long>>> myMap , Set<RelationToValueEdge> rtvEdges) {
         //存在两个节点间连着两种边的情况

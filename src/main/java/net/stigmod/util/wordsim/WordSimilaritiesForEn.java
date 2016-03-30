@@ -85,13 +85,25 @@ public class WordSimilaritiesForEn {
                 targetFullNameWithBlank.append(targetNameList.get(i));
                 if(i!=targetSize-1) targetFullNameWithBlank.append(" ");
             }
-            maxSim = wup.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(),"n");
+            //如果两个名字相同,则为1.0
+            if(sourceFullNameWithBlank.toString().equals(targetFullNameWithBlank.toString())) maxSim = 1.0;
+            else {
+                maxSim = wup.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(),"n");
+//                if(Math.abs(maxSim-0.0)>0.00001) //重新更新一下maxSim的值
+//                    maxSim = wup.wup(sourceFullNameWithBlank.toString(),1,targetFullNameWithBlank.toString(),1,"n");
+            }
+
             if(Math.abs(maxSim-0.0)<0.00001 && (sourceSize>1 || targetSize>1)) {
                 List<NameSimilarity> nameSimList = new ArrayList<>();
+                int maxSize = Math.max(sourceSize, targetSize);//获取最大长度
                 int minSize = Math.min(sourceSize,targetSize);//获取最小长度
                 for(String sourceName : sourceNameList) {
                     for(String targetName : targetNameList) {
-                        double sim=wup.max(sourceName,targetName,"n");
+//                        double sim=wup.max(sourceName,targetName,"n");
+                        double sim = 0.0;
+                        if(sourceName.equals(targetName)) sim = 1.0;
+                        else sim=wup.max(sourceName,targetName,"n");
+//                        else sim = wup.wup(sourceName,1,targetName,1,"n");
                         NameSimilarity nameSimilarity = new NameSimilarity(sourceName,targetName,sim);
                         nameSimList.add(nameSimilarity);
                     }
@@ -116,7 +128,7 @@ public class WordSimilaritiesForEn {
                     }
                     index++;
                 }
-                maxSim = targetSim/minSize;
+                maxSim = targetSim/maxSize;//这个地方要除以最大的那个数
             }//暂时先不用这个
         }catch(Exception ex) {
             ex.printStackTrace();

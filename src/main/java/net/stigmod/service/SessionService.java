@@ -9,6 +9,9 @@
 
 package net.stigmod.service;
 
+import net.stigmod.domain.conceptualmodel.ClassNode;
+import net.stigmod.domain.conceptualmodel.RelationNode;
+import net.stigmod.domain.conceptualmodel.ValueNode;
 import net.stigmod.domain.system.SystemInfo;
 import net.stigmod.repository.node.SystemInfoRepository;
 import net.stigmod.service.migrateService.MigrateService;
@@ -19,6 +22,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -78,7 +82,7 @@ public class SessionService {
 
             System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
                     + onlineUserNum + ". Model merging is feasible.");
-            migrateService.migrateAlgorithmImpls(activatedCcmId);  // 第一版实现，只关心指定 CCM 的融合
+            migrateService.migrateAlgorithmImpls(activatedCcmId);
             alreadyRunAfterAllUsersOffline = true;
         }
     }
