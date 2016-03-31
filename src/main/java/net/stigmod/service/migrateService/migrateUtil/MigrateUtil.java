@@ -7,7 +7,7 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.service.migrateService;
+package net.stigmod.service.migrateService.migrateUtil;
 
 import net.stigmod.domain.conceptualmodel.ClassNode;
 import net.stigmod.domain.conceptualmodel.RelationNode;
@@ -15,6 +15,7 @@ import net.stigmod.domain.conceptualmodel.ValueNode;
 import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
 import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
 import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
+import net.stigmod.service.migrateService.EntropyHandler;
 import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class MigrateUtil {
      * @param targetCNode
      * @return 熵值变化
      */
-    protected double MigrateFromClassToClassForValueNode(Set<Long> icmSet , ValueNode valueNode , ClassNode sourceCNode ,
+    public double MigrateFromClassToClassForValueNode(Set<Long> icmSet , ValueNode valueNode , ClassNode sourceCNode ,
                                                          ClassNode targetCNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -110,7 +111,7 @@ public class MigrateUtil {
      * @param targetCNode
      * @return relation节点的熵值变化情况
      */
-    protected double MigrateFromClassToClassForRelationNode(Set<Long> icmSet , RelationNode relationNode , ClassNode sourceCNode
+    public double MigrateFromClassToClassForRelationNode(Set<Long> icmSet , RelationNode relationNode , ClassNode sourceCNode
             , ClassNode targetCNode , int oldNodeNum ,int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -204,7 +205,7 @@ public class MigrateUtil {
      * @param targetRNode
      * @return 熵值变化
      */
-    protected double MigrateFromRelationToRelationForValueNode(Set<Long> icmSet , ValueNode valueNode , RelationNode sourceRNode
+    public double MigrateFromRelationToRelationForValueNode(Set<Long> icmSet , ValueNode valueNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -297,7 +298,7 @@ public class MigrateUtil {
      * @param targetRNode
      * @return classNode的熵值变化
      */
-    protected double MigrateFromRelationToRelationForClassNode(Set<Long> icmSet , ClassNode classNode , RelationNode sourceRNode
+    public double MigrateFromRelationToRelationForClassNode(Set<Long> icmSet , ClassNode classNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -404,7 +405,7 @@ public class MigrateUtil {
      * @param cNode
      * @return
      */
-    protected  List<Set<Long>> getTheUserSetToConValueNodeForClassNode(ClassNode cNode) {
+    public List<Set<Long>> getTheUserSetToConValueNodeForClassNode(ClassNode cNode) {
         List<Set<Long>> resList = new ArrayList<>();
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
             if(ctvEdge.getIcmSet().size()<=1) continue;
@@ -419,7 +420,7 @@ public class MigrateUtil {
      * @param cNode
      * @return 一个map结构,主要就是相同边的用户集合
      */
-    protected Map<String,Set<Long>> getTheUserSetForClassNode(ClassNode cNode) {
+    public Map<String,Set<Long>> getTheUserSetForClassNode(ClassNode cNode) {
         Set<Long> curIcmSet = cNode.getIcmSet();
         Map<Long,String> icmMap = new HashMap<>();
         Map<String,Set<Long>> sameIcmMap = new HashMap<>();
@@ -455,7 +456,7 @@ public class MigrateUtil {
         return sameIcmMap;
     }
 
-    protected Map<String,Set<Long>> getTheUserSetForRelationNode(RelationNode rNode) {
+    public Map<String,Set<Long>> getTheUserSetForRelationNode(RelationNode rNode) {
         Set<Long> curIcmSet = rNode.getIcmSet();
         Map<Long,String> icmMap = new HashMap<>();
         Map<String,Set<Long>> sameIcmMap = new HashMap<>();
@@ -492,7 +493,7 @@ public class MigrateUtil {
     }
 
     //返回与cNode有相交节点的所有classNode的ListId编号
-    protected List<Integer> findConClassNodes(ClassNode cNode,List<ValueNode> valueNodeList) {
+    public List<Integer> findConClassNodes(ClassNode cNode,List<ValueNode> valueNodeList) {
         List<Integer> classNodeListIdSet = new ArrayList<>();
         List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
         List<Integer> vNodeListIdSet = new ArrayList<>();
@@ -551,7 +552,7 @@ public class MigrateUtil {
         return classNodeListIdSet;
     }
 
-    protected List<Integer> findConRelationNodes(RelationNode rNode,List<ValueNode> valueNodeList) {
+    public List<Integer> findConRelationNodes(RelationNode rNode,List<ValueNode> valueNodeList) {
         List<Integer> relationNodeListIdSet = new ArrayList<>();
         List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
         List<Integer> vNodeListIdSet = new ArrayList<>();

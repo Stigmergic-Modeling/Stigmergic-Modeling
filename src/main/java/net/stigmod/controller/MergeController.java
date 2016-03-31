@@ -393,9 +393,6 @@ public class MergeController {
 
     private void constructVNode(List<ValueNode> valueNodeList,ValueNode vNode,Map<String,Integer> valueListMap,
                                 long modelId,Set<Long> icmSet,String name) {
-//        if(name.equals("Cart")) {
-//            System.out.println("111");
-//        }
         vNode.setCcmId(modelId);
         vNode.setIcmSet(new HashSet<Long>(icmSet));
         vNode.setName(name);
