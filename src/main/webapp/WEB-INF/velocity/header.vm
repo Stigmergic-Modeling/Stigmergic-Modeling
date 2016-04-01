@@ -42,7 +42,7 @@
             </form>
             <ul class="nav navbar-nav">
                 <li><a href="/about">About</a></li>
-                <li><a href="#">Help</a></li>
+                <li><a href="/help">Help</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             #if (!${user})

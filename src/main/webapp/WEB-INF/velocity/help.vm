@@ -1,0 +1,86 @@
+#parse ("header.vm")
+
+<div id="stigmod-help" class="row">
+
+    <!-- 左侧导航栏 -->
+    <div class="col-xs-10 text-center">
+        <h2 id="top" class="stigmod-help-title">Stigmergic-Modeling 帮助</h2>
+        <hr/>
+
+        <!-- 专题 -->
+        <h3 id="create-model" class="stigmod-help-title">创建模型项目</h3>
+        <hr />
+        <h4 id="user-page" class="stigmod-help-title">用户页面</h4>
+        <img src="/static/dist/img/help/user_page.png" class="img-responsive" />
+        <hr />
+        <h4 id="create-model-inherated" class="stigmod-help-title">继承创建</h4>
+        <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+        <hr />
+        <h4 id="create-model-clean" class="stigmod-help-title">全新创建</h4>
+        <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+        <hr />
+
+        <!-- 专题 -->
+        <h3 id="workspace-intro" class="stigmod-help-title">熟悉建模工作台</h3>
+        <hr />
+        <h4 id="workspace-page" class="stigmod-help-title">建模工作台页面</h4>
+        <img src="/static/dist/img/help/workspace_page.png" class="img-responsive" />
+        <hr />
+        <h4 id="workspace-page-structure" class="stigmod-help-title">建模工作台页面结构</h4>
+        <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+    </div>
+
+    <!-- 右侧导航栏 -->
+    <div class="col-xs-2">
+        <div id="stigmod-navbar" class="affix">
+            <ul class="nav stigmod-sidenav">
+                <li class="">
+                    <a href="#create-model" class="">创建模型项目</a>
+                    <ul class="nav">
+                        <li class=""><a href="#user-page">用户页面</a></li>
+                        <li class=""><a href="#create-model-inherated">继承创建</a></li>
+                        <li class=""><a href="#create-model-clean">全新创建</a></li>
+                    </ul>
+                </li>
+                <li class="">
+                    <a href="#workspace-intro" class="">熟悉建模工作台</a>
+                    <ul class="nav">
+                        <li class=""><a href="#workspace-page">建模工作台页面</a></li>
+                        <li class=""><a href="#workspace-page-structure">建模工作台结构</a></li>
+                    </ul>
+                </li>
+                <li class="">
+                    <a href="#dropdowns">添加模型元素</a>
+                    <ul class="nav">
+                        <li class=""><a href="#dropdowns-example">添加类</a></li>
+                        <li class=""><a href="#dropdowns-alignment">添加类的属性</a></li>
+                        <li class=""><a href="#dropdowns-headers">添加关系组及关系</a></li>
+                    </ul>
+                </li>
+                <li class="">
+                    <a href="#btn-groups">修改模型元素</a>
+                    <ul class="nav">
+                        <li class=""><a href="#dropdowns-example">修改类</a></li>
+                        <li class=""><a href="#dropdowns-alignment">修改类的属性</a></li>
+                        <li class=""><a href="#dropdowns-headers">修改关系组及关系</a></li>
+                    </ul>
+                </li>
+                <li class="">
+                    <a href="#btn-groups">删除模型元素</a>
+                    <ul class="nav">
+                        <li class=""><a href="#dropdowns-example">删除类</a></li>
+                        <li class=""><a href="#dropdowns-alignment">删除类的属性</a></li>
+                        <li class=""><a href="#dropdowns-headers">删除关系组及关系</a></li>
+                    </ul>
+                </li>
+                <a class="back-to-top" href="#top">返回顶部</a>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+
+
+#set ($jsFile = "help")
+#parse ("footer.vm")
