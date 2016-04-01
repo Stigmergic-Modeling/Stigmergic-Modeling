@@ -108,7 +108,12 @@ public class WorkspaceService {
             String className1 = null;
 
             if (isNoTypeAttribute) {
-                className0 = (String) classEnds.get(0).get("propertyValue");
+                try {
+                    className0 = (String) classEnds.get(0).get("propertyValue");
+                } catch (IndexOutOfBoundsException ex) {
+                    System.out.println("!! icmId: " + icmId.toString() + ", relationshipId: " + relationshipId.toString());
+                    throw ex;
+                }
             } else {
                 boolean isTheFirstElementEnd0 = classEnds.get(0).get("port").equals("E0");
                 className0 = isTheFirstElementEnd0
