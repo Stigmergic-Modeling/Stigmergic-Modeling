@@ -55,8 +55,9 @@ public class MergeController {
         boolean isRunning = migrateService.isRunning();
         if(isRunning) return "Algorithm is running ~!";
         else {
-            neo4jDatabaseCleaner.cleanDb();
             migrateService.setIsRunning(true);
+            neo4jDatabaseCleaner.cleanDb();
+            System.out.println("isRunning!");
             String path = "/Users/fukai/Desktop/58";
             List<ClassNode> classNodeList=new ArrayList<>();
             List<RelationNode> relationNodeList=new ArrayList<>();
@@ -210,11 +211,11 @@ public class MergeController {
                         relationNode1.getRtcEdges().add(rtcEdge1);
                         classNode.getRtcEdges().add(rtcEdge1);
 
-                        RelationToValueEdge rtvEdge1 = new RelationToValueEdge("e0","role",relationNode1,mainRoleVNode);
-                        rtvEdge1.setIcmSet(new HashSet<Long>(curSet));
-                        rtvEdge1.setCcmId(modelId);
-                        relationNode1.getRtvEdges().add(rtvEdge1);
-                        mainRoleVNode.getRtvEdges().add(rtvEdge1);
+//                        RelationToValueEdge rtvEdge1 = new RelationToValueEdge("e0","role",relationNode1,mainRoleVNode);
+//                        rtvEdge1.setIcmSet(new HashSet<Long>(curSet));
+//                        rtvEdge1.setCcmId(modelId);
+//                        relationNode1.getRtvEdges().add(rtvEdge1);
+//                        mainRoleVNode.getRtvEdges().add(rtvEdge1);
 
                         RelationToValueEdge rtvEdge2 = new RelationToValueEdge("e0","multi",relationNode1,classMultiVNode);
                         rtvEdge2.setIcmSet(new HashSet<Long>(curSet));
@@ -357,7 +358,7 @@ public class MergeController {
                             constructVNode(valueNodeList,relationNameVNode,valueListMap,modelId,curSet,relationName);
                         }
 
-                        RelationToValueEdge rtvEdge5 = new RelationToValueEdge("","relationName",relationNode,relationNameVNode);
+                        RelationToValueEdge rtvEdge5 = new RelationToValueEdge("",relationName,relationNode,relationNameVNode);
                         rtvEdge5.setIcmSet(new HashSet<Long>(curSet));
                         rtvEdge5.setCcmId(modelId);
                         relationNode.getRtvEdges().add(rtvEdge5);

@@ -3,6 +3,7 @@ package net.stigmod.service.migrateService;
 
 import net.stigmod.domain.conceptualmodel.*;
 //import net.stigmod.util.wordsim.WordSimilarities;
+import net.stigmod.service.migrateService.migrateUtil.HeuristicMethod;
 import net.stigmod.service.migrateService.migrateUtil.MigrateUtil;
 import net.stigmod.service.migrateService.migrateUtil.SimulateHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     @Autowired
     private SimulateHandler simulateHandler;
+
+    @Autowired
+    private HeuristicMethod heuristicMethod;
 
     private List<ClassNode> classNodeList;
 
@@ -90,46 +94,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         systemEntropy = entropyHandler.initNodeListEntropy(classNodeList,relationNodeList,valueNodeList,nodeSum);
         System.out.println("系统初始熵值为: "+systemEntropy);
-
-        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
+        while(true) {
             iterNum++;
             System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
-            int[] randomList=randomValue();
-//            int[] randomList={0,41};
-//            int[] randomList = {0,101,6,266,261,219,225,25,33,181,121,7,258,53,207,1,156,159,269,88,43,26,74,185,118,246,252,216,106,114,15,47,155,180,14,187,30,192,89,55,50,202,127,198,133,208,102,124,81,87,197,223,160,2,164,20,27,119,143,34,23,229,186,161,231,150,151,110,94,9,204,169,189,116,230,3,58,73,129,36,173,172,64,113,248,271,178,59,35,175,184,146,105,257,239,37,226,203,190,13,52,46,274,79,191,243,201,54,91,176,267,62,206,273,179,103,268,98,12,24,256,148,140,16,44,263,51,111,107,86,188,61,265,76,194,251,238,142,196,49,214,242,68,131,4,32,97,17,247,253,141,224,122,158,67,18,21,145,65,72,28,139,19,11,222,215,71,39,183,57,96,138,245,63,205,128,42,38,153,125,108,123,137,199,232,177,8,135,165,99,255,182,272,200,60,149,117,262,171,235,66,115,136,167,130,212,195,213,168,218,234,104,264,147,134,80,78,132,236,109,85,5,93,31,154,260,90,254,75,241,82,217,84,126,166,29,48,10,193,244,250,233,210,170,270,152,174,83,237,40,249,100,162,95,56,77,45,92,240,112,221,227,41,144,120,70,211,228,220,22,157,69,163,259,209};
-            int curSum=randomList.length;
-
-            for(int i=0;i<curSum;i++) {
-                System.out.print(randomList[i]+",");
-            }
-            System.out.println();
-
-            for(int i=0;i<curSum;i++) {
-
-                if(i != 0 && i % 10 == 0) {
-                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择, 当前系统熵值为: "+systemEntropy);
-                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
-                }
-
-                int randValue = randomList[i];
-                System.out.println("随机值: " + randValue);
-//                scanToFindBug();
-
-                double testE = scanToComputeSystemEntropy();
-                System.out.println("当前测试的熵值为: "+ testE);
-                if(Math.abs(systemEntropy - testE) > 0.1) {
-                    System.out.println("熵值不等,当前测试的熵值为: "+ testE+",当前系统熵值为: "+systemEntropy);
-                }
-
-                if(randValue==74) {
-                    System.out.println("123");
-                }
-
-                cNum=classNodeList.size();//要不断更新cNum的值
-                if(randValue<cNum) migrateClassNode(randValue);
-                else migrateRelationNode(randValue - cNum);
-            }
+            heuristicMigrateMethod();
             System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
             if(isStable&&curIterNum>=1) break;
             else if(isStable) curIterNum++;
@@ -137,6 +106,52 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             System.out.println("当前系统熵值为: "+systemEntropy);
         }
+        System.out.println("------------------------------启发式迁移第一种结束--------------------------------");
+//        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
+//            iterNum++;
+//            System.out.println("融合算法迭代轮数: "+iterNum);
+//            isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
+//            int[] randomList=randomValue();
+////            int[] randomList={0,41};
+////            int[] randomList = {0,101,6,266,261,219,225,25,33,181,121,7,258,53,207,1,156,159,269,88,43,26,74,185,118,246,252,216,106,114,15,47,155,180,14,187,30,192,89,55,50,202,127,198,133,208,102,124,81,87,197,223,160,2,164,20,27,119,143,34,23,229,186,161,231,150,151,110,94,9,204,169,189,116,230,3,58,73,129,36,173,172,64,113,248,271,178,59,35,175,184,146,105,257,239,37,226,203,190,13,52,46,274,79,191,243,201,54,91,176,267,62,206,273,179,103,268,98,12,24,256,148,140,16,44,263,51,111,107,86,188,61,265,76,194,251,238,142,196,49,214,242,68,131,4,32,97,17,247,253,141,224,122,158,67,18,21,145,65,72,28,139,19,11,222,215,71,39,183,57,96,138,245,63,205,128,42,38,153,125,108,123,137,199,232,177,8,135,165,99,255,182,272,200,60,149,117,262,171,235,66,115,136,167,130,212,195,213,168,218,234,104,264,147,134,80,78,132,236,109,85,5,93,31,154,260,90,254,75,241,82,217,84,126,166,29,48,10,193,244,250,233,210,170,270,152,174,83,237,40,249,100,162,95,56,77,45,92,240,112,221,227,41,144,120,70,211,228,220,22,157,69,163,259,209};
+//            int curSum=randomList.length;
+//
+//            for(int i=0;i<curSum;i++) {
+//                System.out.print(randomList[i]+",");
+//            }
+//            System.out.println();
+//
+//            for(int i=0;i<curSum;i++) {
+//
+//                if(i != 0 && i % 10 == 0) {
+//                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择, 当前系统熵值为: "+systemEntropy);
+//                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
+//                }
+//
+//                int randValue = randomList[i];
+//                System.out.println("随机值: " + randValue);
+////                scanToFindBug();
+//
+//                double testE = scanToComputeSystemEntropy();
+//                System.out.println("当前测试的熵值为: "+ testE);
+//                if(Math.abs(systemEntropy - testE) > 0.1) {
+//                    System.out.println("熵值不等,当前测试的熵值为: "+ testE+",当前系统熵值为: "+systemEntropy);
+//                }
+//
+//                if(randValue==74) {
+//                    System.out.println("123");
+//                }
+//
+//                cNum=classNodeList.size();//要不断更新cNum的值
+//                if(randValue<cNum) migrateClassNodeWithNormalMethod(randValue);
+//                else migrateRelationNodeWithNormalMethod(randValue - cNum);
+//            }
+//            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
+//            if(isStable&&curIterNum>=2) break;
+//            else if(isStable) curIterNum++;
+//            else curIterNum=1;
+//            System.out.println("当前系统熵值为: "+systemEntropy);
+//        }
 
         System.out.println("算法运行结束时间为: " + df.format(new Date()));
 
@@ -145,15 +160,15 @@ public class MigrateHandlerImpl implements MigrateHandler {
         System.out.println("算法运行结束,系统熵值为: "+systemEntropy);
 
         //仅为测试用
-        int[] randomList=randomValue();
-        for(int i=0;i<randomList.length;i++) {
-            int randValue = randomList[i];
-            if(randValue==16||randValue==38) {
-                System.out.println("123");
-            }
-            if(randValue<cNum) migrateClassNode(randValue);
-            else migrateRelationNode(randValue - cNum);
-        }
+//        int[] randomList=randomValue();
+//        for(int i=0;i<randomList.length;i++) {
+//            int randValue = randomList[i];
+//            if(randValue==16||randValue==38) {
+//                System.out.println("123");
+//            }
+//            if(randValue<cNum) migrateClassNodeWithNormalMethod(randValue);
+//            else migrateRelationNodeWithNormalMethod(randValue - cNum);
+//        }
 
         findFinalConceptModel();
 
@@ -161,14 +176,71 @@ public class MigrateHandlerImpl implements MigrateHandler {
         System.out.println("迭代结束啦~");
     }
 
-    private void migrateClassNode(int classNodeListId) {
+    private void heuristicMigrateMethod() {
+        List<Integer> heuristicList = heuristicMethod.migrateWithHeuristicList(classNodeList,relationNodeList,valueNodeList);
+        int cNodeSize = classNodeList.size();
+        int rAndcNodeSize = relationNodeList.size()+cNodeSize;
+        int hSize = heuristicList.size();
+        for(int i=0;i<hSize;i++) {
+            int curLoc = heuristicList.get(i);
+            if(curLoc<cNodeSize) {//说明是classNode,目标是把他所有relationNode都融合
+                List<Integer> rNodeLocs = heuristicMethod.getConRelationNodeForClassNode(classNodeList.get(curLoc));
+                for(int rNodeLoc : rNodeLocs) {
+                    RelationNode rNode = relationNodeList.get(rNodeLoc);
+                    boolean isContinue = true;
+                    for(RelationToValueEdge innerRtvEdge : rNode.getRtvEdges()) {
+                        if(innerRtvEdge.getName().equals("isAttribute")) {
+                            isContinue = false;
+                            break;
+                        }
+                    }
+                    if(isContinue) migrateRelationNode(rNode,rNodeLocs);//进行迁移操作
+                }
+            }else if(curLoc<rAndcNodeSize) {//说明是relationNode
+                List<Integer> cNodeLocs = heuristicMethod.getConClassNodeForRelationNode(relationNodeList.get(curLoc-cNodeSize));
+                for(int cNodeLoc : cNodeLocs) {
+                    ClassNode cNode = classNodeList.get(cNodeLoc);
+                    migrateClassNode(cNode,cNodeLocs);
+                }
+            }else {//说明是valueNode
+                ValueNode curVNode = valueNodeList.get(curLoc - rAndcNodeSize);
+                String curVName = curVNode.getName();
+                if(curVName.equals("true")||curVName.equals("1")||curVName.equals("1..2")||curVName.equals("0..1")||
+                        curVName.equals("1..*")||curVName.equals("*")) continue;
+                List<Integer> cNodeLocs = heuristicMethod.getConClassNodeForValueNode(curVNode);
+                List<Integer> rNodeLocs = heuristicMethod.getConRelationNodeForValueNode(curVNode);
+
+                for(int cNodeLoc : cNodeLocs) {
+                    ClassNode cNode = classNodeList.get(cNodeLoc);
+                    migrateClassNode(cNode,cNodeLocs);
+                }
+                for(int rNodeLoc : rNodeLocs) {
+                    RelationNode rNode = relationNodeList.get(rNodeLoc);
+                    migrateRelationNode(rNode,rNodeLocs);//进行迁移操作
+                }
+            }
+        }
+    }
+
+    private void migrateClassNodeWithNormalMethod(int classNodeListId) {
         ClassNode classNode = classNodeList.get(classNodeListId);
         if(classNode.getIcmSet().size()==0) return ;
 
         //找到所有和当前classNode有交集的其他classNode节点
         List<Integer> needToFindCNodeListIdSet = migrateUtil.findConClassNodes(classNode,valueNodeList);
+        migrateClassNode(classNode,needToFindCNodeListIdSet);
+    }
 
-        //这部分是最正常的部分
+    private void migrateRelationNodeWithNormalMethod(int relationNodeListId) {
+        RelationNode relationNode = relationNodeList.get(relationNodeListId);
+        if(relationNode.getIcmSet().size()==0) return ;
+
+        //找到所有和当前relationNode有交集的其他relationNode节点
+        List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,valueNodeList);
+        migrateRelationNode(relationNode, needToFindRNodeListIdSet);
+    }
+
+    private void migrateClassNode(ClassNode classNode,List<Integer> needToFindCNodeListIdSet) {
         Map<String,Set<Long>> userSetMap = migrateUtil.getTheUserSetForClassNode(classNode);
         List<String> uNameKeyList = new ArrayList<>();
         sortTheUNameKeyList(uNameKeyList,classNode.getIcmSet(),userSetMap);
@@ -177,25 +249,21 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(String userKey : uNameKeyList) {
                 Set<Long> uSet = userSetMap.get(userKey);
                 if(uSet.size() == 0) continue;
-                else findLowerEntropyLocForClass(uSet,classNodeListId,needToFindCNodeListIdSet);
+                else findLowerEntropyLocForClass(uSet,classNode.getLoc(),needToFindCNodeListIdSet);
             }
         }
     }
 
-    private void migrateRelationNode(int relationNodeListId) {
-        RelationNode relationNode = relationNodeList.get(relationNodeListId);
-        if(relationNode.getIcmSet().size()==0) return ;
+    private void migrateRelationNode(RelationNode relationNode,List<Integer> needToFindRNodeListIdSet) {
         Map<String,Set<Long>> userSetMap = migrateUtil.getTheUserSetForRelationNode(relationNode);
-
         List<String> uNameKeyList = new ArrayList<>();
         sortTheUNameKeyList(uNameKeyList,relationNode.getIcmSet(),userSetMap);
-        List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,valueNodeList);
 
         if(relationNode.getIcmSet().size()>=1) {
             for(String userKey : uNameKeyList) {
                 Set<Long> uSet = userSetMap.get(userKey);
                 if(uSet.size() == 0) continue;
-                else findLowerEntropyLocForRelation(uSet , relationNodeListId , needToFindRNodeListIdSet);
+                else findLowerEntropyLocForRelation(uSet,relationNode.getLoc(),needToFindRNodeListIdSet);
             }
         }
     }
@@ -236,6 +304,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         double testE3 = scanToComputeSystemEntropy();
 
         for(int tmpListId : needToFindCNodeListIdSet) {
+            if(tmpListId == sourceClassNodeListId) continue;
             ClassNode tmpCNode = classNodeList.get(tmpListId);
 
             boolean targetIsNullFlag = false;
@@ -722,6 +791,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         boolean sourceRNodeSettleStatus = sourceRelationNode.getIsSettled();
 
         for(int tmpListId : needToFindRNodeListIdSet) {
+            if(tmpListId == sourceRelationNodeListId) continue;
             RelationNode tmpRNode = relationNodeList.get(tmpListId);
 
             boolean targetIsNullFlag = false;
@@ -1519,6 +1589,10 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
+
+
+
+
     /******************************************华丽分界线**********************************************/
 // /////////////下面这段代码主要是用于测试 验证程序是否有bug和检测结果的
 
@@ -1544,63 +1618,157 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         for(int curRLoc : finalRNodeSet) {
             RelationNode rNode = relationNodeList.get(curRLoc);
-            int e0ClassMax = 0;
-            int e0RoleMax = 0;
-            int e0MultiMax = 0;
-            int e0ClassLoc = -1;
-            String e0RoleName = "";
-            String e0MultiName = "";
-
-            int e1ClassMax = 0;
-            int e1RoleMax = 0;
-            int e1MultiMax = 0;
-            int e1ClassLoc = -1;
-            String e1RoleName = "";
-            String e1MultiName = "";
 
             String relationType = "";
             int typeMax = 0;
+
+            Map<Integer,Integer> roleMap = new HashMap<>();
+            Map<Integer,String> rolePortMap = new HashMap<>();
+            Map<Integer,Integer> multiMap = new HashMap<>();
+            Map<Integer,String> multiPortMap = new HashMap<>();
+            Map<Integer,Integer> classMap = new HashMap<>();
+            Map<Integer,String> classPortMap = new HashMap<>();
             for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-                if((rtvEdge.getPort().equals("E0")||rtvEdge.getPort().equals("e0"))) {
-                    if(rtvEdge.getName().equals("role") && rtvEdge.getIcmSet().size()>e0RoleMax) {
-                        e0RoleName = rtvEdge.getEnder().getName();
-                        e0RoleMax = rtvEdge.getIcmSet().size();
+                ValueNode curVNode = rtvEdge.getEnder();
+                int vLoc = curVNode.getLoc();
+                int edgeSize = rtvEdge.getIcmSet().size();
+                String edgeName = rtvEdge.getName();
+                String port = rtvEdge.getPort();
+                if(edgeName.equals("role")) {
+
+                    if(roleMap.containsKey(vLoc)) {
+                        roleMap.put(vLoc,roleMap.get(vLoc)+edgeSize);
+                    }else {
+                        roleMap.put(vLoc,edgeSize);
+                        rolePortMap.put(vLoc,port);
                     }
-                    if(rtvEdge.getName().equals("multi") && rtvEdge.getIcmSet().size()>e0MultiMax) {
-                        e0MultiName = rtvEdge.getEnder().getName();
-                        e0MultiMax = rtvEdge.getIcmSet().size();
-                    }
-                }else if((rtvEdge.getPort().equals("E1")||rtvEdge.getPort().equals("e1"))) {
-                    if(rtvEdge.getName().equals("role") && rtvEdge.getIcmSet().size()>e1RoleMax) {
-                        e1RoleName = rtvEdge.getEnder().getName();
-                        e1RoleMax = rtvEdge.getIcmSet().size();
-                    }
-                    if(rtvEdge.getName().equals("multi") && rtvEdge.getIcmSet().size()>e1MultiMax) {
-                        e1MultiName = rtvEdge.getEnder().getName();
-                        e1MultiMax = rtvEdge.getIcmSet().size();
+                }else if(edgeName.equals("multi")) {
+                    if(multiMap.containsKey(vLoc)) {
+                        multiMap.put(vLoc,multiMap.get(vLoc)+edgeSize);
+                    }else {
+                        multiMap.put(vLoc,edgeSize);
+                        multiPortMap.put(vLoc,port);
                     }
                 }else {
-                    if(rtvEdge.getIcmSet().size()>typeMax) {
-                        typeMax = rtvEdge.getIcmSet().size();
-                        relationType = rtvEdge.getName();
+                    if(edgeSize>typeMax) {
+                        typeMax = edgeSize;
+                        relationType = edgeName;
                     }
                 }
             }
 
             for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
-                if((rtcEdge.getPort().equals("E0")||rtcEdge.getPort().equals("e0")) && rtcEdge.getIcmSet().size()>e0ClassMax) {
-                    e0ClassLoc = rtcEdge.getEnder().getLoc();
-                    e0ClassMax = rtcEdge.getIcmSet().size();
-                }else if((rtcEdge.getPort().equals("E1")||rtcEdge.getPort().equals("e1")) && rtcEdge.getIcmSet().size()>e1ClassMax) {
-                    e1ClassLoc = rtcEdge.getEnder().getLoc();
-                    e1ClassMax = rtcEdge.getIcmSet().size();
+                int edgeSize = rtcEdge.getIcmSet().size();
+                int cLoc = rtcEdge.getEnder().getLoc();
+                String port = rtcEdge.getPort();
+                if(classMap.containsKey(cLoc)) {
+                    classMap.put(cLoc,classMap.get(cLoc)+edgeSize);
+                }else {
+                    classMap.put(cLoc,edgeSize);
+                    classPortMap.put(cLoc,port);
                 }
+            }
+
+            List<SelectNode> roleList = new ArrayList<>();
+            List<SelectNode> multiList = new ArrayList<>();
+            List<SelectNode> classList = new ArrayList<>();
+            for(int key : roleMap.keySet()) {
+                SelectNode sn = new SelectNode(key,roleMap.get(key),rolePortMap.get(key));
+                roleList.add(sn);
+            }
+
+            for(int key : multiMap.keySet()) {
+                SelectNode sn = new SelectNode(key,multiMap.get(key),multiPortMap.get(key));
+                multiList.add(sn);
+            }
+
+            for(int key : classMap.keySet()) {
+                SelectNode sn = new SelectNode(key,classMap.get(key),classPortMap.get(key));
+                classList.add(sn);
+            }
+
+            Collections.sort(roleList, new Comparator<SelectNode>() {
+                @Override
+                public int compare(SelectNode o1, SelectNode o2) {
+                    return o2.number - o1.number;
+                }
+            });
+
+            Collections.sort(multiList, new Comparator<SelectNode>() {
+                @Override
+                public int compare(SelectNode o1, SelectNode o2) {
+                    return o2.number - o1.number;
+                }
+            });
+
+            Collections.sort(classList, new Comparator<SelectNode>() {
+                @Override
+                public int compare(SelectNode o1, SelectNode o2) {
+                    return o2.number - o1.number;
+                }
+            });
+
+            int e0ClassLoc = -1;
+            String e0RoleName = "";
+            String e0MultiName = "";
+            int e1ClassLoc = -1;
+            String e1RoleName = "";
+            String e1MultiName = "";
+
+            int index=0;
+            while(true) {
+                SelectNode sn = classList.get(index);
+                if(e0ClassLoc==-1 && (sn.port.equals("E0")||sn.port.equals("e0"))) {
+                    e0ClassLoc = sn.loc;
+                }else if(e1ClassLoc==-1 && (sn.port.equals("E1")||sn.port.equals("e1"))) {
+                    e1ClassLoc = sn.loc;
+                }
+                if(e0ClassLoc!=-1 && e1ClassLoc!=-1) break;
+                index++;
+            }
+
+            //如果两端不在findCNodeSet中,则忽略该relationNode
+            if(!finalCNodeSet.contains(e0ClassLoc) || !finalCNodeSet.contains(e1ClassLoc)) continue;
+            index=0;
+
+            while(true) {
+                SelectNode sn = roleList.get(index);
+                if(e0RoleName.equals("") && (sn.port.equals("E0")||sn.port.equals("e0"))) {
+                    e0RoleName = valueNodeList.get(sn.loc).getName();
+                }else if(e1RoleName.equals("") && (sn.port.equals("E1")||sn.port.equals("e1"))) {
+                    e1RoleName = valueNodeList.get(sn.loc).getName();
+                }
+                if((!e0RoleName.equals("") && !e1RoleName.equals("")) || index == roleList.size()-1) break;
+                index++;
+            }
+            index=0;
+            while(true) {
+                SelectNode sn = multiList.get(index);
+                if(e0MultiName.equals("") && (sn.port.equals("E0")||sn.port.equals("e0"))) {
+                    e0MultiName = valueNodeList.get(sn.loc).getName();
+                }else if(e1MultiName.equals("") && (sn.port.equals("E1")||sn.port.equals("e1"))) {
+                    e1MultiName = valueNodeList.get(sn.loc).getName();
+                }
+                if((!e0MultiName.equals("") && !e1MultiName.equals("")) || index == multiList.size()-1) break;
+                index++;
             }
 
             System.out.println("关系类型: " + relationType + " ,关系节点编号为: " + rNode.getLoc() +
                     " ,两端的类节点编号为: e0: " + e0ClassLoc +" ,e1: " + e1ClassLoc + " ,两端的role为: e0: "
                     + e0RoleName + " ,e1: " + e1RoleName + " ,两端的multi为: e0: " +
                     e0MultiName + " ,e1: " + e1MultiName + " .");
+        }
+    }
+
+    private class SelectNode {
+        int loc;
+        int number;
+        String port;
+
+        public SelectNode(int loc,int number,String port) {
+            this.loc = loc;
+            this.port = port;
+            this.number = number;
         }
     }
 
