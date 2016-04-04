@@ -1626,3 +1626,11 @@ span.twitter-typeahead .tt-hint {
   padding-top: 70px;
   margin-top: -70px;
 }
+
+/* 去除图片展示左右按钮的阴影 */
+/*.carousel-control.left {*/
+  /*background-image: none;*/
+/*}*/
+/*.carousel-control.right {*/
+  /*background-image: none;*/
+/*}*/
