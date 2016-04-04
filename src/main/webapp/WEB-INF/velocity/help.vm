@@ -25,7 +25,7 @@
 
         <!-- 专题 -->
         <hr/>
-        <h3 id="workspace-intro" class="stigmod-help-title">熟悉建模工作台</h3>
+        <h3 id="workspace-intro" class="stigmod-help-title">熟悉工作页面</h3>
         <hr />
         <h4 id="workspace-page" class="stigmod-help-title">建模工作台页面</h4>
         <img src="/static/dist/img/help/workspace_page.png" class="img-responsive" />
@@ -124,7 +124,6 @@
         <h4 id="local-recommendation-relationship" class="stigmod-help-title">关系的局部推荐</h4>
         <img src="/static/dist/img/help/local_recommendation_relationship_0.png" class="img-responsive" />
         <img src="/static/dist/img/help/local_recommendation_relationship_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/local_recommendation_relationship_2.png" class="img-responsive" />
 
     </div>
 
@@ -142,7 +141,7 @@
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#workspace-intro" class="">熟悉建模工作台</a>
+                    <a href="#workspace-intro" class="">熟悉工作页面</a>
                     <ul class="nav">
                         <li class=""><a href="#workspace-page">建模工作台页面</a></li>
                         <li class=""><a href="#workspace-page-structure">建模工作台结构</a></li>
