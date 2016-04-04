@@ -5,6 +5,7 @@
     <!-- 左侧导航栏 -->
     <div class="col-xs-10 text-center">
         <h2 id="top" class="stigmod-help-title">Stigmergic-Modeling 使用帮助</h2>
+        <p class="stigmod-gray">本页面中图片较多，可能导致加载较慢，请耐心等待 </p>
 
         <!-- 专题 -->
         <hr/>
@@ -21,7 +22,6 @@
         <hr />
         <h4 id="create-model-clean" class="stigmod-help-title">全新创建</h4>
         <img src="/static/dist/img/help/create_model_clean.png" class="img-responsive" />
-        <hr />
 
         <!-- 专题 -->
         <hr/>
@@ -79,6 +79,22 @@
         <h4 id="modify-order" class="stigmod-help-title">修改属性的顺序</h4>
         <img src="/static/dist/img/help/modify_order_0.png" class="img-responsive" />
         <img src="/static/dist/img/help/modify_order_1.png" class="img-responsive" />
+
+        <!-- 专题 -->
+        <hr/>
+        <h3 id="remove-element" class="stigmod-help-title">删除模型元素</h3>
+        <hr />
+        <h4 id="remove-class" class="stigmod-help-title">删除类</h4>
+        <img src="/static/dist/img/help/remove_class_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/remove_class_1.png" class="img-responsive" />
+        <hr />
+        <h4 id="remove-attribute" class="stigmod-help-title">删除类的属性</h4>
+        <img src="/static/dist/img/help/remove_attribute_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/remove_attribute_1.png" class="img-responsive" />
+        <hr />
+        <h4 id="remove-relationship" class="stigmod-help-title">删除关系组及关系</h4>
+        <img src="/static/dist/img/help/remove_relationship_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/remove_relationship_1.png" class="img-responsive" />
 
     </div>
 
