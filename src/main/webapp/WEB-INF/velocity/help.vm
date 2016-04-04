@@ -96,6 +96,36 @@
         <img src="/static/dist/img/help/remove_relationship_0.png" class="img-responsive" />
         <img src="/static/dist/img/help/remove_relationship_1.png" class="img-responsive" />
 
+        <!-- 专题 -->
+        <hr/>
+        <h3 id="global-recommendation" class="stigmod-help-title">获取全局推荐</h3>
+        <hr />
+        <h4 id="global-recommendation-class" class="stigmod-help-title">类的全局推荐</h4>
+        <img src="/static/dist/img/help/global_recommendation_class_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/global_recommendation_class_1.png" class="img-responsive" />
+        <hr />
+        <h4 id="global-recommendation-relationship" class="stigmod-help-title">关系的全局推荐</h4>
+        <img src="/static/dist/img/help/global_recommendation_relationship_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/global_recommendation_relationship_1.png" class="img-responsive" />
+
+        <!-- 专题 -->
+        <hr/>
+        <h3 id="local-recommendation" class="stigmod-help-title">获取局部推荐</h3>
+        <hr />
+        <h4 id="local-recommendation-class" class="stigmod-help-title">类的局部推荐</h4>
+        <img src="/static/dist/img/help/local_recommendation_class_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/local_recommendation_class_1.png" class="img-responsive" />
+        <hr />
+        <h4 id="local-recommendation-attribute" class="stigmod-help-title">属性的局部推荐</h4>
+        <img src="/static/dist/img/help/local_recommendation_attribute_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/local_recommendation_attribute_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/local_recommendation_attribute_2.png" class="img-responsive" />
+        <hr />
+        <h4 id="local-recommendation-relationship" class="stigmod-help-title">关系的局部推荐</h4>
+        <img src="/static/dist/img/help/local_recommendation_relationship_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/local_recommendation_relationship_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/local_recommendation_relationship_2.png" class="img-responsive" />
+
     </div>
 
     <!-- 右侧导航栏 -->
@@ -143,6 +173,21 @@
                         <li class=""><a href="#remove-class">删除类</a></li>
                         <li class=""><a href="#remove-attribute">删除类的属性</a></li>
                         <li class=""><a href="#remove-relationship">删除关系组及关系</a></li>
+                    </ul>
+                </li>
+                <li class="">
+                    <a href="#global-recommendation">获取全局推荐</a>
+                    <ul class="nav">
+                        <li class=""><a href="#global-recommendation-class">类的全局推荐</a></li>
+                        <li class=""><a href="#global-recommendation-relationship">关系的全局推荐</a></li>
+                    </ul>
+                </li>
+                <li class="">
+                    <a href="#local-recommendation">获取局部推荐</a>
+                    <ul class="nav">
+                        <li class=""><a href="#local-recommendation-class">类的局部推荐</a></li>
+                        <li class=""><a href="#local-recommendation-attribute">属性的局部推荐</a></li>
+                        <li class=""><a href="#local-recommendation-relationship">关系的局部推荐</a></li>
                     </ul>
                 </li>
 
