@@ -5,9 +5,9 @@
     <!-- 左侧导航栏 -->
     <div class="col-xs-10 text-center">
         <h2 id="top" class="stigmod-help-title">Stigmergic-Modeling 帮助</h2>
-        <hr/>
 
         <!-- 专题 -->
+        <hr/>
         <h3 id="create-model" class="stigmod-help-title">创建模型项目</h3>
         <hr />
         <h4 id="user-page" class="stigmod-help-title">用户页面</h4>
@@ -21,6 +21,7 @@
         <hr />
 
         <!-- 专题 -->
+        <hr/>
         <h3 id="workspace-intro" class="stigmod-help-title">熟悉建模工作台</h3>
         <hr />
         <h4 id="workspace-page" class="stigmod-help-title">建模工作台页面</h4>
@@ -28,6 +29,26 @@
         <hr />
         <h4 id="workspace-page-structure" class="stigmod-help-title">建模工作台页面结构</h4>
         <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+
+        <!-- 专题 -->
+        <hr/>
+        <h3 id="add-element" class="stigmod-help-title">添加模型元素</h3>
+        <hr />
+        <h4 id="add-class" class="stigmod-help-title">添加类</h4>
+        <img src="/static/dist/img/help/add_class_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/add_class_1.png" class="img-responsive" />
+        <hr />
+        <h4 id="add-attribute" class="stigmod-help-title">添加类的属性</h4>
+        <img src="/static/dist/img/help/add_attribute_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/add_attribute_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/add_attribute_2.png" class="img-responsive" />
+        <hr />
+        <h4 id="add-relationship" class="stigmod-help-title">添加关系组及关系</h4>
+        <img src="/static/dist/img/help/add_relationship_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/add_relationship_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/add_relationship_2.png" class="img-responsive" />
+        <img src="/static/dist/img/help/add_relationship_3.png" class="img-responsive" />
+
     </div>
 
     <!-- 右侧导航栏 -->
@@ -50,29 +71,31 @@
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#dropdowns">添加模型元素</a>
+                    <a href="#add-element">添加模型元素</a>
                     <ul class="nav">
-                        <li class=""><a href="#dropdowns-example">添加类</a></li>
-                        <li class=""><a href="#dropdowns-alignment">添加类的属性</a></li>
-                        <li class=""><a href="#dropdowns-headers">添加关系组及关系</a></li>
+                        <li class=""><a href="#add-class">添加类</a></li>
+                        <li class=""><a href="#add-attribute">添加类的属性</a></li>
+                        <li class=""><a href="#add-relationship">添加关系组及关系</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#btn-groups">修改模型元素</a>
+                    <a href="#modify-element">修改模型元素</a>
                     <ul class="nav">
-                        <li class=""><a href="#dropdowns-example">修改类</a></li>
-                        <li class=""><a href="#dropdowns-alignment">修改类的属性</a></li>
-                        <li class=""><a href="#dropdowns-headers">修改关系组及关系</a></li>
+                        <li class=""><a href="#modify-class">修改类</a></li>
+                        <li class=""><a href="#modify-attribute">修改类的属性</a></li>
+                        <li class=""><a href="#modify-relationship">修改关系组及关系</a></li>
+                        <li class=""><a href="#modify-order">修改属性或关系的排列顺序</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#btn-groups">删除模型元素</a>
+                    <a href="#remove-element">删除模型元素</a>
                     <ul class="nav">
-                        <li class=""><a href="#dropdowns-example">删除类</a></li>
-                        <li class=""><a href="#dropdowns-alignment">删除类的属性</a></li>
-                        <li class=""><a href="#dropdowns-headers">删除关系组及关系</a></li>
+                        <li class=""><a href="#remove-class">删除类</a></li>
+                        <li class=""><a href="#remove-attribute">删除类的属性</a></li>
+                        <li class=""><a href="#remove-relationship">删除关系组及关系</a></li>
                     </ul>
                 </li>
+
                 <a class="back-to-top" href="#top">返回顶部</a>
             </ul>
         </div>
