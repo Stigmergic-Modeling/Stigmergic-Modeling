@@ -358,7 +358,7 @@ public class MergeController {
                             constructVNode(valueNodeList,relationNameVNode,valueListMap,modelId,curSet,relationName);
                         }
 
-                        RelationToValueEdge rtvEdge5 = new RelationToValueEdge("",relationName,relationNode,relationNameVNode);
+                        RelationToValueEdge rtvEdge5 = new RelationToValueEdge("","relationName",relationNode,relationNameVNode);
                         rtvEdge5.setIcmSet(new HashSet<Long>(curSet));
                         rtvEdge5.setCcmId(modelId);
                         relationNode.getRtvEdges().add(rtvEdge5);

@@ -1619,88 +1619,26 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(int curRLoc : finalRNodeSet) {
             RelationNode rNode = relationNodeList.get(curRLoc);
 
-            String relationType = "";
-            int typeMax = 0;
-
-            Map<Integer,Integer> roleMap = new HashMap<>();
-            Map<Integer,String> rolePortMap = new HashMap<>();
-            Map<Integer,Integer> multiMap = new HashMap<>();
-            Map<Integer,String> multiPortMap = new HashMap<>();
             Map<Integer,Integer> classMap = new HashMap<>();
             Map<Integer,String> classPortMap = new HashMap<>();
-            for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-                ValueNode curVNode = rtvEdge.getEnder();
-                int vLoc = curVNode.getLoc();
-                int edgeSize = rtvEdge.getIcmSet().size();
-                String edgeName = rtvEdge.getName();
-                String port = rtvEdge.getPort();
-                if(edgeName.equals("role")) {
-
-                    if(roleMap.containsKey(vLoc)) {
-                        roleMap.put(vLoc,roleMap.get(vLoc)+edgeSize);
-                    }else {
-                        roleMap.put(vLoc,edgeSize);
-                        rolePortMap.put(vLoc,port);
-                    }
-                }else if(edgeName.equals("multi")) {
-                    if(multiMap.containsKey(vLoc)) {
-                        multiMap.put(vLoc,multiMap.get(vLoc)+edgeSize);
-                    }else {
-                        multiMap.put(vLoc,edgeSize);
-                        multiPortMap.put(vLoc,port);
-                    }
-                }else {
-                    if(edgeSize>typeMax) {
-                        typeMax = edgeSize;
-                        relationType = edgeName;
-                    }
-                }
-            }
-
             for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
                 int edgeSize = rtcEdge.getIcmSet().size();
                 int cLoc = rtcEdge.getEnder().getLoc();
                 String port = rtcEdge.getPort();
                 if(classMap.containsKey(cLoc)) {
                     classMap.put(cLoc,classMap.get(cLoc)+edgeSize);
+                    classPortMap.put(cLoc,"e0-e1");
                 }else {
                     classMap.put(cLoc,edgeSize);
                     classPortMap.put(cLoc,port);
                 }
             }
 
-            List<SelectNode> roleList = new ArrayList<>();
-            List<SelectNode> multiList = new ArrayList<>();
             List<SelectNode> classList = new ArrayList<>();
-            for(int key : roleMap.keySet()) {
-                SelectNode sn = new SelectNode(key,roleMap.get(key),rolePortMap.get(key));
-                roleList.add(sn);
-            }
-
-            for(int key : multiMap.keySet()) {
-                SelectNode sn = new SelectNode(key,multiMap.get(key),multiPortMap.get(key));
-                multiList.add(sn);
-            }
-
             for(int key : classMap.keySet()) {
                 SelectNode sn = new SelectNode(key,classMap.get(key),classPortMap.get(key));
                 classList.add(sn);
             }
-
-            Collections.sort(roleList, new Comparator<SelectNode>() {
-                @Override
-                public int compare(SelectNode o1, SelectNode o2) {
-                    return o2.number - o1.number;
-                }
-            });
-
-            Collections.sort(multiList, new Comparator<SelectNode>() {
-                @Override
-                public int compare(SelectNode o1, SelectNode o2) {
-                    return o2.number - o1.number;
-                }
-            });
-
             Collections.sort(classList, new Comparator<SelectNode>() {
                 @Override
                 public int compare(SelectNode o1, SelectNode o2) {
@@ -1709,53 +1647,86 @@ public class MigrateHandlerImpl implements MigrateHandler {
             });
 
             int e0ClassLoc = -1;
-            String e0RoleName = "";
-            String e0MultiName = "";
             int e1ClassLoc = -1;
-            String e1RoleName = "";
-            String e1MultiName = "";
 
             int index=0;
+            List<Integer> conNode = new ArrayList<>();
             while(true) {
                 SelectNode sn = classList.get(index);
+                if(sn.port.equals("e0-e1")) {
+                    conNode.add(sn.loc);
+                }
                 if(e0ClassLoc==-1 && (sn.port.equals("E0")||sn.port.equals("e0"))) {
                     e0ClassLoc = sn.loc;
                 }else if(e1ClassLoc==-1 && (sn.port.equals("E1")||sn.port.equals("e1"))) {
                     e1ClassLoc = sn.loc;
                 }
                 if(e0ClassLoc!=-1 && e1ClassLoc!=-1) break;
+                else if(e0ClassLoc!=-1 && conNode.size()==1) {
+                    e1ClassLoc = conNode.get(0);
+                    break;
+                }else if(e1ClassLoc!=-1 && conNode.size()==1) {
+                    e0ClassLoc = conNode.get(0);
+                    break;
+                }else if(conNode.size()==2) {
+                    e0ClassLoc = conNode.get(0);
+                    e1ClassLoc = conNode.get(1);
+                    break;
+                }
                 index++;
             }
 
             //如果两端不在findCNodeSet中,则忽略该relationNode
             if(!finalCNodeSet.contains(e0ClassLoc) || !finalCNodeSet.contains(e1ClassLoc)) continue;
-            index=0;
 
-            while(true) {
-                SelectNode sn = roleList.get(index);
-                if(e0RoleName.equals("") && (sn.port.equals("E0")||sn.port.equals("e0"))) {
-                    e0RoleName = valueNodeList.get(sn.loc).getName();
-                }else if(e1RoleName.equals("") && (sn.port.equals("E1")||sn.port.equals("e1"))) {
-                    e1RoleName = valueNodeList.get(sn.loc).getName();
+            String relationType = "";
+            String e0RoleName = "";
+            String e0MultiName = "";
+            String e1RoleName = "";
+            String e1MultiName = "";
+            String relationName = "";
+
+            //接下来我们要找到属于e0ClassLoc和e1ClassLoc的role和multi
+            long e0IcmId = -1l;
+            long e1IcmId = -1l;
+            for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
+                if(rtcEdge.getEnder().getLoc()==e0ClassLoc &&
+                        (rtcEdge.getPort().equals("E0") || rtcEdge.getPort().equals("e0"))) {
+                    e0IcmId = rtcEdge.getIcmSet().iterator().next();
+                }else if(rtcEdge.getEnder().getLoc()==e1ClassLoc &&
+                        (rtcEdge.getPort().equals("E1") || rtcEdge.getPort().equals("e1"))) {
+                    e1IcmId = rtcEdge.getIcmSet().iterator().next();
                 }
-                if((!e0RoleName.equals("") && !e1RoleName.equals("")) || index == roleList.size()-1) break;
-                index++;
-            }
-            index=0;
-            while(true) {
-                SelectNode sn = multiList.get(index);
-                if(e0MultiName.equals("") && (sn.port.equals("E0")||sn.port.equals("e0"))) {
-                    e0MultiName = valueNodeList.get(sn.loc).getName();
-                }else if(e1MultiName.equals("") && (sn.port.equals("E1")||sn.port.equals("e1"))) {
-                    e1MultiName = valueNodeList.get(sn.loc).getName();
-                }
-                if((!e0MultiName.equals("") && !e1MultiName.equals("")) || index == multiList.size()-1) break;
-                index++;
             }
 
-            System.out.println("关系类型: " + relationType + " ,关系节点编号为: " + rNode.getLoc() +
-                    " ,两端的类节点编号为: e0: " + e0ClassLoc +" ,e1: " + e1ClassLoc + " ,两端的role为: e0: "
-                    + e0RoleName + " ,e1: " + e1RoleName + " ,两端的multi为: e0: " +
+            for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
+                ValueNode curVNode = rtvEdge.getEnder();
+                String edgeName = rtvEdge.getName();
+
+                if(rtvEdge.getIcmSet().contains(e0IcmId) &&
+                        (rtvEdge.getPort().equals("e0")||rtvEdge.getPort().equals("E0"))) {
+                    if(edgeName.equals("role")) {
+                        e0RoleName = curVNode.getName();
+                    }else if(edgeName.equals("multi")) {
+                        e0MultiName = curVNode.getName();
+                    }
+                }else if(rtvEdge.getIcmSet().contains(e1IcmId) &&
+                        (rtvEdge.getPort().equals("e1")||rtvEdge.getPort().equals("E1"))) {
+                    if(edgeName.equals("role")) {
+                        e1RoleName = curVNode.getName();
+                    }else if(edgeName.equals("multi")) {
+                        e1MultiName = curVNode.getName();
+                    }
+                }else if(edgeName.equals("relationName")) relationName = curVNode.getName();
+                else if(!edgeName.equals("role") && !edgeName.equals("multi") && !edgeName.equals("relationName")){
+                    relationType = edgeName;
+                }
+            }
+
+
+            System.out.println("关系类型: " + relationType + " ,关系名为: "+ relationName +" ,关系节点编号为: "
+                    + rNode.getLoc() + " ,两端的类节点编号为: e0: " + e0ClassLoc +" ,e1: " + e1ClassLoc +
+                    " ,两端的role为: e0: " + e0RoleName + " ,e1: " + e1RoleName + " ,两端的multi为: e0: " +
                     e0MultiName + " ,e1: " + e1MultiName + " .");
         }
     }
