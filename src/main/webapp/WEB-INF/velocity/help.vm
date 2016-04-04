@@ -4,7 +4,7 @@
 
     <!-- 左侧导航栏 -->
     <div class="col-xs-10 text-center">
-        <h2 id="top" class="stigmod-help-title">Stigmergic-Modeling 帮助</h2>
+        <h2 id="top" class="stigmod-help-title">Stigmergic-Modeling 使用帮助</h2>
 
         <!-- 专题 -->
         <hr/>
@@ -13,11 +13,14 @@
         <h4 id="user-page" class="stigmod-help-title">用户页面</h4>
         <img src="/static/dist/img/help/user_page.png" class="img-responsive" />
         <hr />
+        <h4 id="create-model-start" class="stigmod-help-title">创建模型</h4>
+        <img src="/static/dist/img/help/create_model.png" class="img-responsive" />
+        <hr />
         <h4 id="create-model-inherated" class="stigmod-help-title">继承创建</h4>
-        <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+        <img src="/static/dist/img/help/create_model_inherated.png" class="img-responsive" />
         <hr />
         <h4 id="create-model-clean" class="stigmod-help-title">全新创建</h4>
-        <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+        <img src="/static/dist/img/help/create_model_clean.png" class="img-responsive" />
         <hr />
 
         <!-- 专题 -->
@@ -29,6 +32,12 @@
         <hr />
         <h4 id="workspace-page-structure" class="stigmod-help-title">建模工作台页面结构</h4>
         <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+        <hr />
+        <h4 id="workspace-page-modelview" class="stigmod-help-title">模型可视化</h4>
+        <img src="/static/dist/img/help/workspace_page_modelview.png" class="img-responsive" />
+        <hr />
+        <h4 id="workspace-page-modelinfo" class="stigmod-help-title">模型信息</h4>
+        <img src="/static/dist/img/help/workspace_page_modelinfo.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
@@ -59,6 +68,7 @@
                     <a href="#create-model" class="">创建模型项目</a>
                     <ul class="nav">
                         <li class=""><a href="#user-page">用户页面</a></li>
+                        <li class=""><a href="#create-model-start">创建模型</a></li>
                         <li class=""><a href="#create-model-inherated">继承创建</a></li>
                         <li class=""><a href="#create-model-clean">全新创建</a></li>
                     </ul>
@@ -68,6 +78,8 @@
                     <ul class="nav">
                         <li class=""><a href="#workspace-page">建模工作台页面</a></li>
                         <li class=""><a href="#workspace-page-structure">建模工作台结构</a></li>
+                        <li class=""><a href="#workspace-page-modelview">模型可视化</a></li>
+                        <li class=""><a href="#workspace-page-modelinfo">模型信息</a></li>
                     </ul>
                 </li>
                 <li class="">
