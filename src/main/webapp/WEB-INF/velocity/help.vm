@@ -132,61 +132,61 @@
         <div id="stigmod-navbar" class="affix">
             <ul class="nav stigmod-sidenav">
                 <li class="">
-                    <a href="#create-model" class="">创建模型项目</a>
+                    <a href="#create-model" class=""><i class="fa fa-cubes"></i>&nbsp;&nbsp;创建模型项目</a>
                     <ul class="nav">
-                        <li class=""><a href="#user-page">用户页面</a></li>
-                        <li class=""><a href="#create-model-start">创建模型</a></li>
-                        <li class=""><a href="#create-model-inherated">继承创建</a></li>
-                        <li class=""><a href="#create-model-clean">全新创建</a></li>
+                        <li class=""><a href="#user-page"><i class="fa fa-user"></i>&nbsp;&nbsp;用户页面</a></li>
+                        <li class=""><a href="#create-model-start"><i class="fa fa-plus-square"></i>&nbsp;&nbsp;创建模型</a></li>
+                        <li class=""><a href="#create-model-inherated"><i class="fa fa-cubes"></i>&nbsp;&nbsp;继承创建</a></li>
+                        <li class=""><a href="#create-model-clean"><i class="fa fa-cube"></i>&nbsp;&nbsp;全新创建</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#workspace-intro" class="">熟悉工作页面</a>
+                    <a href="#workspace-intro" class=""><i class="fa fa-map"></i>&nbsp;&nbsp;熟悉工作页面</a>
                     <ul class="nav">
-                        <li class=""><a href="#workspace-page">建模工作台页面</a></li>
-                        <li class=""><a href="#workspace-page-structure">建模工作台结构</a></li>
-                        <li class=""><a href="#workspace-page-modelview">模型可视化</a></li>
-                        <li class=""><a href="#workspace-page-modelinfo">模型信息</a></li>
+                        <li class=""><a href="#workspace-page"><i class="fa fa-desktop"></i>&nbsp;&nbsp;建模工作台页面</a></li>
+                        <li class=""><a href="#workspace-page-structure"><i class="fa fa-columns"></i>&nbsp;&nbsp;建模工作台结构</a></li>
+                        <li class=""><a href="#workspace-page-modelview"><i class="fa fa-sitemap"></i>&nbsp;&nbsp;模型可视化</a></li>
+                        <li class=""><a href="#workspace-page-modelinfo"><i class="fa fa-bar-chart"></i>&nbsp;&nbsp;模型信息</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#add-element">添加模型元素</a>
+                    <a href="#add-element"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;添加模型元素</a>
                     <ul class="nav">
-                        <li class=""><a href="#add-class">添加类</a></li>
-                        <li class=""><a href="#add-attribute">添加类的属性</a></li>
-                        <li class=""><a href="#add-relationship">添加关系组及关系</a></li>
+                        <li class=""><a href="#add-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;添加类</a></li>
+                        <li class=""><a href="#add-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;添加类的属性</a></li>
+                        <li class=""><a href="#add-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;添加关系组及关系</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#modify-element">修改模型元素</a>
+                    <a href="#modify-element"><span class="glyphicon glyphicon-edit"></span>&nbsp;&nbsp;修改模型元素</a>
                     <ul class="nav">
-                        <li class=""><a href="#modify-class">修改类</a></li>
-                        <li class=""><a href="#modify-attribute">修改类的属性</a></li>
-                        <li class=""><a href="#modify-relationship">修改关系组及关系</a></li>
-                        <li class=""><a href="#modify-order">修改属性的排列顺序</a></li>
+                        <li class=""><a href="#modify-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;修改类</a></li>
+                        <li class=""><a href="#modify-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;修改类的属性</a></li>
+                        <li class=""><a href="#modify-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;修改关系组及关系</a></li>
+                        <li class=""><a href="#modify-order"><span class="glyphicon glyphicon-sort"></span>&nbsp;&nbsp;修改属性的排列顺序</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#remove-element">删除模型元素</a>
+                    <a href="#remove-element"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;删除模型元素</a>
                     <ul class="nav">
-                        <li class=""><a href="#remove-class">删除类</a></li>
-                        <li class=""><a href="#remove-attribute">删除类的属性</a></li>
-                        <li class=""><a href="#remove-relationship">删除关系组及关系</a></li>
+                        <li class=""><a href="#remove-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;删除类</a></li>
+                        <li class=""><a href="#remove-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;删除类的属性</a></li>
+                        <li class=""><a href="#remove-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;删除关系组及关系</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#global-recommendation">获取全局推荐</a>
+                    <a href="#global-recommendation"><span class="glyphicon glyphicon-fire"></span>&nbsp;&nbsp;获取全局推荐</a>
                     <ul class="nav">
-                        <li class=""><a href="#global-recommendation-class">类的全局推荐</a></li>
-                        <li class=""><a href="#global-recommendation-relationship">关系的全局推荐</a></li>
+                        <li class=""><a href="#global-recommendation-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;类的全局推荐</a></li>
+                        <li class=""><a href="#global-recommendation-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;关系的全局推荐</a></li>
                     </ul>
                 </li>
                 <li class="">
-                    <a href="#local-recommendation">获取局部推荐</a>
+                    <a href="#local-recommendation"><i class="fa fa-magnet"></i>&nbsp;&nbsp;获取局部推荐</a>
                     <ul class="nav">
-                        <li class=""><a href="#local-recommendation-class">类的局部推荐</a></li>
-                        <li class=""><a href="#local-recommendation-attribute">属性的局部推荐</a></li>
-                        <li class=""><a href="#local-recommendation-relationship">关系的局部推荐</a></li>
+                        <li class=""><a href="#local-recommendation-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;类的局部推荐</a></li>
+                        <li class=""><a href="#local-recommendation-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;属性的局部推荐</a></li>
+                        <li class=""><a href="#local-recommendation-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;关系的局部推荐</a></li>
                     </ul>
                 </li>
 
