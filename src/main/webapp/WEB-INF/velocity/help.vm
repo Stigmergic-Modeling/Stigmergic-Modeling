@@ -56,7 +56,29 @@
         <img src="/static/dist/img/help/add_relationship_0.png" class="img-responsive" />
         <img src="/static/dist/img/help/add_relationship_1.png" class="img-responsive" />
         <img src="/static/dist/img/help/add_relationship_2.png" class="img-responsive" />
-        <img src="/static/dist/img/help/add_relationship_3.png" class="img-responsive" />
+
+        <!-- 专题 -->
+        <hr/>
+        <h3 id="modify-element" class="stigmod-help-title">修改模型元素</h3>
+        <hr />
+        <h4 id="modify-class" class="stigmod-help-title">修改类</h4>
+        <img src="/static/dist/img/help/modify_class_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_class_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_class_2.png" class="img-responsive" />
+        <hr />
+        <h4 id="modify-attribute" class="stigmod-help-title">修改类的属性</h4>
+        <img src="/static/dist/img/help/modify_attribute_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_attribute_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_attribute_2.png" class="img-responsive" />
+        <hr />
+        <h4 id="modify-relationship" class="stigmod-help-title">修改关系</h4>
+        <img src="/static/dist/img/help/modify_relationship_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_relationship_1.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_relationship_2.png" class="img-responsive" />
+        <hr />
+        <h4 id="modify-order" class="stigmod-help-title">修改属性的顺序</h4>
+        <img src="/static/dist/img/help/modify_order_0.png" class="img-responsive" />
+        <img src="/static/dist/img/help/modify_order_1.png" class="img-responsive" />
 
     </div>
 
@@ -96,7 +118,7 @@
                         <li class=""><a href="#modify-class">修改类</a></li>
                         <li class=""><a href="#modify-attribute">修改类的属性</a></li>
                         <li class=""><a href="#modify-relationship">修改关系组及关系</a></li>
-                        <li class=""><a href="#modify-order">修改属性或关系的排列顺序</a></li>
+                        <li class=""><a href="#modify-order">修改属性的排列顺序</a></li>
                     </ul>
                 </li>
                 <li class="">
