@@ -116,7 +116,7 @@
         <img src="/static/dist/img/help/local_recommendation_class_0.png" class="img-responsive" />
         <img src="/static/dist/img/help/local_recommendation_class_1.png" class="img-responsive" />
         <hr />
-        <h4 id="local-recommendation-attribute" class="stigmod-help-title">属性的局部推荐</h4>
+        <h4 id="local-recommendation-attribute" class="stigmod-help-title">类的属性的局部推荐</h4>
         <img src="/static/dist/img/help/local_recommendation_attribute_0.png" class="img-responsive" />
         <img src="/static/dist/img/help/local_recommendation_attribute_1.png" class="img-responsive" />
         <img src="/static/dist/img/help/local_recommendation_attribute_2.png" class="img-responsive" />
@@ -162,7 +162,7 @@
                     <ul class="nav">
                         <li class=""><a href="#modify-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;修改类</a></li>
                         <li class=""><a href="#modify-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;修改类的属性</a></li>
-                        <li class=""><a href="#modify-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;修改关系组及关系</a></li>
+                        <li class=""><a href="#modify-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;修改关系</a></li>
                         <li class=""><a href="#modify-order"><span class="glyphicon glyphicon-sort"></span>&nbsp;&nbsp;修改属性的排列顺序</a></li>
                     </ul>
                 </li>
@@ -185,7 +185,7 @@
                     <a href="#local-recommendation"><i class="fa fa-magnet"></i>&nbsp;&nbsp;获取局部推荐</a>
                     <ul class="nav">
                         <li class=""><a href="#local-recommendation-class"><span class="glyphicon glyphicon-th-large"></span>&nbsp;&nbsp;类的局部推荐</a></li>
-                        <li class=""><a href="#local-recommendation-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;属性的局部推荐</a></li>
+                        <li class=""><a href="#local-recommendation-attribute"><span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;类的属性的局部推荐</a></li>
                         <li class=""><a href="#local-recommendation-relationship"><span class="glyphicon glyphicon-random"></span>&nbsp;&nbsp;关系的局部推荐</a></li>
                     </ul>
                 </li>
