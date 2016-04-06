@@ -6,6 +6,7 @@ import net.stigmod.domain.conceptualmodel.*;
 import net.stigmod.service.migrateService.migrateUtil.HeuristicMethod;
 import net.stigmod.service.migrateService.migrateUtil.MigrateUtil;
 import net.stigmod.service.migrateService.migrateUtil.SimulateHandler;
+import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -243,9 +244,31 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 List<String> secondList = roleNameList.get(j);
                 String s3 = secondList.get(0);
                 String s4 = secondList.get(1);
+
+//                System.out.println("s1: "+s1+" ,s2: "+s2+" ,s3: "+s3+" ,s4: "+s4);
+
                 if((s1.equals(s3)&&s2.equals(s4))||(s1.equals(s4)&&s2.equals(s3))) {
                     alreadyHasSet.add(j);
                     iList.add(j);
+                }else if(WordSimilarities.vNodeSimMap.containsKey(s1)&&WordSimilarities.vNodeSimMap.containsKey(s2)
+                        &&WordSimilarities.vNodeSimMap.containsKey(s3)&&WordSimilarities.vNodeSimMap.containsKey(s4)) {
+                    if((s1.equals(s3) && WordSimilarities.vNodeSimMap.get(s2).get(s4)>=0.5) ||
+                            s1.equals(s4) && WordSimilarities.vNodeSimMap.get(s2).get(s3)>=0.5) {
+                        alreadyHasSet.add(j);
+                        iList.add(j);
+                    }else if((s2.equals(s3) && WordSimilarities.vNodeSimMap.get(s1).get(s4)>=0.5) ||
+                            s2.equals(s4) && WordSimilarities.vNodeSimMap.get(s1).get(s3)>=0.5) {
+                        alreadyHasSet.add(j);
+                        iList.add(j);
+                    }else if((WordSimilarities.vNodeSimMap.get(s1).get(s3)>=0.5 &&
+                            WordSimilarities.vNodeSimMap.get(s2).get(s4)>=0.5) || (WordSimilarities.vNodeSimMap.get(s2).get(s3)>=0.5 &&
+                            WordSimilarities.vNodeSimMap.get(s1).get(s4)>=0.5)) {
+                        alreadyHasSet.add(j);
+                        iList.add(j);
+                    }
+                }else if(!(WordSimilarities.vNodeSimMap.containsKey(s1)&&WordSimilarities.vNodeSimMap.containsKey(s2)
+                        &&WordSimilarities.vNodeSimMap.containsKey(s3)&&WordSimilarities.vNodeSimMap.containsKey(s4))) {
+                    System.out.println("s1: "+s1+" ,s2: "+s2+" ,s3: "+s3+" ,s4: "+s4);
                 }
             }
             conList.add(iList);
@@ -1784,6 +1807,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             //如果两端不在findCNodeSet中,则忽略该relationNode
             if(!finalCNodeSet.contains(e0ClassLoc) || !finalCNodeSet.contains(e1ClassLoc)) continue;
+//            String e0CName = cNodeMap.get(e0ClassLoc);
+//            String e1CName = cNodeMap.get(e1ClassLoc);
+//            if((e0CName.equals("Customer")&&e1CName.equals("Order"))
+//                    || (e1CName.equals("Customer")&&e0CName.equals("Order"))) {
+//                System.out.println("find Bug");
+//            }
 
             String relationType = "";
             int typeMax = 0;
@@ -1799,15 +1828,17 @@ public class MigrateHandlerImpl implements MigrateHandler {
             int relationNameMax = 0;
 
             //接下来我们要找到属于e0ClassLoc和e1ClassLoc的role和multi
-            long e0IcmId = -1l;
-            long e1IcmId = -1l;
+//            long curE0IcmId = -1l;
+//            long curE1IcmId = -1l;
+            Set<Long> e0IcmSet = null;
+            Set<Long> e1IcmSet = null;
             for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
                 if(rtcEdge.getEnder().getLoc()==e0ClassLoc &&
                         (rtcEdge.getPort().equals("E0") || rtcEdge.getPort().equals("e0"))) {
-                    e0IcmId = rtcEdge.getIcmSet().iterator().next();
+                    e0IcmSet = new HashSet<>(rtcEdge.getIcmSet());
                 }else if(rtcEdge.getEnder().getLoc()==e1ClassLoc &&
                         (rtcEdge.getPort().equals("E1") || rtcEdge.getPort().equals("e1"))) {
-                    e1IcmId = rtcEdge.getIcmSet().iterator().next();
+                    e1IcmSet = new HashSet<>(rtcEdge.getIcmSet());
                 }
             }
 
@@ -1815,8 +1846,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 ValueNode curVNode = rtvEdge.getEnder();
                 String edgeName = rtvEdge.getName();
                 int curEdgeSize = rtvEdge.getIcmSet().size();
+                Set<Long> curE0RtvIcmSet = new HashSet<>(rtvEdge.getIcmSet());
+                Set<Long> curE1RtvIcmSet = new HashSet<>(rtvEdge.getIcmSet());
 
-                if(rtvEdge.getIcmSet().contains(e0IcmId) &&
+                curE0RtvIcmSet.retainAll(e0IcmSet);
+                curE1RtvIcmSet.retainAll(e1IcmSet);
+
+                if(curE0RtvIcmSet.size()>0 &&
                         (rtvEdge.getPort().equals("e0")||rtvEdge.getPort().equals("E0"))) {
                     if(edgeName.equals("role") && curEdgeSize > e0RoleMax) {
                         e0RoleName = curVNode.getName();
@@ -1825,7 +1861,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                         e0MultiName = curVNode.getName();
                         e0MultiMax = curEdgeSize;
                     }
-                }else if(rtvEdge.getIcmSet().contains(e1IcmId) &&
+                }else if(curE1RtvIcmSet.size()>0 &&
                         (rtvEdge.getPort().equals("e1")||rtvEdge.getPort().equals("E1"))) {
                     if(edgeName.equals("role") && curEdgeSize > e1RoleMax) {
                         e1RoleName = curVNode.getName();
