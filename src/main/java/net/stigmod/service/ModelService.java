@@ -9,10 +9,7 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.system.CollectiveConceptualModel;
-import net.stigmod.domain.system.IndividualConceptualModel;
-import net.stigmod.domain.system.SystemInfo;
-import net.stigmod.domain.system.User;
+import net.stigmod.domain.system.*;
 import net.stigmod.repository.node.CollectiveConceptualModelRepository;
 import net.stigmod.repository.node.IndividualConceptualModelRepository;
 import net.stigmod.repository.node.SystemInfoRepository;
@@ -61,6 +58,9 @@ public class ModelService {
             throw new IllegalArgumentException("Model description can not be empty.");
         }
 
+        // 保证新名称不与已有 CCM 名称重复
+        this.checkCcmDuplication(name);
+
         // 保证新名称不与用户已有 ICM 名称重复
         this.checkIcmDuplication(user.getId(), 0L, name, "new");
 
@@ -68,6 +68,10 @@ public class ModelService {
         IndividualConceptualModel icm = new IndividualConceptualModel(name, description, language);
         icm.addUser(user);
         user.addIcm(icm);
+
+        // 新建 ICM 的操作序列储存容器
+        ModelingOperations modOps = new ModelingOperations(icm);
+        icm.addModelingOps(modOps);
 
         // 新建 CCM
         CollectiveConceptualModel ccm = new CollectiveConceptualModel(name, description, language);
@@ -97,6 +101,10 @@ public class ModelService {
         IndividualConceptualModel icm = new IndividualConceptualModel(name, description, language);
         icm.addUser(user);
         user.addIcm(icm);
+
+        // 新建 ICM 的操作序列储存容器
+        ModelingOperations modOps = new ModelingOperations(icm);
+        icm.addModelingOps(modOps);
 
         // 获取 CCM
         CollectiveConceptualModel ccm = ccmRepo.getCcmById(ccmId);
@@ -222,6 +230,15 @@ public class ModelService {
             if (type.equals("new") || icmIdTakenTheName.longValue() != id) {
                 throw new IllegalArgumentException("You already have a model named as " + name);
             }
+        }
+    }
+
+    // 保证新名称不与已有 CCM 名称重复
+    private void checkCcmDuplication(String name) {
+        List<CollectiveConceptualModel> ccms = ccmRepo.findByName(name);
+
+        if (!ccms.isEmpty()) {
+            throw new IllegalArgumentException("The CCM name [" + name + "]  has been taken.");
         }
     }
 }

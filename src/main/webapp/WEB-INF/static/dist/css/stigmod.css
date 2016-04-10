@@ -88,6 +88,20 @@ body {
   vertical-align: middle !important;
 }
 
+/* 真正垂直居中 */
+/* 垂直居中套件 1 */
+.stigmod-va-center-wrapper {
+  float: left;
+  height: 50%;
+  margin-bottom: -120px;
+}
+/* 垂直居中套件 2 */
+.stigmod-va-center-content {
+  clear: both;
+  height: 240px;
+  position: relative;
+}
+
 /* 禁用响应式布局，container宽度恒定 */
 .container {
   width: 1200px !important;
@@ -870,6 +884,11 @@ fieldset[disabled] .stigmod-input {
   animation: show-rec 0.5s 0.3s both;
 }
 
+/* Add class 的推荐栏内的表格，下沉一些，使得其看起来是居中的 */
+#stigmod-modal-rec-class {
+  margin: 18px;
+}
+
 /* --------------------------------------------- *
  *
  * workspace 页面 
@@ -1132,6 +1151,10 @@ fieldset[disabled] .stigmod-input {
 /* 不可保存时的存盘按钮 */
 .stigmod-model-saved {
   color: #ccc;
+}
+/* 正在保存时的存盘按钮 */
+.stigmod-model-saving {
+  display: none;
 }
 
 /* 悬浮窗 */
