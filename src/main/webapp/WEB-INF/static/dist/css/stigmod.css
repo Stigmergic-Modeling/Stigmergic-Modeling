@@ -21,6 +21,7 @@
 body {
   /*font-family: "Helvetica Neue";*/
   padding-top: 70px;
+  position: relative; /* 为了 bootstrap 的滚动监听 */
 }
 
 /* 水平居中 wrapper */
@@ -1537,3 +1538,76 @@ span.twitter-typeahead .tt-hint {
   width: 100%;
   height: 100%;
 }
+
+
+/* help 页面侧边导航栏 */
+.stigmod-sidenav {
+
+}
+.stigmod-sidenav ul {
+  padding-left:20px;
+  font-size: 0.7em;
+}
+
+.stigmod-sidenav > .active > a,
+.stigmod-sidenav > .active .active > a {
+  margin-left: -3px;
+  border-left-width: 3px;
+  border-left-style: solid;
+  border-color: #428bca;
+}
+
+.stigmod-sidenav > .active li > a {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.stigmod-sidenav li > ul {
+  display: none;
+}
+
+.stigmod-sidenav li.active > ul {
+  display: block;
+}
+
+.stigmod-sidenav .back-to-top {
+  padding: 10px 15px;
+  display: block;
+}
+
+/*.bs-docs-sidenav {*/
+  /*width: 228px;*/
+  /*margin: 30px 0 0;*/
+  /*padding: 0;*/
+  /*background-color: #fff;*/
+  /*-webkit-border-radius: 6px;*/
+  /*-moz-border-radius: 6px;*/
+  /*border-radius: 6px;*/
+  /*-webkit-box-shadow: 0 1px 4px rgba(0,0,0,.065);*/
+  /*-moz-box-shadow: 0 1px 4px rgba(0,0,0,.065);*/
+  /*box-shadow: 0 1px 4px rgba(0,0,0,.065);*/
+/*}*/
+/*.bs-docs-sidenav > .active > a {*/
+  /*position: relative;*/
+  /*z-index: 2;*/
+  /*padding: 9px 15px;*/
+  /*border: 0;*/
+  /*text-shadow: 0 1px 0 rgba(0,0,0,.15);*/
+  /*-webkit-box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);*/
+  /*-moz-box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);*/
+  /*box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);*/
+/*}*/
+
+/* 解决用#页内链接时由于 70px 的顶端栏而定位不准的问题 */
+.stigmod-help-title {
+  padding-top: 70px;
+  margin-top: -70px;
+}
+
+/* 去除图片展示左右按钮的阴影 */
+/*.carousel-control.left {*/
+  /*background-image: none;*/
+/*}*/
+/*.carousel-control.right {*/
+  /*background-image: none;*/
+/*}*/
