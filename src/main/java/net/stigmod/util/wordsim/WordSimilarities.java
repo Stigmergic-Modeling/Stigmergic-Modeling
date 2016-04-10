@@ -12,7 +12,9 @@ package net.stigmod.util.wordsim;
 import net.stigmod.domain.conceptualmodel.ValueNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Kai Fu
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class WordSimilarities {
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
+    public static Map<String,Map<String,Double>> vNodeSimMap = new HashMap<>();
 
     public static void initvNodeSimList(List<ValueNode> valueNodeList) {
         if(valueNodeList.size()==0) return;
@@ -35,6 +38,35 @@ public class WordSimilarities {
                 WordSimilaritiesForEn.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
                 vNodeSimList = WordSimilaritiesForEn.vNodeSimList;
             }
+        }
+        initvNodeSimMap(valueNodeList);//再初始化一个map
+    }
+
+    private static void initvNodeSimMap(List<ValueNode> valueNodeList) {
+        int vSize = valueNodeList.size();
+        if(vSize==0) return;
+        for(int i=0;i<vSize;i++) {
+            ValueNode curVNode = valueNodeList.get(i);
+            String curVName = curVNode.getName();
+            Map<String,Double> innerSimMap = new HashMap<>();
+            for(int j=0;j<vSize;j++) {
+                ValueNode otherVNode = valueNodeList.get(j);
+                String otherVName = otherVNode.getName();
+                innerSimMap.put(otherVName,vNodeSimList.get(i).get(j));
+            }
+            if(!innerSimMap.containsKey("") && curVName.equals("")) innerSimMap.put("",1.0);
+            else if(!innerSimMap.containsKey("")) innerSimMap.put("",0.0);
+            vNodeSimMap.put(curVName,innerSimMap);
+        }
+        if(!vNodeSimMap.containsKey("")) {//这个还有用
+            Map<String,Double> noInnerMap = new HashMap<>();
+            noInnerMap.put("",1.0);
+            for(int i=0;i<vSize;i++) {
+                ValueNode curVNode = valueNodeList.get(i);
+                String curVName = curVNode.getName();
+                noInnerMap.put(curVName,0.0);
+            }
+            vNodeSimMap.put("",noInnerMap);//对于这种空的情况我们也要考虑的
         }
     }
 

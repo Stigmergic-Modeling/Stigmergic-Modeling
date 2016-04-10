@@ -7,7 +7,7 @@
  * It is based on UML 2.0 class diagram specifications and stigmergy theory.
  */
 
-package net.stigmod.service.migrateService;
+package net.stigmod.service.migrateService.migrateUtil;
 
 import net.stigmod.domain.conceptualmodel.ClassNode;
 import net.stigmod.domain.conceptualmodel.RelationNode;
@@ -15,6 +15,7 @@ import net.stigmod.domain.conceptualmodel.ValueNode;
 import net.stigmod.domain.conceptualmodel.ClassToValueEdge;
 import net.stigmod.domain.conceptualmodel.RelationToClassEdge;
 import net.stigmod.domain.conceptualmodel.RelationToValueEdge;
+import net.stigmod.service.migrateService.EntropyHandler;
 import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class MigrateUtil {
      * @param targetCNode
      * @return 熵值变化
      */
-    protected double MigrateFromClassToClassForValueNode(Set<Long> icmSet , ValueNode valueNode , ClassNode sourceCNode ,
+    public double MigrateFromClassToClassForValueNode(Set<Long> icmSet , ValueNode valueNode , ClassNode sourceCNode ,
                                                          ClassNode targetCNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -110,7 +111,7 @@ public class MigrateUtil {
      * @param targetCNode
      * @return relation节点的熵值变化情况
      */
-    protected double MigrateFromClassToClassForRelationNode(Set<Long> icmSet , RelationNode relationNode , ClassNode sourceCNode
+    public double MigrateFromClassToClassForRelationNode(Set<Long> icmSet , RelationNode relationNode , ClassNode sourceCNode
             , ClassNode targetCNode , int oldNodeNum ,int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -204,7 +205,7 @@ public class MigrateUtil {
      * @param targetRNode
      * @return 熵值变化
      */
-    protected double MigrateFromRelationToRelationForValueNode(Set<Long> icmSet , ValueNode valueNode , RelationNode sourceRNode
+    public double MigrateFromRelationToRelationForValueNode(Set<Long> icmSet , ValueNode valueNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -297,7 +298,7 @@ public class MigrateUtil {
      * @param targetRNode
      * @return classNode的熵值变化
      */
-    protected double MigrateFromRelationToRelationForClassNode(Set<Long> icmSet , ClassNode classNode , RelationNode sourceRNode
+    public double MigrateFromRelationToRelationForClassNode(Set<Long> icmSet , ClassNode classNode , RelationNode sourceRNode
             , RelationNode targetRNode , int oldNodeNum , int newNodeNum) {
         double res=0.0;
 //        Map<String,List<Set<Long>>> oldNodeMap=new HashMap<>();
@@ -404,7 +405,7 @@ public class MigrateUtil {
      * @param cNode
      * @return
      */
-    protected  List<Set<Long>> getTheUserSetToConValueNodeForClassNode(ClassNode cNode) {
+    public List<Set<Long>> getTheUserSetToConValueNodeForClassNode(ClassNode cNode) {
         List<Set<Long>> resList = new ArrayList<>();
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
             if(ctvEdge.getIcmSet().size()<=1) continue;
@@ -419,7 +420,7 @@ public class MigrateUtil {
      * @param cNode
      * @return 一个map结构,主要就是相同边的用户集合
      */
-    protected Map<String,Set<Long>> getTheUserSetForClassNode(ClassNode cNode) {
+    public Map<String,Set<Long>> getTheUserSetForClassNode(ClassNode cNode) {
         Set<Long> curIcmSet = cNode.getIcmSet();
         Map<Long,String> icmMap = new HashMap<>();
         Map<String,Set<Long>> sameIcmMap = new HashMap<>();
@@ -455,7 +456,7 @@ public class MigrateUtil {
         return sameIcmMap;
     }
 
-    protected Map<String,Set<Long>> getTheUserSetForRelationNode(RelationNode rNode) {
+    public Map<String,Set<Long>> getTheUserSetForRelationNode(RelationNode rNode) {
         Set<Long> curIcmSet = rNode.getIcmSet();
         Map<Long,String> icmMap = new HashMap<>();
         Map<String,Set<Long>> sameIcmMap = new HashMap<>();
@@ -491,8 +492,64 @@ public class MigrateUtil {
         return sameIcmMap;
     }
 
+    /**
+     * 为0表示返回正常的list,为1表示只返回与当前cNode相似的概念的ConClassNode
+     * @param cNode
+     * @param valueNodeList
+     * @param strictLevel
+     * @return
+     */
+    public List<Integer> findConClassNodes(ClassNode cNode,List<ClassNode> classNodeList,List<ValueNode> valueNodeList,
+                                           int strictLevel) {
+        List<Integer> resConClassNodes = new ArrayList<>();
+        List<Integer> tmpConClassNodes = new ArrayList<>();
+        if(strictLevel==1) {
+            tmpConClassNodes = findConClassNodesForSim(cNode, valueNodeList);//这部分没考虑relationNode
+        }else {
+            tmpConClassNodes = findConClassNodesDetail(cNode, valueNodeList);
+        }
+        int resSize = tmpConClassNodes.size();
+        List<PreSortNode> preSortNodes = new ArrayList<>();
+        for(int i=0;i<resSize;i++) {
+            ClassNode innerNode = classNodeList.get(tmpConClassNodes.get(i));
+            PreSortNode preSortNode = new PreSortNode(innerNode.getLoc(),innerNode.getBiEntropyValue(),innerNode.getIcmSet().size());
+            preSortNodes.add(preSortNode);
+        }
+        Collections.sort(preSortNodes, new Comparator<PreSortNode>() {
+            @Override
+            public int compare(PreSortNode o1, PreSortNode o2) {
+                return o1.refUserNum - o2.refUserNum;
+            }
+        });
+        for(int i=0;i<resSize;i++) {
+            resConClassNodes.add(preSortNodes.get(i).loc);
+        }
+        return resConClassNodes;
+    }
+
+
     //返回与cNode有相交节点的所有classNode的ListId编号
-    protected List<Integer> findConClassNodes(ClassNode cNode,List<ValueNode> valueNodeList) {
+    private List<Integer> findConClassNodesDetail(ClassNode cNode,List<ValueNode> valueNodeList) {
+        List<Integer> classNodeListIdSet = new ArrayList<>();
+        classNodeListIdSet.addAll(findConClassNodesForSim(cNode,valueNodeList));
+
+        for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
+            if(rtcEdge.getIcmSet().size() == 0) continue;
+            RelationNode rNode = rtcEdge.getStarter();
+            for(RelationToClassEdge rtcEdge2 : rNode.getRtcEdges()) {
+                if(rtcEdge2.getIcmSet().size() == 0) continue;
+                ClassNode otherCNode = rtcEdge2.getEnder();
+                if(otherCNode.getLoc()==cNode.getLoc() || classNodeListIdSet.contains(otherCNode.getLoc())) continue;
+                else {
+                    classNodeListIdSet.add(otherCNode.getLoc());
+                }
+            }
+        }
+
+        return classNodeListIdSet;
+    }
+
+    private List<Integer> findConClassNodesForSim(ClassNode cNode,List<ValueNode> valueNodeList) {
         List<Integer> classNodeListIdSet = new ArrayList<>();
         List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
         List<Integer> vNodeListIdSet = new ArrayList<>();
@@ -528,30 +585,84 @@ public class MigrateUtil {
                 }
             }
         }
-
-        for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
-            if(rtcEdge.getIcmSet().size() == 0) continue;
-            RelationNode rNode = rtcEdge.getStarter();
-            for(RelationToClassEdge rtcEdge2 : rNode.getRtcEdges()) {
-                if(rtcEdge2.getIcmSet().size() == 0) continue;
-                ClassNode otherCNode = rtcEdge2.getEnder();
-                if(otherCNode.getLoc()==cNode.getLoc() || classNodeListIdSet.contains(otherCNode.getLoc())) continue;
-                else {
-                    classNodeListIdSet.add(otherCNode.getLoc());
-                }
-            }
-        }
-
-        Collections.sort(classNodeListIdSet, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o1 - o2;
-            }
-        });
         return classNodeListIdSet;
     }
 
-    protected List<Integer> findConRelationNodes(RelationNode rNode,List<ValueNode> valueNodeList) {
+    /**
+     *
+     * @param rNode
+     * @param valueNodeList
+     * @param strictLevel 为0返回正常的ConRelation,为1表示只保留与其Role相同的relation,为2表示只保留非string等基础类型的relation
+     * @return
+     */
+    public List<Integer> findConRelationNodes(RelationNode rNode,List<RelationNode> relationNodeList
+            ,List<ValueNode> valueNodeList,int strictLevel) {
+        List<Integer> resConRList = new ArrayList<>();
+        List<Integer> tmpResConRList = new ArrayList<>();
+        if(strictLevel == 0) {
+            tmpResConRList = findConRelationNodesDetail(rNode,valueNodeList);
+        }else if(strictLevel == 1) {
+            //1号情况下必须找出与其role相似的节点
+            List<Integer> tConRList = findConRelationNodesDetail(rNode,valueNodeList);
+            List<List<String>> curRoleList = getRoleListForRelationNode(rNode);
+            for(int otherRLoc : tConRList) {
+                RelationNode otherRNode = relationNodeList.get(otherRLoc);
+                List<List<String>> otherRoleList = getRoleListForRelationNode(otherRNode);
+                if(isSimRoleForTwoRoleList(curRoleList,otherRoleList)) tmpResConRList.add(otherRLoc);
+            }
+        }else if(strictLevel == 2) {
+            List<Integer> tConRList = findConRelationNodesDetail(rNode,valueNodeList);
+            tmpResConRList = removeBasicRNodeFromRList(tConRList,relationNodeList);
+        }
+
+        int rSize = tmpResConRList.size();
+        List<PreSortNode> preSortNodes = new ArrayList<>();
+        for(int i=0;i<rSize;i++) {
+            RelationNode innerRNode = relationNodeList.get(tmpResConRList.get(i));
+            PreSortNode preSortNode = new PreSortNode(innerRNode.getLoc(),innerRNode.getBiEntropyValue(),innerRNode.getIcmSet().size());
+            preSortNodes.add(preSortNode);
+        }
+
+        Collections.sort(preSortNodes, new Comparator<PreSortNode>() {
+            @Override
+            public int compare(PreSortNode o1, PreSortNode o2) {
+                return o1.refUserNum - o2.refUserNum;
+            }
+        });
+        for(int i=0;i<rSize;i++) {
+            resConRList.add(preSortNodes.get(i).loc);
+        }
+        return resConRList;
+    }
+
+    /**
+     * 主要用来移除relationNodeList中所包含的基础类型的属性
+     * @param conRList
+     * @param relationNodeList
+     * @return
+     */
+    public List<Integer> removeBasicRNodeFromRList(List<Integer> conRList,List<RelationNode> relationNodeList) {
+        List<Integer> resConRList = new ArrayList<>();
+        for(int otherRLoc : conRList) {
+            RelationNode otherRNode = relationNodeList.get(otherRLoc);
+            boolean isBasicAttr = false;
+            for(RelationToClassEdge rtcEdge : otherRNode.getRtcEdges()) {
+                ClassNode cNode = rtcEdge.getEnder();
+                for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+                    String cName = ctvEdge.getEnder().getName();
+                    if(cName.equals("int")||cName.equals("string")||cName.equals("boolean")||cName.equals("float")) {
+                        isBasicAttr = true;
+                        break;
+                    }
+                }
+                if(isBasicAttr) break;
+            }
+            if(!isBasicAttr) resConRList.add(otherRLoc);
+        }
+        return resConRList;
+    }
+
+    private List<Integer> findConRelationNodesDetail(RelationNode rNode,List<ValueNode> valueNodeList) {
         List<Integer> relationNodeListIdSet = new ArrayList<>();
         List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
         List<Integer> vNodeListIdSet = new ArrayList<>();
@@ -605,13 +716,111 @@ public class MigrateUtil {
             }
         }
 
-        Collections.sort(relationNodeListIdSet, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o1-o2;
-            }
-        });
         return relationNodeListIdSet;
     }
 
+    /**
+     * 获取当前relationNode的role列表,注意一个relation可能多种role.
+     * @param rNode
+     * @return
+     */
+    private List<List<String>> getRoleListForRelationNode(RelationNode rNode) {
+        Set<Long> icmSet = new HashSet<>(rNode.getIcmSet());
+        Iterator<Long> iter = icmSet.iterator();
+        Map<String,Set<Long>> myMap = new HashMap<>();
+        List<RelationToValueEdge> rtvList = new ArrayList<>(rNode.getRtvEdges());
+        while(iter.hasNext()) {
+            long curIcmId = iter.next();
+            StringBuffer curStrBuffer = new StringBuffer();
+            for(RelationToValueEdge rtvEdge : rtvList) {
+                if(rtvEdge.getName().equals("role") && rtvEdge.getIcmSet().contains(curIcmId)) {//
+                    if(curStrBuffer.length()==0) curStrBuffer.append(rtvEdge.getEnder().getName());
+                    else curStrBuffer.append("-"+rtvEdge.getEnder().getName());
+                }
+            }
+            String curStr = curStrBuffer.toString();
+            if(myMap.containsKey(curStr)) {
+                myMap.get(curStr).add(curIcmId);
+            }else {
+                Set<Long> innerSet = new HashSet<>();
+                innerSet.add(curIcmId);
+                myMap.put(curStr,innerSet);
+            }
+        }
+        //获得了用户分布集合
+        List<List<String>> roleList = new ArrayList<>();
+        List<String> roleMapList = new ArrayList<>(myMap.keySet());
+        int rSize = roleMapList.size();
+        for(int i=0;i<rSize;i++) {
+            String curRoleStr = roleMapList.get(i);
+            if(curRoleStr.equals("")) continue;
+            List<String> curRoleList = new ArrayList<>();
+            if(curRoleStr.indexOf("-")!=-1) {
+                String[] roleArr = curRoleStr.split("-");
+                curRoleList.add(roleArr[0]);
+                curRoleList.add(roleArr[1]);
+            }else {
+                curRoleList.add(curRoleStr);
+                curRoleList.add("");
+            }
+            roleList.add(curRoleList);
+        }
+        return roleList;
+    }
+
+    /**
+     * 判断两个roleList是否有相似的
+     * @param curRoleList
+     * @param otherRoleList
+     * @return
+     */
+    private boolean isSimRoleForTwoRoleList(List<List<String>> curRoleList,List<List<String>> otherRoleList) {
+        boolean isSim = false;//默认为false
+        int curSize = curRoleList.size();
+        int otherSize = otherRoleList.size();
+        for(int i=0;i<curSize;i++) {
+            List<String> curInnerList = curRoleList.get(i);
+            String curRole1 = curInnerList.get(0);
+            String curRole2 = curInnerList.get(1);
+            for(int j=0;j<otherSize;j++) {
+                List<String> otherInnerList = otherRoleList.get(j);
+                String otherRole1 = otherInnerList.get(0);
+                String otherRole2 = otherInnerList.get(1);
+
+                if((curRole1.equals(otherRole1)&&curRole2.equals(otherRole2))||
+                        (curRole1.equals(otherRole2)&&curRole2.equals(otherRole1))) {
+                    return true;
+                }else if(WordSimilarities.vNodeSimMap.containsKey(curRole1)&&WordSimilarities.vNodeSimMap.containsKey(curRole2)
+                        &&WordSimilarities.vNodeSimMap.containsKey(otherRole1)&&WordSimilarities.vNodeSimMap.containsKey(otherRole2)) {
+                    if((curRole1.equals(otherRole1) && WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole2)>=0.5) ||
+                            curRole1.equals(otherRole2) && WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole1)>=0.5) {
+                        return true;
+                    }else if((curRole2.equals(otherRole1) && WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole2)>=0.5) ||
+                            curRole2.equals(otherRole2) && WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole1)>=0.5) {
+                        return true;
+                    }else if((WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole1)>=0.5 &&
+                            WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole2)>=0.5) ||
+                            (WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole1)>=0.5 &&
+                                    WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole2)>=0.5)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return isSim;//false
+    }
+
+    //按用户引用数对List进行排序.
+    class PreSortNode {
+        //按用户引用数对List进行排序.
+        int loc;
+        double entropy;
+        int refUserNum;
+
+        public PreSortNode(int loc, double entropy, int refUserNum) {
+            this.loc = loc;
+            this.entropy = entropy;
+            this.refUserNum = refUserNum;
+        }
+    }
 }

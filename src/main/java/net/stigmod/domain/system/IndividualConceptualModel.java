@@ -32,10 +32,6 @@ public class IndividualConceptualModel extends AbstractConceptualModel {
     @Relationship(type = "IN", direction = Relationship.OUTGOING)
     private Set<CollectiveConceptualModel> ccms = new HashSet<>();
 
-    // 建模操作集合
-    @Relationship(type = "BUILTBY", direction = Relationship.OUTGOING)
-    private Set<ModelingOperations> modelingOperations = new HashSet<>();
-
     @Property
     private List<String> frontIdList;  // 与 backIdList 一起记录 id mapping
 
@@ -112,14 +108,6 @@ public class IndividualConceptualModel extends AbstractConceptualModel {
         this.ccms.remove(ccm);
     }
 
-    /**
-     * 添加建模操作的容器
-     * @param modOps 建模操作容器
-     */
-    public void addModelingOps(ModelingOperations modOps) {
-        this.modelingOperations.add(modOps);
-    }
-
     public Set<User> getUsers() {
         return users;
     }
@@ -150,13 +138,5 @@ public class IndividualConceptualModel extends AbstractConceptualModel {
 
     public void setBackIdList(List<String> backIdList) {
         this.backIdList = backIdList;
-    }
-
-    public Set<ModelingOperations> getModelingOperations() {
-        return modelingOperations;
-    }
-
-    public void setModelingOperations(Set<ModelingOperations> modelingOperations) {
-        this.modelingOperations = modelingOperations;
     }
 }
