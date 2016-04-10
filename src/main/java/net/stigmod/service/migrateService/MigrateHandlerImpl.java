@@ -195,16 +195,60 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int vNodeSize = valueNodeList.size();
         int rNodeSize = relationNodeList.size();
 
+        int[] simVNodeArr = new int[vNodeSize];
+        Arrays.fill(simVNodeArr,-1);
         for(int i=0;i<vNodeSize;i++) {
             ValueNode curVNode = valueNodeList.get(i);
             String curVName = curVNode.getName();
-            if(curVName.equals("true")||curVName.equals("1")||curVName.equals("1..2")||curVName.equals("0..1")||
-                    curVName.equals("1..*")||curVName.equals("*")) continue;
-            List<Integer> cNodeLocs = heuristicMethod.getConClassNodeForValueNode(curVNode);
+            for(int j=i+1;j<vNodeSize;j++) {
+                if(i==j) continue;
+                if(Double.compare(WordSimilarities.vNodeSimList.get(i).get(j),0.5)>=0) {
+                    if(simVNodeArr[i]==-1 && simVNodeArr[j]==-1) {
+                        simVNodeArr[i]=i;
+                        simVNodeArr[j]=i;
+                    }else if(simVNodeArr[i]==-1 && simVNodeArr[j]!=-1) {
+                        simVNodeArr[i]=simVNodeArr[j];
+                    }
+                    else if(simVNodeArr[i]!=-1 && simVNodeArr[j]==-1){
+                        simVNodeArr[j]=simVNodeArr[i];
+                    }else continue;
+                }
+            }
+            if(simVNodeArr[i]==-1)simVNodeArr[i]=i;
+        }
+        //这样的话,simVNodeArr其实就是一个聚类的数组,他将相似的都聚在了一起
+        List<Set<Integer>> vNodeSimList = new ArrayList<>();
+        Set<Integer> alreadyHasVNodeSet = new HashSet<>();
+        for(int i=0;i<vNodeSize;i++) {
+            if(alreadyHasVNodeSet.contains(i)) continue;
+            Set<Integer> curSet = new HashSet<>();
+            curSet.add(i);
+            for(int j=i+1;j<vNodeSize;j++) {
+                if(simVNodeArr[i]==simVNodeArr[j]) {
+                    alreadyHasVNodeSet.add(j);
+                    curSet.add(j);
+                }
+            }
+            vNodeSimList.add(curSet);
+        }
+        //正确划分了vNodeSimList
 
-            for(int cNodeLoc : cNodeLocs) {
+        int diffVSize = vNodeSimList.size();
+        for(int i=0;i<diffVSize;i++) {
+            Set<Integer> innerSet = vNodeSimList.get(i);
+            Set<Integer> cNodeSet = new HashSet<>();
+            for(int vLoc : innerSet) {
+                ValueNode vNode = valueNodeList.get(vLoc);
+                String vName = vNode.getName();
+                if(vName.equals("*")||vName.equals("1..*")||vName.equals("0..1")||vName.equals("1")||vName.equals("1..2")
+                        ||vName.equals("0..2")||vName.equals("true")) continue;
+                cNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(vNode));
+            }
+            //现在cNodeSet中包含了所有相似value对应得classNode
+            List<Integer> cNodeLocList = new ArrayList<>(cNodeSet);
+            for(int cNodeLoc : cNodeLocList) {
                 ClassNode cNode = classNodeList.get(cNodeLoc);
-                migrateClassNode(cNode,cNodeLocs);
+                migrateClassNode(cNode,cNodeLocList,1);
             }
         }
 
@@ -245,8 +289,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 String s3 = secondList.get(0);
                 String s4 = secondList.get(1);
 
-//                System.out.println("s1: "+s1+" ,s2: "+s2+" ,s3: "+s3+" ,s4: "+s4);
-
                 if((s1.equals(s3)&&s2.equals(s4))||(s1.equals(s4)&&s2.equals(s3))) {
                     alreadyHasSet.add(j);
                     iList.add(j);
@@ -280,7 +322,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             List<Integer> iList = conList.get(i);
             for(int curLoc : iList) {
                 RelationNode curRNode = relationNodeList.get(curLoc);
-                migrateRelationNode(curRNode,iList);
+                migrateRelationNode(curRNode,iList,1);
             }
         }
     }
@@ -291,82 +333,61 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int rAndcNodeSize = relationNodeList.size()+cNodeSize;
         int hSize = heuristicList.size();
 
-
-
-
         for(int i=0;i<hSize;i++) {
             int curLoc = heuristicList.get(i);
             if(curLoc<cNodeSize) {//说明是classNode,目标是把他所有relationNode都融合
                 List<Integer> rNodeLocs = heuristicMethod.getConRelationNodeForClassNode(classNodeList.get(curLoc));
-                for(int rNodeLoc : rNodeLocs) {
+                List<Integer> resRNodeLocs = migrateUtil.removeBasicRNodeFromRList(rNodeLocs,relationNodeList);//移除了所有的basic类型的relationNode
+                for(int rNodeLoc : resRNodeLocs) {
                     RelationNode rNode = relationNodeList.get(rNodeLoc);
-                    boolean isContinue = true;
-                    for(RelationToValueEdge innerRtvEdge : rNode.getRtvEdges()) {
-                        ValueNode innerVNode = innerRtvEdge.getEnder();
-                        String innerVName = innerVNode.getName();
-                        if(innerVName.equals("int")||innerVName.equals("float")||innerVName.equals("string")
-                                ||innerVNode.equals("boolean"))  {
-                            isContinue = false;
-                            break;
-                        }
-                    }
-                    if(isContinue) migrateRelationNode(rNode,rNodeLocs);//进行迁移操作
+                    migrateRelationNode(rNode,resRNodeLocs,2);//进行迁移操作,2是去除掉基础数据类型的attr迁移
                 }
             }else if(curLoc<rAndcNodeSize) {//说明是relationNode
                 List<Integer> cNodeLocs = heuristicMethod.getConClassNodeForRelationNode(relationNodeList.get(curLoc-cNodeSize));
                 for(int cNodeLoc : cNodeLocs) {
                     ClassNode cNode = classNodeList.get(cNodeLoc);
-                    migrateClassNode(cNode,cNodeLocs);
+                    migrateClassNode(cNode,cNodeLocs,0);//设置0是因为和relation不同,没有2这个级别
                 }
             }else {//说明是valueNode
                 ValueNode curVNode = valueNodeList.get(curLoc - rAndcNodeSize);
                 String curVName = curVNode.getName();
                 if(curVName.equals("true")||curVName.equals("1")||curVName.equals("1..2")||curVName.equals("0..1")||
-                        curVName.equals("1..*")||curVName.equals("*")) continue;
+                        curVName.equals("1..*")||curVName.equals("*")||curVName.equals("0..2")) continue;
                 List<Integer> cNodeLocs = heuristicMethod.getConClassNodeForValueNode(curVNode);
                 List<Integer> rNodeLocs = heuristicMethod.getConRelationNodeForValueNode(curVNode);
+                List<Integer> resRNodeLocs = migrateUtil.removeBasicRNodeFromRList(rNodeLocs,relationNodeList);
 
                 for(int cNodeLoc : cNodeLocs) {
                     ClassNode cNode = classNodeList.get(cNodeLoc);
-                    migrateClassNode(cNode,cNodeLocs);
+                    migrateClassNode(cNode,cNodeLocs,0);
                 }
-                for(int rNodeLoc : rNodeLocs) {
+                for(int rNodeLoc : resRNodeLocs) {
                     RelationNode rNode = relationNodeList.get(rNodeLoc);
-                    boolean isContinue = true;
-                    for(RelationToValueEdge innerRtvEdge : rNode.getRtvEdges()) {
-                        ValueNode innerVNode = innerRtvEdge.getEnder();
-                        String innerVName = innerVNode.getName();
-                        if(innerVName.equals("int")||innerVName.equals("float")||innerVName.equals("string")
-                                ||innerVNode.equals("boolean"))  {
-                            isContinue = false;
-                            break;
-                        }
-                    }
-                    if(isContinue) migrateRelationNode(rNode,rNodeLocs);//进行迁移操作
+                    migrateRelationNode(rNode,resRNodeLocs,2);//进行迁移操作
                 }
             }
         }
     }
 
-    private void migrateClassNodeWithNormalMethod(int classNodeListId) {
-        ClassNode classNode = classNodeList.get(classNodeListId);
-        if(classNode.getIcmSet().size()==0) return ;
+//    private void migrateClassNodeWithNormalMethod(int classNodeListId) {
+//        ClassNode classNode = classNodeList.get(classNodeListId);
+//        if(classNode.getIcmSet().size()==0) return ;
+//
+//        //找到所有和当前classNode有交集的其他classNode节点
+//        List<Integer> needToFindCNodeListIdSet = migrateUtil.findConClassNodes(classNode,valueNodeList);
+//        migrateClassNode(classNode,needToFindCNodeListIdSet);
+//    }
+//
+//    private void migrateRelationNodeWithNormalMethod(int relationNodeListId) {
+//        RelationNode relationNode = relationNodeList.get(relationNodeListId);
+//        if(relationNode.getIcmSet().size()==0) return ;
+//
+//        //找到所有和当前relationNode有交集的其他relationNode节点
+//        List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,valueNodeList);
+//        migrateRelationNode(relationNode, needToFindRNodeListIdSet);
+//    }
 
-        //找到所有和当前classNode有交集的其他classNode节点
-        List<Integer> needToFindCNodeListIdSet = migrateUtil.findConClassNodes(classNode,valueNodeList);
-        migrateClassNode(classNode,needToFindCNodeListIdSet);
-    }
-
-    private void migrateRelationNodeWithNormalMethod(int relationNodeListId) {
-        RelationNode relationNode = relationNodeList.get(relationNodeListId);
-        if(relationNode.getIcmSet().size()==0) return ;
-
-        //找到所有和当前relationNode有交集的其他relationNode节点
-        List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,valueNodeList);
-        migrateRelationNode(relationNode, needToFindRNodeListIdSet);
-    }
-
-    private void migrateClassNode(ClassNode classNode,List<Integer> needToFindCNodeListIdSet) {
+    private void migrateClassNode(ClassNode classNode,List<Integer> needToFindCNodeListIdSet,int strictLevel) {
         Map<String,Set<Long>> userSetMap = migrateUtil.getTheUserSetForClassNode(classNode);
         List<String> uNameKeyList = new ArrayList<>();
         sortTheUNameKeyList(uNameKeyList,classNode.getIcmSet(),userSetMap);
@@ -375,12 +396,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(String userKey : uNameKeyList) {
                 Set<Long> uSet = userSetMap.get(userKey);
                 if(uSet.size() == 0) continue;
-                else findLowerEntropyLocForClass(uSet,classNode.getLoc(),needToFindCNodeListIdSet);
+                else findLowerEntropyLocForClass(uSet,classNode.getLoc(),needToFindCNodeListIdSet,strictLevel);
             }
         }
     }
 
-    private void migrateRelationNode(RelationNode relationNode,List<Integer> needToFindRNodeListIdSet) {
+    private void migrateRelationNode(RelationNode relationNode,List<Integer> needToFindRNodeListIdSet,int strictLevel) {
         Map<String,Set<Long>> userSetMap = migrateUtil.getTheUserSetForRelationNode(relationNode);
         List<String> uNameKeyList = new ArrayList<>();
         sortTheUNameKeyList(uNameKeyList,relationNode.getIcmSet(),userSetMap);
@@ -389,7 +410,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             for(String userKey : uNameKeyList) {
                 Set<Long> uSet = userSetMap.get(userKey);
                 if(uSet.size() == 0) continue;
-                else findLowerEntropyLocForRelation(uSet,relationNode.getLoc(),needToFindRNodeListIdSet);
+                else findLowerEntropyLocForRelation(uSet,relationNode.getLoc(),needToFindRNodeListIdSet,strictLevel);
             }
         }
     }
@@ -417,7 +438,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
     }
 
     private void findLowerEntropyLocForClass(Set<Long> icmSet , int sourceClassNodeListId ,
-                                             List<Integer> needToFindCNodeListIdSet) {
+                                             List<Integer> needToFindCNodeListIdSet,int strictLevel) {
         //注意,这里的ListId不是Node本身的id,而是classNodeList中该节点的id.
         //!!!要区分ListId和Id的区别
         double maxEntropyDecrease = 0.0;
@@ -552,7 +573,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     if(classNodeList.get(listId).getIcmSet().contains(curIcmId)) {
                         double testE2 = scanToComputeSystemEntropy();
 
-                        double twoStepVar=migrateClassNodeNeedTwoStep(curIcmId , sourceClassNodeListId ,listId);
+                        double twoStepVar=migrateClassNodeNeedTwoStep(curIcmId , sourceClassNodeListId ,listId ,strictLevel);
                         double testE = scanToComputeSystemEntropy();
                         if(Math.abs(systemEntropy - testE) > 0.1) {
                             System.out.println("发生熵值不等错误0003: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
@@ -755,7 +776,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
      * @param sourceClassNodeListId
      * @param targetClassNodeListId
      */
-    public Double migrateClassNodeNeedTwoStep(Long icmId,int sourceClassNodeListId,int targetClassNodeListId) {
+    public Double migrateClassNodeNeedTwoStep(Long icmId,int sourceClassNodeListId,int targetClassNodeListId,int strictLevel) {
         //首先是判断如果targetClass没有当前icmId用户,将sourceClass上的icmId迁移到targetClass上是否会减小熵值,如果会则执行该步骤,否则不执行
         //为targetClass上的icmId用户找寻适合其迁移的最佳位置,判断这个迁移会造成多少熵值增加
         //如果增加的比迁移过来的减少的少,则进行迁移操作,否则不迁移
@@ -773,7 +794,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int minVarCNodeListId=-1;  //我们希望找到的是引起targetClass节点迁移到的目标节点熵值上升度最小的节点
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
 
-        List<Integer> thirdPartCNodeListIdSet = migrateUtil.findConClassNodes(targetClassNode,valueNodeList);
+        List<Integer> thirdPartCNodeListIdSet = migrateUtil.findConClassNodes(targetClassNode,classNodeList,valueNodeList,strictLevel);
         boolean sourceCNodeSettleStatus = sourceClassNode.getIsSettled();
 
 
@@ -907,7 +928,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
         return simVar+minEntropyDown;
     }
 
-    private void findLowerEntropyLocForRelation(Set<Long> icmSet , int sourceRelationNodeListId , List<Integer> needToFindRNodeListIdSet) {
+    private void findLowerEntropyLocForRelation(Set<Long> icmSet , int sourceRelationNodeListId , List<Integer> needToFindRNodeListIdSet
+            , int strictLevel) {
         RelationNode sourceRelationNode = relationNodeList.get(sourceRelationNodeListId);
         double maxEntropyDecrease=0.0;
         int targetRelationNodeId=-1;
@@ -1035,7 +1057,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 for(int listId : haveConNodeIdSet) {
                     if(relationNodeList.get(listId).getIcmSet().contains(curIcmId)) {
                         double testE2 = scanToComputeSystemEntropy();
-                        double twoStepVar=migrateRelationNodeNeedTwoStep(curIcmId , sourceRelationNodeListId ,listId);
+                        double twoStepVar=migrateRelationNodeNeedTwoStep(curIcmId , sourceRelationNodeListId ,listId , strictLevel);
                         double testE = scanToComputeSystemEntropy();
                         if(Math.abs(systemEntropy - testE) > 0.1) {
                             System.out.println("发生熵值不等错误0005: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
@@ -1226,7 +1248,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         return resVar;
     }
 
-    public Double migrateRelationNodeNeedTwoStep(Long icmId,int sourceRelationNodeListId,int targetRelationNodeListId) {
+    public Double migrateRelationNodeNeedTwoStep(Long icmId,int sourceRelationNodeListId,int targetRelationNodeListId,int strictLevel) {
         //首先是判断如果targetRelation没有当前icmId用户,将sourceRelation上的icmId迁移到targetClass上是否会减小熵值,如果会则执行该步骤,否则不执行
         //为targetRelation上的icmId用户找寻适合其迁移的最佳位置,判断这个迁移会造成多少熵值增加
         //如果增加的比迁移过来的减少的少,则进行迁移操作,否则不迁移
@@ -1246,7 +1268,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         Boolean isTravseNUllNode=false;  //是否遍历空节点的情况
 
         //这里的目标是把target上的relation节点迁移到otherRelationNode上去,看看是否有效果
-        List<Integer> thirdPartRNodeListIdSet = migrateUtil.findConRelationNodes(targetRelationNode,valueNodeList);
+        List<Integer> thirdPartRNodeListIdSet = migrateUtil.findConRelationNodes(targetRelationNode,relationNodeList,valueNodeList,strictLevel);
         boolean targetRNodeSettleStatus = targetRelationNode.getIsSettled();
 
         for(Integer tmpListId : thirdPartRNodeListIdSet) {
