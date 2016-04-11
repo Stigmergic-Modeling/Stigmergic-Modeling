@@ -795,13 +795,30 @@ public class WorkspaceService {
                         // 更换类所连接的 value 节点
                         ClassNode classNode = classNodeRepository.getOneByName(ccmId, icmId, classNameOld);
                         assert classNode != null;
-                        classNode = classNodeRepository.findOne(classNode.getId(), 1);  // class name 在一个 ICM 中不会重复，因此不必观察存储类名的 value node 周围的边即可直接删除
+                        classNode = classNodeRepository.findOne(classNode.getId(), 2);
+                        // class name 在一个 ICM 中不会重复，因此不必观察存储类名的 value node 周围的边即可直接删除（此句仅针对英文项目成立，对于中文项目，则类名和角色名可能重复）
+                        // 为了兼顾中文项目，这里提取深度为 2
 
                         boolean newClassNameAlreadyConnected = false;  // 标志位，表示新类名的 value 点是否已经在 CCM 中与 class 点连接
                         for (ClassToValueEdge c2vEdge: classNode.getCtvEdges()) {
                             if (c2vEdge.getIcmSet().contains(icmId) && c2vEdge.getName().equals("name") && c2vEdge.getEnder().getName().equals(classNameOld)) {  // 删除旧名
+
+                                // 删除边
                                 c2vEdge.removeIcmId(icmId);
-                                c2vEdge.getEnder().removeIcmId(icmId);
+
+                                // 判断该类名是否被某个关系作为角色名使用后再删除值节点
+                                ValueNode valueNode = c2vEdge.getEnder();
+                                boolean usedAsRoleName = false;
+                                for (RelationToValueEdge r2vEdge : valueNode.getRtvEdges()) {
+                                    if (r2vEdge.getIcmSet().contains(icmId)) {  // 若该值节点至少被该 ICM 中一个关系作为角色名使用
+                                        usedAsRoleName = true;
+                                        break;
+                                    }
+                                }
+                                if (!usedAsRoleName) {  // 若该值节点至少被该 ICM 中一个关系作为角色名使用，则不能删除；否则删除
+                                    c2vEdge.getEnder().removeIcmId(icmId);
+                                }
+
                             } else if (c2vEdge.getName().equals("name") && c2vEdge.getEnder().getName().equals(classNameNew)) {  // 若新名称已在 CCM 中与该类连接，则直接利用
                                 newClassNameAlreadyConnected = true;
                                 c2vEdge.addIcmId(icmId);
