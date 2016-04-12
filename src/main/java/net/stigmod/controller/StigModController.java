@@ -97,25 +97,6 @@ public class StigModController {
         return "about";
     }
 
-    // about this web app
-    @RequestMapping(value="/help", method = RequestMethod.GET)
-    public String help(ModelMap model) {
-
-        if (migrateService.isRunning()) {
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Service Unavailable");
-            return "service_unavailable";
-        }
-
-        final User user = userRepository.getUserFromSession();
-        model.addAttribute("user", user);
-        model.addAttribute("host", host);
-        model.addAttribute("port", port);
-        model.addAttribute("title", "Help");
-        return "help";
-    }
-
 //    // about this web app
 //    @RequestMapping(value="/testFusion/{ccmId}", method = RequestMethod.GET)
 //    @ResponseBody

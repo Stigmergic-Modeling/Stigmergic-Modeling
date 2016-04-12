@@ -36,9 +36,8 @@ public class EntropyHandlerImpl implements EntropyHandler{
     private double rtcWeight = 1.0;
     private double roleWeight = 1.0;
     private double nameWeight = 1.0;
-    private double multiWeight = 0.4;
-    private double otherAttrWeight = 0.2;
-
+    private double multiWeight = 0.5;
+    private double otherAttrWeight = 0.5;
 
     /**
      * @target 主要是获取ClassNode节点的边的Map
@@ -53,7 +52,6 @@ public class EntropyHandlerImpl implements EntropyHandler{
         addRTCElementToMap(myMap,rtcEdges);
         return myMap;
     }
-
 
     /**
      * @target 主要是获取RelationNode节点的边的Map

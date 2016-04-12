@@ -1,5 +1,4 @@
 .idea/
-src/main/javascript/Gruntfile.js
 src/main/javascript/node_modules/
 src/main/javascript/build/
 src/main/javascript/build2/
