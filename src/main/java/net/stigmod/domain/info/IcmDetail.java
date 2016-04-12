@@ -89,9 +89,6 @@ public class IcmDetail {
         for (Order order : orders) {
             String orderName = order.getName();
             try {
-                System.out.println("!! this.relationshipGroups.get(orderName): " + this.relationshipGroups.get(orderName));
-                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm: " + this.relationshipGroups.get(orderName).orderInIcm);
-                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm.order: " + this.relationshipGroups.get(orderName).orderInIcm.order);
                 if (this.relationshipGroups.containsKey(orderName)) {  // 类两端的类的先后顺序，前端和后端一致
                     this.relationshipGroups.get(orderName).orderInIcm.order = order.getOrderList();
 
@@ -103,6 +100,9 @@ public class IcmDetail {
                 }
             } catch (NullPointerException ex) {
                 System.out.println("!! NullPointerException caused by Relationship Group: " + orderName);
+                System.out.println("!! this.relationshipGroups.get(orderName): " + this.relationshipGroups.get(orderName));
+                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm: " + this.relationshipGroups.get(orderName).orderInIcm);
+                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm.order: " + this.relationshipGroups.get(orderName).orderInIcm.order);
                 throw ex;
             }
         }

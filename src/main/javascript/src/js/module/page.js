@@ -798,26 +798,37 @@ define(function (require, exports, module) {
 
                     for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
                         if (relationGroups.hasOwnProperty(nameRG)) {
-                            var matchName = null;
-                            var oriTitlePat = new RegExp('\\b' + originalTitle + '\\b', 'g');
 
-                            matchName = nameRG.match(oriTitlePat);
-                            if (null !== matchName) { // 如果该 relation group 与被修改的 class 有关
+                            // 获得关系两端的类名
+                            var nameOfBothEnds = nameRG.split('-');
+                            var isLeftClassNameModified = false;
+                            var isRightClassNameModified = false;
+                            var leftClassNameNew, rightClassNameNew;
+
+                            // 判断左类名是否需要修改
+                            if (nameOfBothEnds[0] === originalTitle) {
+                                isLeftClassNameModified = true;
+                                leftClassNameNew = newTitle;
+                            } else {
+                                leftClassNameNew = nameOfBothEnds[0];
+                            }
+
+                            // 判断右类名是否需要修改
+                            if (nameOfBothEnds[1] === originalTitle) {
+                                isRightClassNameModified = true;
+                                rightClassNameNew = newTitle;
+                            } else {
+                                rightClassNameNew = nameOfBothEnds[1];
+                            }
+
+                            if (isLeftClassNameModified || isRightClassNameModified) { // 如果该 relation group 与被修改的 class 有关
 
                                 // 生成新的 relation group 名称
-                                var newNameRG = null;
-                                newNameRG = nameRG.replace(oriTitlePat, newTitle);
+                                var newNameRG = leftClassNameNew > rightClassNameNew
+                                    ? rightClassNameNew + '-'  + leftClassNameNew
+                                    : leftClassNameNew + '-'  + rightClassNameNew;
 
-                                // 获得关系两端的类名
-                                var nameOfBothEnds = newNameRG.split('-');
                                 var relations = relationGroups[nameRG][0];
-
-                                if (nameOfBothEnds[0] > nameOfBothEnds[1]) {
-
-                                    // 若更改 class 名后 relation group 名不在是字典序，则更正
-                                    newNameRG = nameOfBothEnds[1] + '-' + nameOfBothEnds[0];
-                                }
-
                                 for (var nameR in relations) { // 遍历该 relation group 中的所有 relation
                                     if (relations.hasOwnProperty(nameR)) {
 
