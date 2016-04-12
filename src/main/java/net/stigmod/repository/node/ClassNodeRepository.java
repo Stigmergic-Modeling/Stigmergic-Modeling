@@ -34,7 +34,8 @@ public interface ClassNodeRepository extends GraphRepository<ClassNode> {
                            @Param("className") String className);
 
     @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
-            "WHERE toString({icmId}) IN class.icmSet AND toString({icmId}) IN r.icmSet " +
+            "WHERE toString({icmId}) IN class.icmSet " +
+            "AND toString({icmId}) IN r.icmSet " +
             "RETURN class")
     List<ClassNode> getByName(@Param("ccmId") Long ccmId,
                               @Param("icmId") Long icmId,
@@ -45,8 +46,12 @@ public interface ClassNodeRepository extends GraphRepository<ClassNode> {
     List<ClassNode> getByNameFromCcm(@Param("ccmId") Long ccmId,
                                      @Param("className") String className);
 
-    @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) RETURN class")  // 不要求该类节点在 ICM 中存在
+    @Query( "MATCH (class:Class)-[r:PROPERTY]->(value:Value {name: {className}, ccmId: {ccmId}}) " +
+            "WHERE size(r.icmSet)>0 " +  // 被废弃的不用
+            "AND NOT toString({icmId}) IN class.icmSet " +  // class 节点已有同ICM的，一定不能用
+            "RETURN class")  // 不要求该类节点在 ICM 中存在
     List<ClassNode> getAllByName(@Param("ccmId") Long ccmId,
+                                 @Param("icmId") Long icmId,
                                  @Param("className") String className);
 
     @Query("MATCH (class:Class)-[edge:PROPERTY {name:'name'}]->(value:Value) " +

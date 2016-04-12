@@ -82,6 +82,21 @@ define(function (require, exports, module) {
             page.rightColWgt.relationRec.on('openDialog', 'openDialog', page);
         }, 1000);
 
+        // 记录用户是否仍在活跃
+        this.lastActionTime = new Date().getTime();
+        $(document).on('click', function () {
+            page.lastActionTime = new Date().getTime();
+        });
+
+        // 每隔 XX s 进行一次自动保存
+        var saveInterval = 60000;
+        setInterval(function() {
+            var noActiveTime = new Date().getTime() - page.lastActionTime;
+            console.log('saveInterval : ' + saveInterval + ' | noActiveTime : ' + noActiveTime);
+            if (noActiveTime < saveInterval + 10000) {  // 10s 的余量
+                page.headerWgt.save();  // 若用户仍在此页面活跃，则自动保存（主要目的是保持 session，同时可兼顾保存功能）
+            }
+        }, saveInterval);
 
         // 顶部栏(网站导航条之下)
         this.headerWgt = new HeaderWgt('#stigmod-header');
@@ -1132,7 +1147,7 @@ define(function (require, exports, module) {
             var $roleModify = $root.find('.stigmod-rel-prop-role').find('.stigmod-input');
             var $multiplicityModify = $root.find('.stigmod-rel-prop-multiplicity').find('.stigmod-input');
 
-            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify);
+            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify, stateOfPage);
 
             event.preventDefault();
         }
@@ -1493,7 +1508,7 @@ define(function (require, exports, module) {
         var widget = this;
 
         // 点击保存按钮
-        $(document).on('click', '.stigmod-model-save, .stigmod-model-save-btn', handleClkSave);
+        $(document).on('click autosave', '.stigmod-model-save, .stigmod-model-save-btn', handleClkSave);
 
         // 点击进入全屏
         $(document).on('click', '.stigmod-enter-full-screen-btn', handleClkEnterFS);
@@ -1536,7 +1551,8 @@ define(function (require, exports, module) {
                 data: encodeURI(JSON.stringify(postData)),  // 把数据字符串化以使空数组能正确传递（加一层 URI 编码以正确传输中文）
                 contentType: 'application/json',  // 使服务器端能正确理解数据格式
                 success: function (msg) {
-                    hideMask();
+                    //hideMask();
+                    showSaved();
                     console.log('messages :');
                     for (var i = 0; i < msg.messages.length; i++) {
                         console.log(msg.messages[i]);
@@ -1545,7 +1561,8 @@ define(function (require, exports, module) {
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     // TODO：回滚 icm 的 log？
-                    hideMask();
+                    //hideMask();
+                    showSaved();
 
                     if (textStatus === "timeout") {
                         console.log('AJAX: Call has timed out'); // Handle the timeout
@@ -1558,7 +1575,7 @@ define(function (require, exports, module) {
                 }
             });
 
-            showMask();
+            //showMask();
             disableSave();
         }
 
@@ -1622,6 +1639,11 @@ define(function (require, exports, module) {
             $('.stigmod-loader').hide();
             $('.stigmod-loader-text').hide();
         }
+    };
+
+    // 用于自动保存
+    HeaderWgt.prototype.save = function () {
+        $('.stigmod-model-save').trigger('autosave');  // 用自定义的 autosave 时间，而不是 click 事件，避免刷新用户“最近一次操作的时间”
     };
 
 
@@ -2293,7 +2315,7 @@ define(function (require, exports, module) {
             var $roleModify = $root.find('#stigmod-addrel-role').find('.stigmod-input');
             var $multiplicityModify = $root.find('#stigmod-addrel-multiplicity').find('.stigmod-input');
 
-            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify);
+            ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify, stateOfPage);
 
             event.preventDefault();
         }
@@ -2526,6 +2548,10 @@ define(function (require, exports, module) {
         this.windowResizeMutex = 0;      // 为防止窗口大小变化时频繁执行某些操作，设置一个锁
 
         this.createClassIfNotExists = false;
+
+        //this.saveState = 'saved';  // saved | toBeSaved | saving
+
+        this.isActive = true;
 
         _.makePublisher(this);
     }
@@ -2766,7 +2792,7 @@ define(function (require, exports, module) {
 
     // 初始化
     ClassRecWgt.prototype.init = function (icm, ccm) {
-        this.data = ccm.getClasses(icm);
+        this.data = ccm.getClassesMultiName(icm);  // 同一 ID 的类可能出现多次，有几个名字出现几次（不包括 ICM 中已有的名字）
         //console.log('this.data(getClasses)', this.data);
 
         var data = this.data,
@@ -2775,6 +2801,7 @@ define(function (require, exports, module) {
                 widget = this,
                 i, len, $item, popover;
 
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的第一个元素，使 .list-group-item:first-child 样式失效
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
             $item.find('.tag').text(data[i].name);  // 填入名字
@@ -2787,6 +2814,7 @@ define(function (require, exports, module) {
             // 点击填表
             $item.on('click', fillInBlanks);
         }
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的最后一个元素，使 .list-group-item:last-child 样式失效
 
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
@@ -2842,6 +2870,7 @@ define(function (require, exports, module) {
                 widget = this,
                 i, len, $item, popover;
 
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的第一个元素，使 .list-group-item:first-child 样式失效
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
             $item.find('.tag').text(data[i].name);  // 填入名字
@@ -2854,6 +2883,7 @@ define(function (require, exports, module) {
             // 点击填表
             $item.on('click', fillInBlanks);
         }
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的最后一个元素，使 .list-group-item:last-child 样式失效
 
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
@@ -2914,6 +2944,7 @@ define(function (require, exports, module) {
                 widget = this,
                 i, len, $item, popover;
 
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的第一个元素，使 .list-group-item:first-child 样式失效
         for (i = 0, len = data.length; i < len; i++) {
             $item = template.newElement().appendTo($container);
             $item.find('.tag').text(data[i].type);  // 填入关系类型
@@ -2926,6 +2957,7 @@ define(function (require, exports, module) {
             // 点击填表
             $item.on('click', fillInBlanks);
         }
+        $('<span></span>').css({display: 'none'}).appendTo($container);  // 永远隐藏的最后一个元素，使 .list-group-item:last-child 样式失效
 
         // 重新激活所有的 popover
         this.element.find('[data-toggle="popover"]').popover();
@@ -3331,25 +3363,44 @@ define(function (require, exports, module) {
     // 失能保存按钮
     function disableSave() {
         $('.stigmod-model-save').hide();
-        $('.stigmod-model-saved').show();
-        $('.stigmod-model-save-btn').attr({'disabled': ''});
+        $('.stigmod-model-saved').hide();
+        $('.stigmod-model-saving').show();
+        $('.stigmod-model-save-btn').attr({'disabled': ''}).find('i').addClass('fa-spin');
     }
 
     // 使能保存按钮
     function enableSave() {
-        $('.stigmod-model-save').show();
+        $('.stigmod-model-saving').hide();
         $('.stigmod-model-saved').hide();
-        $('.stigmod-model-save-btn').removeAttr('disabled');
+        $('.stigmod-model-save').show();
+        $('.stigmod-model-save-btn').removeAttr('disabled').find('i').removeClass('fa-spin');
+    }
+
+    // 显式已保存（保存功能仍是失能状态）
+    function showSaved() {
+        $('.stigmod-model-save').hide();
+        $('.stigmod-model-saving').hide();
+        $('.stigmod-model-saved').show();
+        $('.stigmod-model-save-btn').attr({'disabled': ''}).find('i').removeClass('fa-spin');
     }
 
     // addrelation 和 modifyrelation 下拉菜单中的核心处理函数
-    function ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify) {
+    function ClkRelDrpdn(reltype, $root, $btn, $nameModify, $roleModify, $multiplicityModify, stateOfPage) {
+
+        var isChineseModel = stateOfPage.modelLanguage === 'ZH';
+        var roleFather = isChineseModel ? '父' : 'father';
+        var roleChild = isChineseModel ? '子' : 'child';
+        var roleWhole = isChineseModel ? '整体' : 'whole';
+        var rolePart = isChineseModel ? '部分' : 'part';
+        var roleOwner = isChineseModel ? '拥有者' : 'owner';
+        var roleOwnee = isChineseModel ? '被拥有者' : 'ownee';
+
         switch (reltype) {
             case 'Generalization':
                 $btn.text('Generalization');
                 $nameModify.css({'display': 'none'}).tooltip('destroy');
-                $roleModify.eq(0).val('father').tooltip('destroy');
-                $roleModify.eq(1).val('child').tooltip('destroy');
+                $roleModify.eq(0).val(roleFather).tooltip('destroy');
+                $roleModify.eq(1).val(roleChild).tooltip('destroy');
                 $multiplicityModify.eq(0).attr({'disabled': ''}).val('1').tooltip('destroy');
                 $multiplicityModify.eq(1).attr({'disabled': ''}).val('1').tooltip('destroy');
                 break;
@@ -3357,8 +3408,8 @@ define(function (require, exports, module) {
             case 'Composition':
                 $btn.text('Composition');
                 $nameModify.css({'display': 'block'}).tooltip('destroy');
-                $roleModify.eq(0).val('whole').tooltip('destroy');
-                $roleModify.eq(1).val('part').tooltip('destroy');
+                $roleModify.eq(0).val(roleWhole).tooltip('destroy');
+                $roleModify.eq(1).val(rolePart).tooltip('destroy');
                 $multiplicityModify.eq(0).attr({'disabled': ''}).val('1').tooltip('destroy');
                 $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
                 break;
@@ -3366,8 +3417,8 @@ define(function (require, exports, module) {
             case 'Aggregation':
                 $btn.text('Aggregation');
                 $nameModify.css({'display': 'block'}).tooltip('destroy');
-                $roleModify.eq(0).val('owner').tooltip('destroy');
-                $roleModify.eq(1).val('ownee').tooltip('destroy');
+                $roleModify.eq(0).val(roleOwner).tooltip('destroy');
+                $roleModify.eq(1).val(roleOwnee).tooltip('destroy');
                 $multiplicityModify.eq(0).removeAttr('disabled').val('').tooltip('destroy');
                 $multiplicityModify.eq(1).removeAttr('disabled').val('').tooltip('destroy');
                 break;
