@@ -29,8 +29,8 @@ public class HeuristicMethod {
         List<Integer> resList = new ArrayList<>();
         int sum = minNodeList.size();
         for(int i=0;i<sum;i++) {
-            if(Double.compare(minNodeList.get(i).curBiEntropy,0.0)>0 &&
-                    Math.abs(minNodeList.get(i).curBiEntropy-0.0)>0.00001) {
+            if(Double.compare(minNodeList.get(i).curBiEntropy , 0.0) > 0 &&
+                    Math.abs(minNodeList.get(i).curBiEntropy - 0.0) > 0.00001) {
                 resList.add(minNodeList.get(i).locate);
             }else break;
         }
