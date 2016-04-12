@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;  // 用于向vm模板中传递csrf token
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Handle StigMod base requests
@@ -84,11 +85,11 @@ public class AuthController {
     // sign up page POST
     @RequestMapping(value="/signup", method = RequestMethod.POST)
     public String regPost(
-            @RequestParam(value = "name") String name,
+            @RequestParam(value = "name") String nameISO,
             @RequestParam(value = "mail") String mail,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
-            ModelMap model, HttpServletRequest request) {
+            ModelMap model, HttpServletRequest request) throws UnsupportedEncodingException {
 
         if (migrateService.isRunning()) {
             model.addAttribute("host", host);
@@ -96,6 +97,8 @@ public class AuthController {
             model.addAttribute("title", "Service Unavailable");
             return "service_unavailable";
         }
+
+        String name = new String(nameISO.getBytes("ISO-8859-1"), "UTF-8");  // 支持中文
 
         try {
             String verificationId = userRepository.register(name, mail, password, passwordRepeat);
@@ -392,7 +395,7 @@ public class AuthController {
 
     // sign in page GET  (POST route is taken care of by Spring-Security)
     @RequestMapping(value="/signin", method = RequestMethod.GET)
-    public String login(ModelMap model, HttpServletRequest request) {
+    public String login(@RequestParam(value = "login_error", required = false)String login_error, ModelMap model, HttpServletRequest request) {
 
         if (migrateService.isRunning()) {
             model.addAttribute("host", host);
@@ -404,6 +407,10 @@ public class AuthController {
         model.addAttribute("host", host);
         model.addAttribute("port", port);
         model.addAttribute("title", "Sign In");
+
+        if (login_error != null) {
+            model.addAttribute("error", "Sign in failed. Perhaps you have used a wrong email address or wrong password.");
+        }
 
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());

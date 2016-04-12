@@ -1,42 +1,55 @@
 #parse ("header.vm")
 
 <div class="row">
-    <div class="col-xs-12">
-        <h3>What is <span class="stigmod-websitename">Stigmergic-Modeling</span>?</h3>
+    <div class="col-xs-6">
+##        <h3> <span class="stigmod-websitename">Stigmergic-Modeling</span> 是什么</h3>
+        <h3>Stigmergic-Modeling 是什么</h3>
         <hr />
         <blockquote>
-            <p><span class="stigmod-websitename">Stigmergic-Modeling</span> is an online tool used for collaborative groups to create a conceptual model. It is based on UML 2.0 class diagram specifications and stigmergy theory.</p>
+##            <p><span class="stigmod-websitename">Stigmergic-Modeling</span> is an online tool used for collaborative groups
+##                to create a conceptual model. It is based on UML 2.0 class diagram specifications and stigmergy theory.</p>
+            <p>Stigmergic-Modeling 是一个基于环境激发效应的概念建模工具。</p>
+            <img src="/static/dist/img/what_is_stigmod.png" class="img-responsive" />
         </blockquote>
         <br />
-        <h3>How does <span class="stigmod-websitename">Stigmergic-Modeling</span> work?</h3>
+##        <h3><span class="stigmod-websitename">Stigmergic-Modeling</span> 如何工作</h3>
+        <h3>Stigmergic-Modeling 的原理</h3>
         <hr />
         <blockquote>
-            <p><span class="stigmod-websitename">Stigmergic-Modeling</span> is short for Stigmergic Modeling. It is an online tool used for collaborative groups to create a conceptual model. This tool is based on UML 2.0 class diagram specifications and stigmergy theory. <span class="stigmod-websitename">Stigmergic-Modeling</span> is short for Stigmergic Modeling. It is an online tool used for collaborative groups to create a conceptual model. This tool is based on UML 2.0 class diagram specifications and stigmergy theory.</p>
+            <p></p>
+            <img src="/static/dist/img/how_stigmod_work.png" class="img-responsive" />
         </blockquote>
-        <br />
-        <h3><span class="stigmod-websitename">Stigmergic-Modeling</span> Glossary</h3>
+    </div>
+    <div class="col-xs-6">
+        <h3>词汇表</h3>
         <hr />
-        <h4>Conceptual Model</h4>
+        <h4>概念模型（Conceptual Model）</h4>
         <blockquote>
-            <p>A conceptual model is a model made of the composition of concepts, which are used to help people know, understand, or simulate a subject the model represents. Some models are physical objects; for example, a toy model which may be assembled, and may be made to work like the object it represents.</p>
+##            <p>A conceptual model is a model made of the composition of concepts, which are used to help people know,
+##                understand, or simulate a subject the model represents. Some models are physical objects; for example,
+##                a toy model which may be assembled, and may be made to work like the object it represents.</p>
+            <p>概念模型是一种脱离解决问题的具体技术和策略而单独描述问题本身的一种模型。概念建模（Conceptual Modeling）是创建概念模型的过程。Mylopoulos 在 1992 年将概念建模定义为 “一种形式化地描述人类所处的物理世界和人类社会的某些方面的活动，其目的是增进人们对世界的理解以及方便人们的沟通。”</p>
         </blockquote>
-        <h4>Collective Conceptual Model (CCM)</h4>
+##        <h4>Collective Conceptual Model (CCM)</h4>
+##        <blockquote>
+##            <p>lalala</p>
+##        </blockquote>
+##        <h4>Individual Conceptual Model (ICM)</h4>
+##        <blockquote>
+##            <p>lalala</p>
+##        </blockquote>
+        <h4>环境激发效应（Stigmergy Theory）</h4>
         <blockquote>
-            <p>lalala</p>
+##            <p>Stigmergy is a mechanism of indirect coordination between agents or actions.The principle is that the trace left in the environment by an action stimulates the performance of a next action, by the same or a different agent. In that way, subsequent actions tend to reinforce and build on each other, leading to the spontaneous emergence of coherent, apparently systematic activity.</p>
+##            <p>Stigmergy is a form of self-organization. It produces complex, seemingly intelligent structures, without need for any planning, control, or even direct communication between the agents. As such it supports efficient collaboration between extremely simple agents, who lack any memory, intelligence or even individual awareness of each other.</p>
+            <p>环境激发效应是群居昆虫大规模协同的基本原理，它由法国动物学家 Pierre-Paul Grasse 于 1959 年提出。环境激发效应的关键之处有两点：其一，个体之间通过环境发生间接交互，不发生直接交互；其二，个体行为之间可以形成正反馈回路。胡蜂和白蚁的筑巢行为，以及草坪上由于人类经过而导致的小路的形成都是环境激发效应典型实例。</p>
         </blockquote>
-        <h4>Individual Conceptual Model (ICM)</h4>
+        <h4>统一建模语言（UML）</h4>
         <blockquote>
-            <p>lalala</p>
-        </blockquote>
-        <h4>Stigmergy Theory</h4>
-        <blockquote>
-            <p>Stigmergy is a mechanism of indirect coordination between agents or actions.The principle is that the trace left in the environment by an action stimulates the performance of a next action, by the same or a different agent. In that way, subsequent actions tend to reinforce and build on each other, leading to the spontaneous emergence of coherent, apparently systematic activity.</p>
-            <p>Stigmergy is a form of self-organization. It produces complex, seemingly intelligent structures, without need for any planning, control, or even direct communication between the agents. As such it supports efficient collaboration between extremely simple agents, who lack any memory, intelligence or even individual awareness of each other.</p>
-        </blockquote>
-        <h4>UML 2.0</h4>
-        <blockquote>
-            <p>The Unified Modeling Language (UML) is a general-purpose modeling language in the field of software engineering, which is designed to provide a standard way to visualize the design of a system.</p>
-            <p>The UML 2.0 major revision replaced version 1.5 in 2005, which was developed with an enlarged consortium to improve the language further to reflect new experience on usage of its features.</p>
+##            <p>The Unified Modeling Language (UML) is a general-purpose modeling language in the field of software engineering, which is designed to provide a standard way to visualize the design of a system.</p>
+##            <p>The UML 2.0 major revision replaced version 1.5 in 2005, which was developed with an enlarged consortium to improve the language further to reflect new experience on usage of its features.</p>
+            <p>UML 是一种对象建模和规约语言，其设计目的是对信息系统进行面向对象的分析和设计。UML 2.5 中定义了十四种图，共分为结构图（Structure Diagram）和行为图（Behavior Diagram）两大类。</p>
+            <img src="/static/dist/img/UML_Diagrams.jpg" class="img-responsive" />
         </blockquote>
     </div>
 </div>
