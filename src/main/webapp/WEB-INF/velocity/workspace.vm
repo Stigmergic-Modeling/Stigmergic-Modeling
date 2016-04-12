@@ -45,7 +45,8 @@
                         </ul>
                     #end
                 </span>&nbsp;
-                <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><i class="fa fa-refresh fa-spin"></i>&nbsp;&nbsp;Click to Synchronize</span>
+                <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-save"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Click to Synchronize</span>
+                <span class="stigmod-a-pseudo stigmod-a-nounderline stigmod-model-saving"><i class="fa fa-refresh fa-spin"></i>&nbsp;&nbsp;Synchronizing...</span>
                 <span class="stigmod-model-saved"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Synchronized</span>
             </h1>
         </div>
