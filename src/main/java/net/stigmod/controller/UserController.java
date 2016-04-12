@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -247,11 +246,11 @@ public class UserController {
 
     // POST 用户设置 profile 页面
     @RequestMapping(value = "/user/settings/profile", method = RequestMethod.POST)
-    public String settingsProfileGo(@RequestParam(value = "name") String nameISO,
-                                    @RequestParam(value = "location") String locationISO,
+    public String settingsProfileGo(@RequestParam(value = "name") String name,
+                                    @RequestParam(value = "location") String location,
                                     @RequestParam(value = "url") String url,
                                     ModelMap model,
-                                    HttpServletRequest request) throws UnsupportedEncodingException {
+                                    HttpServletRequest request) {
 
         if (migrateService.isRunning()) {
             model.addAttribute("host", host);
@@ -261,8 +260,6 @@ public class UserController {
         }
 
         final User user = userRepository.getUserFromSession();
-        String name = new String(nameISO.getBytes("ISO-8859-1"), "UTF-8");  // 支持中文
-        String location = new String(locationISO.getBytes("ISO-8859-1"), "UTF-8");  // 支持中文
 
         // CSRF token
         CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
