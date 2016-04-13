@@ -2464,11 +2464,12 @@ define(function (require, exports, module) {
 
                         for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
                             if (relationGroups.hasOwnProperty(nameRG)) {
-                                var matchName = null;
-                                var classPat = new RegExp('\\b' + stateOfPage.clazz + '\\b');
 
-                                matchName = nameRG.match(classPat);
-                                if (null !== matchName) {
+                                // 获得关系组两端的类名
+                                var nameOfBothEnds = nameRG.split('-');
+
+                                // 判断是否需要删除该关系组
+                                if (nameOfBothEnds[0] === stateOfPage.clazz || nameOfBothEnds[1] === stateOfPage.clazz) {
                                     icm.removeSubModel([1], nameRG);
                                 }
                             }
