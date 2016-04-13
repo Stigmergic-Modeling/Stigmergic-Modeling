@@ -501,13 +501,18 @@ public class MigrateUtil {
      */
     public List<Integer> findConClassNodes(ClassNode cNode,List<ClassNode> classNodeList,List<ValueNode> valueNodeList,
                                            int strictLevel) {
-        List<Integer> resConClassNodes = new ArrayList<>();
         List<Integer> tmpConClassNodes = new ArrayList<>();
         if(strictLevel==1) {
             tmpConClassNodes = findConClassNodesForSim(cNode, valueNodeList);//这部分没考虑relationNode
         }else {
             tmpConClassNodes = findConClassNodesDetail(cNode, valueNodeList);
         }
+        List<Integer> resConClassNodes = getSortedConCNode(tmpConClassNodes,classNodeList);
+        return resConClassNodes;
+    }
+
+    public List<Integer> getSortedConCNode(List<Integer> tmpConClassNodes,List<ClassNode> classNodeList) {
+        List<Integer> resConClassNodes = new ArrayList<>();
         int resSize = tmpConClassNodes.size();
         List<PreSortNode> preSortNodes = new ArrayList<>();
         for(int i=0;i<resSize;i++) {
@@ -551,29 +556,24 @@ public class MigrateUtil {
 
     private List<Integer> findConClassNodesForSim(ClassNode cNode,List<ValueNode> valueNodeList) {
         List<Integer> classNodeListIdSet = new ArrayList<>();
-        List<Integer> vNodeSimListIdSet = new ArrayList<>();//用来找相似的valueNode
-        List<Integer> vNodeListIdSet = new ArrayList<>();
+        Set<Integer> vDirectNodeListIdSet = new HashSet<>();
+        Set<Integer> sumVNodeSet = new HashSet<>();
 
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
             if(ctvEdge.getIcmSet().size() == 0) continue;
             ValueNode vNode = ctvEdge.getEnder();
-            vNodeSimListIdSet.add(vNode.getLoc());
-            vNodeListIdSet.add(vNode.getLoc());
+            vDirectNodeListIdSet.add(vNode.getLoc());
         }
 
         //除了ctv和rtc的之外,还要考虑因为value节点相似而带来的额外的ctv
-        for(int vloc : vNodeSimListIdSet) {
-            List<Double> vSim = WordSimilarities.vNodeSimList.get(vloc);
-            int vSize = vSim.size();
-            for(int i=0;i<vSize;i++) {
-                if(i==vloc) continue;
-                if(Double.compare(vSim.get(i),0.5)>=0) {
-                    vNodeListIdSet.add(i);
-                }
-            }
+        for(int vloc : vDirectNodeListIdSet) {
+            int index = WordSimilarities.unionSetIndex.get(vloc);
+            Set<Integer> tmpSet = WordSimilarities.unionSetMap.get(index);
+            sumVNodeSet.addAll(new HashSet<Integer>(tmpSet));
         }
+        sumVNodeSet.addAll(vDirectNodeListIdSet);
 
-        for(int vNodeLocId : vNodeListIdSet) {
+        for(int vNodeLocId : sumVNodeSet) {
             ValueNode vNode = valueNodeList.get(vNodeLocId);
             //获得了当前cNode连接的一个vNode,接下来获取到该vNode连接的所有cNode
             for(ClassToValueEdge ctvEdge2 : vNode.getCtvEdges()) {
@@ -597,17 +597,16 @@ public class MigrateUtil {
      */
     public List<Integer> findConRelationNodes(RelationNode rNode,List<RelationNode> relationNodeList
             ,List<ValueNode> valueNodeList,int strictLevel) {
-        List<Integer> resConRList = new ArrayList<>();
         List<Integer> tmpResConRList = new ArrayList<>();
         if(strictLevel == 0) {
             tmpResConRList = findConRelationNodesDetail(rNode,valueNodeList);
         }else if(strictLevel == 1) {
             //1号情况下必须找出与其role相似的节点
             List<Integer> tConRList = findConRelationNodesDetail(rNode,valueNodeList);
-            List<List<String>> curRoleList = getRoleListForRelationNode(rNode);
+            List<List<Integer>> curRoleList = getRoleListForRelationNode(rNode);
             for(int otherRLoc : tConRList) {
                 RelationNode otherRNode = relationNodeList.get(otherRLoc);
-                List<List<String>> otherRoleList = getRoleListForRelationNode(otherRNode);
+                List<List<Integer>> otherRoleList = getRoleListForRelationNode(otherRNode);
                 if(isSimRoleForTwoRoleList(curRoleList,otherRoleList)) tmpResConRList.add(otherRLoc);
             }
         }else if(strictLevel == 2) {
@@ -615,6 +614,12 @@ public class MigrateUtil {
             tmpResConRList = removeBasicRNodeFromRList(tConRList,relationNodeList);
         }
 
+        List<Integer> resConRList = getSortedConRNode(tmpResConRList,relationNodeList);
+        return resConRList;
+    }
+
+    public List<Integer> getSortedConRNode(List<Integer> tmpResConRList,List<RelationNode> relationNodeList) {
+        List<Integer> resConRList = new ArrayList<>();
         int rSize = tmpResConRList.size();
         List<PreSortNode> preSortNodes = new ArrayList<>();
         for(int i=0;i<rSize;i++) {
@@ -724,7 +729,7 @@ public class MigrateUtil {
      * @param rNode
      * @return
      */
-    private List<List<String>> getRoleListForRelationNode(RelationNode rNode) {
+    private List<List<Integer>> getRoleListForRelationNode(RelationNode rNode) {
         Set<Long> icmSet = new HashSet<>(rNode.getIcmSet());
         Iterator<Long> iter = icmSet.iterator();
         Map<String,Set<Long>> myMap = new HashMap<>();
@@ -734,8 +739,8 @@ public class MigrateUtil {
             StringBuffer curStrBuffer = new StringBuffer();
             for(RelationToValueEdge rtvEdge : rtvList) {
                 if(rtvEdge.getName().equals("role") && rtvEdge.getIcmSet().contains(curIcmId)) {//
-                    if(curStrBuffer.length()==0) curStrBuffer.append(rtvEdge.getEnder().getName());
-                    else curStrBuffer.append("-"+rtvEdge.getEnder().getName());
+                    if(curStrBuffer.length()==0) curStrBuffer.append(rtvEdge.getEnder().getLoc());
+                    else curStrBuffer.append("-"+rtvEdge.getEnder().getLoc());
                 }
             }
             String curStr = curStrBuffer.toString();
@@ -746,22 +751,22 @@ public class MigrateUtil {
                 innerSet.add(curIcmId);
                 myMap.put(curStr,innerSet);
             }
-        }
+        }//这里面string石油valueNode的loc组成的
         //获得了用户分布集合
-        List<List<String>> roleList = new ArrayList<>();
+        List<List<Integer>> roleList = new ArrayList<>();
         List<String> roleMapList = new ArrayList<>(myMap.keySet());
         int rSize = roleMapList.size();
         for(int i=0;i<rSize;i++) {
             String curRoleStr = roleMapList.get(i);
             if(curRoleStr.equals("")) continue;
-            List<String> curRoleList = new ArrayList<>();
+            List<Integer> curRoleList = new ArrayList<>();
             if(curRoleStr.indexOf("-")!=-1) {
                 String[] roleArr = curRoleStr.split("-");
-                curRoleList.add(roleArr[0]);
-                curRoleList.add(roleArr[1]);
+                curRoleList.add(Integer.parseInt(roleArr[0]));
+                curRoleList.add(Integer.parseInt(roleArr[1]));
             }else {
-                curRoleList.add(curRoleStr);
-                curRoleList.add("");
+                curRoleList.add(Integer.parseInt(curRoleStr));
+                curRoleList.add(-1);
             }
             roleList.add(curRoleList);
         }
@@ -774,37 +779,30 @@ public class MigrateUtil {
      * @param otherRoleList
      * @return
      */
-    private boolean isSimRoleForTwoRoleList(List<List<String>> curRoleList,List<List<String>> otherRoleList) {
+    private boolean isSimRoleForTwoRoleList(List<List<Integer>> curRoleList,List<List<Integer>> otherRoleList) {
         boolean isSim = false;//默认为false
         int curSize = curRoleList.size();
         int otherSize = otherRoleList.size();
         for(int i=0;i<curSize;i++) {
-            List<String> curInnerList = curRoleList.get(i);
-            String curRole1 = curInnerList.get(0);
-            String curRole2 = curInnerList.get(1);
+            List<Integer> curInnerList = curRoleList.get(i);
+            int curRole1 = curInnerList.get(0);
+            int curRole2 = curInnerList.get(1);
+            int unionSetCurIndex1 = -1;
+            if(curRole1!=-1) unionSetCurIndex1 = WordSimilarities.unionSetIndex.get(curRole1);
+            int unionSetCurIndex2 = -1;
+            if(curRole2!=-1) unionSetCurIndex2 = WordSimilarities.unionSetIndex.get(curRole2);//在并查集中的位置
             for(int j=0;j<otherSize;j++) {
-                List<String> otherInnerList = otherRoleList.get(j);
-                String otherRole1 = otherInnerList.get(0);
-                String otherRole2 = otherInnerList.get(1);
+                List<Integer> otherInnerList = otherRoleList.get(j);
+                int otherRole1 = otherInnerList.get(0);
+                int otherRole2 = otherInnerList.get(1);
+                int unionSetOtherIndex1 = -1;
+                int unionSetOtherIndex2 = -1;
+                if(otherRole1!=-1) unionSetOtherIndex1 = WordSimilarities.unionSetIndex.get(otherRole1);
+                if(otherRole2!=-1) unionSetOtherIndex2 = WordSimilarities.unionSetIndex.get(otherRole2);
 
-                if((curRole1.equals(otherRole1)&&curRole2.equals(otherRole2))||
-                        (curRole1.equals(otherRole2)&&curRole2.equals(otherRole1))) {
+                if((unionSetCurIndex1==unionSetOtherIndex1 && unionSetCurIndex2==unionSetOtherIndex2) ||
+                        (unionSetCurIndex1==unionSetOtherIndex2 && unionSetCurIndex2==unionSetOtherIndex1))
                     return true;
-                }else if(WordSimilarities.vNodeSimMap.containsKey(curRole1)&&WordSimilarities.vNodeSimMap.containsKey(curRole2)
-                        &&WordSimilarities.vNodeSimMap.containsKey(otherRole1)&&WordSimilarities.vNodeSimMap.containsKey(otherRole2)) {
-                    if((curRole1.equals(otherRole1) && WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole2)>=0.5) ||
-                            curRole1.equals(otherRole2) && WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole1)>=0.5) {
-                        return true;
-                    }else if((curRole2.equals(otherRole1) && WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole2)>=0.5) ||
-                            curRole2.equals(otherRole2) && WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole1)>=0.5) {
-                        return true;
-                    }else if((WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole1)>=0.5 &&
-                            WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole2)>=0.5) ||
-                            (WordSimilarities.vNodeSimMap.get(curRole2).get(otherRole1)>=0.5 &&
-                                    WordSimilarities.vNodeSimMap.get(curRole1).get(otherRole2)>=0.5)) {
-                        return true;
-                    }
-                }
             }
         }
         return isSim;//false

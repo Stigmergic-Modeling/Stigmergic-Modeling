@@ -11,10 +11,7 @@ package net.stigmod.util.wordsim;
 
 import net.stigmod.domain.conceptualmodel.ValueNode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Kai Fu
@@ -22,9 +19,16 @@ import java.util.Map;
  */
 public class WordSimilarities {
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
-    public static Map<String,Map<String,Double>> vNodeSimMap = new HashMap<>();
+    public static List<Integer> unionSetIndex = new ArrayList<>();//用来指示当前vNode是第几个并查集合
+    public static Map<Integer,Set<Integer>> unionSetMap = new HashMap<>();//对应unionSetIndex所指的,是对应并查集合
+
+    private static Map<String,Map<String,Double>> vNodeSimMap = new HashMap<>();
+    private static List<Integer> fatherUnionList = new ArrayList<>();
 
     public static void initvNodeSimList(List<ValueNode> valueNodeList) {
+        vNodeSimMap.clear();
+        fatherUnionList.clear();//一些初始化清空
+
         if(valueNodeList.size()==0) return;
         else {
             String name = valueNodeList.get(0).getName();
@@ -40,6 +44,7 @@ public class WordSimilarities {
             }
         }
         initvNodeSimMap(valueNodeList);//再初始化一个map
+        getUnionSet(valueNodeList);
     }
 
     private static void initvNodeSimMap(List<ValueNode> valueNodeList) {
@@ -70,6 +75,77 @@ public class WordSimilarities {
         }
     }
 
+    private static void getUnionSet(List<ValueNode> valueNodeList) {
+        int vSize = valueNodeList.size();
+        unionSetInit(valueNodeList,vSize);//初始化并查集
+        List<String> vNameList = new ArrayList<>();
+        for(int i=0;i<vSize;i++) {
+            ValueNode vNode = valueNodeList.get(i);
+            vNameList.add(vNode.getName());
+        }
+        //获得了所有valueNode的name集合
+        for(int i=0;i<vSize;i++) {
+            String outerName = vNameList.get(i);
+            if(isSpecialType(outerName)) continue;//为基础类型则返回
+            for(int j=i+1;j<vSize;j++) {
+                String innerName = vNameList.get(j);
+                if(isSpecialType(innerName)) continue;
+                if(unionSetIsSame(i,j)) continue;//他们已经是一个集合的了
+                if(Double.compare(vNodeSimMap.get(outerName).get(innerName),0.3)>=0) {
+                    unionSetUnion(i,j);//将i与j进行union
+                }
+            }
+        }
+        //这样我们就得到了整个的并查集
+        Set<Integer> alreadySet = new HashSet<>();
+        for(int i=0;i<vSize;i++) {
+            if(alreadySet.contains(i)) continue;
+            else alreadySet.add(i);
+            Set<Integer> myUnionSet = new HashSet<>();
+            myUnionSet.add(i);
+            for(int j=i+1;j<vSize;j++) {
+                if(unionSetIsSame(i,j)) {
+                    myUnionSet.add(j);
+                    alreadySet.add(j);
+                    unionSetIndex.set(j,i);
+                }
+            }
+            unionSetMap.put(i,myUnionSet);
+        }
+    }
+
+    /**
+     * 下面这四个函数用于构建valueNode的并查集,即相似度大于0.5的节点是一个集合的
+     * @param valueNodeList
+     */
+    private static void unionSetInit(List<ValueNode> valueNodeList , int vSize) {
+        for(int i=0; i<vSize; i++) {
+            fatherUnionList.add(i);
+            unionSetIndex.add(i);//这是其实不应该放在这,但是还是放这了
+        }
+    }
+    // 合并两个元素所在的集合
+    private static void unionSetUnion(int x, int y) {
+        x = unionSetGetFather(x);
+        y = unionSetGetFather(y);
+        if(x!= y) fatherUnionList.set(x,y);
+    }
+    // 判断两个元素是否属于同一个集合
+    private static boolean unionSetIsSame(int x, int y) {
+        return unionSetGetFather(x)== unionSetGetFather(y);
+    }
+    // 获取根结点
+    private static int unionSetGetFather(int x) {
+        while(x != fatherUnionList.get(x))
+            x = fatherUnionList.get(x);
+        return x;
+    }
+
+    /**
+     * 判断是否是中文
+     * @param c
+     * @return
+     */
     private static boolean isChinese(char c) {
         Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
         if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
@@ -79,5 +155,12 @@ public class WordSimilarities {
             return true;
         }
         return false;
+    }
+
+    private static boolean isSpecialType(String name) {
+//        if(name.equals("string")||name.equals("float")||name.equals("int")||name.equals("boolean")) return true;
+        if(name.equals("1..*")||name.equals("*")||name.equals("1")||name.equals("0..1")||name.equals("0..2")) return true;
+        else if(name.equals("true")) return true;
+        else return false;
     }
 }

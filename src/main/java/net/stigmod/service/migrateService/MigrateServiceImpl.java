@@ -82,6 +82,8 @@ public class MigrateServiceImpl implements MigrateService{
         setLocForList();
 
         WordSimilarities.vNodeSimList.clear();
+        WordSimilarities.unionSetIndex.clear();
+        WordSimilarities.unionSetMap.clear();
         WordSimilarities.initvNodeSimList(valueNodeList);
 
         migrateHandler.migrateInit(modelId,classNodeList,relationNodeList,valueNodeList);

@@ -192,138 +192,39 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private void heuristicMigrateMethodFirstStep() {
         //首先遍历所有的value节点,将classNode和relationNode中最有可能融合优先融合
-        int vNodeSize = valueNodeList.size();
         int rNodeSize = relationNodeList.size();
 
-        int[] simVNodeArr = new int[vNodeSize];
-        Arrays.fill(simVNodeArr,-1);
-        for(int i=0;i<vNodeSize;i++) {
-            ValueNode curVNode = valueNodeList.get(i);
-            String curVName = curVNode.getName();
-            for(int j=i+1;j<vNodeSize;j++) {
-                if(i==j) continue;
-                if(Double.compare(WordSimilarities.vNodeSimList.get(i).get(j),0.5)>=0) {
-                    if(simVNodeArr[i]==-1 && simVNodeArr[j]==-1) {
-                        simVNodeArr[i]=i;
-                        simVNodeArr[j]=i;
-                    }else if(simVNodeArr[i]==-1 && simVNodeArr[j]!=-1) {
-                        simVNodeArr[i]=simVNodeArr[j];
-                    }
-                    else if(simVNodeArr[i]!=-1 && simVNodeArr[j]==-1){
-                        simVNodeArr[j]=simVNodeArr[i];
-                    }else continue;
-                }
-            }
-            if(simVNodeArr[i]==-1)simVNodeArr[i]=i;
-        }
-        //这样的话,simVNodeArr其实就是一个聚类的数组,他将相似的都聚在了一起
-        List<Set<Integer>> vNodeSimList = new ArrayList<>();
-        Set<Integer> alreadyHasVNodeSet = new HashSet<>();
-        for(int i=0;i<vNodeSize;i++) {
-            if(alreadyHasVNodeSet.contains(i)) continue;
-            Set<Integer> curSet = new HashSet<>();
-            curSet.add(i);
-            for(int j=i+1;j<vNodeSize;j++) {
-                if(simVNodeArr[i]==simVNodeArr[j]) {
-                    alreadyHasVNodeSet.add(j);
-                    curSet.add(j);
-                }
-            }
-            vNodeSimList.add(curSet);
-        }
         //正确划分了vNodeSimList
-
-        int diffVSize = vNodeSimList.size();
-        for(int i=0;i<diffVSize;i++) {
-            Set<Integer> innerSet = vNodeSimList.get(i);
+        //下面进行第一步,将所有valueNode中相似的,搜集其classNode判断是否能够融合
+        Map<Integer,Set<Integer>> unionSetMap = WordSimilarities.unionSetMap;
+        for(int loc : unionSetMap.keySet()) {
+            Set<Integer> simVNodeSet = unionSetMap.get(loc);
             Set<Integer> cNodeSet = new HashSet<>();
-            for(int vLoc : innerSet) {
-                ValueNode vNode = valueNodeList.get(vLoc);
-                String vName = vNode.getName();
+            for(int vloc : simVNodeSet) {
+                ValueNode vNode = valueNodeList.get(vloc);
+                String vName =  vNode.getName();
                 if(vName.equals("*")||vName.equals("1..*")||vName.equals("0..1")||vName.equals("1")||vName.equals("1..2")
                         ||vName.equals("0..2")||vName.equals("true")) continue;
                 cNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(vNode));
             }
             //现在cNodeSet中包含了所有相似value对应得classNode
-            List<Integer> cNodeLocList = new ArrayList<>(cNodeSet);
+            List<Integer> cNodeLocTmpList = new ArrayList<>(cNodeSet);
+            List<Integer> cNodeLocList = migrateUtil.getSortedConCNode(cNodeLocTmpList,classNodeList);
+
             for(int cNodeLoc : cNodeLocList) {
                 ClassNode cNode = classNodeList.get(cNodeLoc);
+                if(cNode.getIcmSet().size()==0) continue;
                 migrateClassNode(cNode,cNodeLocList,1);
             }
         }
 
-        List<List<String>> roleNameList = new ArrayList<>();
+        //找与当前relationNode相似role的relation就更简单了,因为migrateUtil中已经有这样的函数了
         for(int i=0;i<rNodeSize;i++) {
             RelationNode curRNode = relationNodeList.get(i);
-            ValueNode v1 = null;
-            ValueNode v2 = null;
-            for(RelationToValueEdge rtvEdge : curRNode.getRtvEdges()) {
-                if(rtvEdge.getName().equals("role")) {
-                    if(v1==null) v1 = rtvEdge.getEnder();
-                    else if(v2==null) v2 = rtvEdge.getEnder();
-                    else if(v1!=null && v2!=null)break;
-                }
-            }
-            List<String> myList = new ArrayList<>();
-            if(v1!=null)myList.add(v1.getName());
-            else myList.add("");
-            if(v2!=null)myList.add(v2.getName());
-            else myList.add("");
-            roleNameList.add(myList);
-        }
-
-        List<List<Integer>> conList = new ArrayList<>();
-        Set<Integer> alreadyHasSet = new HashSet<>();
-        for(int i=0;i<rNodeSize;i++) {
-            if(alreadyHasSet.contains(i)) continue;
-
-            List<String> firstList = roleNameList.get(i);
-            String s1 = firstList.get(0);
-            String s2 = firstList.get(1);
-            alreadyHasSet.add(i);
-            List<Integer> iList = new ArrayList<>();
-            iList.add(i);
-            for(int j=i+1;j<rNodeSize;j++) {
-                if(alreadyHasSet.contains(j)) continue;
-                List<String> secondList = roleNameList.get(j);
-                String s3 = secondList.get(0);
-                String s4 = secondList.get(1);
-
-                if((s1.equals(s3)&&s2.equals(s4))||(s1.equals(s4)&&s2.equals(s3))) {
-                    alreadyHasSet.add(j);
-                    iList.add(j);
-                }else if(WordSimilarities.vNodeSimMap.containsKey(s1)&&WordSimilarities.vNodeSimMap.containsKey(s2)
-                        &&WordSimilarities.vNodeSimMap.containsKey(s3)&&WordSimilarities.vNodeSimMap.containsKey(s4)) {
-                    if((s1.equals(s3) && WordSimilarities.vNodeSimMap.get(s2).get(s4)>=0.5) ||
-                            s1.equals(s4) && WordSimilarities.vNodeSimMap.get(s2).get(s3)>=0.5) {
-                        alreadyHasSet.add(j);
-                        iList.add(j);
-                    }else if((s2.equals(s3) && WordSimilarities.vNodeSimMap.get(s1).get(s4)>=0.5) ||
-                            s2.equals(s4) && WordSimilarities.vNodeSimMap.get(s1).get(s3)>=0.5) {
-                        alreadyHasSet.add(j);
-                        iList.add(j);
-                    }else if((WordSimilarities.vNodeSimMap.get(s1).get(s3)>=0.5 &&
-                            WordSimilarities.vNodeSimMap.get(s2).get(s4)>=0.5) || (WordSimilarities.vNodeSimMap.get(s2).get(s3)>=0.5 &&
-                            WordSimilarities.vNodeSimMap.get(s1).get(s4)>=0.5)) {
-                        alreadyHasSet.add(j);
-                        iList.add(j);
-                    }
-                }else if(!(WordSimilarities.vNodeSimMap.containsKey(s1)&&WordSimilarities.vNodeSimMap.containsKey(s2)
-                        &&WordSimilarities.vNodeSimMap.containsKey(s3)&&WordSimilarities.vNodeSimMap.containsKey(s4))) {
-                    System.out.println("s1: "+s1+" ,s2: "+s2+" ,s3: "+s3+" ,s4: "+s4);
-                }
-            }
-            conList.add(iList);
-        }
-
-        //conList中的数据是拥有公共两个role的relation集合
-        int conSize = conList.size();
-        for(int i=0;i<conSize;i++) {
-            List<Integer> iList = conList.get(i);
-            for(int curLoc : iList) {
-                RelationNode curRNode = relationNodeList.get(curLoc);
-                migrateRelationNode(curRNode,iList,1);
-            }
+            if(curRNode.getIcmSet().size()==0) continue;
+            List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(curRNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
+            List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
+            migrateRelationNode(curRNode,simRNodeLocList,1);
         }
     }
 
@@ -500,7 +401,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             if(sourceClassNode.getIcmSet().size()-icmSetSize==0) this.nodeSum--;
             if(classNodeList.get(targetClassNodeListId).getIcmSet().size() == 0) this.nodeSum++;
-
 
             migrateClassNodeForOneStep(icmSet , sourceClassNodeListId , targetClassNodeListId);
             reComputeMigrateClassNodeEntropy(sourceClassNodeListId,targetClassNodeListId);
@@ -1736,9 +1636,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
         }
     }
-
-
-
 
 
     /******************************************华丽分界线**********************************************/
