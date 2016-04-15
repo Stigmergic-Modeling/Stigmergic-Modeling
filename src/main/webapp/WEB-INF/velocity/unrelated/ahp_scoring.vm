@@ -90,6 +90,9 @@
     #foreach ($index in [0..$len])
         #set($indexFromOne = $index + 1)
 
+        <input type="hidden" name="left-model-${index}" value="${leftModels[$index]}"/>
+        <input type="hidden" name="right-model-${index}" value="${rightModels[$index]}"/>
+
         <div class="row stigmod-ahp-row" id="stigmod-ahp-group-${index}">
             <div class="col-xs-5">
                 <img src="/static/dist/img/unrelated/ahp_scoring/${leftModels[$index]}" class="img-responsive" />
