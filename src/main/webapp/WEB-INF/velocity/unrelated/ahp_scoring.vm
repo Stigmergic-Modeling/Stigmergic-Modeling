@@ -18,6 +18,10 @@
     <link href="/static/dist/css/stigmod.css" rel="stylesheet">
 
     <style>
+        body {
+            padding-top: 20px;
+        }
+
         .container {
             width: 1400px !important;
         }
@@ -28,12 +32,21 @@
             line-height: 1.5;
             border-radius: 2px;
         }
+
+        .stigmod-ahp-row {
+            display: none;
+        }
+        #stigmod-ahp-group-0 {
+            display: block;
+        }
     </style>
 
     <!--[if lt IE 9]><script src="http:html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
 </head>
 <body>
+
+
 
 
 <!-- 主容器 -->
@@ -53,195 +66,320 @@
     #end
     <!-- 内容 -->
 
-<div class="row">
 
-        <div class="col-xs-5">
-            <img src="/static/dist/img/unrelated/ahp_scoring/1.png" class="img-responsive" />
-        </div>
-        <div class="col-xs-2 text-center">
-            <hr/>
-            <p>查全率</p>
-            <div class="btn-group btn-group-xs" data-toggle="buttons">
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
-                </label>
 
-                <label class="btn btn-default active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
-                </label>
 
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
-                </label>
+
+    #set($len = ${leftModels.size()} - 1)
+
+    <form method="post" id="stigmod-ahp-form">
+        <div class="row">
+            <div class="col-xs-5">
             </div>
+            <div class="col-xs-2 text-center">
+                <p>请输入邮箱地址</p>
+                <input type="email" class="form-control" required autofocus name="email" id="stigmod-ahp-email"/>
 
-            <hr/>
-            <p>查准率</p>
-            <div class="btn-group btn-group-xs" data-toggle="buttons">
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
-                </label>
-
-                <label class="btn btn-default active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
-                </label>
-
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
-                </label>
+##                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             </div>
-
-            <hr/>
-            <p>易理解性</p>
-            <div class="btn-group btn-group-xs" data-toggle="buttons">
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
-                </label>
-
-                <label class="btn btn-default active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
-                </label>
-
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
-                </label>
+            <div class="col-xs-5">
             </div>
-            <hr/>
-
         </div>
-        <div class="col-xs-5">
-            <img src="/static/dist/img/unrelated/ahp_scoring/2.png" class="img-responsive" />
+        <hr/>
+
+    #foreach ($index in [0..$len])
+        #set($indexFromOne = $index + 1)
+
+        <div class="row stigmod-ahp-row" id="stigmod-ahp-group-${index}">
+            <div class="col-xs-5">
+                <img src="/static/dist/img/unrelated/ahp_scoring/${leftModels[$index]}" class="img-responsive" />
+            </div>
+            <div class="col-xs-2 text-center">
+                <h4>请比较左右两模型</h4>
+                <p>（第 ${indexFromOne} 组）</p>
+                <hr/>
+                <p>完整性</p>
+                <div class="btn-group btn-group-xs" data-toggle="buttons">
+
+                    #foreach ($score in [9..2])
+                        <label class="btn btn-default">
+                            <input type="radio" name="recall-${index}" value="${score}" autocomplete="off"> ${score}
+                        </label>
+                    #end
+                    <label class="btn btn-default active">
+                        <input type="radio" name="recall-${index}" value="1" autocomplete="off" checked> 1
+                    </label>
+                    #foreach ($score in [2..9])
+                        <label class="btn btn-default">
+                            <input type="radio" name="recall-${index}" value="1/${score}" autocomplete="off"> ${score}
+                        </label>
+                    #end
+                </div>
+
+                <hr/>
+                <p>准确性</p>
+                <div class="btn-group btn-group-xs" data-toggle="buttons">
+                    #foreach ($score in [9..2])
+                        <label class="btn btn-default">
+                            <input type="radio" name="precise-${index}" value="${score}" autocomplete="off"> ${score}
+                        </label>
+                    #end
+                    <label class="btn btn-default active">
+                        <input type="radio" name="precise-${index}" value="1" autocomplete="off" checked> 1
+                    </label>
+                    #foreach ($score in [2..9])
+                        <label class="btn btn-default">
+                            <input type="radio" name="precise-${index}" value="1/${score}" autocomplete="off"> ${score}
+                        </label>
+                    #end
+                </div>
+
+                <hr/>
+                <p>易理解性</p>
+                <div class="btn-group btn-group-xs" data-toggle="buttons">
+                    #foreach ($score in [9..2])
+                        <label class="btn btn-default">
+                            <input type="radio" name="understandability-${index}" value="${score}" autocomplete="off"> ${score}
+                        </label>
+                    #end
+                    <label class="btn btn-default active">
+                        <input type="radio" name="understandability-${index}" value="1" autocomplete="off" checked> 1
+                    </label>
+                    #foreach ($score in [2..9])
+                        <label class="btn btn-default">
+                            <input type="radio" name="understandability-${index}" value="1/${score}" autocomplete="off"> ${score}
+                        </label>
+                    #end
+                </div>
+                <hr/>
+
+                <div class="btn-group" data-index="${index}">
+                    #if (${index}==0)
+                        <button type="button" class="btn btn-default" disabled><i class="fa fa-chevron-left" aria-hidden="true"></i>&nbsp;&nbsp;上一组</button>
+                    #else
+                        <button type="button" class="btn btn-default stigmod-ahp-prev"><i class="fa fa-chevron-left" aria-hidden="true"></i>&nbsp;&nbsp;上一组</button>
+                    #end
+
+
+                    #if (${index}==${len})
+                        <button type="button" class="btn btn-default" disabled>下一组&nbsp;&nbsp;<i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                    #else
+                        <button type="button" class="btn btn-default stigmod-ahp-next">下一组&nbsp;&nbsp;<i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                    #end
+                </div>
+
+                #if (${index}==${len})
+                    <hr/>
+                    <button type="button" class="btn btn-success stigmod-ahp-submit">提交</button>
+                #end
+
+            </div>
+            <div class="col-xs-5">
+                <img src="/static/dist/img/unrelated/ahp_scoring/${rightModels[$index]}" class="img-responsive" />
+            </div>
         </div>
+    #end
+    <hr/>
 
-</div>
+    </form>
 
-#set ($jsFile = "index")
+
+##    <div class="row">
+##
+##        <div class="col-xs-5">
+##            <img src="/static/dist/img/unrelated/ahp_scoring/1.png" class="img-responsive" />
+##        </div>
+##        <div class="col-xs-2 text-center">
+##            <h4>请比较左右两模型</h4>
+##            <p>（第一组）</p>
+##            <hr/>
+##            <p>查全率</p>
+##            <div class="btn-group btn-group-xs" data-toggle="buttons">
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
+##                </label>
+##
+##                <label class="btn btn-default active">
+##                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
+##                </label>
+##
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
+##                </label>
+##            </div>
+##
+##            <hr/>
+##            <p>查准率</p>
+##            <div class="btn-group btn-group-xs" data-toggle="buttons">
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
+##                </label>
+##
+##                <label class="btn btn-default active">
+##                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
+##                </label>
+##
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
+##                </label>
+##            </div>
+##
+##            <hr/>
+##            <p>易理解性</p>
+##            <div class="btn-group btn-group-xs" data-toggle="buttons">
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
+##                </label>
+##
+##                <label class="btn btn-default active">
+##                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
+##                </label>
+##
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
+##                </label>
+##                <label class="btn btn-default">
+##                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
+##                </label>
+##            </div>
+##            <hr/>
+##
+##            <div class="btn-group">
+##                <button type="button" class="btn btn-default"><i class="fa fa-chevron-left" aria-hidden="true"></i>&nbsp;&nbsp;上一组</button>
+##                <button type="button" class="btn btn-default">下一组&nbsp;&nbsp;<i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+##            </div>
+##
+##        </div>
+##        <div class="col-xs-5">
+##            <img src="/static/dist/img/unrelated/ahp_scoring/2.png" class="img-responsive" />
+##        </div>
+##    </div>
+
+
+#set ($jsFile = "ahp")
     <script src="/static/dist/js/sea/sea.js"></script>
     <script>
             #if (${data})
