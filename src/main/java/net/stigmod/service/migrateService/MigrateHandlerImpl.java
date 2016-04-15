@@ -49,6 +49,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
     private double systemEntropy;
 
+    private int uSum;
+
 //    private int curLocId;
 
     /**
@@ -68,6 +70,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         this.valueNodeList = vNodeList;
 
         this.nodeSum=(classNodeList.size()+relationNodeList.size()+valueNodeList.size());
+        this.uSum = migrateUtil.getTheUserSum(valueNodeList);
         this.isStable=false;
         this.systemEntropy = 0.0;
     }
@@ -112,7 +115,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             iterNum++;
             System.out.println("融合算法迭代轮数: "+iterNum);
             isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
-            heuristicMigrateMethodSecondStep();
+            heuristicMigrateMethodThirdStep();
             System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
             if(isStable&&curIterNum>=2) break;
             else if(isStable) curIterNum++;
@@ -161,7 +164,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //                else migrateRelationNodeWithNormalMethod(randValue - cNum);
 //            }
 //            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
-//            if(isStable&&curIterNum>=2) break;
+//            if(isStable&&curIterNum>=1) break;
 //            else if(isStable) curIterNum++;
 //            else curIterNum=1;
 //            System.out.println("当前系统熵值为: "+systemEntropy);
@@ -228,7 +231,18 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
-    private void heuristicMigrateMethodSecondStep() {
+//    private void heuristicMigrateMethodSecondStep() {
+//        int halfIcmIdSum = uSum/2;
+//        for(ClassNode cNode : classNodeList) {
+//            int curIcmSize = cNode.getIcmSet().size();
+//            if(curIcmSize==0 || curIcmSize>=halfIcmIdSum) continue;//如果超过一半自然不需要迁移的啦
+//            List<Integer> cNodeLocList = migrateUtil.findConClassNodes(cNode,classNodeList,valueNodeList,);
+//            migrateClassNodeWithAllUser(cNode,cNodeLocList,1);
+//        }
+//
+//    }
+
+    private void heuristicMigrateMethodThirdStep() {
         List<Integer> heuristicList = heuristicMethod.migrateWithHeuristicList(classNodeList,relationNodeList,valueNodeList);
         int cNodeSize = classNodeList.size();
         int rAndcNodeSize = relationNodeList.size()+cNodeSize;
@@ -270,23 +284,23 @@ public class MigrateHandlerImpl implements MigrateHandler {
         }
     }
 
-//    private void migrateClassNodeWithNormalMethod(int classNodeListId) {
-//        ClassNode classNode = classNodeList.get(classNodeListId);
-//        if(classNode.getIcmSet().size()==0) return ;
-//
-//        //找到所有和当前classNode有交集的其他classNode节点
-//        List<Integer> needToFindCNodeListIdSet = migrateUtil.findConClassNodes(classNode,valueNodeList);
-//        migrateClassNode(classNode,needToFindCNodeListIdSet);
-//    }
-//
-//    private void migrateRelationNodeWithNormalMethod(int relationNodeListId) {
-//        RelationNode relationNode = relationNodeList.get(relationNodeListId);
-//        if(relationNode.getIcmSet().size()==0) return ;
-//
-//        //找到所有和当前relationNode有交集的其他relationNode节点
-//        List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,valueNodeList);
-//        migrateRelationNode(relationNode, needToFindRNodeListIdSet);
-//    }
+    private void migrateClassNodeWithNormalMethod(int classNodeListId) {
+        ClassNode classNode = classNodeList.get(classNodeListId);
+        if(classNode.getIcmSet().size()==0) return ;
+
+        //找到所有和当前classNode有交集的其他classNode节点
+        List<Integer> needToFindCNodeListIdSet = migrateUtil.findConClassNodes(classNode,classNodeList,valueNodeList,0);
+        migrateClassNode(classNode,needToFindCNodeListIdSet,0);
+    }
+
+    private void migrateRelationNodeWithNormalMethod(int relationNodeListId) {
+        RelationNode relationNode = relationNodeList.get(relationNodeListId);
+        if(relationNode.getIcmSet().size()==0) return ;
+
+        //找到所有和当前relationNode有交集的其他relationNode节点
+        List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,relationNodeList,valueNodeList,0);
+        migrateRelationNode(relationNode, needToFindRNodeListIdSet,0);
+    }
 
     private void migrateClassNode(ClassNode classNode,List<Integer> needToFindCNodeListIdSet,int strictLevel) {
         Map<String,Set<Long>> userSetMap = migrateUtil.getTheUserSetForClassNode(classNode);

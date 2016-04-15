@@ -37,7 +37,7 @@ public class WordSimilarities {
                 WordSimilaritiesForCh.getVNodeSimListByName(valueNodeList);
                 vNodeSimList = WordSimilaritiesForCh.vNodeSimList;
             }else {
-                WordSimilaritiesForEn.initWuAndPalmer();
+                WordSimilaritiesForEn.initWuAndPalmer_PathLength();
                 WordSimilaritiesForEn.vNodeSimList.clear();//先清空一下
                 WordSimilaritiesForEn.getVNodeSimListByName(valueNodeList);//必须先setLocForList在进行该函数
                 vNodeSimList = WordSimilaritiesForEn.vNodeSimList;

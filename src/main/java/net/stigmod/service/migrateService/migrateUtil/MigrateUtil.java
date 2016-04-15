@@ -36,6 +36,14 @@ public class MigrateUtil {
 
 //    private EntropyHandler entropyHandler=new EntropyHandlerImpl();
 
+    public int getTheUserSum(List<ValueNode> valueNodeList) {
+        Set<Long> uSet = new HashSet<>();
+        for(ValueNode vNode : valueNodeList) {
+            uSet.addAll(new HashSet<>(vNode.getIcmSet()));
+        }
+        return uSet.size();
+    }
+
     /**
      * 类节点上的icmSet集合从sourceCNode迁移到targetCNode时,其指向的valueNode的熵值变化
      * @param icmSet

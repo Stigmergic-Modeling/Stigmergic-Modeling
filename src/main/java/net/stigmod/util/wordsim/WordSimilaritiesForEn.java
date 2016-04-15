@@ -10,11 +10,22 @@
 package net.stigmod.util.wordsim;
 
 import edu.sussex.nlp.jws.JWS;
+import edu.sussex.nlp.jws.Path;
 import edu.sussex.nlp.jws.WuAndPalmer;
+import net.didion.jwnl.JWNL;
+import net.didion.jwnl.JWNLException;
+import net.didion.jwnl.data.IndexWord;
+import net.didion.jwnl.data.POS;
+import net.didion.jwnl.dictionary.Dictionary;
+import net.didion.jwnl.dictionary.MorphologicalProcessor;
 import net.stigmod.domain.conceptualmodel.ValueNode;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,13 +39,30 @@ public class WordSimilaritiesForEn {
 
     public static List<List<Double>> vNodeSimList = new ArrayList<>();
     public static WuAndPalmer wup;
+    public static edu.sussex.nlp.jws.Path pathLength;
 
-    public static void initWuAndPalmer() {
+    private static MorphologicalProcessor morph;
+
+    public static void initWuAndPalmer_PathLength() {
         Config config = ConfigLoader.load();
         String path = config.getWordNetPath();
         JWS ws = new JWS(path, "3.0");
+
         wup = ws.getWuAndPalmer();
-        System.out.println("Wu & palmer\n");
+        pathLength = ws.getPath();
+
+        //初始化jwnl接口,将word与java直接连接起来
+        URL jwnlUrl = Thread.currentThread().getContextClassLoader().getResource("/file_properties.xml");
+        assert jwnlUrl != null;
+        File file = new File(jwnlUrl.getFile());
+        try {
+            JWNL.initialize(new FileInputStream(file));
+            morph= Dictionary.getInstance().getMorphologicalProcessor();
+        } catch (JWNLException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void getVNodeSimListByName(List<ValueNode> valueNodeList) {
@@ -49,7 +77,7 @@ public class WordSimilaritiesForEn {
                 char ch = fullName.charAt(j);
                 if((ch>='A'&&ch<='Z'&&j!=0)||j==nameLen-1) {
                     if(j==nameLen-1) j++;
-                    subNameList.add(fullName.substring(start,j).toLowerCase());
+                    subNameList.add(convertToValidFormat(fullName.substring(start,j).toLowerCase()));
                     start=j;
                 }
             }
@@ -134,6 +162,20 @@ public class WordSimilaritiesForEn {
             ex.printStackTrace();
         }
         return maxSim;
+    }
+
+    private static String convertToValidFormat(String word) {
+        String finalWord = word;
+        try {
+            IndexWord curIndex = Dictionary.getInstance().getIndexWord(POS.NOUN,word);
+            if(curIndex == null) {
+                IndexWord stemWord = morph.lookupBaseForm(POS.NOUN,word);
+                if(stemWord != null) finalWord = stemWord.getLemma();
+            }
+        } catch (JWNLException e) {
+            e.printStackTrace();
+        }
+        return finalWord;
     }
 
     static class NameSimilarity {
