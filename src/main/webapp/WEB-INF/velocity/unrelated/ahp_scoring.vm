@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--meta name="viewport" content="width=device-width, initial-scale=1"--><!-- 禁用响应式布局 -->
+
+    <!-- CSRF info for ajax -->
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
+    <title>Stigmergic-Modeling | ${title}</title>
+    <!-- CSS -->
+    <link href="/static/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/dist/css/font-awesome.min.css" rel="stylesheet">
+##    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="/static/dist/css/stigmod.css" rel="stylesheet">
+
+    <style>
+        .container {
+            width: 1400px !important;
+        }
+
+        .btn-group-xs > .btn {
+            padding: 1px 1px;
+            font-size: 12px;
+            line-height: 1.5;
+            border-radius: 2px;
+        }
+    </style>
+
+    <!--[if lt IE 9]><script src="http:html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+</head>
+<body>
+
+
+<!-- 主容器 -->
+<div class="container">
+    <!-- 信息通知栏 -->
+    #if (${success})
+        <div class="alert alert-success alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            ${success}
+        </div>
+    #end
+    #if (${error})
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            ${error}
+        </div>
+    #end
+    <!-- 内容 -->
+
+<div class="row">
+
+        <div class="col-xs-5">
+            <img src="/static/dist/img/unrelated/ahp_scoring/1.png" class="img-responsive" />
+        </div>
+        <div class="col-xs-2 text-center">
+            <hr/>
+            <p>查全率</p>
+            <div class="btn-group btn-group-xs" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
+                </label>
+
+                <label class="btn btn-default active">
+                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
+                </label>
+
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
+                </label>
+            </div>
+
+            <hr/>
+            <p>查准率</p>
+            <div class="btn-group btn-group-xs" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
+                </label>
+
+                <label class="btn btn-default active">
+                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
+                </label>
+
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
+                </label>
+            </div>
+
+            <hr/>
+            <p>易理解性</p>
+            <div class="btn-group btn-group-xs" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option1" autocomplete="off"> 9
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> 8
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 2
+                </label>
+
+                <label class="btn btn-default active">
+                    <input type="radio" name="options" id="option1" autocomplete="off" checked> 1
+                </label>
+
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> 2
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 3
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 4
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 5
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 6
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 7
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 8
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="options" id="option3" autocomplete="off"> 9
+                </label>
+            </div>
+            <hr/>
+
+        </div>
+        <div class="col-xs-5">
+            <img src="/static/dist/img/unrelated/ahp_scoring/2.png" class="img-responsive" />
+        </div>
+
+</div>
+
+#set ($jsFile = "index")
+    <script src="/static/dist/js/sea/sea.js"></script>
+    <script>
+            #if (${data})
+            var dataPassedIn = ${data};  // 获取后端模板传来的参数 data
+            #end
+
+        seajs.config({
+            paths: {
+                'js': 'http://${host}:${port}/static/dist/js'
+            }
+        });
+        seajs.use('js/app/${jsFile}');
+    </script>
+
+##    <hr class="stigmod-hr-narrow stigmod-hide-when-full-screen" />
+##    <footer class="stigmod-hide-when-full-screen">
+##        <p class="text-center stigmod-gray stigmod-websitefooter">&copy; $date.get('yyyy') Peking University</p>
+##    </footer>
+</div>
+</body>
+</html>
