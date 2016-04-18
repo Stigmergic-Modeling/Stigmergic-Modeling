@@ -24,14 +24,59 @@ import java.util.List;
 @Service
 public class HeuristicMethod {
 
-    public List<Integer> migrateWithHeuristicList(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
-        List<MinNode> minNodeList = getTheHeuristicList(classNodeList,relationNodeList,valueNodeList);
+    public List<Integer> migrateWithUserNumDecrease(List<Vertex> vertexList) {
         List<Integer> resList = new ArrayList<>();
-        int sum = minNodeList.size();
+        List<USumNode> uSumNodeList = getTheUserNumDecreaseList(vertexList);
+        int nSize = uSumNodeList.size();
+        for(int i=0;i<nSize;i++) {
+            resList.add(uSumNodeList.get(i).locate);
+        }
+        return resList;
+    }
+
+    private List<USumNode> getTheUserNumDecreaseList(List<Vertex> vertexNodeList) {
+        List<USumNode> uSumNodeList = new ArrayList<>();
+        int vSize = vertexNodeList.size();
+        if(vertexNodeList.size()<=0) return uSumNodeList;
+        Vertex oneVertex = vertexNodeList.get(0);
+        if(oneVertex.getClass()==ClassNode.class) {
+            for(int i=0;i<vSize;i++) {
+                ClassNode cNode = (ClassNode)vertexNodeList.get(i);
+                USumNode uSumNode = new USumNode(cNode.getLoc(),cNode.getIcmSet().size());
+                uSumNodeList.add(uSumNode);
+            }
+        }else if(oneVertex.getClass()==RelationNode.class) {
+            for(int i=0;i<vSize;i++) {
+                RelationNode rNode = (RelationNode)vertexNodeList.get(i);
+                USumNode uSumNode = new USumNode(rNode.getLoc(),rNode.getIcmSet().size());
+                uSumNodeList.add(uSumNode);
+            }
+        }
+        //再最后进行排序(从用户数大的到小的)
+        Collections.sort(uSumNodeList, new Comparator<USumNode>() {
+            @Override
+            public int compare(USumNode o1, USumNode o2) {
+                return o2.uSum-o1.uSum;
+            }
+        });
+        return uSumNodeList;
+    }
+
+    /**
+     * 针对熵值进行排序
+     * @param classNodeList
+     * @param relationNodeList
+     * @param valueNodeList
+     * @return
+     */
+    public List<Integer> migrateWithEntropyDecrease(List<ClassNode> classNodeList, List<RelationNode> relationNodeList, List<ValueNode> valueNodeList) {
+        List<EntropyNode> entropyNodeList = getTheEntropyDecreaseList(classNodeList, relationNodeList, valueNodeList);
+        List<Integer> resList = new ArrayList<>();
+        int sum = entropyNodeList.size();
         for(int i=0;i<sum;i++) {
-            if(Double.compare(minNodeList.get(i).curBiEntropy , 0.0) > 0 &&
-                    Math.abs(minNodeList.get(i).curBiEntropy - 0.0) > 0.00001) {
-                resList.add(minNodeList.get(i).locate);
+            if(Double.compare(entropyNodeList.get(i).curBiEntropy , 0.0) > 0 &&
+                    Math.abs(entropyNodeList.get(i).curBiEntropy - 0.0) > 0.00001) {
+                resList.add(entropyNodeList.get(i).locate);
             }else break;
         }
         return resList;
@@ -69,41 +114,51 @@ public class HeuristicMethod {
         return conRNodeList;
     }
 
-    private List<MinNode> getTheHeuristicList(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
+    private List<EntropyNode> getTheEntropyDecreaseList(List<ClassNode> classNodeList, List<RelationNode> relationNodeList, List<ValueNode> valueNodeList) {
         //获取启发式的序列
         int sumSize = classNodeList.size() + relationNodeList.size() + valueNodeList.size();
         int cNodeSize = classNodeList.size();
         int rAndcNodeSize = relationNodeList.size()+cNodeSize;
-        List<MinNode> minNodeList = new ArrayList<>();
+        List<EntropyNode> entropyNodeList = new ArrayList<>();
         for(ClassNode cNode : classNodeList) {
-            MinNode minNode = new MinNode(cNode.getLoc(),cNode.getBiEntropyValue());
-            minNodeList.add(minNode);
+            EntropyNode entropyNode = new EntropyNode(cNode.getLoc(),cNode.getBiEntropyValue());
+            entropyNodeList.add(entropyNode);
         }
         for(RelationNode rNode : relationNodeList) {
-            MinNode minNode = new MinNode(rNode.getLoc()+cNodeSize,rNode.getBiEntropyValue());
-            minNodeList.add(minNode);
+            EntropyNode entropyNode = new EntropyNode(rNode.getLoc()+cNodeSize,rNode.getBiEntropyValue());
+            entropyNodeList.add(entropyNode);
         }
         for(ValueNode vNode : valueNodeList) {
-            MinNode minNode = new MinNode(vNode.getLoc()+rAndcNodeSize,vNode.getBiEntropyValue());
-            minNodeList.add(minNode);
+            EntropyNode entropyNode = new EntropyNode(vNode.getLoc()+rAndcNodeSize,vNode.getBiEntropyValue());
+            entropyNodeList.add(entropyNode);
         }
 
-        Collections.sort(minNodeList, new Comparator<MinNode>() {
+        Collections.sort(entropyNodeList, new Comparator<EntropyNode>() {
             @Override
-            public int compare(MinNode o1, MinNode o2) {
+            public int compare(EntropyNode o1, EntropyNode o2) {
                 return Double.compare(o2.curBiEntropy , o1.curBiEntropy);
             }
         });
-        return minNodeList;
+        return entropyNodeList;
     }
 
-    class MinNode {
+    class EntropyNode {
         int locate;//这个和普通loc不一致,因为还要用于判断是class还是relation还是value
         double curBiEntropy;
 
-        MinNode(int loc,double curEntropy) {
+        EntropyNode(int loc, double curEntropy) {
             this.locate = loc;
             this.curBiEntropy = curEntropy;
+        }
+    }
+
+    class USumNode {
+        int locate;
+        int uSum;
+
+        public USumNode(int locate, int uSum) {
+            this.locate = locate;
+            this.uSum = uSum;
         }
     }
 }

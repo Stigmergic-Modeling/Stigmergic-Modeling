@@ -123,7 +123,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             System.out.println("当前系统熵值为: "+systemEntropy);
         }
-        System.out.println("------------------------------启发式迁移第一种结束--------------------------------");
 //        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
 //            iterNum++;
 //            System.out.println("融合算法迭代轮数: "+iterNum);
@@ -186,64 +185,89 @@ public class MigrateHandlerImpl implements MigrateHandler {
 //            if(randValue<cNum) migrateClassNodeWithNormalMethod(randValue);
 //            else migrateRelationNodeWithNormalMethod(randValue - cNum);
 //        }
-
         findFinalConceptModel();
-
         System.out.println("验证熵值为: " + scanToComputeSystemEntropy());
         System.out.println("迭代结束啦~");
     }
+
 
     private void heuristicMigrateMethodFirstStep() {
         //首先遍历所有的value节点,将classNode和relationNode中最有可能融合优先融合
         int rNodeSize = relationNodeList.size();
 
-        //正确划分了vNodeSimList
-        //下面进行第一步,将所有valueNode中相似的,搜集其classNode判断是否能够融合
-        Map<Integer,Set<Integer>> unionSetMap = WordSimilarities.unionSetMap;
-        for(int loc : unionSetMap.keySet()) {
-            Set<Integer> simVNodeSet = unionSetMap.get(loc);
-            Set<Integer> cNodeSet = new HashSet<>();
-            for(int vloc : simVNodeSet) {
-                ValueNode vNode = valueNodeList.get(vloc);
-                String vName =  vNode.getName();
-                if(vName.equals("*")||vName.equals("1..*")||vName.equals("0..1")||vName.equals("1")||vName.equals("1..2")
-                        ||vName.equals("0..2")||vName.equals("true")) continue;
-                cNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(vNode));
-            }
-            //现在cNodeSet中包含了所有相似value对应得classNode
-            List<Integer> cNodeLocTmpList = new ArrayList<>(cNodeSet);
-            List<Integer> cNodeLocList = migrateUtil.getSortedConCNode(cNodeLocTmpList,classNodeList);
-
-            for(int cNodeLoc : cNodeLocList) {
-                ClassNode cNode = classNodeList.get(cNodeLoc);
-                if(cNode.getIcmSet().size()==0) continue;
-                migrateClassNode(cNode,cNodeLocList,1);
-            }
-        }
-
         //找与当前relationNode相似role的relation就更简单了,因为migrateUtil中已经有这样的函数了
-        for(int i=0;i<rNodeSize;i++) {
-            RelationNode curRNode = relationNodeList.get(i);
-            if(curRNode.getIcmSet().size()==0) continue;
-            List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(curRNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
-            List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
-            migrateRelationNode(curRNode,simRNodeLocList,1);
+        boolean isOrgStable = isStable;
+        boolean innerEverStable = true;//表示内部是否稳定过
+        while(true) {
+            isStable = true;
+            //正确划分了vNodeSimList
+            //下面进行第一步,将所有valueNode中相似的,搜集其classNode判断是否能够融合
+            int[] randArr = randomValue();
+            int cSize = classNodeList.size();
+            int randSize = randArr.length;
+            for(int i=0;i<randSize;i++) {
+                if(randArr[i]>=cSize) continue;
+                ClassNode cNode = classNodeList.get(randArr[i]);
+                if(cNode.getIcmSet().size()==0) continue;
+                Set<Integer> simCNodeSet = new HashSet<>();
+
+                //下面是找出与当前classNode相似的所有classNode
+                for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+                    ValueNode vNode = ctvEdge.getEnder();
+                    simCNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(vNode));//先加入这部分
+                    List<Integer> simVNodeList = WordSimilarities.mostSimList.get(vNode.getLoc());
+                    for(int loc : simVNodeList) {//再加入所有与当前vNode相似的classNode
+                        ValueNode innerVNode = valueNodeList.get(loc);
+                        simCNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(innerVNode));
+                    }
+                }
+                List<Integer> cNodeLocTmpList = new ArrayList<>(simCNodeSet);
+                List<Integer> cNodeLocList = migrateUtil.getSortedConCNode(cNodeLocTmpList,classNodeList);
+                migrateClassNode(cNode, cNodeLocList, 1);
+            }
+
+            if(isStable) break;
+            else {
+                innerEverStable = false;
+            }
         }
+        if(!innerEverStable) isStable = false;//如果说内部曾经变化过
+        else isStable = isOrgStable;
+
+        isOrgStable = isStable;
+        innerEverStable = true;
+        while(true) {
+            isStable = true;
+
+            int[] randArr = randomValue();
+            int cSize = classNodeList.size();
+            int randSize = randArr.length;
+            for(int i=0;i<randSize;i++) {
+                if(randArr[i]<cSize) continue;//我们要找relationNode
+                RelationNode rNode = relationNodeList.get(randArr[i]-cSize);
+                if(rNode.getIcmSet().size()==0) continue;
+                List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
+                List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
+                if(simRNodeLocList.size()>6) {
+                    List<Integer> testList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
+                }
+                migrateRelationNode(rNode,simRNodeLocList,1);
+            }
+
+            if(isStable) break;
+            else {
+                innerEverStable = false;
+            }
+        }
+        if(!innerEverStable) isStable = false;//如果说内部曾经变化过
+        else isStable = isOrgStable;
+
+        //进行节点中所有用户的迁移步骤
+        migrateWithAllUserStep();
     }
 
-//    private void heuristicMigrateMethodSecondStep() {
-//        int halfIcmIdSum = uSum/2;
-//        for(ClassNode cNode : classNodeList) {
-//            int curIcmSize = cNode.getIcmSet().size();
-//            if(curIcmSize==0 || curIcmSize>=halfIcmIdSum) continue;//如果超过一半自然不需要迁移的啦
-//            List<Integer> cNodeLocList = migrateUtil.findConClassNodes(cNode,classNodeList,valueNodeList,);
-//            migrateClassNodeWithAllUser(cNode,cNodeLocList,1);
-//        }
-//
-//    }
-
     private void heuristicMigrateMethodThirdStep() {
-        List<Integer> heuristicList = heuristicMethod.migrateWithHeuristicList(classNodeList,relationNodeList,valueNodeList);
+        List<Integer> heuristicList = heuristicMethod.migrateWithEntropyDecrease(classNodeList, relationNodeList, valueNodeList);
         int cNodeSize = classNodeList.size();
         int rAndcNodeSize = relationNodeList.size()+cNodeSize;
         int hSize = heuristicList.size();
@@ -282,6 +306,54 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 }
             }
         }
+        //进行节点中所有用户的迁移步骤
+        migrateWithAllUserStep();
+    }
+
+    private void migrateWithAllUserStep() {
+        //这是针对classNode的集体迁移
+        List<Integer> heuristicClassNodeList = heuristicMethod.migrateWithUserNumDecrease((List)classNodeList);
+        int cNodeHeuristicSize = heuristicClassNodeList.size();
+        for(int i=0;i<cNodeHeuristicSize;i++) {
+            int curLoc = heuristicClassNodeList.get(i);
+            ClassNode curCNode = classNodeList.get(curLoc);
+            Set<Long> curUSet = new HashSet<>(curCNode.getIcmSet());
+            if(curUSet.size()<=1) continue;
+            Set<Integer> migrateCNodeSet = new HashSet<>();
+            for(int j=i+1;j<cNodeHeuristicSize;j++) {
+                int otherLoc = heuristicClassNodeList.get(j);
+                ClassNode otherCNode = classNodeList.get(otherLoc);
+                Set<Long> otherUSet = new HashSet<>(otherCNode.getIcmSet());
+                if(otherUSet.size()==0) continue;
+                otherUSet.retainAll(curUSet);
+                if(otherUSet.size()==0) {//说明他们没有交集,这种情况下可以进行迁移操作
+                    migrateCNodeSet.add(otherLoc);
+                }else ;//说明他们有交集,不能进行迁移操作
+            }
+            migrateClassNodeWithAllUser(migrateCNodeSet,curCNode);//将migrateCNodeSet中的节点迁移到curCNode中,看看熵是否会减小
+        }
+
+        //下面是针对relationNode的集体迁移
+        List<Integer> heuristicRelationNodeList = heuristicMethod.migrateWithUserNumDecrease((List)relationNodeList);
+        int rNodeHeuristicSize = heuristicClassNodeList.size();
+        for(int i=0;i<rNodeHeuristicSize;i++) {
+            int curLoc = heuristicRelationNodeList.get(i);
+            RelationNode curRNode = relationNodeList.get(curLoc);
+            Set<Long> curUSet = new HashSet<>(curRNode.getIcmSet());
+            if(curUSet.size()<=1) continue;
+            Set<Integer> migrateRNodeSet = new HashSet<>();
+            for(int j=i+1;j<rNodeHeuristicSize;j++) {
+                int otherLoc = heuristicRelationNodeList.get(j);
+                RelationNode otherRNode = relationNodeList.get(otherLoc);
+                Set<Long> otherUSet = new HashSet<>(otherRNode.getIcmSet());
+                if(otherUSet.size()==0) continue;
+                otherUSet.retainAll(curUSet);
+                if(otherUSet.size()==0) {//说明他们没有交集,这种情况下可以进行迁移操作
+                    migrateRNodeSet.add(otherLoc);
+                }else ;//有交集,不进行操作
+            }
+            migrateRelationNodeWithAllUser(migrateRNodeSet,curRNode);//将migrateRNodeSet中的节点迁移到curRNode中,看看熵是否会减小
+        }
     }
 
     private void migrateClassNodeWithNormalMethod(int classNodeListId) {
@@ -300,6 +372,153 @@ public class MigrateHandlerImpl implements MigrateHandler {
         //找到所有和当前relationNode有交集的其他relationNode节点
         List<Integer> needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(relationNode,relationNodeList,valueNodeList,0);
         migrateRelationNode(relationNode, needToFindRNodeListIdSet,0);
+    }
+
+    private void migrateClassNodeWithAllUser(Set<Integer> migrateCNodeLocSet,ClassNode curCNode) {
+        if(curCNode.getIcmSet().size()==0) return;
+        List<Integer> needToFindCNodeListIdSet = migrateUtil.findConClassNodes(curCNode,classNodeList,valueNodeList,1);
+        //将migrateCNodeLocSet于needToFindCNodeListIdSet做交集,获得可能的迁移集合
+        needToFindCNodeListIdSet.retainAll(migrateCNodeLocSet);//获得的needToFindCNOdeListIdSet是两者的交集
+        int curLoc = curCNode.getLoc();
+        double orgSystemEntropy = systemEntropy;//保存最初熵值
+        double maxDecreaseEntropy = 0.0;
+        int maxDecreaseLoc = -1;
+        for(int otherLoc : needToFindCNodeListIdSet) {
+            ClassNode otherCNode = classNodeList.get(otherLoc);
+            Set<Long> otherIcmSet = new HashSet<>(otherCNode.getIcmSet());
+            int otherIcmSize = otherIcmSet.size();
+            int curCnt = 0;
+            for(long icm : otherIcmSet) {
+                curCnt++;
+                if(curCnt==otherIcmSize) this.nodeSum--;//不存在nodeSum++的情况
+                Set<Long> tmpSet = new HashSet<>();
+                tmpSet.add(icm);
+                migrateClassNodeForOneStep(tmpSet, otherLoc, curLoc);
+                reComputeMigrateClassNodeEntropy(otherLoc,curLoc);
+//                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
+                removeNullEdgeForClassNode(otherLoc);//删除多余边
+                //另外也不计算当前系统熵值了,直接用scanToCompute算出来
+                systemEntropy = scanToComputeSystemEntropy();
+            }
+            double tmpResEntropy = systemEntropy - orgSystemEntropy;
+            if(Double.compare(tmpResEntropy,maxDecreaseEntropy)<0 && Math.abs(tmpResEntropy-maxDecreaseEntropy)>0.00001) {
+                maxDecreaseLoc = otherLoc;
+                maxDecreaseEntropy = tmpResEntropy;
+            }
+
+            //下面是还原操作
+            curCnt = 0;
+            for(long icm : otherIcmSet) {
+                curCnt++;
+                if(curCnt==1) this.nodeSum++;
+                Set<Long> tmpSet = new HashSet<>();
+                tmpSet.add(icm);
+                migrateClassNodeForOneStep(tmpSet, curLoc ,otherLoc);
+                reComputeMigrateClassNodeEntropy(curLoc,otherLoc);
+                removeNullEdgeForClassNode(curLoc);//删除多余边
+                systemEntropy = scanToComputeSystemEntropy();
+            }
+            if(!(Math.abs(systemEntropy-orgSystemEntropy)<0.00001)) {
+                System.out.println("发生了节点用户全部迁移的错误~");
+            }
+        }
+        if(maxDecreaseLoc!=-1) {//可以进行该迁移
+            ClassNode targetCNode = classNodeList.get(maxDecreaseLoc);
+            Set<Long> targetIcmSet = new HashSet<>(targetCNode.getIcmSet());
+            int targetIcmSize = targetIcmSet.size();
+            int curCnt = 0;
+            for(long icm : targetIcmSet) {
+                curCnt++;
+                if(curCnt==targetIcmSize) this.nodeSum--;//不存在nodeSum++的情况
+                Set<Long> tmpSet = new HashSet<>();
+                tmpSet.add(icm);
+                migrateClassNodeForOneStep(tmpSet, maxDecreaseLoc, curLoc);
+                reComputeMigrateClassNodeEntropy(maxDecreaseLoc,curLoc);
+//                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
+                removeNullEdgeForClassNode(maxDecreaseLoc);//删除多余边
+                //另外也不计算当前系统熵值了,直接用scanToCompute算出来
+                systemEntropy = scanToComputeSystemEntropy();
+            }
+            System.out.println("完成了一次基于全用户的Class迁移,迁移从: "+maxDecreaseLoc+" 到: "+curLoc);
+        }
+    }
+
+    private void migrateRelationNodeWithAllUser(Set<Integer> migrateRNodeLocSet,RelationNode curRNode) {
+        List<Integer> needToFindRNodeListIdSet = new ArrayList<>();
+        if(migrateUtil.isBasicTypeRelation(curRNode)) {
+            //基于基础类型的关系的处理方式
+            needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(curRNode,relationNodeList,valueNodeList,1);//找出与当前curRNode的role相似的那些概念
+        }else {
+            //基于普通的关系的处理方式
+            needToFindRNodeListIdSet = migrateUtil.findConRelationNodes(curRNode,relationNodeList,valueNodeList,2);//这种我们需要剔除掉
+        }
+        //将migrateRNodeLocSet于needToFindRNodeListIdSet做交集,获得可能的迁移集合
+        needToFindRNodeListIdSet.retainAll(migrateRNodeLocSet);//获得的needToFindRNodeListIdSet是两者的交集
+        int curLoc = curRNode.getLoc();
+        double orgSystemEntropy = systemEntropy;//保存最初熵值
+        double maxDecreaseEntropy = 0.0;
+        int maxDecreaseLoc = -1;
+        for(int otherLoc : needToFindRNodeListIdSet) {
+            RelationNode otherRNode = relationNodeList.get(otherLoc);
+            Set<Long> otherIcmSet = new HashSet<>(otherRNode.getIcmSet());
+            int otherIcmSize = otherIcmSet.size();
+            int curCnt = 0;
+            for(long icm : otherIcmSet) {
+                curCnt++;
+                if(curCnt==otherIcmSize) this.nodeSum--;//不存在nodeSum++的情况
+                Set<Long> tmpSet = new HashSet<>();
+                tmpSet.add(icm);
+                migrateRelationNodeForOneStep(tmpSet, otherLoc, curLoc);
+                reComputeMigrateRelationNodeEntropy(otherLoc, curLoc);
+//                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
+                removeNullEdgeForRelationNode(otherLoc);//删除多余边
+                //另外也不计算当前系统熵值了,直接用scanToCompute算出来
+                systemEntropy = scanToComputeSystemEntropy();
+            }
+            double tmpResEntropy = systemEntropy - orgSystemEntropy;
+            if(Double.compare(tmpResEntropy,maxDecreaseEntropy)<0 && Math.abs(tmpResEntropy-maxDecreaseEntropy)>0.00001) {
+                maxDecreaseLoc = otherLoc;
+                maxDecreaseEntropy = tmpResEntropy;
+            }
+
+            //下面是还原操作
+            curCnt = 0;
+            for(long icm : otherIcmSet) {
+                curCnt++;
+                if(curCnt==1) this.nodeSum++;
+                Set<Long> tmpSet = new HashSet<>();
+                tmpSet.add(icm);
+                migrateRelationNodeForOneStep(tmpSet, curLoc, otherLoc);
+                reComputeMigrateRelationNodeEntropy(curLoc, otherLoc);
+                removeNullEdgeForRelationNode(curLoc);//删除多余边
+                systemEntropy = scanToComputeSystemEntropy();
+            }
+            if(!(Math.abs(systemEntropy-orgSystemEntropy)<0.00001)) {
+                System.out.println("发生了Relation节点用户全部迁移的错误~");
+            }
+        }
+        if(!(Math.abs(systemEntropy-orgSystemEntropy)<0.00001)) {
+            System.out.println("发生了Relation节点用户全部迁移的错误~");
+        }
+        if(maxDecreaseLoc!=-1) {//可以进行该迁移
+            RelationNode targetRNode = relationNodeList.get(maxDecreaseLoc);
+            Set<Long> targetIcmSet = new HashSet<>(targetRNode.getIcmSet());
+            int targetIcmSize = targetIcmSet.size();
+            int curCnt = 0;
+            for(long icm : targetIcmSet) {
+                curCnt++;
+                if(curCnt==targetIcmSize) this.nodeSum--;//不存在nodeSum++的情况
+                Set<Long> tmpSet = new HashSet<>();
+                tmpSet.add(icm);
+                migrateRelationNodeForOneStep(tmpSet, maxDecreaseLoc, curLoc);
+                reComputeMigrateRelationNodeEntropy(maxDecreaseLoc, curLoc);
+//                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
+                removeNullEdgeForRelationNode(maxDecreaseLoc);//删除多余边
+                //另外也不计算当前系统熵值了,直接用scanToCompute算出来
+                systemEntropy = scanToComputeSystemEntropy();
+                System.out.println("完成了一次基于全用户的Relation迁移,迁移从: "+maxDecreaseLoc+" 到: "+curLoc);
+            }
+        }
     }
 
     private void migrateClassNode(ClassNode classNode,List<Integer> needToFindCNodeListIdSet,int strictLevel) {
@@ -1917,7 +2136,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             int curCNodeListId = iter.next();
             ClassNode cNode = classNodeList.get(curCNodeListId);
             if(isNew) {
-                conUserSet = new HashSet<>(cNode.getIcmSet());
+                conUserSet.addAll(new HashSet<Long>(cNode.getIcmSet()));
                 isNew = false;
             }else conUserSet.retainAll(cNode.getIcmSet());
         }

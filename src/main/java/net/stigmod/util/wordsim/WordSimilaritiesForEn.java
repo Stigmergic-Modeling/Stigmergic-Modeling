@@ -116,7 +116,10 @@ public class WordSimilaritiesForEn {
             //如果两个名字相同,则为1.0
             if(sourceFullNameWithBlank.toString().equals(targetFullNameWithBlank.toString())) maxSim = 1.0;
             else {
-                maxSim = wup.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(),"n");
+                double maxSim1 = wup.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(),"n");
+//                double maxSim2 = pathLength.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(),"n");
+//                maxSim = (maxSim1+maxSim2)/2;
+                maxSim = maxSim1;
 //                if(Math.abs(maxSim-0.0)>0.00001) //重新更新一下maxSim的值
 //                    maxSim = wup.wup(sourceFullNameWithBlank.toString(),1,targetFullNameWithBlank.toString(),1,"n");
             }
@@ -130,7 +133,12 @@ public class WordSimilaritiesForEn {
 //                        double sim=wup.max(sourceName,targetName,"n");
                         double sim = 0.0;
                         if(sourceName.equals(targetName)) sim = 1.0;
-                        else sim=wup.max(sourceName,targetName,"n");
+                        else {
+                            double sim1=wup.max(sourceName,targetName,"n");
+//                            double sim2=pathLength.max(sourceName,targetName,"n");
+//                            sim = (sim1+sim2)/2;
+                            sim = sim1;
+                        }
 //                        else sim = wup.wup(sourceName,1,targetName,1,"n");
                         NameSimilarity nameSimilarity = new NameSimilarity(sourceName,targetName,sim);
                         nameSimList.add(nameSimilarity);

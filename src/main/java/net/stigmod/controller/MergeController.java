@@ -211,11 +211,12 @@ public class MergeController {
                         relationNode1.getRtcEdges().add(rtcEdge1);
                         classNode.getRtcEdges().add(rtcEdge1);
 
-//                        RelationToValueEdge rtvEdge1 = new RelationToValueEdge("e0","role",relationNode1,mainRoleVNode);
-//                        rtvEdge1.setIcmSet(new HashSet<Long>(curSet));
-//                        rtvEdge1.setCcmId(modelId);
-//                        relationNode1.getRtvEdges().add(rtvEdge1);
-//                        mainRoleVNode.getRtvEdges().add(rtvEdge1);
+                        //这是第一个role
+                        RelationToValueEdge rtvEdge1 = new RelationToValueEdge("e0","role",relationNode1,mainRoleVNode);
+                        rtvEdge1.setIcmSet(new HashSet<Long>(curSet));
+                        rtvEdge1.setCcmId(modelId);
+                        relationNode1.getRtvEdges().add(rtvEdge1);
+                        mainRoleVNode.getRtvEdges().add(rtvEdge1);
 
                         RelationToValueEdge rtvEdge2 = new RelationToValueEdge("e0","multi",relationNode1,classMultiVNode);
                         rtvEdge2.setIcmSet(new HashSet<Long>(curSet));

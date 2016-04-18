@@ -575,9 +575,8 @@ public class MigrateUtil {
 
         //除了ctv和rtc的之外,还要考虑因为value节点相似而带来的额外的ctv
         for(int vloc : vDirectNodeListIdSet) {
-            int index = WordSimilarities.unionSetIndex.get(vloc);
-            Set<Integer> tmpSet = WordSimilarities.unionSetMap.get(index);
-            sumVNodeSet.addAll(new HashSet<Integer>(tmpSet));
+            List<Integer> simList = WordSimilarities.mostSimList.get(vloc);
+            sumVNodeSet.addAll(simList);
         }
         sumVNodeSet.addAll(vDirectNodeListIdSet);
 
@@ -658,21 +657,25 @@ public class MigrateUtil {
         List<Integer> resConRList = new ArrayList<>();
         for(int otherRLoc : conRList) {
             RelationNode otherRNode = relationNodeList.get(otherRLoc);
-            boolean isBasicAttr = false;
-            for(RelationToClassEdge rtcEdge : otherRNode.getRtcEdges()) {
-                ClassNode cNode = rtcEdge.getEnder();
-                for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-                    String cName = ctvEdge.getEnder().getName();
-                    if(cName.equals("int")||cName.equals("string")||cName.equals("boolean")||cName.equals("float")) {
-                        isBasicAttr = true;
-                        break;
-                    }
-                }
-                if(isBasicAttr) break;
-            }
-            if(!isBasicAttr) resConRList.add(otherRLoc);
+            if(!isBasicTypeRelation(otherRNode)) resConRList.add(otherRLoc);
         }
         return resConRList;
+    }
+
+    public boolean isBasicTypeRelation(RelationNode rNode) {
+        boolean flag = false;
+        for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
+            ClassNode cNode = rtcEdge.getEnder();
+            for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+                String cName = ctvEdge.getEnder().getName();
+                if(cName.equals("int")||cName.equals("string")||cName.equals("boolean")||cName.equals("float")) {
+                    flag = true;
+                    break;
+                }
+            }
+            if(flag) break;
+        }
+        return flag;
     }
 
     private List<Integer> findConRelationNodesDetail(RelationNode rNode,List<ValueNode> valueNodeList) {
@@ -788,32 +791,27 @@ public class MigrateUtil {
      * @return
      */
     private boolean isSimRoleForTwoRoleList(List<List<Integer>> curRoleList,List<List<Integer>> otherRoleList) {
-        boolean isSim = false;//默认为false
         int curSize = curRoleList.size();
         int otherSize = otherRoleList.size();
         for(int i=0;i<curSize;i++) {
             List<Integer> curInnerList = curRoleList.get(i);
             int curRole1 = curInnerList.get(0);
             int curRole2 = curInnerList.get(1);
-            int unionSetCurIndex1 = -1;
-            if(curRole1!=-1) unionSetCurIndex1 = WordSimilarities.unionSetIndex.get(curRole1);
-            int unionSetCurIndex2 = -1;
-            if(curRole2!=-1) unionSetCurIndex2 = WordSimilarities.unionSetIndex.get(curRole2);//在并查集中的位置
+            List<Integer> simRoleLoc1 = new ArrayList<>();
+            List<Integer> simRoleLoc2 = new ArrayList<>();
+            if(curRole1!=-1) simRoleLoc1=WordSimilarities.mostSimList.get(curRole1);
+            else simRoleLoc1.add(-1);
+            if(curRole2!=-1) simRoleLoc2=WordSimilarities.mostSimList.get(curRole2);
+            else simRoleLoc2.add(-1);
             for(int j=0;j<otherSize;j++) {
                 List<Integer> otherInnerList = otherRoleList.get(j);
                 int otherRole1 = otherInnerList.get(0);
                 int otherRole2 = otherInnerList.get(1);
-                int unionSetOtherIndex1 = -1;
-                int unionSetOtherIndex2 = -1;
-                if(otherRole1!=-1) unionSetOtherIndex1 = WordSimilarities.unionSetIndex.get(otherRole1);
-                if(otherRole2!=-1) unionSetOtherIndex2 = WordSimilarities.unionSetIndex.get(otherRole2);
-
-                if((unionSetCurIndex1==unionSetOtherIndex1 && unionSetCurIndex2==unionSetOtherIndex2) ||
-                        (unionSetCurIndex1==unionSetOtherIndex2 && unionSetCurIndex2==unionSetOtherIndex1))
-                    return true;
+                if((simRoleLoc1.contains(otherRole1)&&simRoleLoc2.contains(otherRole2)) ||
+                        (simRoleLoc1.contains(otherRole2)&&simRoleLoc2.contains(otherRole1))) return true;
             }
         }
-        return isSim;//false
+        return false;//false
     }
 
     //按用户引用数对List进行排序.
