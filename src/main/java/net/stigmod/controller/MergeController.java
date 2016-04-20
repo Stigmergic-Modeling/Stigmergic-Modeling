@@ -55,8 +55,9 @@ public class MergeController {
         boolean isRunning = migrateService.isRunning();
         if(isRunning) return "Algorithm is running ~!";
         else {
-            neo4jDatabaseCleaner.cleanDb();
             migrateService.setIsRunning(true);
+            neo4jDatabaseCleaner.cleanDb();
+            System.out.println("isRunning!");
             String path = "/Users/fukai/Desktop/58";
             List<ClassNode> classNodeList=new ArrayList<>();
             List<RelationNode> relationNodeList=new ArrayList<>();
@@ -210,6 +211,7 @@ public class MergeController {
                         relationNode1.getRtcEdges().add(rtcEdge1);
                         classNode.getRtcEdges().add(rtcEdge1);
 
+                        //这是第一个role
                         RelationToValueEdge rtvEdge1 = new RelationToValueEdge("e0","role",relationNode1,mainRoleVNode);
                         rtvEdge1.setIcmSet(new HashSet<Long>(curSet));
                         rtvEdge1.setCcmId(modelId);
@@ -393,9 +395,6 @@ public class MergeController {
 
     private void constructVNode(List<ValueNode> valueNodeList,ValueNode vNode,Map<String,Integer> valueListMap,
                                 long modelId,Set<Long> icmSet,String name) {
-//        if(name.equals("Cart")) {
-//            System.out.println("111");
-//        }
         vNode.setCcmId(modelId);
         vNode.setIcmSet(new HashSet<Long>(icmSet));
         vNode.setName(name);

@@ -13,6 +13,7 @@ import net.stigmod.domain.conceptualmodel.*;
 import net.stigmod.repository.node.ClassNodeRepository;
 import net.stigmod.repository.node.RelationNodeRepository;
 import net.stigmod.repository.node.ValueNodeRepository;
+import net.stigmod.service.Neo4jDatabaseCleaner;
 import net.stigmod.service.migrateService.MigrateHandler;
 import net.stigmod.service.migrateService.MigrateHandlerImpl;
 import net.stigmod.service.migrateService.MigrateService;
@@ -47,6 +48,9 @@ public class MergeController2 {
     @Autowired
     MigrateService migrateService;
 
+    @Autowired
+    Neo4jDatabaseCleaner neo4jDatabaseCleaner;
+
     long modelId=0;
 
     //这些nodeNum记录了对应节点数目
@@ -60,26 +64,30 @@ public class MergeController2 {
     @RequestMapping(value="/SimulateMerge", method = RequestMethod.GET)
     @ResponseBody
     private String dealPreMergeDate() throws IOException {
-        String path = "/Users/fukai/Desktop/58";
-        List<ClassNode> classNodeList=new ArrayList<>();
-        List<RelationNode> relationNodeList=new ArrayList<>();
-        List<ValueNode> valueNodeList=new ArrayList<>();
-
-        this.PersonNum = 5;
-        initSimulateTest(classNodeList,relationNodeList,valueNodeList);
-
-        for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-        for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-        for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 
         boolean isRunning = migrateService.isRunning();
         if(isRunning) return "Algorithm is running ~!";
         else {
             try {
+                migrateService.setIsRunning(true);
+                neo4jDatabaseCleaner.cleanDb();
+                System.out.println("isRunning!");
+                String path = "/Users/fukai/Desktop/58";
+                List<ClassNode> classNodeList=new ArrayList<>();
+                List<RelationNode> relationNodeList=new ArrayList<>();
+                List<ValueNode> valueNodeList=new ArrayList<>();
+
+                this.PersonNum = 15;
+                initSimulateTest(classNodeList,relationNodeList,valueNodeList);
+
+                for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+                for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+                for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
                 migrateService.migrateAlgorithmImpls(0l);
             }catch(Exception e) {
                 e.printStackTrace();
             }
+            migrateService.setIsRunning(false);
             return "Hello World ~!";
         }
     }
