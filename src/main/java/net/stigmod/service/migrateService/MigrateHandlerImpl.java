@@ -111,6 +111,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             System.out.println("当前系统熵值为: "+systemEntropy);
         }
+        //进行节点中所有用户的迁移步骤
+        migrateWithAllUserStep();
+
         System.out.println("------------------------------启发式迁移第一步结束--------------------------------");
         while(true) {
             iterNum++;
@@ -124,6 +127,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
             System.out.println("当前系统熵值为: "+systemEntropy);
         }
+
 //        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
 //            iterNum++;
 //            System.out.println("融合算法迭代轮数: "+iterNum);
@@ -196,84 +200,56 @@ public class MigrateHandlerImpl implements MigrateHandler {
         //首先遍历所有的value节点,将classNode和relationNode中最有可能融合优先融合
         int rNodeSize = relationNodeList.size();
         //找与当前relationNode相似role的relation就更简单了,因为migrateUtil中已经有这样的函数了
-        boolean isOrgStable = isStable;
-        boolean innerEverStable = true;//表示内部是否稳定过
-        while(true) {
-            isStable = true;
-            //正确划分了vNodeSimList
-            //下面进行第一步,将所有valueNode中相似的,搜集其classNode判断是否能够融合
-            List<Integer> heuristicCNodeLocList = new ArrayList<>();
-            int cSize = classNodeList.size();
-            for(int i=0;i<cSize;i++) {
-                ClassNode cNode = classNodeList.get(i);
-                if(cNode.getIcmSet().size()==0) continue;
-                else heuristicCNodeLocList.add(cNode.getLoc());
-            }
+        //正确划分了vNodeSimList
+        //下面进行第一步,将所有valueNode中相似的,搜集其classNode判断是否能够融合
+        List<Integer> heuristicCNodeLocList = new ArrayList<>();
+        int cSize = classNodeList.size();
+        for(int i=0;i<cSize;i++) {
+            ClassNode cNode = classNodeList.get(i);
+            if(cNode.getIcmSet().size()==0) continue;
+            else heuristicCNodeLocList.add(cNode.getLoc());
+        }
 
-            heuristicCNodeLocList = migrateUtil.getSortedConCNode(heuristicCNodeLocList,classNodeList);
-            int hSize = heuristicCNodeLocList.size();
-            for(int i=0;i<hSize;i++) {
-                int curLoc = heuristicCNodeLocList.get(i);
-                ClassNode cNode = classNodeList.get(curLoc);
-                if(cNode.getIcmSet().size()==0) continue;
-                Set<Integer> simCNodeSet = new HashSet<>();
-
-                //下面是找出与当前classNode相似的所有classNode
-                for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-                    ValueNode vNode = ctvEdge.getEnder();
-                    simCNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(vNode));//先加入这部分
-                    List<Integer> simVNodeList = WordSimilarities.mostSimList.get(vNode.getLoc());
-                    for(int loc : simVNodeList) {//再加入所有与当前vNode相似的classNode
-                        ValueNode innerVNode = valueNodeList.get(loc);
-                        simCNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(innerVNode));
-                    }
+        heuristicCNodeLocList = migrateUtil.getSortedConCNode(heuristicCNodeLocList,classNodeList);
+        int hCSize = heuristicCNodeLocList.size();
+        for(int i=0;i<hCSize;i++) {
+            int curLoc = heuristicCNodeLocList.get(i);
+            ClassNode cNode = classNodeList.get(curLoc);
+            if(cNode.getIcmSet().size()==0) continue;
+            Set<Integer> simCNodeSet = new HashSet<>();
+            //下面是找出与当前classNode相似的所有classNode
+            for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+                ValueNode vNode = ctvEdge.getEnder();
+                simCNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(vNode));//先加入这部分
+                List<Integer> simVNodeList = WordSimilarities.mostSimList.get(vNode.getLoc());
+                for(int loc : simVNodeList) {//再加入所有与当前vNode相似的classNode
+                    ValueNode innerVNode = valueNodeList.get(loc);
+                    simCNodeSet.addAll(heuristicMethod.getConClassNodeForValueNode(innerVNode));
                 }
-                List<Integer> cNodeLocTmpList = new ArrayList<>(simCNodeSet);
-                List<Integer> cNodeLocList = migrateUtil.getSortedConCNode(cNodeLocTmpList,classNodeList);
-                migrateClassNode(cNode, cNodeLocList, 1);
             }
-
-            if(isStable) break;
-            else {
-                innerEverStable = false;
-            }
+            List<Integer> cNodeLocTmpList = new ArrayList<>(simCNodeSet);
+            List<Integer> cNodeLocList = migrateUtil.getSortedConCNode(cNodeLocTmpList,classNodeList);
+            migrateClassNode(cNode, cNodeLocList, 1);
         }
-        if(!innerEverStable) isStable = false;//如果说内部曾经变化过
-        else isStable = isOrgStable;
 
-        isOrgStable = isStable;
-        innerEverStable = true;
-        while(true) {
-            isStable = true;
 
-            List<Integer> heuristicRNodeLocList = new ArrayList<>();
-            int rSize = relationNodeList.size();
-            for(int i=0;i<rSize;i++) {
-                RelationNode rNode = relationNodeList.get(i);
-                if(rNode.getIcmSet().size()==0) continue;
-                heuristicRNodeLocList.add(rNode.getLoc());
-            }
-            heuristicRNodeLocList = migrateUtil.getSortedConRNode(heuristicRNodeLocList,relationNodeList);
-            int hSize = heuristicRNodeLocList.size();
-            for(int i=0;i<hSize;i++) {
-                int curLoc = heuristicRNodeLocList.get(i);
-                RelationNode rNode = relationNodeList.get(curLoc);
-                if(rNode.getIcmSet().size()==0) continue;
-                List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
-                List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
-                migrateRelationNode(rNode,simRNodeLocList,1);
-            }
-
-            if(isStable) break;
-            else {
-                innerEverStable = false;
-            }
+        List<Integer> heuristicRNodeLocList = new ArrayList<>();
+        int rSize = relationNodeList.size();
+        for(int i=0;i<rSize;i++) {
+            RelationNode rNode = relationNodeList.get(i);
+            if(rNode.getIcmSet().size()==0) continue;
+            heuristicRNodeLocList.add(rNode.getLoc());
         }
-        if(!innerEverStable) isStable = false;//如果说内部曾经变化过
-        else isStable = isOrgStable;
-
-        //进行节点中所有用户的迁移步骤
-        migrateWithAllUserStep();
+        heuristicRNodeLocList = migrateUtil.getSortedConRNode(heuristicRNodeLocList,relationNodeList);
+        int hRSize = heuristicRNodeLocList.size();
+        for(int i=0;i<hRSize;i++) {
+            int curLoc = heuristicRNodeLocList.get(i);
+            RelationNode rNode = relationNodeList.get(curLoc);
+            if(rNode.getIcmSet().size()==0) continue;
+            List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
+            List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
+            migrateRelationNode(rNode,simRNodeLocList,1);
+        }
     }
 
     private void heuristicMigrateMethodThirdStep() {

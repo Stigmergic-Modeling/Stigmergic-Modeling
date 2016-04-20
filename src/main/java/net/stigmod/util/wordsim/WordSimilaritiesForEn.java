@@ -196,6 +196,7 @@ public class WordSimilaritiesForEn {
                                 }
                             }
                         }
+
                         maxSim = masterSim;
                     }
                 }
