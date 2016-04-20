@@ -202,12 +202,19 @@ public class MigrateHandlerImpl implements MigrateHandler {
             isStable = true;
             //正确划分了vNodeSimList
             //下面进行第一步,将所有valueNode中相似的,搜集其classNode判断是否能够融合
-            int[] randArr = randomValue();
+            List<Integer> heuristicCNodeLocList = new ArrayList<>();
             int cSize = classNodeList.size();
-            int randSize = randArr.length;
-            for(int i=0;i<randSize;i++) {
-                if(randArr[i]>=cSize) continue;
-                ClassNode cNode = classNodeList.get(randArr[i]);
+            for(int i=0;i<cSize;i++) {
+                ClassNode cNode = classNodeList.get(i);
+                if(cNode.getIcmSet().size()==0) continue;
+                else heuristicCNodeLocList.add(cNode.getLoc());
+            }
+
+            heuristicCNodeLocList = migrateUtil.getSortedConCNode(heuristicCNodeLocList,classNodeList);
+            int hSize = heuristicCNodeLocList.size();
+            for(int i=0;i<hSize;i++) {
+                int curLoc = heuristicCNodeLocList.get(i);
+                ClassNode cNode = classNodeList.get(curLoc);
                 if(cNode.getIcmSet().size()==0) continue;
                 Set<Integer> simCNodeSet = new HashSet<>();
 
@@ -239,18 +246,21 @@ public class MigrateHandlerImpl implements MigrateHandler {
         while(true) {
             isStable = true;
 
-            int[] randArr = randomValue();
-            int cSize = classNodeList.size();
-            int randSize = randArr.length;
-            for(int i=0;i<randSize;i++) {
-                if(randArr[i]<cSize) continue;//我们要找relationNode
-                RelationNode rNode = relationNodeList.get(randArr[i]-cSize);
+            List<Integer> heuristicRNodeLocList = new ArrayList<>();
+            int rSize = relationNodeList.size();
+            for(int i=0;i<rSize;i++) {
+                RelationNode rNode = relationNodeList.get(i);
+                if(rNode.getIcmSet().size()==0) continue;
+                heuristicRNodeLocList.add(rNode.getLoc());
+            }
+            heuristicRNodeLocList = migrateUtil.getSortedConRNode(heuristicRNodeLocList,relationNodeList);
+            int hSize = heuristicRNodeLocList.size();
+            for(int i=0;i<hSize;i++) {
+                int curLoc = heuristicRNodeLocList.get(i);
+                RelationNode rNode = relationNodeList.get(curLoc);
                 if(rNode.getIcmSet().size()==0) continue;
                 List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
                 List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
-                if(simRNodeLocList.size()>6) {
-                    List<Integer> testList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
-                }
                 migrateRelationNode(rNode,simRNodeLocList,1);
             }
 
@@ -1993,11 +2003,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
             String relationType = "";
             int typeMax = 0;
             String e0RoleName = "";
-            int e0RoleMax = 0;
             String e0MultiName = "";
             int e0MultiMax = 0;
             String e1RoleName = "";
-            int e1RoleMax = 0;
             String e1MultiName = "";
             int e1MultiMax = 0;
             String relationName = "";
@@ -2017,6 +2025,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     e1IcmSet = new HashSet<>(rtcEdge.getIcmSet());
                 }
             }
+
+            int e0RoleMax = -1;
+            int e1RoleMax = -1;
 
             for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
                 ValueNode curVNode = rtvEdge.getEnder();
@@ -2111,7 +2122,9 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         int classNum = classNodeList.size();
         Map<Integer,Set<Integer>> cNodeRefUserMap = new HashMap<>();
-        int averageCNum = classNum/getUerNum(cNodeRefUserMap); //这个是平均概念数,我的目标就是提取出这么多的概念
+        int uSum = getUerNum(cNodeRefUserMap);
+        int averageCNum = classNum/getUerNum(cNodeRefUserMap);
+        if(classNum%uSum!=0) averageCNum = averageCNum+1; //这个是平均概念数,我的目标就是提取出这么多的概念
         int leftCNum = averageCNum;//表示当前需要收集多少个概念
         List<Integer> refNumList = new ArrayList<>(cNodeRefUserMap.keySet());
         Collections.sort(refNumList, new Comparator<Integer>() {

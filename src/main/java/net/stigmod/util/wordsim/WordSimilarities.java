@@ -85,7 +85,7 @@ public class WordSimilarities {
             String vName = valueNodeList.get(i).getName();
             if(!(vName.equals("string")||vName.equals("float")||vName.equals("int")||vName.equals("boolean"))) {
                 for(int j=0;j<vSize;j++) {
-                    if(i!=j && Double.compare(vNodeSimList.get(i).get(j),0.4)>=0) {
+                    if(i!=j && Double.compare(vNodeSimList.get(i).get(j),0.5)>=0) {
                         simlist.add(j);
                     }
                 }
