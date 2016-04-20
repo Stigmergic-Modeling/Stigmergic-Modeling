@@ -1,6 +1,7 @@
 
 package net.stigmod.service.migrateService;
 
+import edu.mit.jwi.item.Word;
 import net.stigmod.domain.conceptualmodel.*;
 //import net.stigmod.util.wordsim.WordSimilarities;
 import net.stigmod.service.migrateService.migrateUtil.HeuristicMethod;
@@ -194,7 +195,6 @@ public class MigrateHandlerImpl implements MigrateHandler {
     private void heuristicMigrateMethodFirstStep() {
         //首先遍历所有的value节点,将classNode和relationNode中最有可能融合优先融合
         int rNodeSize = relationNodeList.size();
-
         //找与当前relationNode相似role的relation就更简单了,因为migrateUtil中已经有这样的函数了
         boolean isOrgStable = isStable;
         boolean innerEverStable = true;//表示内部是否稳定过
@@ -1417,11 +1417,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
             }
             double var=simulateHandler.simulateMigrateForRelation(icmIdSet, targetRelationNode, otherRelationNode,
                     nodeSum, systemEntropy, targetIsNullFlag);
-            if(targetRelationNode.getLoc()==37 && otherRelationNode.getLoc()==7) {
-                System.out.println("var: "+var);
-                simulateHandler.simulateMigrateForRelation(icmIdSet, targetRelationNode, otherRelationNode, nodeSum,
-                        systemEntropy, targetIsNullFlag);
-            }
+//            if(targetRelationNode.getLoc()==37 && otherRelationNode.getLoc()==7) {
+//                System.out.println("var: "+var);
+//                simulateHandler.simulateMigrateForRelation(icmIdSet, targetRelationNode, otherRelationNode, nodeSum,
+//                        systemEntropy, targetIsNullFlag);
+//            }
             if((Double.compare(minEntropyDown,var)>0 && Math.abs(minEntropyDown - var) > 0.00001 )
                     || (Double.compare(var,minEntropyDown)==0
                     && targetRelationNode.getIcmSet().size()==1 && otherRelationNode.getIcmSet().size() != 0)) {
@@ -1907,8 +1907,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 int cLoc = rtcEdge.getEnder().getLoc();
                 String port = rtcEdge.getPort();
                 if(classMap.containsKey(cLoc)) {
+                    if(classMap.get(cLoc)>edgeSize) {
+                        classPortMap.put(cLoc,classPortMap.get(cLoc)+"-"+port);
+                    }else if(classMap.get(cLoc)<edgeSize){
+                        classPortMap.put(cLoc,port+"-"+classPortMap.get(cLoc));
+                    }else classPortMap.put(cLoc,"e0e1");
                     classMap.put(cLoc,classMap.get(cLoc)+edgeSize);
-                    classPortMap.put(cLoc,"e0-e1");
                 }else {
                     classMap.put(cLoc,edgeSize);
                     classPortMap.put(cLoc,port);
@@ -1931,11 +1935,17 @@ public class MigrateHandlerImpl implements MigrateHandler {
             int e1ClassLoc = -1;
 
             int index=0;
-            List<Integer> conNode = new ArrayList<>();
+            List<Integer> conE0Node = new ArrayList<>();
+            List<Integer> conE1Node = new ArrayList<>();
+            List<Integer> conEqualNode = new ArrayList<>();
             while(true) {
                 SelectNode sn = classList.get(index);
                 if(sn.port.equals("e0-e1")) {
-                    conNode.add(sn.loc);
+                    conE0Node.add(sn.loc);
+                }else if(sn.port.equals("e1-e0")) {
+                    conE1Node.add(sn.loc);
+                }else if(sn.port.equals("e0e1")) {
+                    conEqualNode.add(sn.loc);
                 }
                 if(e0ClassLoc==-1 && (sn.port.equals("E0")||sn.port.equals("e0"))) {
                     e0ClassLoc = sn.loc;
@@ -1943,15 +1953,29 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     e1ClassLoc = sn.loc;
                 }
                 if(e0ClassLoc!=-1 && e1ClassLoc!=-1) break;
-                else if(e0ClassLoc!=-1 && conNode.size()==1) {
-                    e1ClassLoc = conNode.get(0);
+                else if(e0ClassLoc!=-1 && (conE1Node.size()==1 || conEqualNode.size()==1)) {
+                    if(conE1Node.size()==1) e1ClassLoc = conE1Node.get(0);
+                    else e1ClassLoc = conEqualNode.get(0);
                     break;
-                }else if(e1ClassLoc!=-1 && conNode.size()==1) {
-                    e0ClassLoc = conNode.get(0);
+                }else if(e1ClassLoc!=-1 && (conE0Node.size()==1 || conEqualNode.size()==1)) {
+                    if(conE0Node.size()==1) e0ClassLoc = conE0Node.get(0);
+                    else e0ClassLoc = conEqualNode.get(0);
                     break;
-                }else if(conNode.size()==2) {
-                    e0ClassLoc = conNode.get(0);
-                    e1ClassLoc = conNode.get(1);
+                }else if(conE0Node.size()==1 && conE1Node.size()==1) {
+                    e0ClassLoc = conE0Node.get(0);
+                    e1ClassLoc = conE1Node.get(0);
+                    break;
+                }else if(conE0Node.size()==1 && conEqualNode.size()==1) {
+                    e0ClassLoc = conE0Node.get(0);
+                    e1ClassLoc = conEqualNode.get(0);
+                    break;
+                }else if(conE1Node.size()==1 && conEqualNode.size()==1) {
+                    e0ClassLoc = conEqualNode.get(0);
+                    e1ClassLoc = conE1Node.get(0);
+                    break;
+                }else if(conEqualNode.size()==2) {
+                    e0ClassLoc = conEqualNode.get(0);
+                    e1ClassLoc = conEqualNode.get(1);
                     break;
                 }
                 index++;
@@ -2022,7 +2046,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                         e1MultiName = curVNode.getName();
                         e1MultiMax = curEdgeSize;
                     }
-                }else if(edgeName.equals("relationName") && curEdgeSize > relationNameMax) {
+                }else if(edgeName.equals("relationName") && curEdgeSize > relationNameMax && (curE0RtvIcmSet.size()>0
+                        || curE1RtvIcmSet.size()>0)) {
                     relationName = curVNode.getName();
                     relationNameMax = curEdgeSize;
                 }

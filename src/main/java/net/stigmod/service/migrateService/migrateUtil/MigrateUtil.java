@@ -799,16 +799,20 @@ public class MigrateUtil {
             int curRole2 = curInnerList.get(1);
             List<Integer> simRoleLoc1 = new ArrayList<>();
             List<Integer> simRoleLoc2 = new ArrayList<>();
-            if(curRole1!=-1) simRoleLoc1=WordSimilarities.mostSimList.get(curRole1);
+            if(curRole1!=-1) simRoleLoc1.addAll(new ArrayList<>(WordSimilarities.mostSimList.get(curRole1)));
             else simRoleLoc1.add(-1);
-            if(curRole2!=-1) simRoleLoc2=WordSimilarities.mostSimList.get(curRole2);
+            if(curRole2!=-1) simRoleLoc2.addAll(new ArrayList<>(WordSimilarities.mostSimList.get(curRole2)));
             else simRoleLoc2.add(-1);
             for(int j=0;j<otherSize;j++) {
                 List<Integer> otherInnerList = otherRoleList.get(j);
                 int otherRole1 = otherInnerList.get(0);
                 int otherRole2 = otherInnerList.get(1);
                 if((simRoleLoc1.contains(otherRole1)&&simRoleLoc2.contains(otherRole2)) ||
-                        (simRoleLoc1.contains(otherRole2)&&simRoleLoc2.contains(otherRole1))) return true;
+                        (simRoleLoc1.contains(otherRole2)&&simRoleLoc2.contains(otherRole1))) {
+//                    System.out.println("相似: simRoleLoc1: "+simRoleLoc1+" ,otherRole1: "+otherRole1+" ,simRoleLoc2: "+
+//                            simRoleLoc2+" ,otherRole2: "+otherRole2);
+                    return true;
+                }
             }
         }
         return false;//false
