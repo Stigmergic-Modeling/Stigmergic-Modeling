@@ -132,10 +132,20 @@ public class ValueNode extends AbstractVertex {
     }
 
     public Set<ClassToValueEdge> getCtvEdges() {
+        for (AbstractEdge edge : this.ctvEdges) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(edge instanceof ClassToValueEdge)) {
+                this.ctvEdges.remove(edge);
+            }
+        }
         return ctvEdges;
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {
+        for (AbstractEdge edge : this.rtvEdges) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(edge instanceof RelationToValueEdge)) {
+                this.rtvEdges.remove(edge);
+            }
+        }
         return rtvEdges;
     }
 

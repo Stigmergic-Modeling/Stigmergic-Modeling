@@ -119,10 +119,20 @@ public class ClassNode extends AbstractVertex {
     }
 
     public Set<RelationToClassEdge> getRtcEdges() {
+        for (AbstractEdge edge : this.rtcEdges) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(edge instanceof RelationToClassEdge)) {
+                this.rtcEdges.remove(edge);
+            }
+        }
         return rtcEdges;
     }
 
     public Set<ClassToValueEdge> getCtvEdges() {
+        for (AbstractEdge edge : this.ctvEdges) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(edge instanceof ClassToValueEdge)) {
+                this.ctvEdges.remove(edge);
+            }
+        }
         return ctvEdges;
     }
 
