@@ -2099,8 +2099,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
         int classNum = classNodeList.size();
         Map<Integer,Set<Integer>> cNodeRefUserMap = new HashMap<>();
         int uSum = getUerNum(cNodeRefUserMap);
-        int averageCNum = classNum/getUerNum(cNodeRefUserMap);
-        if(classNum%uSum!=0) averageCNum = averageCNum+1; //这个是平均概念数,我的目标就是提取出这么多的概念
+        int averageCNum = uSum==0?0:classNum/uSum;
+        if(uSum!=0 && classNum%uSum!=0) averageCNum = averageCNum+1; //这个是平均概念数,我的目标就是提取出这么多的概念
         int leftCNum = averageCNum;//表示当前需要收集多少个概念
         List<Integer> refNumList = new ArrayList<>(cNodeRefUserMap.keySet());
         Collections.sort(refNumList, new Comparator<Integer>() {
