@@ -402,6 +402,13 @@ public class WorkspaceService {
     @Transactional
     private void executeOP(List<String> op, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
 
+        System.out.print("## Operation: ( ccmId: " + ccmId.toString() + ", icmId: " + icmId.toString() + " ) ");
+        for (String opElem : op) {  // 打印
+            System.out.print(opElem);
+            System.out.print(" ");
+        }
+        System.out.print("\n");
+
         String opV = op.get(1);  // 谓语
         String opO = op.get(2);  // 宾语
 
