@@ -315,8 +315,37 @@ public class WorkspaceService {
         IndividualConceptualModel icm = icmRepository.findOne(icmId);
 
         // 操作序列
+        List<List<String>> bigOp = new ArrayList<>();  // 用于构造像“添加关系、添加属性”这样的大操作
+        boolean isConstructingBigOp = false;
+        String bigOpObjId = "";
         for (List<String> op : ops) {
-            executeOP(op, ccmId, icmId, modelingResponse, icm);
+
+            if (op.get(1).equals("ADD") && op.get(2).equals("RLT")) {  // 添加关系，开启大操作构造
+                if (isConstructingBigOp) {  // 上一条操作属于上一个大操作
+                    executeBIGOP(bigOp, ccmId, icmId, modelingResponse, icm);  // 执行构造好的大操作
+                    bigOp = new ArrayList<>();
+                } else {  // 上一条操作是一般小操作
+                    isConstructingBigOp = true;
+                }
+                bigOp.add(op);
+                bigOpObjId = op.get(4);  // 用于准确找到隶属于此大操作的小操作
+
+            } else if (isConstructingBigOp) {
+                if (op.get(1).equals("ADD") && op.get(2).equals("POR") && bigOpObjId.equals(op.get(4))) {  // 添加 ADD POR 操作
+                    bigOp.add(op);
+                } else if (op.get(1).equals("ODI") && op.get(2).equals("RLT") && bigOpObjId.equals(op.get(4))) {  // 忽略“添加顺序”操作
+                    // DO NOTHING
+                } else {  // 结束大操作的构造，开始执行
+                    executeBIGOP(bigOp, ccmId, icmId, modelingResponse, icm);  // 执行构造好的大操作
+                    executeOP(op, ccmId, icmId, modelingResponse, icm);  // 执行本条操作
+                    isConstructingBigOp = false;
+                    bigOp = new ArrayList<>();
+                }
+
+            } else {  // 一般的小操作
+                executeOP(op, ccmId, icmId, modelingResponse, icm);
+            }
+
         }
 
         // 顺序改变 (attribute)
@@ -348,6 +377,126 @@ public class WorkspaceService {
         ModelingOperations modOps = modOpsRepository.getModOpsByIcmId(mol.icmId);
         modOps.addOperations(mol.log);
         modOpsRepository.save(modOps);
+    }
+
+    @Transactional
+    private void executeBIGOP(List<List<String>> bigOp, Long ccmId, Long icmId, ModelingResponse modelingResponse, IndividualConceptualModel icm) {
+        List<String> op = bigOp.get(0);
+        String opV = op.get(1);  // 谓语
+        String opO = op.get(2);  // 宾语
+
+        if (opV.equals("ADD") && opO.equals("RLT")) {
+
+            // ADD RLT relationGroup relation relationCCMId addingType (fresh, binding)
+            String relationGroupName = op.get(3);
+            String relationshipId = op.get(4);  // 同 op.get(5)
+
+            String addingType = op.get(6);
+            boolean isFreshCreation = addingType.equals("fresh");
+
+            // 获取 relationship node
+            RelationNode relationNode;
+            if (isFreshCreation) {  // 全新创建
+                relationNode = new RelationNode(ccmId, icmId);
+
+                for (List<String> smallOp : bigOp) {
+                    if (smallOp.get(2).equals("RLT")) continue;  // 跳过 ADD RLT
+
+                    // ADD POR relationGroup relation property value
+                    String propertyName = smallOp.get(5);
+                    String propertyValueE0 = smallOp.get(6);
+                    String propertyValueE1 = smallOp.get(7);
+
+                    switch (propertyName) {
+                        case "type":   // 关系的类型和名称（名称可能为空字符串）
+
+                            // 添加关系类型
+                            String typeEdgeName = "is" + propertyValueE0;
+                            ValueNode vnTrue = returnValueNodeByName(ccmId, icmId, "#true");
+                            RelationToValueEdge r2veType = new RelationToValueEdge(ccmId, icmId, typeEdgeName, relationNode, vnTrue);
+                            relationNode.addR2VEdge(r2veType);
+                            vnTrue.addR2VEdge(r2veType);
+
+                            // 若有关系名字，则添加
+                            if (!propertyValueE1.equals("")) {
+                                ValueNode vnRelName = returnValueNodeByName(ccmId, icmId, propertyValueE1);
+                                RelationToValueEdge r2veRelName = new RelationToValueEdge(ccmId, icmId, "name", relationNode, vnRelName);
+                                relationNode.addR2VEdge(r2veRelName);
+                                vnRelName.addR2VEdge(r2veRelName);
+                            }
+
+                            break;
+                        case "class":   // 关系两端的类
+
+                            // 获取关系两端的 class node (必定存在于 ICM 中)
+                            ClassNode classNodeE0 = classNodeRepository.getOneByName(ccmId, icmId, propertyValueE0);
+                            ClassNode classNodeE1 = classNodeRepository.getOneByName(ccmId, icmId, propertyValueE1);
+                            assert classNodeE0 != null && classNodeE1 != null;
+
+                            // 添加 r2cEdge
+                            RelationToClassEdge r2ceE0 = new RelationToClassEdge(ccmId, icmId, "E0", "class", relationNode, classNodeE0);
+                            relationNode.addR2CEdge(r2ceE0);
+                            classNodeE0.addR2CEdge(r2ceE0);
+                            RelationToClassEdge r2ceE1 = new RelationToClassEdge(ccmId, icmId, "E1", "class", relationNode, classNodeE1);
+                            relationNode.addR2CEdge(r2ceE1);
+                            classNodeE1.addR2CEdge(r2ceE1);
+
+                            break;
+                        default:   // 一般 property
+
+                            ValueNode vnPropValE0 = returnValueNodeByName(ccmId, icmId, propertyValueE0);
+                            RelationToValueEdge r2vePropE0 = new RelationToValueEdge(ccmId, icmId, "E0", propertyName, relationNode, vnPropValE0);
+                            relationNode.addR2VEdge(r2vePropE0);
+                            vnPropValE0.addR2VEdge(r2vePropE0);
+
+                            ValueNode vnPropValE1 = returnValueNodeByName(ccmId, icmId, propertyValueE1);
+                            RelationToValueEdge r2vePropE1 = new RelationToValueEdge(ccmId, icmId, "E1", propertyName, relationNode, vnPropValE1);
+                            relationNode.addR2VEdge(r2vePropE1);
+                            vnPropValE1.addR2VEdge(r2vePropE1);
+
+                            break;
+                    }
+                    modelingResponse.addMessage("Add property [" + propertyName + "] to relationship [" + relationshipId.toString() + "] of relationship group [" + relationGroupName + "] successfully.");
+
+                }
+
+            } else {  // 绑定创建
+                relationNode = relationNodeRepository.findOne(Long.parseLong(relationshipId, 10), 2);
+                assert relationNode != null;
+                relationNode.addIcmId(icmId);
+                relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+
+                // TODO bangding
+            }
+
+            relationNodeRepository.save(relationNode);
+
+            // 更新 id 映射和返回信息
+            if (isFreshCreation) {
+                modelingResponse.addIdMapping(relationshipId, relationNode.getId());  // 向返回对象中添加映射
+                this.addFrontBackIdMapping(icm, relationshipId, relationNode.getId());  // 向 ICM 中添加映射
+            }
+            modelingResponse.addMessage("Add relationship [" + relationGroupName + "] successfully.");
+        }
+    }
+
+    /**
+     * 根据名字获取值节点，值节点可能不存在，需要进一步保存
+     * @param ccmId ccmId
+     * @param icmId icmId
+     * @param name name
+     * @return ValueNode
+     */
+    private ValueNode returnValueNodeByName(Long ccmId, Long icmId, String name) {
+        List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, name);
+        ValueNode valueNode;
+        if (valueNodes.isEmpty()) {
+            valueNode = new ValueNode(ccmId, icmId, name);
+        } else {
+            valueNode = valueNodes.get(0);
+            valueNode.addIcmId(icmId);
+        }
+        return valueNode;
     }
 
     /**
@@ -550,7 +699,9 @@ public class WorkspaceService {
                         boolean isFreshCreation = addingType.equals("fresh");
 
                         // 获取 relationship node
-                        RelationNode relationNode = isFreshCreation ? new RelationNode(ccmId, icmId) : relationNodeRepository.findOne(Long.parseLong(relationshipId, 10));
+                        RelationNode relationNode = isFreshCreation
+                                ? new RelationNode(ccmId, icmId)
+                                : relationNodeRepository.findOne(Long.parseLong(relationshipId, 10));
                         assert relationNode != null;
                         if (!isFreshCreation) {
                             relationNode.addIcmId(icmId);
