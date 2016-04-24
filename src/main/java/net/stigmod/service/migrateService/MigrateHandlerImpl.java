@@ -321,7 +321,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         //下面是针对relationNode的集体迁移
         List<Integer> heuristicRelationNodeList = heuristicMethod.migrateWithUserNumDecrease((List)relationNodeList);
-        int rNodeHeuristicSize = heuristicClassNodeList.size();
+        int rNodeHeuristicSize = heuristicRelationNodeList.size();
         for(int i=0;i<rNodeHeuristicSize;i++) {
             int curLoc = heuristicRelationNodeList.get(i);
             RelationNode curRNode = relationNodeList.get(curLoc);

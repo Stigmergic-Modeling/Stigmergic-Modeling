@@ -103,6 +103,7 @@ public class MergeController {
 
 
         while(line!=null) {
+//            System.out.println("line: "+line);
             Set<Long> curSet = new HashSet<>();
             curSet.add(curUId);
             if(!line.equals("*******************")) {

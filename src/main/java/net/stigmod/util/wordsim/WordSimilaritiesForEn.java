@@ -90,13 +90,32 @@ public class WordSimilaritiesForEn {
                 if(i==j) simList.add(1.0);
                 else {
                     List<String> sourceNameList = nameList.get(i);
+//                    if(isBasicType(sourceNameList)) {
+//                        simList.add(0.0);
+//                        continue;
+//                    }
                     List<String> targetNameList = nameList.get(j);
-                    simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
+//                    if(isBasicType(targetNameList)) {
+//                        simList.add(0.0);
+//                        continue;
+//                    }
+//                    if(targetNameList.toString().equals("string")||) {
+//                        System.out.println("find it!");
+//                    }
+//                    System.out.println(sourceNameList.toString()+" , "+targetNameList.toString());
+                    if (sourceNameList.toString().equals(targetNameList.toString())) simList.add(1.0);
+                    else simList.add(getMaxSimForNameList(sourceNameList,targetNameList));
                 }
             }
             vNodeSimList.add(simList);
         }
     }
+
+//    private static boolean isBasicType(List<String> nameList) {
+//        String name = nameList.toString();
+//        if(name.equals("[boolean]")||name.equals("[float]")||name.equals("[int]")||name.equals("[string]")||name.equals("[true]")) return true;
+//        else return false;
+//    }
 
     private static Double getMaxSimForNameList(List<String> sourceNameList,List<String> targetNameList) {
         double maxSim = 0.0;
@@ -118,9 +137,9 @@ public class WordSimilaritiesForEn {
             else {
                 if((sourceSize>0&&('A'<=sourceNameList.get(0).charAt(0)&&sourceNameList.get(0).charAt(0)<='Z')) ||
                         targetSize>0&&('A'<=targetNameList.get(0).charAt(0)&&targetNameList.get(0).charAt(0)<='Z'))
-                    maxSim = wup.wup(sourceFullNameWithBlank.toString(), 1, targetFullNameWithBlank.toString(), 1, "n");
+                    maxSim = wup.max(sourceFullNameWithBlank.toString(), targetFullNameWithBlank.toString(), "n");
                 else {
-                    double sim1 = wup.wup(sourceFullNameWithBlank.toString(), 1, targetFullNameWithBlank.toString(), 1, "n");
+                    double sim1 = wup.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(), "n");
                     double sim2 = wup.wup(sourceFullNameWithBlank.toString(),1,targetFullNameWithBlank.toString(),1,"v");
                     maxSim = Double.max(sim1,sim2);
                 }
@@ -146,7 +165,7 @@ public class WordSimilaritiesForEn {
                                 double sim = 0.0;
                                 if(sourceName.equals(targetName)) sim = 1.0;
                                 else {
-                                    double sim1 = wup.wup(sourceName,1,targetName,1,"n");
+                                    double sim1 = wup.max(sourceName,targetName,"n");
                                     sim = sim1;
                                 }
                                 //                        else sim = wup.wup(sourceName,1,targetName,1,"n");
@@ -178,6 +197,7 @@ public class WordSimilaritiesForEn {
                     }else {//两个都表示属性
                         int minSize = Math.min(sourceSize,targetSize);
                         double masterSim = 0.0;
+                        int conSize = 1 ;
                         for(int i=0;i<minSize;i++) {
                             String curSourceName = sourceNameList.get(sourceSize-1-i).toLowerCase();
                             String curTargetName = targetNameList.get(targetSize-1-i).toLowerCase();
@@ -185,19 +205,22 @@ public class WordSimilaritiesForEn {
                             if(i==0) {
                                 if(curSourceName.equals(curTargetName)) masterSim=1.0;
                                 else {
-                                    double sim1 = wup.wup(curSourceName,1,curTargetName,1,"n");
+                                    double sim1 = wup.max(curSourceName,curTargetName,"n");
                                     double sim2 = wup.wup(curSourceName,1,curTargetName,1,"v");
                                     masterSim = Double.max(sim1,sim2);
                                 }
                             }else {
                                 if(!curSourceName.equals(curTargetName)) {
-                                    masterSim=0.0;
+                                    double sim1 = wup.max(curSourceName,curTargetName,"n");
+                                    double sim2 = wup.wup(curSourceName,1,curTargetName,1,"v");
+                                    masterSim += Double.max(sim1,sim2);
+                                    conSize++;
                                     break;
                                 }
                             }
                         }
 
-                        maxSim = masterSim;
+                        maxSim = masterSim/conSize;
                     }
                 }
             }//暂时先不用这个
