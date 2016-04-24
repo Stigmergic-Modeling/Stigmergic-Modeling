@@ -32,8 +32,18 @@ public class WordSimilarities {
 
         if(valueNodeList.size()==0) return;
         else {
-            String name = valueNodeList.get(0).getName();
-            if(name.length()>0&&isChinese(name.charAt(0))) {//说明是中文
+            boolean isChinese = false;
+            int vSize = valueNodeList.size();
+            for(int i=0;i<vSize;i++) {
+                String name = valueNodeList.get(0).getName();
+                if(name.length()>0 && name.charAt(0)!='_' && name.charAt(0)!='#') {
+                    if(isChinese(name.charAt(0))) isChinese = true;
+                    else ;
+                    break;
+                }else continue;
+            }
+
+            if(isChinese) {//说明是中文
                 WordSimilaritiesForCh.initDict();
                 WordSimilaritiesForCh.getVNodeSimListByName(valueNodeList);
                 vNodeSimList = WordSimilaritiesForCh.vNodeSimList;

@@ -99,81 +99,81 @@ public class MigrateHandlerImpl implements MigrateHandler {
 
         systemEntropy = entropyHandler.initNodeListEntropy(classNodeList,relationNodeList,valueNodeList,nodeSum);
         System.out.println("系统初始熵值为: "+systemEntropy);
-        while(true) {
-            iterNum++;
-            System.out.println("融合算法迭代轮数: "+iterNum);
-            isStable=true;
-            heuristicMigrateMethodFirstStep();
-            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
-            if(isStable&&curIterNum>=1) break;
-            else if(isStable) curIterNum++;
-            else curIterNum=0;
-
-            System.out.println("当前系统熵值为: "+systemEntropy);
-        }
-        //进行节点中所有用户的迁移步骤
-        migrateWithAllUserStep();
-
-        System.out.println("------------------------------启发式迁移第一步结束--------------------------------");
-        while(true) {
-            iterNum++;
-            System.out.println("融合算法迭代轮数: "+iterNum);
-            isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
-            heuristicMigrateMethodThirdStep();
-            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
-            if(isStable&&curIterNum>=2) break;
-            else if(isStable) curIterNum++;
-            else curIterNum=1;
-
-            System.out.println("当前系统熵值为: "+systemEntropy);
-        }
-
-//        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
+//        while(true) {
 //            iterNum++;
 //            System.out.println("融合算法迭代轮数: "+iterNum);
-//            isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
-//            int[] randomList=randomValue();
-////            int[] randomList={0,41};
-////            int[] randomList = {0,101,6,266,261,219,225,25,33,181,121,7,258,53,207,1,156,159,269,88,43,26,74,185,118,246,252,216,106,114,15,47,155,180,14,187,30,192,89,55,50,202,127,198,133,208,102,124,81,87,197,223,160,2,164,20,27,119,143,34,23,229,186,161,231,150,151,110,94,9,204,169,189,116,230,3,58,73,129,36,173,172,64,113,248,271,178,59,35,175,184,146,105,257,239,37,226,203,190,13,52,46,274,79,191,243,201,54,91,176,267,62,206,273,179,103,268,98,12,24,256,148,140,16,44,263,51,111,107,86,188,61,265,76,194,251,238,142,196,49,214,242,68,131,4,32,97,17,247,253,141,224,122,158,67,18,21,145,65,72,28,139,19,11,222,215,71,39,183,57,96,138,245,63,205,128,42,38,153,125,108,123,137,199,232,177,8,135,165,99,255,182,272,200,60,149,117,262,171,235,66,115,136,167,130,212,195,213,168,218,234,104,264,147,134,80,78,132,236,109,85,5,93,31,154,260,90,254,75,241,82,217,84,126,166,29,48,10,193,244,250,233,210,170,270,152,174,83,237,40,249,100,162,95,56,77,45,92,240,112,221,227,41,144,120,70,211,228,220,22,157,69,163,259,209};
-//            int curSum=randomList.length;
-//
-//            for(int i=0;i<curSum;i++) {
-//                System.out.print(randomList[i]+",");
-//            }
-//            System.out.println();
-//
-//            for(int i=0;i<curSum;i++) {
-//
-//                if(i != 0 && i % 10 == 0) {
-//                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择, 当前系统熵值为: "+systemEntropy);
-//                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
-//                }
-//
-//                int randValue = randomList[i];
-//                System.out.println("随机值: " + randValue);
-////                scanToFindBug();
-//
-//                double testE = scanToComputeSystemEntropy();
-//                System.out.println("当前测试的熵值为: "+ testE);
-//                if(Math.abs(systemEntropy - testE) > 0.1) {
-//                    System.out.println("熵值不等,当前测试的熵值为: "+ testE+",当前系统熵值为: "+systemEntropy);
-//                }
-//
-//                if(randValue==74) {
-//                    System.out.println("123");
-//                }
-//
-//                cNum=classNodeList.size();//要不断更新cNum的值
-//                if(randValue<cNum) migrateClassNodeWithNormalMethod(randValue);
-//                else migrateRelationNodeWithNormalMethod(randValue - cNum);
-//            }
+//            isStable=true;
+//            heuristicMigrateMethodFirstStep();
 //            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
 //            if(isStable&&curIterNum>=1) break;
 //            else if(isStable) curIterNum++;
+//            else curIterNum=0;
+//
+//            System.out.println("当前系统熵值为: "+systemEntropy);
+//        }
+//        //进行节点中所有用户的迁移步骤
+//        migrateWithAllUserStep();
+//
+//        System.out.println("------------------------------启发式迁移第一步结束--------------------------------");
+//        while(true) {
+//            iterNum++;
+//            System.out.println("融合算法迭代轮数: "+iterNum);
+//            isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
+//            heuristicMigrateMethodThirdStep();
+//            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
+//            if(isStable&&curIterNum>=2) break;
+//            else if(isStable) curIterNum++;
 //            else curIterNum=1;
+//
 //            System.out.println("当前系统熵值为: "+systemEntropy);
 //        }
 
+        while(true) {//此代码中采用的融合算法规则为随机选择节点进行融合迁移判断
+            iterNum++;
+            System.out.println("融合算法迭代轮数: "+iterNum);
+            isStable=true;//在migrateClassNode和migrateRelationNode中若发生迁移则会由isStable转为false;
+            int[] randomList=randomValue();
+//            int[] randomList={0,41};
+//            int[] randomList = {0,101,6,266,261,219,225,25,33,181,121,7,258,53,207,1,156,159,269,88,43,26,74,185,118,246,252,216,106,114,15,47,155,180,14,187,30,192,89,55,50,202,127,198,133,208,102,124,81,87,197,223,160,2,164,20,27,119,143,34,23,229,186,161,231,150,151,110,94,9,204,169,189,116,230,3,58,73,129,36,173,172,64,113,248,271,178,59,35,175,184,146,105,257,239,37,226,203,190,13,52,46,274,79,191,243,201,54,91,176,267,62,206,273,179,103,268,98,12,24,256,148,140,16,44,263,51,111,107,86,188,61,265,76,194,251,238,142,196,49,214,242,68,131,4,32,97,17,247,253,141,224,122,158,67,18,21,145,65,72,28,139,19,11,222,215,71,39,183,57,96,138,245,63,205,128,42,38,153,125,108,123,137,199,232,177,8,135,165,99,255,182,272,200,60,149,117,262,171,235,66,115,136,167,130,212,195,213,168,218,234,104,264,147,134,80,78,132,236,109,85,5,93,31,154,260,90,254,75,241,82,217,84,126,166,29,48,10,193,244,250,233,210,170,270,152,174,83,237,40,249,100,162,95,56,77,45,92,240,112,221,227,41,144,120,70,211,228,220,22,157,69,163,259,209};
+            int curSum=randomList.length;
+
+            for(int i=0;i<curSum;i++) {
+                System.out.print(randomList[i]+",");
+            }
+            System.out.println();
+
+            for(int i=0;i<curSum;i++) {
+
+                if(i != 0 && i % 10 == 0) {
+                    System.out.println("完成第"+iterNum+"轮迭代的第"+i+"次节点选择, 当前系统熵值为: "+systemEntropy);
+                    if(Math.abs(systemEntropy - 0.0) < 0.0001) break;
+                }
+
+                int randValue = randomList[i];
+                System.out.println("随机值: " + randValue);
+//                scanToFindBug();
+
+                double testE = scanToComputeSystemEntropy();
+                System.out.println("当前测试的熵值为: "+ testE);
+                if(Math.abs(systemEntropy - testE) > 0.1) {
+                    System.out.println("熵值不等,当前测试的熵值为: "+ testE+",当前系统熵值为: "+systemEntropy);
+                }
+
+                if(randValue==74) {
+                    System.out.println("123");
+                }
+
+                cNum=classNodeList.size();//要不断更新cNum的值
+                if(randValue<cNum) migrateClassNodeWithNormalMethod(randValue);
+                else migrateRelationNodeWithNormalMethod(randValue - cNum);
+            }
+            System.out.println("isStable: "+isStable+" ,curIterNum:"+curIterNum);
+            if(isStable&&curIterNum>=1) break;
+            else if(isStable) curIterNum++;
+            else curIterNum=1;
+            System.out.println("当前系统熵值为: "+systemEntropy);
+        }
+        migrateWithAllUserStep();
         System.out.println("算法运行结束时间为: " + df.format(new Date()));
 
         scanToFindBug();
@@ -369,8 +369,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         double orgSystemEntropy = systemEntropy;//保存最初熵值
         double maxDecreaseEntropy = 0.0;
         int maxDecreaseLoc = -1;
+        boolean curCNodeIsSettleStatus = curCNode.getIsSettled();
         for(int otherLoc : needToFindCNodeListIdSet) {
             ClassNode otherCNode = classNodeList.get(otherLoc);
+            boolean otherCNodeIsSettleStatus = otherCNode.getIsSettled();
+            if(curCNodeIsSettleStatus && otherCNodeIsSettleStatus) continue;
             Set<Long> otherIcmSet = new HashSet<>(otherCNode.getIcmSet());
             int otherIcmSize = otherIcmSet.size();
             int curCnt = 0;
@@ -420,7 +423,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 tmpSet.add(icm);
                 migrateClassNodeForOneStep(tmpSet, maxDecreaseLoc, curLoc);
                 reComputeMigrateClassNodeEntropy(maxDecreaseLoc,curLoc);
-//                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
+                setSettleValueForClassMigrate(maxDecreaseLoc,curLoc);//因为这是最终迁移,所以可以设置settle值了
                 removeNullEdgeForClassNode(maxDecreaseLoc);//删除多余边
                 //另外也不计算当前系统熵值了,直接用scanToCompute算出来
                 systemEntropy = scanToComputeSystemEntropy();
@@ -444,8 +447,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
         double orgSystemEntropy = systemEntropy;//保存最初熵值
         double maxDecreaseEntropy = 0.0;
         int maxDecreaseLoc = -1;
+        boolean curRNodeIsSettleStatus = curRNode.getIsSettled();
         for(int otherLoc : needToFindRNodeListIdSet) {
             RelationNode otherRNode = relationNodeList.get(otherLoc);
+            boolean otherRNodeIsSettleStatus = otherRNode.getIsSettled();
+            if(curRNodeIsSettleStatus && otherRNodeIsSettleStatus) continue;
             Set<Long> otherIcmSet = new HashSet<>(otherRNode.getIcmSet());
             int otherIcmSize = otherIcmSet.size();
             int curCnt = 0;
@@ -498,7 +504,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 tmpSet.add(icm);
                 migrateRelationNodeForOneStep(tmpSet, maxDecreaseLoc, curLoc);
                 reComputeMigrateRelationNodeEntropy(maxDecreaseLoc, curLoc);
-//                setSettleValueForClassMigrate(sourceClassNodeListId,targetClassNodeListId);//设置false
+                setSettleValueForClassMigrate(maxDecreaseLoc,curLoc);//因为这是最终值,所以可以设置isSettle了
                 removeNullEdgeForRelationNode(maxDecreaseLoc);//删除多余边
                 //另外也不计算当前系统熵值了,直接用scanToCompute算出来
                 systemEntropy = scanToComputeSystemEntropy();
