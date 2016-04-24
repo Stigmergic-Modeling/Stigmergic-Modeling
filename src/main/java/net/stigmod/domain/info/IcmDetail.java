@@ -58,6 +58,7 @@ public class IcmDetail {
         String relationshipGroupName;
         try {
             relationshipGroupName = makeRelationshipGroupName(propertyAndValues.get("class").get(0), propertyAndValues.get("class").get(1));
+//            System.out.println(".. relationshipGroupName: " + relationshipGroupName);
         } catch (NullPointerException ex) {
             System.out.println("!! propertyAndValues: " + propertyAndValues);
             System.out.println("!! propertyAndValues.get(\"class\"): " + propertyAndValues.get("class"));

@@ -12,118 +12,118 @@
         <h3 id="create-model" class="stigmod-help-title">创建模型项目</h3>
         <hr />
         <h4 id="user-page" class="stigmod-help-title">用户页面</h4>
-        <img src="/static/dist/img/help/user_page.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/user_page.png" class="img-responsive" />
         <hr />
         <h4 id="create-model-start" class="stigmod-help-title">创建模型</h4>
-        <img src="/static/dist/img/help/create_model.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/create_model.png" class="img-responsive" />
         <hr />
         <h4 id="create-model-inherated" class="stigmod-help-title">继承创建</h4>
-        <img src="/static/dist/img/help/create_model_inherated.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/create_model_inherated.png" class="img-responsive" />
         <hr />
         <h4 id="create-model-clean" class="stigmod-help-title">全新创建</h4>
-        <img src="/static/dist/img/help/create_model_clean.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/create_model_clean.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
         <h3 id="workspace-intro" class="stigmod-help-title">熟悉工作页面</h3>
         <hr />
         <h4 id="workspace-page" class="stigmod-help-title">建模工作台页面</h4>
-        <img src="/static/dist/img/help/workspace_page.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/workspace_page.png" class="img-responsive" />
         <hr />
         <h4 id="workspace-page-structure" class="stigmod-help-title">建模工作台页面结构</h4>
-        <img src="/static/dist/img/help/workspace_page_structure.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/workspace_page_structure.png" class="img-responsive" />
         <hr />
         <h4 id="workspace-page-modelview" class="stigmod-help-title">模型可视化</h4>
-        <img src="/static/dist/img/help/workspace_page_modelview.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/workspace_page_modelview.png" class="img-responsive" />
         <hr />
         <h4 id="workspace-page-modelinfo" class="stigmod-help-title">模型信息</h4>
-        <img src="/static/dist/img/help/workspace_page_modelinfo.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/workspace_page_modelinfo.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
         <h3 id="add-element" class="stigmod-help-title">添加模型元素</h3>
         <hr />
         <h4 id="add-class" class="stigmod-help-title">添加类</h4>
-        <img src="/static/dist/img/help/add_class_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/add_class_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_class_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_class_1.png" class="img-responsive" />
         <hr />
         <h4 id="add-attribute" class="stigmod-help-title">添加类的属性</h4>
-        <img src="/static/dist/img/help/add_attribute_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/add_attribute_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/add_attribute_2.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_attribute_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_attribute_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_attribute_2.png" class="img-responsive" />
         <hr />
         <h4 id="add-relationship" class="stigmod-help-title">添加关系组及关系</h4>
-        <img src="/static/dist/img/help/add_relationship_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/add_relationship_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/add_relationship_2.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_relationship_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_relationship_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/add_relationship_2.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
         <h3 id="modify-element" class="stigmod-help-title">修改模型元素</h3>
         <hr />
         <h4 id="modify-class" class="stigmod-help-title">修改类</h4>
-        <img src="/static/dist/img/help/modify_class_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_class_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_class_2.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_class_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_class_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_class_2.png" class="img-responsive" />
         <hr />
         <h4 id="modify-attribute" class="stigmod-help-title">修改类的属性</h4>
-        <img src="/static/dist/img/help/modify_attribute_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_attribute_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_attribute_2.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_attribute_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_attribute_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_attribute_2.png" class="img-responsive" />
         <hr />
         <h4 id="modify-relationship" class="stigmod-help-title">修改关系</h4>
-        <img src="/static/dist/img/help/modify_relationship_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_relationship_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_relationship_2.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_relationship_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_relationship_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_relationship_2.png" class="img-responsive" />
         <hr />
         <h4 id="modify-order" class="stigmod-help-title">修改属性的顺序</h4>
-        <img src="/static/dist/img/help/modify_order_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/modify_order_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_order_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/modify_order_1.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
         <h3 id="remove-element" class="stigmod-help-title">删除模型元素</h3>
         <hr />
         <h4 id="remove-class" class="stigmod-help-title">删除类</h4>
-        <img src="/static/dist/img/help/remove_class_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/remove_class_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/remove_class_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/remove_class_1.png" class="img-responsive" />
         <hr />
         <h4 id="remove-attribute" class="stigmod-help-title">删除类的属性</h4>
-        <img src="/static/dist/img/help/remove_attribute_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/remove_attribute_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/remove_attribute_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/remove_attribute_1.png" class="img-responsive" />
         <hr />
         <h4 id="remove-relationship" class="stigmod-help-title">删除关系组及关系</h4>
-        <img src="/static/dist/img/help/remove_relationship_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/remove_relationship_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/remove_relationship_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/remove_relationship_1.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
         <h3 id="global-recommendation" class="stigmod-help-title">获取全局推荐</h3>
         <hr />
         <h4 id="global-recommendation-class" class="stigmod-help-title">类的全局推荐</h4>
-        <img src="/static/dist/img/help/global_recommendation_class_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/global_recommendation_class_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/global_recommendation_class_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/global_recommendation_class_1.png" class="img-responsive" />
         <hr />
         <h4 id="global-recommendation-relationship" class="stigmod-help-title">关系的全局推荐</h4>
-        <img src="/static/dist/img/help/global_recommendation_relationship_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/global_recommendation_relationship_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/global_recommendation_relationship_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/global_recommendation_relationship_1.png" class="img-responsive" />
 
         <!-- 专题 -->
         <hr/>
         <h3 id="local-recommendation" class="stigmod-help-title">获取局部推荐</h3>
         <hr />
         <h4 id="local-recommendation-class" class="stigmod-help-title">类的局部推荐</h4>
-        <img src="/static/dist/img/help/local_recommendation_class_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/local_recommendation_class_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_class_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_class_1.png" class="img-responsive" />
         <hr />
         <h4 id="local-recommendation-attribute" class="stigmod-help-title">类的属性的局部推荐</h4>
-        <img src="/static/dist/img/help/local_recommendation_attribute_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/local_recommendation_attribute_1.png" class="img-responsive" />
-        <img src="/static/dist/img/help/local_recommendation_attribute_2.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_attribute_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_attribute_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_attribute_2.png" class="img-responsive" />
         <hr />
         <h4 id="local-recommendation-relationship" class="stigmod-help-title">关系的局部推荐</h4>
-        <img src="/static/dist/img/help/local_recommendation_relationship_0.png" class="img-responsive" />
-        <img src="/static/dist/img/help/local_recommendation_relationship_1.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_relationship_0.png" class="img-responsive" />
+        <img src="http://7xt9bo.com2.z0.glb.clouddn.com/local_recommendation_relationship_1.png" class="img-responsive" />
 
     </div>
 

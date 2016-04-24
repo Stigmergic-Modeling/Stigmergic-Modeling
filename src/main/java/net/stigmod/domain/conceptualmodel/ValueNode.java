@@ -16,6 +16,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -132,10 +133,22 @@ public class ValueNode extends AbstractVertex {
     }
 
     public Set<ClassToValueEdge> getCtvEdges() {
+        Iterator it = this.ctvEdges.iterator();
+        while (it.hasNext()) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(it.next() instanceof ClassToValueEdge)) {
+                it.remove();
+            }
+        }
         return ctvEdges;
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {
+        Iterator it = this.rtvEdges.iterator();
+        while (it.hasNext()) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(it.next() instanceof RelationToValueEdge)) {
+                it.remove();
+            }
+        }
         return rtvEdges;
     }
 

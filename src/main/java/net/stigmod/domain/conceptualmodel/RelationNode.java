@@ -109,10 +109,22 @@ public class RelationNode extends AbstractVertex {
 //    }
 
     public Set<RelationToClassEdge> getRtcEdges() {
+        Iterator it = this.rtcEdges.iterator();
+        while (it.hasNext()) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(it.next() instanceof RelationToClassEdge)) {
+                it.remove();
+            }
+        }
         return rtcEdges;
     }
 
     public Set<RelationToValueEdge> getRtvEdges() {
+        Iterator it = this.rtvEdges.iterator();
+        while (it.hasNext()) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
+            if (!(it.next() instanceof RelationToValueEdge)) {
+                it.remove();
+            }
+        }
         return rtvEdges;
     }
 
