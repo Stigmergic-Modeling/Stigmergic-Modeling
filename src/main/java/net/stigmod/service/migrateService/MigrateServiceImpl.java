@@ -59,11 +59,17 @@ public class MigrateServiceImpl implements MigrateService{
     private boolean isRunning = false;
 
     public synchronized void migrateAlgorithmImpls(Long modelId) {
-        isRunning = true;
-        migrateDataInit(modelId);
-        migrateDeal();
-        migrateDataStore();
-        isRunning = false;
+        try {
+            isRunning = true;
+            migrateDataInit(modelId);
+            migrateDeal();
+            migrateDataStore();
+        }catch(Exception ex) {
+            System.out.println("migrateAlgorithmImpls exception");
+            ex.printStackTrace();
+        }finally {
+            isRunning = false;
+        }
     }
 
     private void migrateDataInit(Long modelId) {//path默认为"/Users/fukai/Desktop/wordnet"
