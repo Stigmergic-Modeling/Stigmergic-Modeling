@@ -65,6 +65,8 @@ public class WorkspaceService {
     @Autowired
     private ModelingOperationsRepository modOpsRepository;
 
+    static private Long dbSavingDelay = 200L;  // 200ms 延迟
+
 
     /**
      * 从前端向后端同步建模结果
@@ -629,7 +631,7 @@ public class WorkspaceService {
 
             relationNodeRepository.save(relationNode);
             try {
-                Thread.sleep(200L);  // 暂停少时，防止save还没执行完，relationNode 中的 id 属性为 null
+                Thread.sleep(dbSavingDelay);  // 暂停少时，防止 save 还没执行完，relationNode 中的 id 属性为 null
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
@@ -653,9 +655,7 @@ public class WorkspaceService {
             ClassNode cnMainClass = classNodeRepository.getOneByName(ccmId, icmId, className);
             assert cnMainClass != null;
             boolean isFreshCreation = addingType.equals("fresh");
-
             RelationNode relationNode;
-            RelationToClassEdge r2ceMainClass;  // 属性所属的 class （区别于作为类型的 class）
             
             if (isFreshCreation) {  // 全新创建
 
@@ -737,14 +737,91 @@ public class WorkspaceService {
             } else {  // 绑定创建
                 relationNode = relationNodeRepository.findOne(Long.parseLong(attributeId, 10), 2);
                 relationNode.addIcmId(icmId);
-//                for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
-//
-//                }
+
+                //  添加 (relationship)-[e0.class]->(class) （此类必定存在于 ICM 中）
+                for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+                    if (r2cEdge.getPort().equals("E0") && r2cEdge.getName().equals("class")
+                            && r2cEdge.getEnder().getId().equals(cnMainClass.getId())) {
+                        r2cEdge.addIcmId(icmId);
+                        break;
+                    }
+                }
+
+                // 添加 (relationship)-[isAttribute]->(#true)
+                this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "", "isAttribute", relationNode, "#true");
+
+                // 添加 (relationship)-[e0.role]->(value)
+                this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E0", "role", relationNode, Util.decapitalize(className));
+
+                // 添加 (relationship)-[e1.role]->(value)
+                this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", "role", relationNode, attributeName);
+
+                for (List<String> smallOp : bigOp) {
+
+                    System.out.print("## Operation: ( ccmId: " + ccmId.toString() + ", icmId: " + icmId.toString() + " ) [ADD ATT FRESH] ");
+                    for (String opElem : smallOp) {  // 打印
+                        System.out.print(opElem);
+                        System.out.print(" ");
+                    }
+                    System.out.print("\n");
+
+                    if (smallOp.get(2).equals("ATT")) continue;  // 跳过 ADD ATT 和 ODI ATT
+                    if (smallOp.get(5).equals("name")) continue;  // 跳过 ADD POA xxx xxx name （已被 ADD ATT 处理）
+
+                    // ADD POA class attribute property value
+                    String propertyName = smallOp.get(5);
+                    String propertyValueE1 = smallOp.get(6);
+
+                    if (propertyName.equals("type")) {
+
+                        // 作为类型的类
+                        if (propertyValueE1.equals("int") || propertyValueE1.equals("float") || propertyValueE1.equals("string") || propertyValueE1.equals("boolean")) {
+                            propertyValueE1 = "_" + propertyValueE1;  // 内置类型名称的特殊处理
+                        }
+                        ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1);  // 返回类型类（若不存在则新建）
+                        this.addR2CEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", "class", relationNode, cnTypeClass);  // 添加关系到类型类的边
+
+                    } else {
+
+                        // 一般 property
+                        String propertyValueE0 = null;
+                        switch (propertyName) {
+                            case "multiplicity":
+                                propertyValueE0 = "1";
+                                break;
+                            case "visibility":
+                                propertyValueE0 = "public";
+                                break;
+                            case "default":
+                            case "constraint":
+                            case "subsets":
+                            case "redefines":
+                                propertyValueE0 = "_";
+                                break;
+                            case "ordering":
+                            case "uniqueness":
+                            case "readOnly":
+                            case "union":
+                            case "composite":
+                                propertyValueE0 = "#true";
+                                break;
+                            default:
+                                return;
+                        }
+
+                        // 添加 (relationship)-[e0.{propertyName}]->(value)
+                        this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E0", propertyName, relationNode, propertyValueE0);
+
+                        // 添加 (relationship)-[e1.{propertyName}]->(value)
+                        this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", propertyName, relationNode, propertyValueE1);
+                    }
+                    modelingResponse.addMessage("Add property [" + propertyName + "] to attribute [" + attributeName + "] of class [" + className + "] successfully.");
+                }
             }
 
             relationNodeRepository.save(relationNode);
             try {
-                Thread.sleep(200L);  // 暂停少时，防止save还没执行完，relationNode 中的 id 属性为 null
+                Thread.sleep(dbSavingDelay);  // 暂停少时，防止 save 还没执行完，relationNode 中的 id 属性为 null
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
@@ -820,11 +897,47 @@ public class WorkspaceService {
         valueNode.addR2VEdge(r2vEdge);
     }
 
+    // 添加 relationship --> value 的边（relationNode 是从数据库中以深度 2 提取的，要考虑边已存在于 CCM 的情况）
+    private void addR2VEdgeWithoutSavingConsiderExistence(Long ccmId, Long icmId, String edgePort, String edgeName, RelationNode relationNode, String valueName) {
+        boolean existsInCCM = false;
+        for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+            if (r2vEdge.getPort().equals(edgePort)
+                    && r2vEdge.getName().equals(edgeName)
+                    && r2vEdge.getEnder().getName().equals(valueName)) {
+                existsInCCM = true;
+                r2vEdge.addIcmId(icmId);
+                r2vEdge.getEnder().addIcmId(icmId);
+                break;
+            }
+        }
+        if (!existsInCCM) {
+            addR2VEdgeWithoutSaving(ccmId, icmId, edgePort, edgeName, relationNode, valueName);
+        }
+    }
+
     //  添加 relationship --> class 的边
     private void addR2CEdgeWithoutSaving(Long ccmId, Long icmId, String edgePort, String edgeName, RelationNode relationNode, ClassNode classNode) {
         RelationToClassEdge r2cEdge = new RelationToClassEdge(ccmId, icmId, edgePort, edgeName, relationNode, classNode);
         relationNode.addR2CEdge(r2cEdge);
         classNode.addR2CEdge(r2cEdge);
+    }
+
+    //  添加 relationship --> class 的边（relationNode 是从数据库中以深度 2 提取的，要考虑边已存在于 CCM 的情况）
+    private void addR2CEdgeWithoutSavingConsiderExistence(Long ccmId, Long icmId, String edgePort, String edgeName, RelationNode relationNode, ClassNode classNode) {
+        boolean existsInCCM = false;
+        for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+            if (r2cEdge.getPort().equals(edgePort)
+                    && r2cEdge.getName().equals(edgeName)
+                    && r2cEdge.getEnder().getId().equals(classNode.getId())) {
+                existsInCCM = true;
+                r2cEdge.addIcmId(icmId);
+                r2cEdge.getEnder().addIcmId(icmId);
+                break;
+            }
+        }
+        if (!existsInCCM) {
+            addR2CEdgeWithoutSaving(ccmId, icmId, edgePort, edgeName, relationNode, classNode);
+        }
     }
 
     /**
