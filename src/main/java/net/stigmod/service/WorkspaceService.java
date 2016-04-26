@@ -599,7 +599,7 @@ public class WorkspaceService {
                         if (propertyValueE1.equals("int") || propertyValueE1.equals("float") || propertyValueE1.equals("string") || propertyValueE1.equals("boolean")) {
                             propertyValueE1 = "_" + propertyValueE1;  // 内置类型名称的特殊处理
                         }
-                        ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1);  // 返回类型类（若不存在则新建）
+                        ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);  // 返回类型类（若不存在则新建）
                         this.addR2CEdgeWithoutSaving(ccmId, icmId, "E1", "class", relationNode, cnTypeClass);  // 添加关系到类型类的边
 
                     } else {
@@ -683,7 +683,7 @@ public class WorkspaceService {
                         if (propertyValueE1.equals("int") || propertyValueE1.equals("float") || propertyValueE1.equals("string") || propertyValueE1.equals("boolean")) {
                             propertyValueE1 = "_" + propertyValueE1;  // 内置类型名称的特殊处理
                         }
-                        ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1);  // 返回类型类（若不存在则新建）
+                        ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);  // 返回类型类（若不存在则新建）
                         this.addR2CEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", "class", relationNode, cnTypeClass);  // 添加关系到类型类的边
 
                     } else {
@@ -742,11 +742,11 @@ public class WorkspaceService {
     }
 
     // 根据名字获取值节点，值节点可能不存在，需要进一步保存
-    private ValueNode getValueNodeByNameWithoutSaving(Long ccmId, Long icmId, String name, Map<String, ValueNode> valueNodePool, RelationNode relationNode, ClassNode classNode) {
+    private Pair<ValueNode, Boolean> getValueNodeByNameWithoutSaving(Long ccmId, Long icmId, String name, Map<String, ValueNode> valueNodePool, RelationNode relationNode, ClassNode classNode) {
 
         // 优先检查是否刚刚使用了同名的值节点
         if (valueNodePool.containsKey(name)) {
-            return valueNodePool.get(name);
+            return new Pair<>(valueNodePool.get(name), true);
         }
 
         // 若传入了某 relationNode，则看其周围是否有要的 valueNode（很有必要，应对 SDN4 的一个 BUG：valueNode 已在 relationNode 周围，但若重新从 DB 提取，则该 valueNode 保存可能不及时）
@@ -755,7 +755,7 @@ public class WorkspaceService {
                 if (r2vEdge.getEnder().getName().equals(name)) {
                     r2vEdge.getEnder().addIcmId(icmId);  // 可能已经有 icmId 了，但加一下不亏
                     valueNodePool.put(name, r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
-                    return r2vEdge.getEnder();
+                    return new Pair<>(r2vEdge.getEnder(), true);
                 }
             }
             for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
@@ -764,7 +764,7 @@ public class WorkspaceService {
                     if (c2vEdge.getEnder().getName().equals(name)) {
                         c2vEdge.getEnder().addIcmId(icmId);  // 可能已经有 icmId 了，但加一下不亏
                         valueNodePool.put(name, c2vEdge.getEnder());  // 已在 classNode 周围的 valueNode 也要加入池中
-                        return c2vEdge.getEnder();
+                        return new Pair<>(c2vEdge.getEnder(), true);
                     }
                 }
             }
@@ -776,7 +776,7 @@ public class WorkspaceService {
                 if (c2vEdge.getEnder().getName().equals(name)) {
                     c2vEdge.getEnder().addIcmId(icmId);  // 可能已经有 icmId 了，但加一下不亏
                     valueNodePool.put(name, c2vEdge.getEnder());  // 已在 classNode 周围的 valueNode 也要加入池中
-                    return c2vEdge.getEnder();
+                    return new Pair<>(c2vEdge.getEnder(), true);
                 }
             }
         }
@@ -786,31 +786,33 @@ public class WorkspaceService {
         ValueNode valueNode;
         if (valueNodes.isEmpty()) {
             valueNode = new ValueNode(ccmId, icmId, name);
+            valueNodePool.put(name, valueNode);  // 将刚创建的值节点加入池中
+            return new Pair<>(valueNode, false);
         } else {
             valueNode = valueNodes.get(0);
             valueNode.addIcmId(icmId);
+            valueNodePool.put(name, valueNode);  // 将刚从 DB 中提取的值节点加入池中
+            return new Pair<>(valueNode, true);
         }
-        valueNodePool.put(name, valueNode);  // 将刚创建或从 DB 中提取的值节点加入池中
-        return valueNode;
+
     }
     
     // 根据名字获取类节点
-    private ClassNode getClassNodeByNameWithoutSaving(Long ccmId, Long icmId, String name) {
-        // TODO 加入 valueNodePool 检查机制
-        List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, name);
-        ValueNode valueNode;
+    private ClassNode getClassNodeByNameWithoutSaving(Long ccmId, Long icmId, String name, Map<String, ValueNode> valueNodePool, RelationNode rn, ClassNode cn) {
+
+        Pair<ValueNode, Boolean> valueNodeResults = this.getValueNodeByNameWithoutSaving(ccmId, icmId, name, valueNodePool, rn, cn);
+        ValueNode valueNode = valueNodeResults.getKey();
+        boolean valueNodeExistsInCCM = valueNodeResults.getValue();
         ClassNode classNode;
         ClassToValueEdge c2vEdge;
 
-        if (valueNodes.isEmpty()) {  // 1、类名的值节点就不存在，类节点一定也不存在，全部新建
-            valueNode = new ValueNode(ccmId, icmId, name);
+        if (!valueNodeExistsInCCM) {  // 1、类名的值节点就不存在，类节点一定也不存在，全部新建
             classNode = new ClassNode(ccmId, icmId);
             c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
             valueNode.addC2VEdge(c2vEdge);
             classNode.addC2VEdge(c2vEdge);
 
         } else {
-            valueNode = valueNodes.get(0);
             valueNode.addIcmId(icmId);  // 不管之前此值节点是否有 icmId，这里加一下总不会出错
             for (ClassToValueEdge c2ve : valueNode.getCtvEdges()) {
                 if (c2ve.getIcmSet().contains(icmId) && c2ve.getStarter().getIcmSet().contains(icmId)) {  // 2、(class)-[edge]->(value) 完整的一套存在于 ICM 中
@@ -837,7 +839,7 @@ public class WorkspaceService {
 
     // 添加 relationship --> value 的边
     private void addR2VEdgeWithoutSaving(Long ccmId, Long icmId, String edgePort, String edgeName, RelationNode relationNode, String valueName, Map<String, ValueNode> valueNodePool) {
-        ValueNode valueNode = getValueNodeByNameWithoutSaving(ccmId, icmId, valueName, valueNodePool, relationNode, null);
+        ValueNode valueNode = getValueNodeByNameWithoutSaving(ccmId, icmId, valueName, valueNodePool, relationNode, null).getKey();
         RelationToValueEdge r2vEdge = new RelationToValueEdge(ccmId, icmId, edgePort, edgeName, relationNode, valueNode);
         relationNode.addR2VEdge(r2vEdge);
         valueNode.addR2VEdge(r2vEdge);
@@ -1045,7 +1047,7 @@ public class WorkspaceService {
                             if (propertyValueE1.equals("int") || propertyValueE1.equals("float") || propertyValueE1.equals("string") || propertyValueE1.equals("boolean")) {
                                 propertyValueE1 = "_" + propertyValueE1;  // 内置类型名称的特殊处理
                             }
-                            ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1);  // 返回类型类（若不存在则新建）
+                            ClassNode cnTypeClass = this.getClassNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);  // 返回类型类（若不存在则新建）
                             this.addR2CEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", "class", relationNode, cnTypeClass);  // 添加关系到类型类的边
 
                         } else {
