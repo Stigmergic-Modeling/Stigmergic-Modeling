@@ -310,13 +310,15 @@ define(function (require, exports, module) {
             };
 
             // 删除某路径端点的子模型
-            Model.prototype.removeSubModel = function (path, key) {
+            Model.prototype.removeSubModel = function (path, key, noLog) {
 
                 if (!(path instanceof Array)) {
                     throw new TypeError('Model.removeSubModel(): The first argument must be an array.');
                 }
 
-                this.log('RMV', path, key);
+                if (undefined === noLog || false === noLog) {  // 不传入 noLog 参数或 noLog 为 false 时，打印 log
+                    this.log('RMV', path, key);
+                }
 
                 if (1 === path.length) {  // 当删除类或关系组时
                     this.attRelOrderChanged[path[0]][key] = 0;  // 表示该 classRelGrp 内的元素顺序有变
