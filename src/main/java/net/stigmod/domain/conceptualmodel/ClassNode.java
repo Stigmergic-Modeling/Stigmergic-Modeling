@@ -121,7 +121,12 @@ public class ClassNode extends AbstractVertex {
     public Set<RelationToClassEdge> getRtcEdges() {
         Iterator it = this.rtcEdges.iterator();
         while (it.hasNext()) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
-            if (!(it.next() instanceof RelationToClassEdge)) {
+            Object edge = it.next();
+            if (!(edge instanceof RelationToClassEdge)) {
+                if (edge instanceof ClassToValueEdge) {
+                    Boolean addSucceed = ctvEdges.add((ClassToValueEdge) edge);
+                    System.out.println("@@ SDN relationship bug solved. [ClassNode: R2C Edge] (Add to another edge set : " + addSucceed.toString() + ")");
+                }
                 it.remove();
             }
         }
@@ -131,7 +136,12 @@ public class ClassNode extends AbstractVertex {
     public Set<ClassToValueEdge> getCtvEdges() {
         Iterator it = this.ctvEdges.iterator();
         while (it.hasNext()) {  // 剔除错误类型的边，应对 SDN4 在 findOne() 时的一个 BUG
-            if (!(it.next() instanceof ClassToValueEdge)) {
+            Object edge = it.next();
+            if (!(edge instanceof ClassToValueEdge)) {
+                if (edge instanceof RelationToClassEdge) {
+                    Boolean addSucceed = rtcEdges.add((RelationToClassEdge) edge);
+                    System.out.println("@@ SDN relationship bug solved. [ClassNode: C2V Edge] (Add to another edge set : " + addSucceed.toString() + ")");
+                }
                 it.remove();
             }
         }

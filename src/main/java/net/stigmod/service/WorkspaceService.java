@@ -473,6 +473,7 @@ public class WorkspaceService {
             } else {  // 绑定创建
                 relationNode = relationNodeRepository.findOne(Long.parseLong(relationshipId, 10), 2);
                 assert relationNode != null;
+                this.solveASDNBug(relationNode);
                 relationNode.addIcmId(icmId);
                 relationNode.setIsSettled(false);  // 有待融合算法进一步处理
 
@@ -642,6 +643,7 @@ public class WorkspaceService {
 
             } else {  // 绑定创建
                 relationNode = relationNodeRepository.findOne(Long.parseLong(attributeId, 10), 2);
+                this.solveASDNBug(relationNode);
                 relationNode.addIcmId(icmId);
                 relationNode.setIsSettled(false);  // 有待融合算法进一步处理
 
@@ -1054,6 +1056,7 @@ public class WorkspaceService {
                         RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
                         assert relationNode != null;
                         relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);
+                        this.solveASDNBug(relationNode);
                         relationNode.setIsSettled(false);  // 有待融合算法进一步处理
 
                         if (propertyName.equals("type")) {
@@ -1100,7 +1103,7 @@ public class WorkspaceService {
                             this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", propertyName, relationNode, propertyValueE1, valueNodePool);
                         }
 
-                        relationNode = relationNodeRepository.save(relationNode);
+                        relationNodeRepository.save(relationNode);
                         modelingResponse.addMessage("Add property [" + propertyName + "] to attribute [" + attributeName + "] of class [" + className + "] successfully.");
 
                         break;
@@ -1118,6 +1121,7 @@ public class WorkspaceService {
                         // 获取关系节点（必定存在于 ICM 中）
                         RelationNode relationNode = relationNodeRepository.findOne(relationshipId, 2);
                         assert relationNode != null;
+                        this.solveASDNBug(relationNode);
                         relationNode.setIsSettled(false);  // 有待融合算法进一步处理
 
                         switch (propertyName) {
@@ -1372,6 +1376,7 @@ public class WorkspaceService {
                         RelationNode relationNode = relationNodeRepository.getOneAttRelByClassNameAndAttName(ccmId, icmId, className, attributeName);
                         assert relationNode != null;
                         relationNode = relationNodeRepository.findOne(relationNode.getId(), 2);
+                        this.solveASDNBug(relationNode);
 
                         if (propertyName.equals("type")) {
                             this.modifyAttributeTypeProperty(ccmId, icmId, relationNode, propertyValueE1);
@@ -1421,6 +1426,7 @@ public class WorkspaceService {
 
                         // 获取关系节点
                         RelationNode relationNode = relationNodeRepository.findOne(relationshipId, 2);
+                        this.solveASDNBug(relationNode);
                         switch (propertyName) {
                             case "type":  // 关系类型和关系名
                                 this.modifyRelationshipTypeProperty(ccmId, icmId, relationNode, propertyValueE0, propertyValueE1);
@@ -1471,6 +1477,24 @@ public class WorkspaceService {
                 // DO NOTHING
                 break;
         }
+    }
+
+    // 应对 SDN4 的一个错误放置边的 BUG
+    private void solveASDNBug(RelationNode relationNode) {
+        System.out.println("@@ -- Start solving SDN BUG --");
+        relationNode.getRtcEdges();
+        relationNode.getRtvEdges();
+        for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+            ClassNode cn = r2cEdge.getEnder();
+            cn.getCtvEdges();
+            cn.getRtcEdges();
+        }
+        for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+            ValueNode vn = r2vEdge.getEnder();
+            vn.getCtvEdges();
+            vn.getRtvEdges();
+        }
+        System.out.println("@@ -- Finish solving SDN BUG -- ");
     }
 
     /**
@@ -1559,6 +1583,7 @@ public class WorkspaceService {
         } else {  // relationship
             relationNode = relationNodeRepository.findOne(relationshipId, 2);  // 以距离 2 载入
         }
+        this.solveASDNBug(relationNode);
 
         if (propertyName.equals("type")) {  // 要删除 attribute 的 type property，只需删除一条 E1.class 边 （relationship 不会删除 type property）
 
@@ -1622,6 +1647,7 @@ public class WorkspaceService {
         } else {  // relationship
             relationNode = relationNodeRepository.findOne(relationshipId, 2);  // 以距离 2 载入
         }
+        this.solveASDNBug(relationNode);
 
         // 删除所有 relationship 节点周围的 R2V 边及节点
         for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
