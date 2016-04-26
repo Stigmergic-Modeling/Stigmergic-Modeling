@@ -436,14 +436,14 @@ public class WorkspaceService {
 
                             // 添加关系类型
                             String typeEdgeName = "is" + propertyValueE0;
-                            ValueNode vnTrue = getValueNodeByNameWithoutSaving(ccmId, icmId, "#true", valueNodePool);
+                            ValueNode vnTrue = getValueNodeByNameWithoutSaving(ccmId, icmId, "#true", valueNodePool, relationNode, null);
                             RelationToValueEdge r2veType = new RelationToValueEdge(ccmId, icmId, typeEdgeName, relationNode, vnTrue);
                             relationNode.addR2VEdge(r2veType);
                             vnTrue.addR2VEdge(r2veType);
 
                             // 若有关系名字，则添加
                             if (!propertyValueE1.equals("")) {
-                                ValueNode vnRelName = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool);
+                                ValueNode vnRelName = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);
                                 RelationToValueEdge r2veRelName = new RelationToValueEdge(ccmId, icmId, "name", relationNode, vnRelName);
                                 relationNode.addR2VEdge(r2veRelName);
                                 vnRelName.addR2VEdge(r2veRelName);
@@ -469,12 +469,12 @@ public class WorkspaceService {
                             break;
                         default:   // 一般 property
 
-                            ValueNode vnPropValE0 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE0, valueNodePool);
+                            ValueNode vnPropValE0 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE0, valueNodePool, relationNode, null);
                             RelationToValueEdge r2vePropE0 = new RelationToValueEdge(ccmId, icmId, "E0", propertyName, relationNode, vnPropValE0);
                             relationNode.addR2VEdge(r2vePropE0);
                             vnPropValE0.addR2VEdge(r2vePropE0);
 
-                            ValueNode vnPropValE1 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool);
+                            ValueNode vnPropValE1 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);
                             RelationToValueEdge r2vePropE1 = new RelationToValueEdge(ccmId, icmId, "E1", propertyName, relationNode, vnPropValE1);
                             relationNode.addR2VEdge(r2vePropE1);
                             vnPropValE1.addR2VEdge(r2vePropE1);
@@ -516,12 +516,13 @@ public class WorkspaceService {
                                 if (r2vEdge.getName().equals(typeEdgeName) && r2vEdge.getEnder().getName().equals("#true")) {
                                     r2vEdge.addIcmId(icmId);
                                     r2vEdge.getEnder().addIcmId(icmId);
+                                    valueNodePool.put("#true", r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
                                     existsInCCM = true;
                                     break;
                                 }
                             }
                             if (!existsInCCM) {
-                                ValueNode vnTrue = getValueNodeByNameWithoutSaving(ccmId, icmId, "#true", valueNodePool);
+                                ValueNode vnTrue = getValueNodeByNameWithoutSaving(ccmId, icmId, "#true", valueNodePool, relationNode, null);
                                 RelationToValueEdge r2veType = new RelationToValueEdge(ccmId, icmId, typeEdgeName, relationNode, vnTrue);
                                 relationNode.addR2VEdge(r2veType);
                                 vnTrue.addR2VEdge(r2veType);
@@ -535,12 +536,13 @@ public class WorkspaceService {
                                     if (r2vEdge.getName().equals("name") && r2vEdge.getEnder().getName().equals(propertyValueE1)) {
                                         r2vEdge.addIcmId(icmId);
                                         r2vEdge.getEnder().addIcmId(icmId);
+                                        valueNodePool.put(propertyValueE1, r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
                                         existsInCCM = true;
                                         break;
                                     }
                                 }
                                 if (!existsInCCM) {
-                                    ValueNode vnRelName = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool);
+                                    ValueNode vnRelName = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);
                                     RelationToValueEdge r2veRelName = new RelationToValueEdge(ccmId, icmId, "name", relationNode, vnRelName);
                                     relationNode.addR2VEdge(r2veRelName);
                                     vnRelName.addR2VEdge(r2veRelName);
@@ -599,26 +601,28 @@ public class WorkspaceService {
                                         && r2vEdge.getEnder().getName().equals(propertyValueE0)) {
                                     r2vEdge.addIcmId(icmId);
                                     r2vEdge.getEnder().addIcmId(icmId);
+                                    valueNodePool.put(propertyValueE0, r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
                                     e0ExistsInCCM = true;
                                 } else if (!e1ExistsInCCM && r2vEdge.getName().equals(propertyName)
                                         && r2vEdge.getPort().equals("E1")
                                         && r2vEdge.getEnder().getName().equals(propertyValueE1)) {
                                     r2vEdge.addIcmId(icmId);
                                     r2vEdge.getEnder().addIcmId(icmId);
+                                    valueNodePool.put(propertyValueE1, r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
                                     e1ExistsInCCM = true;
                                 }
                             }
 
                             // 边不存在于 CCM 中，则新建添加
                             if (!e0ExistsInCCM) {
-                                ValueNode vnPropValE0 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE0, valueNodePool);
+                                ValueNode vnPropValE0 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE0, valueNodePool, relationNode, null);
                                 RelationToValueEdge r2vePropE0 = new RelationToValueEdge(ccmId, icmId, "E0", propertyName, relationNode, vnPropValE0);
                                 relationNode.addR2VEdge(r2vePropE0);
                                 vnPropValE0.addR2VEdge(r2vePropE0);
                             }
 
                             if (!e1ExistsInCCM) {
-                                ValueNode vnPropValE1 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool);
+                                ValueNode vnPropValE1 = getValueNodeByNameWithoutSaving(ccmId, icmId, propertyValueE1, valueNodePool, relationNode, null);
                                 RelationToValueEdge r2vePropE1 = new RelationToValueEdge(ccmId, icmId, "E1", propertyName, relationNode, vnPropValE1);
                                 relationNode.addR2VEdge(r2vePropE1);
                                 vnPropValE1.addR2VEdge(r2vePropE1);
@@ -840,10 +844,46 @@ public class WorkspaceService {
     }
 
     // 根据名字获取值节点，值节点可能不存在，需要进一步保存
-    private ValueNode getValueNodeByNameWithoutSaving(Long ccmId, Long icmId, String name, Map<String, ValueNode> valueNodePool) {
-        if (valueNodePool.containsKey(name)) {  // 优先检查是否刚刚使用了同名的值节点
+    private ValueNode getValueNodeByNameWithoutSaving(Long ccmId, Long icmId, String name, Map<String, ValueNode> valueNodePool, RelationNode relationNode, ClassNode classNode) {
+
+        // 优先检查是否刚刚使用了同名的值节点
+        if (valueNodePool.containsKey(name)) {
             return valueNodePool.get(name);
         }
+
+        // 若传入了某 relationNode，则看其周围是否有要的 valueNode（很有必要，应对 SDN4 的一个 BUG：valueNode 已在 relationNode 周围，但若重新从 DB 提取，则该 valueNode 保存可能不及时）
+        if (relationNode != null) {
+            for (RelationToValueEdge r2vEdge : relationNode.getRtvEdges()) {
+                if (r2vEdge.getEnder().getName().equals(name)) {
+                    r2vEdge.getEnder().addIcmId(icmId);  // 可能已经有 icmId 了，但加一下不亏
+                    valueNodePool.put(name, r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
+                    return r2vEdge.getEnder();
+                }
+            }
+            for (RelationToClassEdge r2cEdge : relationNode.getRtcEdges()) {
+                ClassNode cn = r2cEdge.getEnder();
+                for (ClassToValueEdge c2vEdge : cn.getCtvEdges()) {
+                    if (c2vEdge.getEnder().getName().equals(name)) {
+                        c2vEdge.getEnder().addIcmId(icmId);  // 可能已经有 icmId 了，但加一下不亏
+                        valueNodePool.put(name, c2vEdge.getEnder());  // 已在 classNode 周围的 valueNode 也要加入池中
+                        return c2vEdge.getEnder();
+                    }
+                }
+            }
+        }
+
+        // 若传入了某 classNode，则看其周围是否有要的 valueNode（很有必要，应对 SDN4 的一个 BUG：valueNode 已在 relationNode 周围，但若重新从 DB 提取，则该 valueNode 保存可能不及时）
+        if (classNode != null) {
+            for (ClassToValueEdge c2vEdge : classNode.getCtvEdges()) {
+                if (c2vEdge.getEnder().getName().equals(name)) {
+                    c2vEdge.getEnder().addIcmId(icmId);  // 可能已经有 icmId 了，但加一下不亏
+                    valueNodePool.put(name, c2vEdge.getEnder());  // 已在 classNode 周围的 valueNode 也要加入池中
+                    return c2vEdge.getEnder();
+                }
+            }
+        }
+
+        // 上面几种情况都不是，则去 DB 中寻找
         List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, name);
         ValueNode valueNode;
         if (valueNodes.isEmpty()) {
@@ -899,7 +939,7 @@ public class WorkspaceService {
 
     // 添加 relationship --> value 的边
     private void addR2VEdgeWithoutSaving(Long ccmId, Long icmId, String edgePort, String edgeName, RelationNode relationNode, String valueName, Map<String, ValueNode> valueNodePool) {
-        ValueNode valueNode = getValueNodeByNameWithoutSaving(ccmId, icmId, valueName, valueNodePool);
+        ValueNode valueNode = getValueNodeByNameWithoutSaving(ccmId, icmId, valueName, valueNodePool, relationNode, null);
         RelationToValueEdge r2vEdge = new RelationToValueEdge(ccmId, icmId, edgePort, edgeName, relationNode, valueNode);
         relationNode.addR2VEdge(r2vEdge);
         valueNode.addR2VEdge(r2vEdge);
@@ -915,6 +955,7 @@ public class WorkspaceService {
                 existsInCCM = true;
                 r2vEdge.addIcmId(icmId);
                 r2vEdge.getEnder().addIcmId(icmId);
+                valueNodePool.put(valueName, r2vEdge.getEnder());  // 已在 relationNode 周围的 valueNode 也要加入池中
                 break;
             }
         }
