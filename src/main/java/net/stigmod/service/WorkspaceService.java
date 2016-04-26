@@ -1011,98 +1011,13 @@ public class WorkspaceService {
                         break;
                     case "ATT": {  // add attribute
 
-                        // ADD ATT class attribute attributeCCMId addingType (fresh, binding)
-                        String className = op.get(3);
-                        String attributeName = op.get(4);
-                        String attributeId = op.get(5);
-                        String addingType = op.get(6);
-
-                        /*
-                         *  添加 (relationship)-[e0.class]->(class)
-                         */
-
-                        // 获取 class node （一定存在于 ICM 中）
-                        ClassNode classNode = classNodeRepository.getOneByName(ccmId, icmId, className);
-                        assert classNode != null;
-                        boolean isFreshCreation = addingType.equals("fresh");
-
-                        // 获取 relationship node
-                        RelationNode relationNode = isFreshCreation
-                                ? new RelationNode(ccmId, icmId)                                  // 全新创建
-                                : relationNodeRepository.findOne(Long.parseLong(attributeId, 10));  // 绑定创建
-
-                        if (!isFreshCreation) {  // 绑定创建
-                            relationNode.addIcmId(icmId);
-                        }
-                        relationNodeRepository.save(relationNode);
-
-                        // 获取 r2c edge
-                        RelationToClassEdge r2cEdge = isFreshCreation
-                                ? new RelationToClassEdge(ccmId, icmId, "E0", relationNode, classNode)                          // 全新创建
-                                : (RelationToClassEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, relationNode.getId(), classNode.getId(), "E0", "class");  // 绑定创建
-
-                        if (!isFreshCreation) {  // 绑定创建
-                            r2cEdge.addIcmId(icmId);
-                            relationNode.setIsSettled(false);  // 有待融合算法进一步处理
-                            classNode.setIsSettled(false);  // 有待融合算法进一步处理
-                        } else {                 // 全新创建
-                            relationNode.addR2CEdge(r2cEdge);
-                            classNode.addR2CEdge(r2cEdge);
-                        }
-
-                        // 保存 (relationship)-[class]->(class) 系统
-                        edgeRepository.save(r2cEdge);
-
-                        // 更新 id 映射和返回信息
-                        if (isFreshCreation) {
-                            modelingResponse.addIdMapping(attributeId, relationNode.getId());  // 向返回对象中添加映射
-                            this.addFrontBackIdMapping(icm, attributeId, relationNode.getId());  // 向 ICM 中添加映射
-                        }
-                        modelingResponse.addMessage("Add attribute [" + attributeName + "] to class [" + className + "] successfully.");
-
-                        /*
-                         *  添加 (relationship)-[isAttribute]->(value)
-                         */
-                        this.addValueNodeAndR2VEdge(ccmId, icmId, "", "isAttribute", relationNode, "#true");
-
-                        /*
-                         *  添加 (relationship)-[e0.role]->(value)
-                         */
-                        this.addValueNodeAndR2VEdge(ccmId, icmId, "E0", "role", relationNode, Util.decapitalize(className));
-
-                        /*
-                         *  添加 (relationship)-[e1.role]->(value)
-                         */
-                        this.addValueNodeAndR2VEdge(ccmId, icmId, "E1", "role", relationNode, attributeName);
+                        // handled by BigOps
 
                         break;
                     }
                     case "RLT": {  // add relationship
 
-                        // ADD RLT relationGroup relation relationCCMId addingType (fresh, binding)
-                        String relationGroupName = op.get(3);
-                        String relationshipId = op.get(4);  // 同 op.get(5)
-
-                        String addingType = op.get(6);
-                        boolean isFreshCreation = addingType.equals("fresh");
-
-                        // 获取 relationship node
-                        RelationNode relationNode = isFreshCreation
-                                ? new RelationNode(ccmId, icmId)
-                                : relationNodeRepository.findOne(Long.parseLong(relationshipId, 10));
-                        assert relationNode != null;
-                        if (!isFreshCreation) {
-                            relationNode.addIcmId(icmId);
-                            relationNode.setIsSettled(false);  // 有待融合算法进一步处理
-                        }
-                        relationNodeRepository.save(relationNode);
-
-                        // 更新 id 映射和返回信息
-                        if (isFreshCreation) {
-                            modelingResponse.addIdMapping(relationshipId, relationNode.getId());  // 向返回对象中添加映射
-                            this.addFrontBackIdMapping(icm, relationshipId, relationNode.getId());  // 向 ICM 中添加映射
-                        }
-                        modelingResponse.addMessage("Add relationship [" + relationGroupName + "] successfully.");
+                        // handled by BigOps
 
                         break;
                     }
