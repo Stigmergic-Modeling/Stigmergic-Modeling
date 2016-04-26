@@ -967,42 +967,52 @@ public class WorkspaceService {
 
                         if (isFreshCreation) {  // 全新创建，但有可能同名融合
 
-                            // 调用 getClassNodeByName 私有方法
-                            ClassNode classNode = this.getClassNodeByName(ccmId, icmId, className).getKey();
+                            ClassNode classNode = this.getClassNodeByNameWithoutSaving(ccmId, icmId, className, valueNodePool, null, null);
+                            classNodeRepository.save(classNode);
 
                             // 更新 id 映射和返回信息
                             modelingResponse.addIdMapping(classId, classNode.getId());  // 向返回对象中添加映射
                             this.addFrontBackIdMapping(icm, classId, classNode.getId());  // 向 ICM 中添加映射
 
-                        } else {                // 推荐绑定
-
-                            // 获取 value node
-                            Pair<ValueNode, Boolean> valueNodeAndExistence = this.getValueNodeByName(ccmId, icmId, className);
-                            ValueNode valueNode = valueNodeAndExistence.getKey();
-                            boolean valueNodeExists = valueNodeAndExistence.getValue();
+                        } else {  // 推荐绑定
 
                             // 获取 class node
-                            ClassNode classNode = classNodeRepository.findOne(Long.parseLong(classId, 10));
+                            ClassNode classNode = classNodeRepository.findOne(Long.parseLong(classId, 10), 1);  // 深度 1，只取出周围的 valueNode(有用) 和 relationNode(没用)
                             classNode.addIcmId(icmId);
                             classNode.setIsSettled(false);  // 有待融合算法进一步处理
-                            classNodeRepository.save(classNode);
+                            boolean isValueNodeAround = false;  // 考虑到用户采纳推荐时可能改名，因此名称为类名的 valueNode 不一定在类周围
 
-                            // 获取 c2v edge
-                            ClassToValueEdge c2vEdge = null;
-                            List<Edge> c2vEdges = null;
-                            if (valueNodeExists) {
-                                c2vEdges = edgeRepository.getByTwoVertexIdsAndEdgeName(ccmId, classNode.getId(), valueNode.getId(), "", "name");
-                                if (!c2vEdges.isEmpty()) {
-                                    c2vEdge = (ClassToValueEdge) c2vEdges.get(0);  // CCM 中已存在此边
+
+                            // 优先检查 valueNode 是否就在该 classNode 周围
+                            for (ClassToValueEdge c2vEdge : classNode.getCtvEdges()) {
+                                if (c2vEdge.getEnder().getName().equals(className)
+                                        && c2vEdge.getPort().equals("")
+                                        && c2vEdge.getName().equals("name")) {  // 名称为类名的 valueNode 就在类周围
+                                    isValueNodeAround = true;
                                     c2vEdge.addIcmId(icmId);
+                                    c2vEdge.getEnder().addIcmId(icmId);
+                                    break;
                                 }
                             }
-                            if (!valueNodeExists || c2vEdges.isEmpty()) {  // CCM 中未存在此边
+
+                            // 名称为类名的 valueNode 不在类周围
+                            ValueNode valueNode;
+                            ClassToValueEdge c2vEdge;
+                            if (!isValueNodeAround) {
+                                List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, className);
+
+                                if (!valueNodes.isEmpty()) {  // valueNode 存在于 CCM，只是没有和该 classNode 相连
+                                    valueNode = valueNodes.get(0);
+                                    valueNode.addIcmId(icmId);
+                                } else {  // valueNode 不存在于 CCM
+                                    valueNode = new ValueNode(ccmId, icmId, className);
+                                }
                                 c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
                                 classNode.addC2VEdge(c2vEdge);
                                 valueNode.addC2VEdge(c2vEdge);
                             }
-                            edgeRepository.save(c2vEdge);
+
+                            classNodeRepository.save(classNode);
                         }
                         modelingResponse.addMessage("Add class [" + className + "] successfully.");
 
@@ -1497,24 +1507,24 @@ public class WorkspaceService {
         icmRepository.save(icm);
     }
 
-    /**
-     * 若 value node 已存在于数据库，则返回该节点；若不存在，则创建并返回
-     * @param name 值节点的名字
-     * @param ccmId ccmId
-     * @param icmId icmId
-     * @return 值节点 和 存在性
-     */
-    @Transactional
-    private Pair<ValueNode, Boolean> getValueNodeByName(Long ccmId, Long icmId, String name) {
-        List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, name);
-        Boolean exist = !valueNodes.isEmpty();
-        ValueNode valueNode = exist ? valueNodes.get(0) : new ValueNode(ccmId, icmId, name);
-        if (exist) {
-            valueNode.addIcmId(icmId);
-        }
-        valueNodeRepository.save(valueNode);
-        return new Pair<>(valueNode, exist);
-    }
+//    /**
+//     * 若 value node 已存在于数据库，则返回该节点；若不存在，则创建并返回
+//     * @param name 值节点的名字
+//     * @param ccmId ccmId
+//     * @param icmId icmId
+//     * @return 值节点 和 存在性
+//     */
+//    @Transactional
+//    private Pair<ValueNode, Boolean> getValueNodeByName(Long ccmId, Long icmId, String name) {
+//        List<ValueNode> valueNodes = valueNodeRepository.getByCcmIdAndName(ccmId, name);
+//        Boolean exist = !valueNodes.isEmpty();
+//        ValueNode valueNode = exist ? valueNodes.get(0) : new ValueNode(ccmId, icmId, name);
+//        if (exist) {
+//            valueNode.addIcmId(icmId);
+//        }
+//        valueNodeRepository.save(valueNode);
+//        return new Pair<>(valueNode, exist);
+//    }
 
 //    /**
 //     * 根据类名，获取类节点（注意，这里不会考虑绑定，ICM 中有就是有，没有就在 ICM 中新建）
@@ -1549,53 +1559,53 @@ public class WorkspaceService {
 //        return new Pair<>(classNode, false);
 //    }
 
-    /**
-     * 根据类名，获取类节点（考虑 class node 的同名融合，CCM 中有就是有，没有就在 ICM 中新建）
-     * @param ccmId ccmId
-     * @param icmId icmId
-     * @param className 类名
-     * @return 类节点 和 存在性
-     */
-    @Transactional
-    private Pair<ClassNode, Boolean> getClassNodeByName(Long ccmId, Long icmId, String className) {
-
-        // 获取 value node
-        Pair<ValueNode, Boolean> valueNodeAndExistence = this.getValueNodeByName(ccmId, icmId, className);
-        ValueNode valueNode = valueNodeAndExistence.getKey();
-        boolean valueNodeExists = valueNodeAndExistence.getValue();
-
-        // 获取 class node
-        if (valueNodeExists) {
-            List<ClassNode> classNodes = classNodeRepository.getByName(ccmId, icmId, className);
-            if (!classNodes.isEmpty()) {  // ICM 中有类节点，直接返回
-                return new Pair<>(classNodes.get(0), true);
-            } else {
-                classNodes = classNodeRepository.getAllByName(ccmId, icmId, className);
-                if (!classNodes.isEmpty()) {  // CCM 中有类节点，将 icmId 加入后返回
-//                    ClassNode classNode = this.findTheMostReferencedElement(classNodes);
-                    ClassNode classNode = classNodes.get(0);
-                    classNode.addIcmId(icmId);
-                    classNodeRepository.save(classNode);  // class node
-                    ClassToValueEdge c2vEdge = (ClassToValueEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, classNode.getId(), valueNode.getId(), "", "name");
-                    c2vEdge.addIcmId(icmId);
-                    edgeRepository.save(c2vEdge); // class to value edge
-                    return new Pair<>(classNode, true);  // 这里是返回 true 还是 false，需要根据需求而定，目前都行
-                }
-            }
-        }
-
-        // ICM 中没有想要的类节点，创建后返回
-        ClassNode classNode = new ClassNode(ccmId, icmId);
-        ClassToValueEdge c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
-        classNode.addC2VEdge(c2vEdge);
-        valueNode.addC2VEdge(c2vEdge);
-        classNode.setIsSettled(false);  // 有待融合算法进一步处理
-        edgeRepository.save(c2vEdge); // 保存
-//        classNodeRepository.save(classNode);  // 边和端点分别保存下，防止保存不及时
-//        valueNodeRepository.save(valueNode);  // 边和端点分别保存下，防止保存不及时
-
-        return new Pair<>(classNode, false);
-    }
+//    /**
+//     * 根据类名，获取类节点（考虑 class node 的同名融合，CCM 中有就是有，没有就在 ICM 中新建）
+//     * @param ccmId ccmId
+//     * @param icmId icmId
+//     * @param className 类名
+//     * @return 类节点 和 存在性
+//     */
+//    @Transactional
+//    private Pair<ClassNode, Boolean> getClassNodeByName(Long ccmId, Long icmId, String className) {
+//
+//        // 获取 value node
+//        Pair<ValueNode, Boolean> valueNodeAndExistence = this.getValueNodeByName(ccmId, icmId, className);
+//        ValueNode valueNode = valueNodeAndExistence.getKey();
+//        boolean valueNodeExists = valueNodeAndExistence.getValue();
+//
+//        // 获取 class node
+//        if (valueNodeExists) {
+//            List<ClassNode> classNodes = classNodeRepository.getByName(ccmId, icmId, className);
+//            if (!classNodes.isEmpty()) {  // ICM 中有类节点，直接返回
+//                return new Pair<>(classNodes.get(0), true);
+//            } else {
+//                classNodes = classNodeRepository.getAllByName(ccmId, icmId, className);
+//                if (!classNodes.isEmpty()) {  // CCM 中有类节点，将 icmId 加入后返回
+////                    ClassNode classNode = this.findTheMostReferencedElement(classNodes);
+//                    ClassNode classNode = classNodes.get(0);
+//                    classNode.addIcmId(icmId);
+//                    classNodeRepository.save(classNode);  // class node
+//                    ClassToValueEdge c2vEdge = (ClassToValueEdge) edgeRepository.getOneByTwoVertexIdsAndEdgeName(ccmId, classNode.getId(), valueNode.getId(), "", "name");
+//                    c2vEdge.addIcmId(icmId);
+//                    edgeRepository.save(c2vEdge); // class to value edge
+//                    return new Pair<>(classNode, true);  // 这里是返回 true 还是 false，需要根据需求而定，目前都行
+//                }
+//            }
+//        }
+//
+//        // ICM 中没有想要的类节点，创建后返回
+//        ClassNode classNode = new ClassNode(ccmId, icmId);
+//        ClassToValueEdge c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
+//        classNode.addC2VEdge(c2vEdge);
+//        valueNode.addC2VEdge(c2vEdge);
+//        classNode.setIsSettled(false);  // 有待融合算法进一步处理
+//        edgeRepository.save(c2vEdge); // 保存
+////        classNodeRepository.save(classNode);  // 边和端点分别保存下，防止保存不及时
+////        valueNodeRepository.save(valueNode);  // 边和端点分别保存下，防止保存不及时
+//
+//        return new Pair<>(classNode, false);
+//    }
 
 //    /**
 //     * 返回引用最多的元素
