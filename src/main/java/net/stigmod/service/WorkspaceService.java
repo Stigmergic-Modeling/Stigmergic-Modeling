@@ -536,10 +536,14 @@ public class WorkspaceService {
             }
 
             relationNodeRepository.save(relationNode);
-            try {
-                Thread.sleep(dbSavingDelay);  // 暂停少时，防止 save 还没执行完，relationNode 中的 id 属性为 null
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
+
+            while (relationNode.getId() == null) {
+                System.out.println("@@ Id is null. Waiting for saving complete. (" + dbSavingDelay.toString() + " ms)");
+                try {
+                    Thread.sleep(dbSavingDelay);  // 暂停少时，防止 save 还没执行完，relationNode 中的 id 属性为 null
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
 
             // 更新 id 映射和返回信息
@@ -729,10 +733,14 @@ public class WorkspaceService {
             }
 
             relationNodeRepository.save(relationNode);
-            try {
-                Thread.sleep(dbSavingDelay);  // 暂停少时，防止 save 还没执行完，relationNode 中的 id 属性为 null
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
+
+            while (relationNode.getId() == null) {
+                System.out.println("@@ Id is null. Waiting for saving complete. (" + dbSavingDelay.toString() + " ms)");
+                try {
+                    Thread.sleep(dbSavingDelay);  // 暂停少时，防止 save 还没执行完，relationNode 中的 id 属性为 null
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
 
             // 更新 id 映射和返回信息
