@@ -2458,8 +2458,7 @@ define(function (require, exports, module) {
                 case 0:
 
                     // 修改 model
-                    icm.removeSubModel([stateOfPage.flagCRG], stateOfPage.clazz);
-                    if (0 === stateOfPage.flagCRG) { // 删除 class 时，还要删除与之相关的 relation group
+                    if (0 === stateOfPage.flagCRG) {  // 1、先删除该 Class 参与的 Relationship Group
                         var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
 
                         for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
@@ -2475,6 +2474,7 @@ define(function (require, exports, module) {
                             }
                         }
                     }
+                    icm.removeSubModel([stateOfPage.flagCRG], stateOfPage.clazz);  // 2、再先删除该 Class
 
                     // 更新显示
                     widget.fire('classRemoved', null);

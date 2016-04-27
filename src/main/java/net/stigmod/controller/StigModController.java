@@ -82,12 +82,12 @@ public class StigModController {
     @RequestMapping(value="/about", method = RequestMethod.GET)
     public String about(ModelMap model) {
 
-        if (migrateService.isRunning()) {
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Service Unavailable");
-            return "service_unavailable";
-        }
+//        if (migrateService.isRunning()) {
+//            model.addAttribute("host", host);
+//            model.addAttribute("port", port);
+//            model.addAttribute("title", "Service Unavailable");
+//            return "service_unavailable";
+//        }
 
         final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
@@ -101,12 +101,12 @@ public class StigModController {
     @RequestMapping(value="/help", method = RequestMethod.GET)
     public String help(ModelMap model) {
 
-        if (migrateService.isRunning()) {
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Service Unavailable");
-            return "service_unavailable";
-        }
+//        if (migrateService.isRunning()) {
+//            model.addAttribute("host", host);
+//            model.addAttribute("port", port);
+//            model.addAttribute("title", "Service Unavailable");
+//            return "service_unavailable";
+//        }
 
         final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
