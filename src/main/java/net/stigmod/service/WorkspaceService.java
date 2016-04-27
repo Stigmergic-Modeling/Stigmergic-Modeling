@@ -818,7 +818,8 @@ public class WorkspaceService {
         ClassNode classNode;
         ClassToValueEdge c2vEdge;
 
-        if (!valueNodeExistsInCCM) {  // 1、类名的值节点就不存在，类节点一定也不存在，全部新建
+        // 1、类名的值节点就不存在，类节点一定也不存在，全部新建
+        if (!valueNodeExistsInCCM) {
             classNode = new ClassNode(ccmId, icmId);
             c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
             valueNode.addC2VEdge(c2vEdge);
@@ -826,25 +827,29 @@ public class WorkspaceService {
 
         } else {
             valueNode.addIcmId(icmId);  // 不管之前此值节点是否有 icmId，这里加一下总不会出错
+
+            // 2、(class)-[edge]->(value) 完整的一套存在于 ICM 中
             for (ClassToValueEdge c2ve : valueNode.getCtvEdges()) {
-                if (c2ve.getIcmSet().contains(icmId) && c2ve.getStarter().getIcmSet().contains(icmId)) {  // 2、(class)-[edge]->(value) 完整的一套存在于 ICM 中
-                    classNode = c2ve.getStarter();
-                    return classNode;  // 注意，若 2 成立，则后面都不执行了
+                if (c2ve.getIcmSet().contains(icmId) && c2ve.getStarter().getIcmSet().contains(icmId)) {
+                    return c2ve.getStarter();  // 注意，若 2 成立，则后面都不执行了
                 }
             }
 
-            if (!valueNode.getCtvEdges().isEmpty()) {  // 3、(class)-[edge]->(value) 完整的一套不在 ICM 中，但存在于 CCM 中
-                c2vEdge = valueNode.getCtvEdges().iterator().next();
-                classNode = c2vEdge.getStarter();
-                c2vEdge.addIcmId(icmId);
-                classNode.addIcmId(icmId);
-
-            } else {  // 4、值节点存在于 CCM 中，但类节点和边需要新建
-                classNode = new ClassNode(ccmId, icmId);
-                c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
-                valueNode.addC2VEdge(c2vEdge);
-                classNode.addC2VEdge(c2vEdge);
+            // 3、(class)-[edge]->(value) 完整的一套不在 ICM 中，但存在于 CCM 中（类节点未出现在 ICM 中）
+            for (ClassToValueEdge c2ve : valueNode.getCtvEdges()) {
+                if (!c2ve.getIcmSet().contains(icmId) && !c2ve.getStarter().getIcmSet().contains(icmId)) {
+                    classNode = c2ve.getStarter();
+                    c2ve.addIcmId(icmId);
+                    classNode.addIcmId(icmId);
+                    return classNode;  // 注意，若 3 成立，则后面都不执行了
+                }
             }
+
+            // 4、值节点存在于 CCM 中，但类节点和边需要新建（要么是值节点周围没有类节点，要么是值节点周围的类节点都已存在于 ICM 中）
+            classNode = new ClassNode(ccmId, icmId);
+            c2vEdge = new ClassToValueEdge(ccmId, icmId, "name", classNode, valueNode);
+            valueNode.addC2VEdge(c2vEdge);
+            classNode.addC2VEdge(c2vEdge);
         }
         return classNode;
     }
