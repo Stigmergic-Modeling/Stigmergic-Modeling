@@ -76,6 +76,7 @@ public class WorkspaceService {
      * @return 要返回给前端的 Response
      */
     public ModelingResponse syncModelingOperations(String molJsonString) {
+        System.out.println(molJsonString);
         ModelingOperationLog mol = this.constructMOL(molJsonString);
         if (mol.log.size() <= 1) {  // log 长度小于等于 1 说明没有前端操作需要执行或保存（其中一条日志是 UPD NUM）
             return new ModelingResponse();
@@ -1000,7 +1001,6 @@ public class WorkspaceService {
                             classNode.addIcmId(icmId);
                             classNode.setIsSettled(false);  // 有待融合算法进一步处理
                             boolean isValueNodeAround = false;  // 考虑到用户采纳推荐时可能改名，因此名称为类名的 valueNode 不一定在类周围
-
 
                             // 优先检查 valueNode 是否就在该 classNode 周围
                             for (ClassToValueEdge c2vEdge : classNode.getCtvEdges()) {
