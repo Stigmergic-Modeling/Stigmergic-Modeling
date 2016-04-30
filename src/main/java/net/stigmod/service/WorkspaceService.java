@@ -24,6 +24,7 @@ import net.stigmod.repository.relationship.*;
 import net.stigmod.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,7 +102,7 @@ public class WorkspaceService {
         List<Map<String, Object>> relationshipsAndTypes = relationNodeRepository.getAllRelationshipsAndTypesByIcmId(icmId);
 
         for (Map<String, Object> relationshipAndType : relationshipsAndTypes) {
-            Long relationshipId = ((Integer) relationshipAndType.get("relationshipId")).longValue();
+            Long relationshipId = ((Number) relationshipAndType.get("relationshipId")).longValue();
             String relationshipType = (String) relationshipAndType.get("relationshipType");
 
             List<Map<String, Object>> classEnds = relationNodeRepository.getClassEndRelationshipPropertiesByIcmIdAndRelationshipId(icmId, relationshipId);
@@ -400,6 +401,8 @@ public class WorkspaceService {
         List<String> op = bigOp.get(0);
         String opV = op.get(1);  // 谓语
         String opO = op.get(2);  // 宾语
+
+        neo4jTemplate.clear();  // 操作前清空 session 中的 mappingContext，及其重要
 
         if (opV.equals("ADD") && opO.equals("RLT")) {
 
@@ -972,6 +975,7 @@ public class WorkspaceService {
         String opO = op.get(2);  // 宾语
 
         Map<String, ValueNode> valueNodePool = new HashMap<>();  // 用于缓存尚未存入数据库的值节点，避免重复创建值节点
+        neo4jTemplate.clear();  // 操作前清空 session 中的 mappingContext，及其重要
 
         // 注意，op 的第一个元素是 Date
         switch (opV) {

@@ -9,10 +9,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>4.1.4.RELEASE</spring.version>
-        <spring-data-neo4j.version>4.0.0.RELEASE</spring-data-neo4j.version>
+        <spring.version>4.2.4.RELEASE</spring.version>
+        <spring-data-neo4j.version>4.1.1.RELEASE</spring-data-neo4j.version>
         <spring-security.version>4.0.0.RELEASE</spring-security.version>
-        <neo4j.version>2.3.0</neo4j.version>
+        <neo4j.version>2.3.3</neo4j.version>
+        <neo4j.ogm.version>2.0.1</neo4j.ogm.version>  <!-- for latest bug-fix: https://github.com/neo4j-examples/sdn4-cineasts/commit/db0602e9261b80bdf178a5d56f57e16471ffc57b -->
     </properties>
 
     <dependencies>
@@ -106,6 +107,18 @@
             <artifactId>spring-data-neo4j</artifactId>
             <version>${spring-data-neo4j.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-embedded-driver</artifactId>
+            <version>${neo4j.ogm.version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.neo4j</groupId>-->
+            <!--<artifactId>neo4j-ogm</artifactId>-->
+            <!--<version>${neo4j.ogm.version}</version>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
             <!--<groupId>org.springframework.data</groupId>-->
