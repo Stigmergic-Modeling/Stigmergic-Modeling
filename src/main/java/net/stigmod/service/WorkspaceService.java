@@ -317,7 +317,11 @@ public class WorkspaceService {
         Long ccmId = mol.ccmId;
         Long icmId = mol.icmId;
         ModelingResponse modelingResponse = new ModelingResponse();
-        IndividualConceptualModel icm = icmRepository.findOne(icmId);
+
+        // 由于 icm 与 user 点相连，而 user 点在内存中，所以这个 icm 虽然
+        // 是 findOne() 无第二参数取出的，但其中中是有到 user 和 ccm 的连
+        // 接的 (后来为了语义清晰，显式加上了 findOne() 的第二参数 1)
+        IndividualConceptualModel icm = icmRepository.findOne(icmId, 1);
 
         // 操作序列
         List<List<String>> bigOp = new ArrayList<>();  // 用于构造像“添加关系、添加属性”这样的大操作
@@ -1478,10 +1482,9 @@ public class WorkspaceService {
                         Long relationshipNumInCcm = relationNodeRepository.getRelationshipNumInCcm(ccmId);
                         Long relationshipNumInIcm = relationNodeRepository.getRelationshipNumInIcm(icmId);
 
-                        CollectiveConceptualModel ccm = ccmRepository.findOne(ccmId);
+                        // 注意，这里不能去 DB 重新查询 ccm，否则会引发内存中存在两个 ccm 的 bug
+                        CollectiveConceptualModel ccm = icm.getCcms().iterator().next();
                         ccm.updateNums(classNumInCcm, relationshipNumInCcm);
-                        ccmRepository.save(ccm);
-
                         icm.updateNums(classNumInIcm, relationshipNumInIcm);
                         icmRepository.save(icm);
 
