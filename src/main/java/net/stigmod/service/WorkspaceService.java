@@ -805,7 +805,8 @@ public class WorkspaceService {
             valueNodePool.put(name, valueNode);  // 将刚创建的值节点加入池中
             return new Pair<>(valueNode, false);
         } else {
-            valueNode = valueNodes.get(0);
+            Long valueNodeId = valueNodes.get(0).getId();
+            valueNode = valueNodeRepository.findOne(valueNodeId, 1);  // 以深度 1 重新提取值节点
             valueNode.addIcmId(icmId);
             valueNodePool.put(name, valueNode);  // 将刚从 DB 中提取的值节点加入池中
             return new Pair<>(valueNode, true);
