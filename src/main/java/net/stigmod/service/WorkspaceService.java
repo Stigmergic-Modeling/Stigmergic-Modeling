@@ -367,6 +367,7 @@ public class WorkspaceService {
             List<String> orderList = attributeOrderChanges.getValue();
             Order order = this.getOrder(icmId, "AttOdr", name);
             order.setOrderList(orderList);
+            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
             orderRepository.save(order);
         }
 
@@ -376,6 +377,7 @@ public class WorkspaceService {
             List<String> orderList = this.getBackIdsFromFrontIds(icmId, attributeOrderChanges.getValue());  // 将可能的 frontId 转换为 backId
             Order order = this.getOrder(icmId, "RelOdr", name);
             order.setOrderList(orderList);
+            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
             orderRepository.save(order);
         }
 
@@ -389,6 +391,7 @@ public class WorkspaceService {
     private void storeModOps(ModelingOperationLog mol) {
         ModelingOperations modOps = modOpsRepository.getModOpsByIcmId(mol.icmId);
         modOps.addOperations(mol.log);
+        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
         modOpsRepository.save(modOps);
     }
 
@@ -542,7 +545,7 @@ public class WorkspaceService {
                     modelingResponse.addMessage("Add property [" + propertyName + "] to relationship [" + relationshipId.toString() + "] of relationship group [" + relationGroupName + "] successfully.");
                 }
             }
-
+            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
             relationNodeRepository.save(relationNode);
 
             while (relationNode.getId() == null) {
@@ -739,7 +742,7 @@ public class WorkspaceService {
                     modelingResponse.addMessage("Add property [" + propertyName + "] to attribute [" + attributeName + "] of class [" + className + "] successfully.");
                 }
             }
-
+            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
             relationNodeRepository.save(relationNode);
 
             while (relationNode.getId() == null) {
@@ -997,6 +1000,7 @@ public class WorkspaceService {
                         if (isFreshCreation) {  // 全新创建，但有可能同名融合
 
                             ClassNode classNode = this.getClassNodeByNameWithoutSaving(ccmId, icmId, className, valueNodePool, null, null);
+                            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                             classNodeRepository.save(classNode);
 
                             // 更新 id 映射和返回信息
@@ -1039,7 +1043,7 @@ public class WorkspaceService {
                                 classNode.addC2VEdge(c2vEdge);
                                 valueNode.addC2VEdge(c2vEdge);
                             }
-
+                            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                             classNodeRepository.save(classNode);
                         }
                         modelingResponse.addMessage("Add class [" + className + "] successfully.");
@@ -1125,6 +1129,7 @@ public class WorkspaceService {
                             this.addR2VEdgeWithoutSavingConsiderExistence(ccmId, icmId, "E1", propertyName, relationNode, propertyValueE1, valueNodePool);
                         }
 
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         relationNodeRepository.save(relationNode);
                         modelingResponse.addMessage("Add property [" + propertyName + "] to attribute [" + attributeName + "] of class [" + className + "] successfully.");
 
@@ -1185,6 +1190,7 @@ public class WorkspaceService {
                             }
                         }
 
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         relationNodeRepository.save(relationNode);
                         modelingResponse.addMessage("Add property [" + propertyName + "] to relationship [" + relationshipId.toString() + "] of relationship group [" + relationGroupName + "] successfully.");
 
@@ -1223,6 +1229,7 @@ public class WorkspaceService {
                         }
                         classNode.removeIcmId(icmId);
                         classNode.setIsSettled(false);  // 有待融合算法进一步处理
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         classNodeRepository.save(classNode);
 
                         // 删除相应的 Order 节点
@@ -1360,6 +1367,7 @@ public class WorkspaceService {
                             valueNode.addC2VEdge(c2vEdge);
                         }
                         classNode.setIsSettled(false);  // 有待融合算法进一步处理
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         classNodeRepository.save(classNode);
 
                         // 修改 Attribute Order 节点（如果存在的话）
@@ -1367,6 +1375,7 @@ public class WorkspaceService {
                         if (!attributeOrders.isEmpty()) {
                             Order attributeOrder = attributeOrders.get(0);
                             attributeOrder.setName(classNameNew);
+                            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                             orderRepository.save(attributeOrder);
                         }
                         modelingResponse.addMessage("Modify class name from [" + classNameOld + "] to [" + classNameNew + "]  successfully.");
@@ -1408,6 +1417,7 @@ public class WorkspaceService {
                         }
 
                         relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         relationNodeRepository.save(relationNode);
                         modelingResponse.addMessage("Modify property [" + propertyName + "] " +
                                 "to [" + propertyValueE1 + "] " +
@@ -1426,6 +1436,7 @@ public class WorkspaceService {
                         if (!relationshipOrders.isEmpty()) {
                             Order attributeOrder = relationshipOrders.get(0);
                             attributeOrder.setName(relationshipGroupNameNew);
+                            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                             orderRepository.save(attributeOrder);
                         }
                         modelingResponse.addMessage("Modify relationship group name from [" + relationshipGroupNameOld + "] " +
@@ -1460,6 +1471,7 @@ public class WorkspaceService {
                                 this.modifyRelationshipProperty(ccmId, icmId, relationNode, propertyName, propertyValueE0, propertyValueE1);
                         }
                         relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         relationNodeRepository.save(relationNode);
 
                         modelingResponse.addMessage("Modify property [" + propertyName + "] " +
@@ -1486,6 +1498,7 @@ public class WorkspaceService {
                         CollectiveConceptualModel ccm = icm.getCcms().iterator().next();
                         ccm.updateNums(classNumInCcm, relationshipNumInCcm);
                         icm.updateNums(classNumInIcm, relationshipNumInIcm);
+                        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
                         icmRepository.save(icm);
 
                         break;
@@ -1555,6 +1568,7 @@ public class WorkspaceService {
     @Transactional
     private void addFrontBackIdMapping(IndividualConceptualModel icm, String frontId, Long backId) {
         icm.addIdMapping(frontId, backId);
+        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
         icmRepository.save(icm);
     }
 
@@ -1579,6 +1593,7 @@ public class WorkspaceService {
             return Orders.get(0);
         } else {
             Order order = new Order(icmId, type, name);
+            neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
             orderRepository.save(order);
             return order;
         }
@@ -1646,6 +1661,7 @@ public class WorkspaceService {
         }
 
         relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
         relationNodeRepository.save(relationNode);
     }
 
@@ -1688,6 +1704,7 @@ public class WorkspaceService {
         // 删除 relationship 节点本身
         relationNode.removeIcmId(icmId);
         relationNode.setIsSettled(false);  // 有待融合算法进一步处理
+        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保保存正确
         relationNodeRepository.save(relationNode);
     }
 
