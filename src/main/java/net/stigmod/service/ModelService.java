@@ -200,18 +200,29 @@ public class ModelService {
         }
 
         // 获取当前 User 和 ICM
+//        IndividualConceptualModel icm = icmRepo.findOne(icmId, 2);
+//        User user = icm.getUsers().iterator().next();
         User user = userRepo.getUserFromSession();
-        IndividualConceptualModel icm = icmRepo.findOne(icmId);
+        IndividualConceptualModel icm = null;
+        for (IndividualConceptualModel m : user.getIcms()) {
+            if (m.getId().equals(icmId)) {
+                icm = m;
+                break;
+            }
+        }
+        assert icm != null;
 
         // 改名并回收 ICM
         String newName = icm.getName() + "_" + user.getId() + "_" + new Date().getTime();
         icm.removeUser(user);
         user.removeIcm(icm);
+//        userInSession.removeIcm(icm);  // 由于 session 中的 user 和 icm 中的 user 在内存中不是同一对象，因此这里要重复移除
         icm.addUser(recycleBinUser);
         recycleBinUser.addIcm(icm);
         icm.setName(newName);
+
+//        neo4jTemplate.clear();  // 清除 neo4j session 中的 mappingContext，以确保数据库操作正确
         icmRepo.save(icm);
-        userRepo.save(user);  // 确保删除结果及时更新到数据库
     }
 
     // 由 ICM ID 获取 ICM

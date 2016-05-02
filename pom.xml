@@ -9,10 +9,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>4.1.4.RELEASE</spring.version>
-        <spring-data-neo4j.version>4.0.0.RELEASE</spring-data-neo4j.version>
+        <spring.version>4.2.4.RELEASE</spring.version>
+        <spring-data-neo4j.version>4.1.1.RELEASE</spring-data-neo4j.version>
         <spring-security.version>4.0.0.RELEASE</spring-security.version>
-        <neo4j.version>2.3.0</neo4j.version>
+        <neo4j.version>2.3.3</neo4j.version>
+        <neo4j.ogm.version>2.0.1</neo4j.ogm.version>  <!-- for latest bug-fix: https://github.com/neo4j-examples/sdn4-cineasts/commit/db0602e9261b80bdf178a5d56f57e16471ffc57b -->
     </properties>
 
     <dependencies>
@@ -107,6 +108,18 @@
             <version>${spring-data-neo4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-embedded-driver</artifactId>
+            <version>${neo4j.ogm.version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.neo4j</groupId>-->
+            <!--<artifactId>neo4j-ogm</artifactId>-->
+            <!--<version>${neo4j.ogm.version}</version>-->
+        <!--</dependency>-->
+
         <!--<dependency>-->
             <!--<groupId>org.springframework.data</groupId>-->
             <!--<artifactId>spring-data-neo4j-rest</artifactId>-->
@@ -155,6 +168,25 @@
             <groupId>edu.sussex.nlp</groupId>
             <artifactId>sussex-nlp-jws</artifactId>
             <version>0.11-beta</version>
+        </dependency>
+
+        <!-- version-caused-bug-fix-libs -->
+
+        <!-- http://stackoverflow.com/questions/35292243/java-lang-illegalargumentexception-unrecognized-type-null -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.6.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.6.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.6.5</version>
         </dependency>
 
     </dependencies>

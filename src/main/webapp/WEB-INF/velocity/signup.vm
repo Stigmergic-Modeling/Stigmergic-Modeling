@@ -32,10 +32,12 @@
                 <label for="password-repeat">Repeat Your Password</label>
                 <input type="password" class="form-control" required id="password-repeat" name="password-repeat" />
             </div>
-            <button class="btn btn-warning" type="submit">Sign up</button>
+            <div class="btn btn-warning" id="stigmod-fake-submit-1">Sign up</div>
+            <div class="btn btn-warning" id="stigmod-fake-submit-2" style="display:none;"><i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;&nbsp;Signing up</div>
+            <button class="btn btn-warning" id="stigmod-real-submit" type="submit" style="display:none;"></button>
         </form>
     </div>
 </div>
 
-#set ($jsFile = "index")
+#set ($jsFile = "signup")
 #parse ("footer.vm")

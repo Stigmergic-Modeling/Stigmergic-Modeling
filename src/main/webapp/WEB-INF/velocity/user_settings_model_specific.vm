@@ -56,7 +56,7 @@
                             </dl>
                             <dl>
                                 <dt>Language</dt>
-                                #if ("${currentCcm.getLanguage()}"=="ZH")
+                                #if ("${currentIcm.getLanguage()}"=="ZH")
                                     <dd><input type="text" class="stigmod-input stigmod-input-lg" name="language" value="中文" disabled/></dd>
                                 #else
                                     <dd><input type="text" class="stigmod-input stigmod-input-lg" name="language" value="English" disabled/></dd>
@@ -85,8 +85,9 @@
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <input type="hidden" class="stigmod-input stigmod-input-lg" name="id" value="${currentIcm.getId()}" />
                             <p>Once you delete a model, there is no going back. Please be certain.</p>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#stigmod-modal-delete-model">Delete model</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#stigmod-modal-delete-model" disabled>Delete model</button>
                             <button type="submit" class="btn btn-danger" id="hidden-submit-button">Hidden Real Submit Button</button>
+                            (Function currently not available.)
                         </form>
                     </div>
                 </div>
