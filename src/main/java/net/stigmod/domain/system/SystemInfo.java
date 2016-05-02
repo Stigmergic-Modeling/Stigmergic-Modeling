@@ -30,7 +30,7 @@ public class SystemInfo {
     private String activatedCcmName;
 
     public SystemInfo() {
-        activatedCcmId = -1L;
+        activatedCcmId = 0L;
     }
 
     public Long getId() {
