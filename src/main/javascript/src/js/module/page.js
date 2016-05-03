@@ -1471,7 +1471,7 @@ define(function (require, exports, module) {
                         break;
                 }
 
-                if (undefined !== properties.multiplicity) {
+                if ('Generalization' !== properties.type[0] && undefined !== properties.multiplicity) {  // Generalization 两端不显示多重性
                     left = left + ' [' + properties.multiplicity[0] + '] ';
                     right = ' [' + properties.multiplicity[1] + '] ' + right;
                 }
