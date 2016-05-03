@@ -740,10 +740,10 @@ define(function(require, exports, module) {
         var role2 = "";
       }
       else {
-        var multi1 = edge.multiplicity[1];
-        var multi2 = edge.multiplicity[0];
-        var role1 = edge.role[1];
-        var role2 = edge.role[0];
+        var multi1 = edge.multiplicity[0];
+        var multi2 = edge.multiplicity[1];
+        var role1 = edge.role[0];
+        var role2 = edge.role[1];
       }
       // d3.select("#tooltip")
       //   .style("left", mywidth - 350);

@@ -1471,7 +1471,7 @@ define(function (require, exports, module) {
                         break;
                 }
 
-                if (undefined !== properties.multiplicity) {
+                if ('Generalization' !== properties.type[0] && undefined !== properties.multiplicity) {  // Generalization 两端不显示多重性
                     left = left + ' [' + properties.multiplicity[0] + '] ';
                     right = ' [' + properties.multiplicity[1] + '] ' + right;
                 }
@@ -2203,7 +2203,7 @@ define(function (require, exports, module) {
             if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {  // 合法
 
                 // 若 relationship group 尚不存在，则首先新建 relationship group
-                var relationGroupName = widget.relgrpName;
+                var relationGroupName = widget.relgrpName !== '' ? widget.relgrpName : stateOfPage.clazz;  // widget.relgrpName 是右侧推荐栏添加关系时使用的
                 if (!icm[1][relationGroupName]) {
 
                     // 更新页面状态

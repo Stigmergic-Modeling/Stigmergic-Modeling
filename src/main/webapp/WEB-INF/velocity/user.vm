@@ -27,7 +27,7 @@
                     <p><span class="glyphicon glyphicon-link stigmod-detailinfo-icon"></span>&nbsp;${user.getUrl()}</p>
                 #end
                 #if (${user.getSignUpDate()})
-                    <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span>&nbsp;Joined&nbsp;on&nbsp;${user.getSignUpDate()}</div>
+                    <div><span class="glyphicon glyphicon-time stigmod-detailinfo-icon"></span>&nbsp;Joined&nbsp;on&nbsp;$date.format('yyyy-dd-MM',${user.getSignUpDate()})</div>
                 #end
             </div>
             <hr />

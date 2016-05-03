@@ -87,25 +87,34 @@ public class IcmDetail {
 
     // 添加 relationship 的顺序 List
     public void addRelationshipOrders(List<Order> orders) {
-        for (Order order : orders) {
-            String orderName = order.getName();
-            try {
-                if (this.relationshipGroups.containsKey(orderName)) {  // 类两端的类的先后顺序，前端和后端一致
-                    this.relationshipGroups.get(orderName).orderInIcm.order = order.getOrderList();
+//        for (Order order : orders) {
+//            String orderName = order.getName();
+//            try {
+//                if (this.relationshipGroups.containsKey(orderName)) {  // 类两端的类的先后顺序，前端和后端一致
+//                    this.relationshipGroups.get(orderName).orderInIcm.order = order.getOrderList();
+//
+//                } else {  // 类两端的类的先后顺序，前端和后端不一致，需要重新构造名称
+//                    String[] className = orderName.split("-");
+//                    String reverseOrderName = className[1] + "-" + className[0];
+//                    System.out.println("!! reverseOrderName: " + reverseOrderName);
+//                    this.relationshipGroups.get(reverseOrderName).orderInIcm.order = order.getOrderList();
+//                }
+//            } catch (NullPointerException ex) {
+//                System.out.println("!! NullPointerException caused by Relationship Group: " + orderName);
+//                System.out.println("!! this.relationshipGroups.get(orderName): " + this.relationshipGroups.get(orderName));
+//                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm: " + this.relationshipGroups.get(orderName).orderInIcm);
+//                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm.order: " + this.relationshipGroups.get(orderName).orderInIcm.order);
+//                throw ex;
+//            }
+//        }
 
-                } else {  // 类两端的类的先后顺序，前端和后端不一致，需要重新构造名称
-                    String[] className = orderName.split("-");
-                    String reverseOrderName = className[1] + "-" + className[0];
-                    System.out.println("!! reverseOrderName: " + reverseOrderName);
-                    this.relationshipGroups.get(reverseOrderName).orderInIcm.order = order.getOrderList();
-                }
-            } catch (NullPointerException ex) {
-                System.out.println("!! NullPointerException caused by Relationship Group: " + orderName);
-                System.out.println("!! this.relationshipGroups.get(orderName): " + this.relationshipGroups.get(orderName));
-                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm: " + this.relationshipGroups.get(orderName).orderInIcm);
-                System.out.println("!! this.relationshipGroups.get(orderName).orderInIcm.order: " + this.relationshipGroups.get(orderName).orderInIcm.order);
-                throw ex;
+        // 随机伪造的顺序，为了暂时解决 model merging 后没有更新 Order 节点中 relationship id 的问题
+        for (RelationshipGroup relationshipGroup : this.relationshipGroups.values()) {
+            List<String> order = new ArrayList<>();
+            for (Long relId : relationshipGroup.relationships.keySet()) {
+                order.add(relId.toString());
             }
+            relationshipGroup.orderInIcm.order = order;
         }
     }
 
