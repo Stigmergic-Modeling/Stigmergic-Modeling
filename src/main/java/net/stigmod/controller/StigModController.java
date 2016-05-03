@@ -82,12 +82,12 @@ public class StigModController {
     @RequestMapping(value="/about", method = RequestMethod.GET)
     public String about(ModelMap model) {
 
-        if (migrateService.isRunning()) {
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Service Unavailable");
-            return "service_unavailable";
-        }
+//        if (migrateService.isRunning()) {
+//            model.addAttribute("host", host);
+//            model.addAttribute("port", port);
+//            model.addAttribute("title", "Service Unavailable");
+//            return "service_unavailable";
+//        }
 
         final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
@@ -101,12 +101,12 @@ public class StigModController {
     @RequestMapping(value="/help", method = RequestMethod.GET)
     public String help(ModelMap model) {
 
-        if (migrateService.isRunning()) {
-            model.addAttribute("host", host);
-            model.addAttribute("port", port);
-            model.addAttribute("title", "Service Unavailable");
-            return "service_unavailable";
-        }
+//        if (migrateService.isRunning()) {
+//            model.addAttribute("host", host);
+//            model.addAttribute("port", port);
+//            model.addAttribute("title", "Service Unavailable");
+//            return "service_unavailable";
+//        }
 
         final User user = userRepository.getUserFromSession();
         model.addAttribute("user", user);
@@ -141,10 +141,16 @@ public class StigModController {
         if (password.equals(config.getAdminPassword())) {
 
             SystemInfo systemInfo = sysRepo.getSystemInfo();
+            if (systemInfo == null) {  // 系统刚刚初始化，新建系统信息节点
+                systemInfo = new SystemInfo();
+                sysRepo.save(systemInfo);
+            }
             model.addAttribute("activatedCcmName", systemInfo.getActivatedCcmName());
             model.addAttribute("activatedCcmId", systemInfo.getActivatedCcmId());
 
-            model.addAttribute("ccms", modelService.getAllCcmNamesAndIds());
+            List<String> ccmNamesAndIds = modelService.getAllCcmNamesAndIds();
+            ccmNamesAndIds.add("NonCcm-0");  // 加入一个不存在的 CCM，此选项作为失能使用
+            model.addAttribute("ccms", ccmNamesAndIds);
             model.addAttribute("title", "Admin");
             return "admin";
         } else {
@@ -182,7 +188,9 @@ public class StigModController {
                 model.addAttribute("error", e.getMessage());
             }
 
-            model.addAttribute("ccms", modelService.getAllCcmNamesAndIds());
+            List<String> ccmNamesAndIds = modelService.getAllCcmNamesAndIds();
+            ccmNamesAndIds.add("NonCcm-0");  // 加入一个不存在的 CCM，此选项作为失能使用
+            model.addAttribute("ccms", ccmNamesAndIds);
             model.addAttribute("title", "Admin");
             return "admin";
         } else {

@@ -62,6 +62,16 @@ public class IndividualConceptualModel extends AbstractConceptualModel {
      * @param backId 后端数据库 ID
      */
     public void addIdMapping(String frontId, Long backId) {
+
+        // 首先尝试更新 mapping
+        for (int i = 0; i < this.frontIdList.size(); i++) {
+            if (frontId.equals(this.frontIdList.get(i))) {
+                this.backIdList.set(i, backId.toString());
+                return;
+            }
+        }
+
+        // 若 frontId 未曾出现过，则创建 mapping
         this.frontIdList.add(frontId);
         this.backIdList.add(backId.toString());
     }

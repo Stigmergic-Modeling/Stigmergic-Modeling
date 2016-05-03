@@ -89,7 +89,7 @@ define(function (require, exports, module) {
         });
 
         // 每隔 XX s 进行一次自动保存
-        var saveInterval = 60000;
+        var saveInterval = 60000000;  // 调试时，不自动保存（1000分钟内）
         setInterval(function() {
             var noActiveTime = new Date().getTime() - page.lastActionTime;
             console.log('saveInterval : ' + saveInterval + ' | noActiveTime : ' + noActiveTime);
@@ -2203,8 +2203,8 @@ define(function (require, exports, module) {
             if (checkInputs(icm, $visibleInputs, stateOfPage) && isValidRelation($reltypeBtn)) {  // 合法
 
                 // 若 relationship group 尚不存在，则首先新建 relationship group
-                if (!icm[1][stateOfPage.clazz]) {
-                    var relationGroupName = widget.relgrpName;
+                var relationGroupName = widget.relgrpName;
+                if (!icm[1][relationGroupName]) {
 
                     // 更新页面状态
                     widget.fire('pageStateChanged', {
@@ -2458,8 +2458,7 @@ define(function (require, exports, module) {
                 case 0:
 
                     // 修改 model
-                    icm.removeSubModel([stateOfPage.flagCRG], stateOfPage.clazz);
-                    if (0 === stateOfPage.flagCRG) { // 删除 class 时，还要删除与之相关的 relation group
+                    if (0 === stateOfPage.flagCRG) {  // 1、先删除该 Class 参与的 Relationship Group
                         var relationGroups = icm.getSubModel([1]); // 获取所有 relation group
 
                         for (var nameRG in relationGroups) { // 遍历该 model 中的所有 relation group
@@ -2475,6 +2474,7 @@ define(function (require, exports, module) {
                             }
                         }
                     }
+                    icm.removeSubModel([stateOfPage.flagCRG], stateOfPage.clazz);  // 2、再先删除该 Class
 
                     // 更新显示
                     widget.fire('classRemoved', null);

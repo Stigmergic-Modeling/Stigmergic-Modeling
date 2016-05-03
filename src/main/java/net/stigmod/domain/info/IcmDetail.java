@@ -34,7 +34,7 @@ public class IcmDetail {
         for (Map<String, Object> classNameAndId : classNamesAndIds) {
             String name = (String) classNameAndId.get("className");
             if (!name.startsWith("_")) {  // 前端模型中不需要内置类 _string, _int, _float, _boolean
-                Long id = ((Integer) classNameAndId.get("classId")).longValue();  // SDN 返回的数字都是 Integer 类型的，不能直接转型成 Long
+                Long id = ((Number) classNameAndId.get("classId")).longValue();  // SDN 返回的数字都是 Integer 类型的，不能直接转型成 Long
                 this.classes.put(name, new Clazz());
                 this.name2IdMapping.addClass(name, id);
             }
