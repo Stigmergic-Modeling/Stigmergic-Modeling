@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Kai Fu
@@ -80,6 +77,48 @@ public class MergeController2 {
                 this.PersonNum = 15;
                 initSimulateTest(classNodeList,relationNodeList,valueNodeList);
 
+                int cSize = classNodeList.size();
+                int rSize = relationNodeList.size();
+                for(int i=0;i<cSize;i++) {
+                    ClassNode cNode = classNodeList.get(i);
+                    Set<ClassToValueEdge> ctvSet = new HashSet<>(cNode.getCtvEdges());
+                    for(ClassToValueEdge ctvEdge : ctvSet) {
+                        if(ctvEdge.getIcmSet().size()==0) {
+                            ValueNode vNode = ctvEdge.getEnder();
+                            cNode.getCtvEdges().remove(ctvEdge);
+                            vNode.getCtvEdges().remove(ctvEdge);
+                        }
+                    }
+                    Set<RelationToClassEdge> rtcSet = new HashSet<>(cNode.getRtcEdges());
+                    for(RelationToClassEdge rtcEdge : rtcSet) {
+                        if(rtcEdge.getIcmSet().size()==0) {
+                            RelationNode rNode = rtcEdge.getStarter();
+                            cNode.getRtcEdges().remove(rtcEdge);
+                            rNode.getRtcEdges().remove(rtcEdge);
+                        }
+                    }
+                }
+
+                for(int i=0;i<rSize;i++) {
+                    RelationNode rNode = relationNodeList.get(i);
+                    Set<RelationToClassEdge> rtcSet = new HashSet<>(rNode.getRtcEdges());
+                    for(RelationToClassEdge rtcEdge : rtcSet) {
+                        if(rtcEdge.getIcmSet().size()==0) {
+                            ClassNode cNode = rtcEdge.getEnder();
+                            cNode.getRtcEdges().remove(rtcEdge);
+                            rNode.getRtcEdges().remove(rtcEdge);
+                        }
+                    }
+                    Set<RelationToValueEdge> rtvSet = new HashSet<>(rNode.getRtvEdges());
+                    for(RelationToValueEdge rtvEdge : rtvSet) {
+                        if(rtvEdge.getIcmSet().size()==0) {
+                            ValueNode vNode = rtvEdge.getEnder();
+                            vNode.getRtvEdges().remove(rtvEdge);
+                            rNode.getRtvEdges().remove(rtvEdge);
+                        }
+                    }
+                }
+
                 for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
                 for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
                 for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
@@ -92,11 +131,122 @@ public class MergeController2 {
         }
     }
 
+    /**
+     * 此函数主要用于删除用户的部分节点
+     * @param maxDeleteNum  maxDeleteNum是每个用户模型要删除的最大节点数
+     * @param userNum  群体模型中的用户数(用户模型数)
+     */
+    private void deleteNodesForUser(int maxDeleteNum,int userNum,List<ClassNode> classNodeList,List<RelationNode> relationNodeList) {
+        int uNodeSum = cNodeNum + rNodeNum ;
+        for(int i=0 ; i<userNum ; i++) {
+            long curUId = (long)i;
+            int deleteNum = randValue(maxDeleteNum+1);//要删除的节点数,要加1才可以保证范围是0~maxDeleteNum
+            //对于第i个用户,其class节点的范围是i*cNum~(i+1)*cNum-1,其relation节点的范围是i*rNum~(i+1)*rNum-1
+            int[] randList = randValueList(uNodeSum);
+            for(int j=0;j<deleteNum;j++) {
+                int curRandValue = randList[j];
+                if(curRandValue<cNodeNum) {
+                    deleteClassNode(curUId, curRandValue, i * cNodeNum, (i + 1) * cNodeNum - 1,classNodeList);
+                    System.out.println("删除第"+i+"个用户第"+(i*cNodeNum+curRandValue)+"个Class节点");
+                }
+                else {
+                    deleteRelationNode(curUId,curRandValue-cNodeNum,i*rNodeNum,(i+1)*rNodeNum-1,relationNodeList);
+                    System.out.println("删除第"+i+"个用户第"+(i*rNodeNum+curRandValue-cNodeNum)+"个Relation节点");
+                }
+            }
+        }
+    }
+
+    private void deleteClassNode(long uid,int loc,int start,int end,List<ClassNode> classNodeList) {
+        ClassNode cNode = classNodeList.get(start+loc);
+        cNode.removeIcmId(uid);
+//        cNode.getIcmSet().remove(uid);//若要删除classNode,则必须删除所有和该classNode连接的relationNode,以及valueNode
+        for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
+//            rtcEdge.getIcmSet().remove(uid);
+            rtcEdge.removeIcmId(uid);
+            RelationNode rNode = rtcEdge.getStarter();
+            deleteRelationNodeDetail(rNode,uid);//删除对应
+        }
+        for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
+//            ctvEdge.getIcmSet().remove(uid);
+            ctvEdge.removeIcmId(uid);
+            ValueNode vNode = ctvEdge.getEnder();
+            if(!isOtherEdgeHasUidForValueNode(vNode,uid)) {
+//                vNode.getIcmSet().remove(uid);
+                vNode.removeIcmId(uid);
+            }
+            else ;
+        }
+    }
+
+    private void deleteRelationNode(long uid,int loc,int start,int end,List<RelationNode> relationNodeList) {
+        RelationNode rNode = relationNodeList.get(start+loc);
+        deleteRelationNodeDetail(rNode,uid);
+    }
+
+    private void deleteRelationNodeDetail(RelationNode rNode,long uid) {
+//        rNode.getIcmSet().remove(uid);
+        rNode.removeIcmId(uid);
+        for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
+//            rtcEdge.getIcmSet().remove(uid);
+            rtcEdge.removeIcmId(uid);
+        }
+        for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
+//            rtvEdge.getIcmSet().remove(uid);
+            rtvEdge.removeIcmId(uid);
+            ValueNode vNode = rtvEdge.getEnder();
+            if(!isOtherEdgeHasUidForValueNode(vNode,uid)) {
+//                vNode.getIcmSet().remove(uid);
+                vNode.removeIcmId(uid);
+            }
+            else ;
+        }
+    }
+
+    private boolean isOtherEdgeHasUidForValueNode(ValueNode vNode,long uid) {
+        for(RelationToValueEdge rtvEdge : vNode.getRtvEdges()) {
+            if(rtvEdge.getIcmSet().contains(uid)) return true;
+        }
+        for(ClassToValueEdge ctvEdge : vNode.getCtvEdges()) {
+            if(ctvEdge.getIcmSet().contains(uid)) return true;
+        }
+        return false;
+    }
+
+    private int randValue(int maxNum) {//返回的rand值范围要求在0~maxNum-1之间
+        Random random = new Random() ;
+        int curRand=Math.abs(random.nextInt()%maxNum);
+        return curRand;
+    }
+
+    private int[] randValueList(int arrayLength) {
+        int[] randList = new int[arrayLength];
+        for(int i=0;i<arrayLength;i++) {
+            randList[i]=i;
+        }
+
+        Random random=new Random();
+        int x=0,tmp=0;
+
+        for(int i=arrayLength-1;i>0;i--) {
+            int curTarget=Math.abs(random.nextInt()%arrayLength);
+            tmp=randList[i];
+            randList[i]=randList[curTarget];
+            randList[curTarget]=tmp;
+        }
+        return randList;
+    }
+
+
     private void initSimulateTest(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
         cNodeInit(classNodeList);
         rNodeInit(relationNodeList);
         vNodeInit(valueNodeList);
         edgeInit(classNodeList,relationNodeList,valueNodeList);
+
+        int deleteNum = 5;
+        int personNum = PersonNum;
+        deleteNodesForUser(deleteNum , personNum,classNodeList,relationNodeList);
     }
 
     private void cNodeInit(List<ClassNode> classNodeList) {

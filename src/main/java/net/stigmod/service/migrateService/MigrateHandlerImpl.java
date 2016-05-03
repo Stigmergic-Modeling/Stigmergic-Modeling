@@ -98,6 +98,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         System.out.println("算法运行启动时间为: " + df.format(new Date()));
 
         systemEntropy = entropyHandler.initNodeListEntropy(classNodeList,relationNodeList,valueNodeList,nodeSum);
+        scanToFindBug();
         System.out.println("系统初始熵值为: "+systemEntropy);
         while(true) {
             iterNum++;
@@ -230,6 +231,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             List<Integer> cNodeLocTmpList = new ArrayList<>(simCNodeSet);
             List<Integer> cNodeLocList = migrateUtil.getSortedConCNode(cNodeLocTmpList,classNodeList);
             migrateClassNode(cNode, cNodeLocList, 1);
+            scanToFindBug();
         }
 
 
@@ -249,6 +251,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             List<Integer> simRNodeLocTmpList = migrateUtil.findConRelationNodes(rNode,relationNodeList,valueNodeList,1);//为1表示只保留与其role相同的relation
             List<Integer> simRNodeLocList = migrateUtil.getSortedConRNode(simRNodeLocTmpList,relationNodeList);
             migrateRelationNode(rNode,simRNodeLocList,1);
+            scanToFindBug();
         }
     }
 
@@ -504,7 +507,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 tmpSet.add(icm);
                 migrateRelationNodeForOneStep(tmpSet, maxDecreaseLoc, curLoc);
                 reComputeMigrateRelationNodeEntropy(maxDecreaseLoc, curLoc);
-                setSettleValueForRelationMigrate(maxDecreaseLoc,curLoc);//因为这是最终值,所以可以设置isSettle了
+                setSettleValueForRelationMigrate(maxDecreaseLoc, curLoc);//因为这是最终值,所以可以设置isSettle了
                 removeNullEdgeForRelationNode(maxDecreaseLoc);//删除多余边
                 //另外也不计算当前系统熵值了,直接用scanToCompute算出来
                 systemEntropy = scanToComputeSystemEntropy();
@@ -638,7 +641,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 System.out.println("发生熵值不等错误0001: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+",初始节点Listid: "+sourceClassNodeListId+"目标节点Listid:"+targetClassNodeListId);
             }
             System.out.println("发生迁移操作,用户集合为:"+icmSet+" ,sourceClassNodeListId为:"+sourceClassNodeListId+
-                    " ,targetClassNodeListId为:"+targetClassNodeListId);
+                    " ,id: "+classNodeList.get(sourceClassNodeListId).getId()+ " ,targetClassNodeListId为:"
+                    + targetClassNodeListId +" ,id: "+classNodeList.get(targetClassNodeListId).getId());
             isStable=false;//记录当前程序是否发生过迁移
             return;
         }
@@ -998,7 +1002,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 setSettleValueForClassMigrate(targetClassNodeListId,minVarCNodeListId);//设置false
                 removeNullEdgeForClassNode(targetClassNodeListId);
                 System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
-                        " ,minVarCNodeListId为:"+minVarCNodeListId+" ,减小熵值为: "+minEntropyDown);
+                        " ,id: "+classNodeList.get(targetClassNodeListId).getId()+" ,minVarCNodeListId为:"+minVarCNodeListId+
+                        " ,id: "+classNodeList.get(minVarCNodeListId).getId()+" ,减小熵值为: "+minEntropyDown);
                 isStable=false;
             }//不需要复原
         }else {
@@ -1019,10 +1024,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     removeNullEdgeForClassNode(sourceClassNodeListId);
                     systemEntropy += simVar;
                     isStable=false;
-                    System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
-                            targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId+" ,减小熵值为: "+minEntropyDown);
+                    System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
+                                    " ,id: "+classNodeList.get(targetClassNodeListId).getId()+" ,minVarCNodeListId为:"+minVarCNodeListId+
+                            " ,id: "+classNodeList.get(minVarCNodeListId).getId()+" ,减小熵值为: "+minEntropyDown);
                     System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
-                            sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
+                            sourceClassNodeListId+" ,id: "+classNodeList.get(sourceClassNodeListId).getId()+
+                            " ,targetClassNodeListId为:"+targetClassNodeListId+" ,id: "+classNodeList.get(targetClassNodeListId).getId());
                 }else {//resSimVar<0.0说明系统熵值总体上升了,因此必须回复全部初始数据
                     recoverMigrateStateForClassNode(icmId,targetClassNodeListId,minVarCNodeListId,isUsedNullNode);//还原节点的原有格局
                     recoverEdgeStateForClassNode(targetClassNodeListId);
@@ -1044,10 +1051,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 removeNullEdgeForClassNode(sourceClassNodeListId);
                 systemEntropy += simVar;
                 isStable=false;
-                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+
-                        targetClassNodeListId+ " ,minVarCNodeListId为:"+minVarCNodeListId+" ,减小熵值为: "+minEntropyDown);
+                System.out.println("发生双步迁移操作:首步成功,用户编号:"+icmId+" ,targetClassNodeListId为:"+targetClassNodeListId+
+                                " ,id: "+classNodeList.get(targetClassNodeListId).getId()+" ,minVarCNodeListId为:"+minVarCNodeListId+
+                        " ,id: "+classNodeList.get(minVarCNodeListId).getId()+" ,减小熵值为: "+minEntropyDown);
                 System.out.println("发生双步迁移操作:次步成功,用户编号:"+icmId+" ,sourceClassNodeListId为:"+
-                        sourceClassNodeListId+ " ,targetClassNodeListId为:"+targetClassNodeListId);
+                        sourceClassNodeListId+" ,id: "+classNodeList.get(sourceClassNodeListId).getId()+
+                        " ,targetClassNodeListId为:"+targetClassNodeListId+" ,id: "+classNodeList.get(targetClassNodeListId).getId());
             }
         }
         return simVar+minEntropyDown;
@@ -1122,10 +1131,13 @@ public class MigrateHandlerImpl implements MigrateHandler {
             double testE = scanToComputeSystemEntropy();
             if(Math.abs(systemEntropy - testE) > 0.1) {
                 System.out.println("发生熵值不等错误0006: "+"系统熵值: "+systemEntropy+" ,测试熵值: "+testE+"," +
-                        "初始节点Listid: "+sourceRelationNodeListId+"目标节点Listid:"+targetRelationNodeId);
+                        "初始节点Listid: "+sourceRelationNodeListId+" ,id为: " +
+                        relationNodeList.get(sourceRelationNodeListId).getId()+"目标节点Listid:"+targetRelationNodeId +
+                        " ,id为: "+relationNodeList.get(targetRelationNodeId).getId());
             }
             System.out.println("发生迁移操作,用户集合:"+icmSet+" ,sourceRelationNodeListId为:"+
-                    sourceRelationNodeListId+ " ,targetRelationNodeId为:"+targetRelationNodeId);
+                    sourceRelationNodeListId+" ,id为: " + relationNodeList.get(sourceRelationNodeListId).getId()
+                    + " ,targetRelationNodeId为:"+targetRelationNodeId+" ,id为: "+relationNodeList.get(targetRelationNodeId).getId());
             isStable=false;//记录当前程序是否发生过迁移
             return;
         }
@@ -1478,7 +1490,8 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 setSettleValueForRelationMigrate(targetRelationNodeListId, minVarRNodeId);//设置false
                 removeNullEdgeForRelationNode(targetRelationNodeListId);
                 System.out.println("发生两步迁移操作:首步成功,用户编号:"+icmId+" ,targetRelationNodeListId为:"+
-                        targetRelationNodeListId+ " ,minVarRNodeId为:"+minVarRNodeId+" ,减小熵值为: "+minEntropyDown);
+                        targetRelationNodeListId+" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId()
+                        + " ,minVarRNodeId为:"+minVarRNodeId+" ,id为: " + relationNodeList.get(minVarRNodeId).getId()+" ,减小熵值为: "+minEntropyDown);
             }//不需要复原
         }else {
             //说明当前的迁移是有意义的,但是我们还是需要判断这次两步迁移是否会造成系统熵值上升
@@ -1499,10 +1512,12 @@ public class MigrateHandlerImpl implements MigrateHandler {
                     systemEntropy += simVar;
                     isStable=false;
                     System.out.println("发生两步迁移操作:首步成功,用户编号:"+icmId+" ,targetRelationNodeListId为:"+
-                            targetRelationNodeListId+ " ,minVarRNodeId为:"+minVarRNodeId);
+                            targetRelationNodeListId+" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId()
+                            + " ,minVarRNodeId为:"+minVarRNodeId+" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId());
                     System.out.println("首步迁移的熵值下降为: "+minEntropyDown);
-                    System.out.println("发生两步迁移操作:次步成功,用户编号:"+icmId+" ,sourceRelationNodeListId为:"+
-                            sourceRelationNodeListId+ " ,targetRelationNodeListId为:"+targetRelationNodeListId);
+                    System.out.println("发生两步迁移操作:次步成功,用户编号:"+icmId+" ,sourceRelationNodeListId为:"+ sourceRelationNodeListId
+                            +" ,id为: " + relationNodeList.get(sourceRelationNodeListId).getId() + " ,targetRelationNodeListId为:"+targetRelationNodeListId
+                            +" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId());
                     System.out.println("次步迁移的熵值下降为: "+simVar);
                 }else {//resSimVar<0.0说明系统熵值总体上升了,因此必须回复全部初始数据
                     recoverMigrateStateForRelationNode(icmId,targetRelationNodeListId,minVarRNodeId,isUsedNullNode);//还原原有的节点格局
@@ -1526,9 +1541,11 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 systemEntropy += simVar;
                 isStable=false;
                 System.out.println("发生两步迁移操作:首步成功,用户编号:"+icmId+" ,targetRelationNodeListId为:"+
-                        targetRelationNodeListId+ " ,minVarRNodeId为:"+minVarRNodeId+" ,减小熵值为: "+minEntropyDown);
-                System.out.println("发生两步迁移操作:次步成功,用户编号:"+icmId+" ,sourceRelationNodeListId为:"+
-                        sourceRelationNodeListId+ " ,targetRelationNodeListId为:"+targetRelationNodeListId);
+                        targetRelationNodeListId+" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId()
+                        + " ,minVarRNodeId为:"+minVarRNodeId+" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId());
+                System.out.println("发生两步迁移操作:次步成功,用户编号:"+icmId+" ,sourceRelationNodeListId为:"+ sourceRelationNodeListId
+                        +" ,id为: " + relationNodeList.get(sourceRelationNodeListId).getId() + " ,targetRelationNodeListId为:"+targetRelationNodeListId
+                        +" ,id为: " + relationNodeList.get(targetRelationNodeListId).getId());
             }
         }
         return simVar+minEntropyDown;
@@ -2230,72 +2247,93 @@ public class MigrateHandlerImpl implements MigrateHandler {
         for(int i=0;i<classNodeList.size();i++) {
             ClassNode cNode = classNodeList.get(i);
             int icmSum=cNode.getIcmSet().size();
+            Set<Long> cNodeSet = cNode.getIcmSet();
             for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
-                if(ctvEdge.getIcmSet().size()>icmSum) {
-                    System.out.println("11111111");
+                if(!cNodeSet.containsAll(ctvEdge.getIcmSet())) {
+                    System.out.println("11111111 : cNodeLoc: "+cNode.getLoc()+" ,id: "+cNode.getId());
                 }
-                if(ctvEdge.getIcmSet().size() == 0) {
-                    System.out.println("11111111");
-                }
+//                if(ctvEdge.getIcmSet().size()>icmSum) {
+//                    System.out.println("11111111");
+//                }
+//                if(ctvEdge.getIcmSet().size() == 0) {
+//                    System.out.println("11111111");
+//                }
             }
 
             for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
-                if(rtcEdge.getIcmSet().size()>icmSum) {
-                    System.out.println("222222222");
-                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+                if(!cNodeSet.containsAll(rtcEdge.getIcmSet())) {
+                    System.out.println("222222222 : cNodeLoc: "+cNode.getLoc()+" ,id: "+cNode.getId());
                 }
-                if(rtcEdge.getIcmSet().size() == 0) {
-                    System.out.println("222222222");
-                }
+//                if(rtcEdge.getIcmSet().size()>icmSum) {
+//                    System.out.println("222222222");
+//                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+//                }
+//                if(rtcEdge.getIcmSet().size() == 0) {
+//                    System.out.println("222222222");
+//                }
             }
         }
 
         for(int i=0;i<relationNodeList.size();i++) {
             RelationNode rNode = relationNodeList.get(i);
             int icmSum=rNode.getIcmSet().size();
+            Set<Long> rNodeSet = rNode.getIcmSet();
             for(RelationToValueEdge rtvEdge : rNode.getRtvEdges()) {
-                if(rtvEdge.getIcmSet().size()>icmSum) {
-                    System.out.println("3333333333");
+                if(!rNodeSet.containsAll(rtvEdge.getIcmSet())) {
+                    System.out.println("3333333333 : rNodeLoc: "+rNode.getLoc()+" ,id: "+rNode.getId());
                 }
-                if(rtvEdge.getIcmSet().size()==0) {
-                    System.out.println("3333333333");
-                }
+//                if(rtvEdge.getIcmSet().size()>icmSum) {
+//                    System.out.println("3333333333");
+//                }
+//                if(rtvEdge.getIcmSet().size()==0) {
+//                    System.out.println("3333333333");
+//                }
             }
 
             for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
-                if(rtcEdge.getIcmSet().size()>icmSum) {
-                    System.out.println("44444444444");
-                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+                if(!rNodeSet.containsAll(rtcEdge.getIcmSet())) {
+                    System.out.println("44444444444 : rNodeLoc: "+rNode.getLoc()+" ,id: "+rNode.getId());
                 }
-                if(rtcEdge.getIcmSet().size()==0) {
-                    System.out.println("44444444444");
-                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
-                }
+//                if(rtcEdge.getIcmSet().size()>icmSum) {
+//                    System.out.println("44444444444");
+//                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+//                }
+//                if(rtcEdge.getIcmSet().size()==0) {
+//                    System.out.println("44444444444");
+//                    System.out.println("relation: "+rtcEdge.getStarter().getLoc());
+//                }
             }
         }
 
         for(int i=0;i<valueNodeList.size();i++) {
             ValueNode vNode = valueNodeList.get(i);
             int icmSum = vNode.getIcmSet().size();
+            Set<Long> vNodeSet = vNode.getIcmSet();
             for(ClassToValueEdge ctvEdge : vNode.getCtvEdges()) {
-                if(ctvEdge.getIcmSet().size() > icmSum) {
-                    System.out.println("55555555555");
-                    System.out.println("classNode loc: "+ctvEdge.getStarter().getLoc());
+                if(!vNodeSet.containsAll(ctvEdge.getIcmSet())) {
+                    System.out.println("55555555555 : vNodeLoc: "+vNode.getLoc()+" ,id: "+vNode.getId());
                 }
-                if(ctvEdge.getIcmSet().size() == 0) {
-                    System.out.println("55555555555");
-                    System.out.println("classNode loc: "+ctvEdge.getStarter().getLoc());
-                }
+//                if(ctvEdge.getIcmSet().size() > icmSum) {
+//                    System.out.println("55555555555");
+//                    System.out.println("classNode loc: "+ctvEdge.getStarter().getLoc());
+//                }
+//                if(ctvEdge.getIcmSet().size() == 0) {
+//                    System.out.println("55555555555");
+//                    System.out.println("classNode loc: "+ctvEdge.getStarter().getLoc());
+//                }
             }
             for(RelationToValueEdge rtvEdge : vNode.getRtvEdges()) {
-                if(rtvEdge.getIcmSet().size() > icmSum) {
-                    System.out.println("66666666666");
-                    System.out.println("relationNode loc: "+rtvEdge.getStarter().getLoc());
+                if(!vNodeSet.containsAll(rtvEdge.getIcmSet())) {
+                    System.out.println("66666666666 : vNodeLoc: "+vNode.getLoc()+" ,id: "+vNode.getId());
                 }
-                if(rtvEdge.getIcmSet().size() == 0) {
-                    System.out.println("66666666666");
-                    System.out.println("relationNode loc: "+rtvEdge.getStarter().getLoc());
-                }
+//                if(rtvEdge.getIcmSet().size() > icmSum) {
+//                    System.out.println("66666666666");
+//                    System.out.println("relationNode loc: "+rtvEdge.getStarter().getLoc());
+//                }
+//                if(rtvEdge.getIcmSet().size() == 0) {
+//                    System.out.println("66666666666");
+//                    System.out.println("relationNode loc: "+rtvEdge.getStarter().getLoc());
+//                }
             }
         }
     }

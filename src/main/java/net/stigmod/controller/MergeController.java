@@ -65,6 +65,36 @@ public class MergeController {
 
             readFile(path,classNodeList,relationNodeList,valueNodeList);
 
+//            Map<Long,Integer> uCMap = new HashMap<>();
+//            Map<Long,Integer> uRMap = new HashMap<>();
+//            for(int i=0;i<classNodeList.size();i++) {
+//                ClassNode cNode = classNodeList.get(i);
+//                Set<Long> icmSet = cNode.getIcmSet();
+//                Iterator<Long> iter = icmSet.iterator();
+//                while(iter.hasNext()) {
+//                    long u = iter.next();
+//                    if(uCMap.containsKey(u)) {
+//                        uCMap.put(u,uCMap.get(u)+1);
+//                    }else uCMap.put(u,1);
+//                }
+//            }
+//
+//            for(int i=0;i<relationNodeList.size();i++) {
+//                RelationNode rNode = relationNodeList.get(i);
+//                Set<Long> icmSet = rNode.getIcmSet();
+//                Iterator<Long> iter = icmSet.iterator();
+//                while(iter.hasNext()) {
+//                    long u = iter.next();
+//                    if(uRMap.containsKey(u)) {
+//                        uRMap.put(u,uRMap.get(u)+1);
+//                    }else uRMap.put(u,1);
+//                }
+//            }
+
+//            for(long u : uCMap.keySet()) {
+//                System.out.println(u+"\t"+uCMap.get(u)+"\t"+uRMap.get(u));
+//            }
+
             for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
             for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
             for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);

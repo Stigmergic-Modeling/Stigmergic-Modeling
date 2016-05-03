@@ -33,11 +33,11 @@ public class EntropyHandlerImpl implements EntropyHandler{
 //    @Autowired
 //    private ValueNodeRepository valueNodeRepository;
 
-    private double rtcWeight = 1.2;
+    private double rtcWeight = 1.1;
     private double roleWeight = 1.0;
     private double nameWeight = 1.0;
-    private double multiWeight = 0.2;
-    private double otherAttrWeight = 0.1;
+    private double multiWeight = 0.3;
+    private double otherAttrWeight = 0.6;
 
     /**
      * @target 主要是获取ClassNode节点的边的Map
