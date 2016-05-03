@@ -32,6 +32,7 @@
         <security:intercept-url pattern="/signup/verify" access="permitAll"/>
         <security:intercept-url pattern="/signin*" access="isAnonymous()"/>
         <security:intercept-url pattern="/signup*" access="isAnonymous()"/>
+        <security:intercept-url pattern="/signout" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TOBE')"/> <!-- 尚未激活的用户能登出（如 ROLE_USER_TOBE） -->
         <security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/> <!-- 尚未激活的用户不能登录（如 ROLE_USER_TOBE） -->
         <security:form-login login-page="/signin"
                              authentication-failure-url="/signin?login_error=true"
