@@ -56,7 +56,7 @@ public class Application extends Neo4jConfiguration {
 
     @Override
     @Bean
-    @Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)   // singleton scope to make neo4j session work in @Scheduled tasks
+    @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)   // singleton scope to make neo4j session work in @Scheduled tasks
     public Session getSession() throws Exception {
         return super.getSession();
     }
