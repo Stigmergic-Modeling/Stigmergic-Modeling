@@ -24,13 +24,20 @@ public class SystemInfo {
     private Long id;
 
     @Property
-    private Long activatedCcmId;
+    private Long activatedCcmId1;
 
     @Property
-    private String activatedCcmName;
+    private String activatedCcmName1;
+
+    @Property
+    private Long activatedCcmId2;
+
+    @Property
+    private String activatedCcmName2;
 
     public SystemInfo() {
-        activatedCcmId = 0L;
+        activatedCcmId1 = 0L;
+        activatedCcmId2 = 0L;
     }
 
     public Long getId() {
@@ -41,19 +48,35 @@ public class SystemInfo {
         this.id = id;
     }
 
-    public Long getActivatedCcmId() {
-        return activatedCcmId;
+    public Long getActivatedCcmId1() {
+        return activatedCcmId1;
     }
 
-    public void setActivatedCcmId(Long activatedCcmId) {
-        this.activatedCcmId = activatedCcmId;
+    public void setActivatedCcmId1(Long activatedCcmId1) {
+        this.activatedCcmId1 = activatedCcmId1;
     }
 
-    public String getActivatedCcmName() {
-        return activatedCcmName;
+    public String getActivatedCcmName1() {
+        return activatedCcmName1;
     }
 
-    public void setActivatedCcmName(String activatedCcmName) {
-        this.activatedCcmName = activatedCcmName;
+    public void setActivatedCcmName1(String activatedCcmName1) {
+        this.activatedCcmName1 = activatedCcmName1;
+    }
+
+    public Long getActivatedCcmId2() {
+        return activatedCcmId2;
+    }
+
+    public void setActivatedCcmId2(Long activatedCcmId2) {
+        this.activatedCcmId2 = activatedCcmId2;
+    }
+
+    public String getActivatedCcmName2() {
+        return activatedCcmName2;
+    }
+
+    public void setActivatedCcmName2(String activatedCcmName2) {
+        this.activatedCcmName2 = activatedCcmName2;
     }
 }

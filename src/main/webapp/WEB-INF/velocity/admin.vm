@@ -10,12 +10,20 @@
                 <span> CCM Merging Target Setting </span>
             </div>
             <div class="panel-body">
-                <p>Currently Stigmergic-Modeling focuses on merging one CCM in a certain period.</p>
+                <p>Currently Stigmergic-Modeling focuses on merging two CCM in a certain period.</p>
                 <hr />
                 <p>
-                    <span>Current activated CCM: </span>
-                    #if (${activatedCcmName})
-                        <span class="stigmod-blue-text">${activatedCcmName}-${activatedCcmId}</span>
+                    <span>Current activated CCM 1: </span>
+                    #if (${activatedCcmName1})
+                        <span class="stigmod-blue-text">${activatedCcmName1}-${activatedCcmId1}</span>
+                    #else
+                        <span class="stigmod-blue-text">Not set yet!</span>
+                    #end
+                </p>
+                <p>
+                    <span>Current activated CCM 2: </span>
+                    #if (${activatedCcmName2})
+                        <span class="stigmod-blue-text">${activatedCcmName2}-${activatedCcmId2}</span>
                     #else
                         <span class="stigmod-blue-text">Not set yet!</span>
                     #end
@@ -25,9 +33,18 @@
                     <form method="post">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <dl>
-                            <dt>New Activated CCM</dt>
+                            <dt>New Activated CCM 1</dt>
                             <dd>
-                                <select type="text" class="stigmod-input stigmod-input-lg" name="nameAndId">
+                                <select type="text" class="stigmod-input stigmod-input-lg" name="nameAndId1">
+                                    <option disabled selected> -- Select a CCM -- </option>
+                                    #foreach (${ccm} in ${ccms})
+                                        <option>${ccm}</option>
+                                    #end
+                                </select>
+                            </dd>
+                            <dt>New Activated CCM 2</dt>
+                            <dd>
+                                <select type="text" class="stigmod-input stigmod-input-lg" name="nameAndId2">
                                     <option disabled selected> -- Select a CCM -- </option>
                                     #foreach (${ccm} in ${ccms})
                                         <option>${ccm}</option>
@@ -40,6 +57,8 @@
                 </div>
             </div>
         </div>
+
+
     </div>
 
     <div class="col-xs-4">

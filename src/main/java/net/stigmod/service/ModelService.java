@@ -138,15 +138,21 @@ public class ModelService {
 
     // 设置活跃 CCM
     @Transactional
-    public void setAsActivatedCcm(String ccmNameAndId) {
+    public void setAsActivatedCcm(String ccmNameAndId1, String ccmNameAndId2) {
 
-        String[] nameAndIdArray = ccmNameAndId.split("-");
-        String ccmName = nameAndIdArray[0];
-        Long ccmId = Long.parseLong(nameAndIdArray[1], 10);
+        String[] nameAndIdArray1 = ccmNameAndId1.split("-");
+        String ccmName1 = nameAndIdArray1[0];
+        Long ccmId1 = Long.parseLong(nameAndIdArray1[1], 10);
+
+        String[] nameAndIdArray2 = ccmNameAndId2.split("-");
+        String ccmName2 = nameAndIdArray2[0];
+        Long ccmId2 = Long.parseLong(nameAndIdArray2[1], 10);
 
         SystemInfo systemInfo = sysRepo.getSystemInfo();
-        systemInfo.setActivatedCcmName(ccmName);
-        systemInfo.setActivatedCcmId(ccmId);
+        systemInfo.setActivatedCcmName1(ccmName1);
+        systemInfo.setActivatedCcmId1(ccmId1);
+        systemInfo.setActivatedCcmName2(ccmName2);
+        systemInfo.setActivatedCcmId2(ccmId2);
         sysRepo.save(systemInfo);
     }
 

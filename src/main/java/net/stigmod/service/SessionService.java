@@ -75,14 +75,18 @@ public class SessionService {
                 return;
             }
 
-            Long activatedCcmId = systemInfo.getActivatedCcmId();
-            if (activatedCcmId <= 0L) {  // 默认值 0，说明还没有真正被设置为活跃的 CCM
-                return;
-            }
-
             System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
                     + onlineUserNum + ". Model merging is feasible.");
-            migrateService.migrateAlgorithmImpls(activatedCcmId);
+
+            Long activatedCcmId1 = systemInfo.getActivatedCcmId1();
+            Long activatedCcmId2 = systemInfo.getActivatedCcmId2();
+            if (activatedCcmId1 > 0L) {  // 默认值 0，说明还没有真正被设置为活跃的 CCM
+                migrateService.migrateAlgorithmImpls(activatedCcmId1);
+            }
+            if (activatedCcmId2 > 0L) {  // 默认值 0，说明还没有真正被设置为活跃的 CCM
+                migrateService.migrateAlgorithmImpls(activatedCcmId2);
+            }
+
             alreadyRunAfterAllUsersOffline = true;
         }
     }

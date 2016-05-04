@@ -65,11 +65,13 @@ public class MigrateServiceImpl implements MigrateService{
     public synchronized void migrateAlgorithmImpls(Long modelId) {
         try {
             isRunning = true;
+            System.out.println("=============================== Merging Start (CCM: " + modelId.toString() + ") ===============================");
             migrateDataInit(modelId);
             migrateDeal();
             migrateDataStore();
+            System.out.println("=============================== Merging Finish (CCM: " + modelId.toString() + ") ===============================");
         }catch(Exception ex) {
-            System.out.println("migrateAlgorithmImpls exception");
+            System.out.println("!! migrateAlgorithmImpls exception !!");
             ex.printStackTrace();
         }finally {
             isRunning = false;
