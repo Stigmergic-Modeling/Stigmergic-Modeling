@@ -106,6 +106,7 @@ public class MigrateServiceImpl implements MigrateService{
 
     private void migrateDataStore() {
 
+        neo4jTemplate.clear();
         for(int i=0;i<classNodeList.size();i++) {
             classNodeList.get(i).setIsSettled(true);//置为true,表示暂时融合完成
             classNodeRepository.save(classNodeList.get(i),1);
