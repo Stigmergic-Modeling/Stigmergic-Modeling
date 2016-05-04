@@ -38,14 +38,14 @@ public class WordSimilarities {
             int vSize = valueNodeList.size();
             for(int i=0;i<vSize;i++) {
                 String name = valueNodeList.get(i).getName();
-                Character firstLetter = name.charAt(0);
-                Pattern p = Pattern.compile("[\\d\\*_#]");  // 略过以数字、*、_、# 开头的点
-                Matcher m = p.matcher(firstLetter.toString());
-                if(name.length()>0 && !m.matches()) {
-                    if (isChinese(firstLetter)) {
+//                Character firstLetter = name.charAt(0);
+//                Pattern p = Pattern.compile("[\\d\\*_#]");  // 略过以数字、*、_、# 开头的点
+//                Matcher m = p.matcher(firstLetter.toString());
+                if (name.length()>0) {
+                    if (isChinese(name.charAt(0))) {  // 必须所有值节点都不是以中文开头，才认为是英文
                         isChinese = true;
+                        break;
                     }
-                    break;
                 }
             }
 
