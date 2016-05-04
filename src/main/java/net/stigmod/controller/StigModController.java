@@ -50,8 +50,8 @@ public class StigModController {
     @Autowired
     MigrateService migrateService;
 
-    @Autowired
-    SessionService sessionService;
+//    @Autowired
+//    SessionService sessionService;
 
     @Autowired
     ModelService modelService;
