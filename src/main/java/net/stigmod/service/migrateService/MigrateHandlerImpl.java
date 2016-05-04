@@ -615,6 +615,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         if(!isTravseNullNode) {
             ClassNode classNode2 = new ClassNode();
             classNode2.setLoc(classNodeList.size());
+            classNode2.setCcmId(modelId);
             double var2 = simulateHandler.simulateMigrateForClass(icmSet, sourceClassNode, classNode2, nodeSum, systemEntropy, true);
             if(Double.compare(maxEntropyDecrease , var2) > 0 && Math.abs(maxEntropyDecrease - var2) > 0.00001) {
 //              classNodeRepository.save(classNode2);//在数据库中保存该节点
@@ -773,6 +774,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 Set<Long> tTmpSet=new HashSet<>();
                 tTmpSet.addAll(icmSet);
                 ClassToValueEdge tmpCtvEdge=new ClassToValueEdge(edgeName,targetClassNode,valueNode);
+                tmpCtvEdge.setCcmId(modelId);
                 tmpCtvEdge.setIcmSet(tTmpSet);
                 tmpCtvEdge.setIsChanged(true);
                 tmpCtvEdge.setIcmSetPreCopy(new HashSet<Long>());
@@ -818,6 +820,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 tTmpSet.addAll(icmSet);
                 RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,relationNode,targetClassNode);
                 tmpRtcEdge.setIcmSet(tTmpSet);
+                tmpRtcEdge.setCcmId(modelId);
 //                tmpRtcEdge.setLoc(curLocId++);
                 targetClassNode.getRtcEdges().add(tmpRtcEdge);
                 tmpRtcEdge.setIsChanged(true);
@@ -850,6 +853,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         double var1 = 0x7FFFFFFF;
         int varLoc1 = -1;
         ClassNode tClassNode=new ClassNode();
+        tClassNode.setCcmId(modelId);
         tClassNode.setLoc(classNodeList.size());
         classNodeList.add(tClassNode);
         var1=simulateHandler.simulateMigrateForClass(curIdSet, sourceClassNode, tClassNode, nodeSum, systemEntropy, true);
@@ -953,6 +957,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         boolean isUsedNullNode = false;//是否使用了空节点
         if(!isTravseNUllNode && targetClassNode.getIcmSet().size()!=1) {
             ClassNode tClassNode=new ClassNode();
+            tClassNode.setCcmId(modelId);
             tClassNode.setLoc(classNodeList.size());
             double var=simulateHandler.simulateMigrateForClass(curIdSet,targetClassNode,tClassNode,nodeSum,
                     systemEntropy,true);
@@ -1108,6 +1113,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         //1: 判断该用户自己迁移到一个新的节点上,系统熵值是否会下降
         if(!isNullNode) {
             RelationNode relationNode2=new RelationNode();
+            relationNode2.setCcmId(modelId);
             relationNode2.setLoc(relationNodeList.size());
             double var2=simulateHandler.simulateMigrateForRelation(icmSet, sourceRelationNode, relationNode2, nodeSum,
                     systemEntropy, true);
@@ -1258,6 +1264,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
             if(!isContainFlag) {//说明在上面的遍历过程中并没有找到这个边
                 Set<Long> tTmpSet=new HashSet<>(icmSet);
                 RelationToValueEdge tmpRtvEdge=new RelationToValueEdge(port,edgeName,targetRelationNode,valueNode);
+                tmpRtvEdge.setCcmId(modelId);
                 tmpRtvEdge.setIcmSet(tTmpSet);
                 tmpRtvEdge.setIsChanged(true);
 //                tmpRtvEdge.setLoc(curLocId++);
@@ -1302,6 +1309,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
                 Set<Long> tTmpSet=new HashSet<>(icmSet);
                 RelationToClassEdge tmpRtcEdge=new RelationToClassEdge(port,edgeName,targetRelationNode,classNode);
                 tmpRtcEdge.setIcmSet(tTmpSet);
+                tmpRtcEdge.setCcmId(modelId);
 //                tmpRtcEdge.setLoc(curLocId++);
                 tmpRtcEdge.setIsChanged(true);
                 tmpRtcEdge.setIcmSetPreCopy(new HashSet<Long>());
@@ -1332,6 +1340,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         double var1 = 0x7FFFFFFF;
         int varLoc1 = -1;
         RelationNode tRelationNode=new RelationNode();
+        tRelationNode.setCcmId(modelId);
         tRelationNode.setLoc(relationNodeList.size());
         relationNodeList.add(tRelationNode);
         var1=simulateHandler.simulateMigrateForRelation(curIdSet, sourceRelationNode, tRelationNode, nodeSum,
@@ -1437,6 +1446,7 @@ public class MigrateHandlerImpl implements MigrateHandler {
         boolean isUsedNullNode = false;
         if(!isTravseNUllNode && targetRelationNode.getIcmSet().size()!=1) {
             RelationNode tRelationNode=new RelationNode();
+            tRelationNode.setCcmId(modelId);
             tRelationNode.setLoc(relationNodeList.size());
             double var=simulateHandler.simulateMigrateForRelation(icmIdSet, targetRelationNode, tRelationNode, nodeSum,
                     systemEntropy, true);

@@ -196,6 +196,8 @@ public class ClassNode extends AbstractVertex {
         this.ctvEdges = ctvEdges;
     }
 
+
+
     //    public double getOrgEntropyValue() {
 //        return orgEntropyValue;
 //    }
