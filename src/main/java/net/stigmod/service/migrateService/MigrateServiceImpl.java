@@ -20,6 +20,7 @@ import net.stigmod.repository.node.VertexRepository;
 import net.stigmod.util.generatemodel.Apriori;
 import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ import java.util.List;
  */
 @Service
 public class MigrateServiceImpl implements MigrateService{
+
+    @Autowired
+    Neo4jOperations neo4jTemplate;
 
     @Autowired
     private VertexRepository vertexRepository;
@@ -131,6 +135,7 @@ public class MigrateServiceImpl implements MigrateService{
     }
 
     private void initConvertList() {
+        neo4jTemplate.clear();
         List<Long> cIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Class"));
         List<Long> rIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Relationship"));
         List<Long> vIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Value"));

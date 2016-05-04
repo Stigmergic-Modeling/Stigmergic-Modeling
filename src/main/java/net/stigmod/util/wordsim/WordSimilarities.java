@@ -12,6 +12,8 @@ package net.stigmod.util.wordsim;
 import net.stigmod.domain.conceptualmodel.ValueNode;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Kai Fu
@@ -35,12 +37,16 @@ public class WordSimilarities {
             boolean isChinese = false;
             int vSize = valueNodeList.size();
             for(int i=0;i<vSize;i++) {
-                String name = valueNodeList.get(0).getName();
-                if(name.length()>0 && name.charAt(0)!='_' && name.charAt(0)!='#') {
-                    if(isChinese(name.charAt(0))) isChinese = true;
-                    else ;
+                String name = valueNodeList.get(i).getName();
+                Character firstLetter = name.charAt(0);
+                Pattern p = Pattern.compile("[\\d\\*_#]");  // 略过以数字、*、_、# 开头的点
+                Matcher m = p.matcher(firstLetter.toString());
+                if(name.length()>0 && !m.matches()) {
+                    if (isChinese(firstLetter)) {
+                        isChinese = true;
+                    }
                     break;
-                }else continue;
+                }
             }
 
             if(isChinese) {//说明是中文
