@@ -19,6 +19,7 @@
         <security:intercept-url pattern="/executeops" access="permitAll"/> <!-- 测试用 -->
         <security:intercept-url pattern="/preMerge" access="permitAll"/> <!-- 测试用 -->
         <security:intercept-url pattern="/SimulateMerge" access="permitAll"/> <!-- 测试用 -->
+        <security:intercept-url pattern="/unMerge" access="permitAll"/> <!-- 测试用 -->
         <!--<security:intercept-url pattern="/testFusion/*" access="permitAll"/> &lt;!&ndash; 测试用 &ndash;&gt;-->
         <security:intercept-url pattern="/apple-touch-icon-precomposed.png" access="permitAll"/>  <!-- for Safari -->
         <security:intercept-url pattern="/apple-touch-icon.png" access="permitAll"/>  <!-- for Safari -->
