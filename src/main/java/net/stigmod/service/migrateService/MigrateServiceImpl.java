@@ -20,6 +20,7 @@ import net.stigmod.repository.node.VertexRepository;
 import net.stigmod.util.generatemodel.Apriori;
 import net.stigmod.util.wordsim.WordSimilarities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ import java.util.List;
  */
 @Service
 public class MigrateServiceImpl implements MigrateService{
+
+    @Autowired
+    Neo4jOperations neo4jTemplate;
 
     @Autowired
     private VertexRepository vertexRepository;
@@ -61,11 +65,13 @@ public class MigrateServiceImpl implements MigrateService{
     public synchronized void migrateAlgorithmImpls(Long modelId) {
         try {
             isRunning = true;
+            System.out.println("=============================== Merging Start (CCM: " + modelId.toString() + ") ===============================");
             migrateDataInit(modelId);
             migrateDeal();
             migrateDataStore();
+            System.out.println("=============================== Merging Finish (CCM: " + modelId.toString() + ") ===============================");
         }catch(Exception ex) {
-            System.out.println("migrateAlgorithmImpls exception");
+            System.out.println("!! migrateAlgorithmImpls exception !!");
             ex.printStackTrace();
         }finally {
             isRunning = false;
@@ -100,6 +106,7 @@ public class MigrateServiceImpl implements MigrateService{
 
     private void migrateDataStore() {
 
+//        neo4jTemplate.clear();
         for(int i=0;i<classNodeList.size();i++) {
             classNodeList.get(i).setIsSettled(true);//置为true,表示暂时融合完成
             classNodeRepository.save(classNodeList.get(i),1);
@@ -131,6 +138,7 @@ public class MigrateServiceImpl implements MigrateService{
     }
 
     private void initConvertList() {
+        neo4jTemplate.clear();
         List<Long> cIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Class"));
         List<Long> rIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Relationship"));
         List<Long> vIdList = convertDetail(vertexRepository.getAllByCcmIdAndLabel(modelId,"Value"));

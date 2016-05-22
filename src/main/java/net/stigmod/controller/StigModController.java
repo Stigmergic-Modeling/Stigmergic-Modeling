@@ -50,8 +50,8 @@ public class StigModController {
     @Autowired
     MigrateService migrateService;
 
-    @Autowired
-    SessionService sessionService;
+//    @Autowired
+//    SessionService sessionService;
 
     @Autowired
     ModelService modelService;
@@ -145,8 +145,10 @@ public class StigModController {
                 systemInfo = new SystemInfo();
                 sysRepo.save(systemInfo);
             }
-            model.addAttribute("activatedCcmName", systemInfo.getActivatedCcmName());
-            model.addAttribute("activatedCcmId", systemInfo.getActivatedCcmId());
+            model.addAttribute("activatedCcmName1", systemInfo.getActivatedCcmName1());
+            model.addAttribute("activatedCcmId1", systemInfo.getActivatedCcmId1());
+            model.addAttribute("activatedCcmName2", systemInfo.getActivatedCcmName2());
+            model.addAttribute("activatedCcmId2", systemInfo.getActivatedCcmId2());
 
             List<String> ccmNamesAndIds = modelService.getAllCcmNamesAndIds();
             ccmNamesAndIds.add("NonCcm-0");  // 加入一个不存在的 CCM，此选项作为失能使用
@@ -162,7 +164,8 @@ public class StigModController {
 
     // admin page POST
     @RequestMapping(value="/nimda/{password}", method = RequestMethod.POST)
-    public String adminPost(@RequestParam(value = "nameAndId") String nameAndId,
+    public String adminPost(@RequestParam(value = "nameAndId1") String nameAndId1,
+                            @RequestParam(value = "nameAndId2") String nameAndId2,
                             @PathVariable("password") String password, ModelMap model, HttpServletRequest request) {
 
         // CSRF token
@@ -176,12 +179,16 @@ public class StigModController {
         if (password.equals(config.getAdminPassword())) {
 
             try {
-                modelService.setAsActivatedCcm(nameAndId);
-                model.addAttribute("success", "Set " + nameAndId + " as activated CCM successfully.");
+                modelService.setAsActivatedCcm(nameAndId1, nameAndId2);
+                model.addAttribute("success", "Set " + nameAndId1 + " and " + nameAndId2 + " as activated CCMs successfully.");
 
-                String[] nameAndIdArray = nameAndId.split("-");
-                model.addAttribute("activatedCcmName", nameAndIdArray[0]);
-                model.addAttribute("activatedCcmId", nameAndIdArray[1]);
+                String[] nameAndIdArray1 = nameAndId1.split("-");
+                model.addAttribute("activatedCcmName1", nameAndIdArray1[0]);
+                model.addAttribute("activatedCcmId1", nameAndIdArray1[1]);
+
+                String[] nameAndIdArray2 = nameAndId2.split("-");
+                model.addAttribute("activatedCcmName2", nameAndIdArray2[0]);
+                model.addAttribute("activatedCcmId2", nameAndIdArray2[1]);
 
             } catch (Exception e) {
                 e.printStackTrace();

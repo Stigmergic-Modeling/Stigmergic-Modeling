@@ -9,11 +9,6 @@
 
 package net.stigmod.service;
 
-import net.stigmod.domain.conceptualmodel.ClassNode;
-import net.stigmod.domain.conceptualmodel.RelationNode;
-import net.stigmod.domain.conceptualmodel.ValueNode;
-import net.stigmod.domain.system.SystemInfo;
-import net.stigmod.repository.node.SystemInfoRepository;
 import net.stigmod.service.migrateService.MigrateService;
 import net.stigmod.util.config.Config;
 import net.stigmod.util.config.ConfigLoader;
@@ -22,9 +17,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author Shijun Wang
@@ -34,17 +32,14 @@ import java.util.List;
 public class SessionService {
 
     private Config config = ConfigLoader.load();
+    private String host = config.getHost();
+    private String port = config.getPort();
     private Boolean isScheduledTaskOn = config.getIsScheduledTaskOn();
+    private SessionRegistry sessionRegistry;  // 通过 XML 配置注入 bean，用以获取当前在线人数
+    private boolean alreadyRunAfterAllUsersOffline = true;  // true 初值使得刚刚启动的时候不会执行融合
 
     @Autowired
     private MigrateService migrateService;
-
-    @Autowired
-    private SystemInfoRepository systemInfoRepository;
-
-    private SessionRegistry sessionRegistry;  // 通过 XML 配置注入 bean，用以获取当前在线人数
-
-    private boolean alreadyRunAfterAllUsersOffline = true;  // true 初值使得刚刚启动的时候不会执行融合
 
     /**
      * 定时任务，在需要融合时执行融合算法
@@ -68,22 +63,27 @@ public class SessionService {
                 return;
             }
 
-            // “有必要”并“可以”执行融合算法
-            SystemInfo systemInfo = systemInfoRepository.getSystemInfo();
-            if (systemInfo == null) {  // 说明系统刚刚初始化
-                systemInfoRepository.save(new SystemInfo());
-                return;
-            }
+            this.sendRequest();  // 执行融合算法
 
-            Long activatedCcmId = systemInfo.getActivatedCcmId();
-            if (activatedCcmId <= 0L) {  // 默认值 0，说明还没有真正被设置为活跃的 CCM
-                return;
-            }
-
-            System.out.println("[ " + new Date().toString() + " ] Total number of online users: "
-                    + onlineUserNum + ". Model merging is feasible.");
-            migrateService.migrateAlgorithmImpls(activatedCcmId);
             alreadyRunAfterAllUsersOffline = true;
+        }
+
+    }
+
+    private void sendRequest() {
+        String url = "http://" + host + ":" + port + "/scheduled";
+        String charset = "UTF-8";  // Or in Java 7 and later, use the constant: java.nio.charset.StandardCharsets.UTF_8.name()
+
+        try {
+            URLConnection connection = new URL(url).openConnection();
+            connection.setRequestProperty("Accept-Charset", charset);
+            InputStream response = connection.getInputStream();
+            try (Scanner scanner = new Scanner(response)) {
+                String responseBody = scanner.useDelimiter("\\A").next();
+                System.out.println(responseBody);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -103,4 +103,5 @@ public class SessionService {
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
     }
+
 }

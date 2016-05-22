@@ -21,4 +21,12 @@ define(function (require, exports, module) {
         $realSubmit.trigger('click');
     });
 
+    // 失能回车提交表单功能
+    $(document).on('keydown', 'input', function(event){
+        if(13 === event.keyCode) {
+            event.preventDefault();
+            return false;
+        }
+    });
+
 });

@@ -44,7 +44,9 @@ public class WordSimilaritiesForCh {
                 if(i==j) simList.add(1.0);
                 else {
                     String otherFullName = valueNodeList.get(j).getName();
-                    simList.add(WordSimilarityForCh.simWord(fullName,otherFullName));
+                    double wordSim = WordSimilarityForCh.simWord(fullName, otherFullName);
+//                    System.out.println("相似度 [" + fullName + "] & [" + otherFullName + "] : " + wordSim );
+                    simList.add(wordSim);
                 }
             }
             vNodeSimList.add(simList);

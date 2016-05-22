@@ -5,6 +5,7 @@
     <br />
     <div class="stigmod-blue-text stigmod-huge-text"><span class="glyphicon glyphicon-ban-circle"></span></div>
     <h4 class="stigmod-blue-text">ACCESS DENIED</h4>
+    <p class="stigmod-blue-text">Maybe your account has not been activated.</p>
     <br />
     <p>
         <a class="btn btn-default" onclick="history.go(-1);" role="button">Return</a>
