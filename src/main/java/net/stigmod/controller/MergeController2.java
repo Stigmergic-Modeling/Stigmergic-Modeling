@@ -74,11 +74,15 @@ public class MergeController2 {
                 List<RelationNode> relationNodeList=new ArrayList<>();
                 List<ValueNode> valueNodeList=new ArrayList<>();
 
-                this.PersonNum = 15;
+                this.PersonNum = 10;
                 initSimulateTest(classNodeList,relationNodeList,valueNodeList);
+
+                int resNodeSum = computeRemoveRate(classNodeList,relationNodeList,valueNodeList);//记录移除节点数
+                System.out.println("resNodeSum : " + resNodeSum);
 
                 int cSize = classNodeList.size();
                 int rSize = relationNodeList.size();
+
                 for(int i=0;i<cSize;i++) {
                     ClassNode cNode = classNodeList.get(i);
                     Set<ClassToValueEdge> ctvSet = new HashSet<>(cNode.getCtvEdges());
@@ -131,41 +135,88 @@ public class MergeController2 {
         }
     }
 
+    private void initSimulateTest(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
+        cNodeInit(classNodeList);
+        rNodeInit(relationNodeList);
+        vNodeInit(valueNodeList);
+        edgeInit(classNodeList,relationNodeList,valueNodeList);
+
+        int uSum = computeUserSum(classNodeList,relationNodeList,valueNodeList);
+        float deleteRate = 0.05f;//设置模型的变异度
+        int deleteUSum = Math.round(uSum * deleteRate);
+
+        int deleteNum = 5;
+        int personNum = PersonNum;
+        deleteNodesForUser(deleteNum,personNum,classNodeList,relationNodeList,deleteUSum);
+    }
+
     /**
      * 此函数主要用于删除用户的部分节点
      * @param maxDeleteNum  maxDeleteNum是每个用户模型要删除的最大节点数
      * @param userNum  群体模型中的用户数(用户模型数)
      */
-    private void deleteNodesForUser(int maxDeleteNum,int userNum,List<ClassNode> classNodeList,List<RelationNode> relationNodeList) {
+    private void deleteNodesForUser(int maxDeleteNum,int userNum,List<ClassNode> classNodeList,
+                                    List<RelationNode> relationNodeList,int deleteUSum) {
         int uNodeSum = cNodeNum + rNodeNum ;
+        System.out.println("deleteUSum: "+deleteUSum);
+//        int avgDeleteUSum = deleteUSum / uNodeSum;//获得每个节点平均删除节点数
         for(int i=0 ; i<userNum ; i++) {
-            long curUId = (long)i;
-            int deleteNum = randValue(maxDeleteNum+1);//要删除的节点数,要加1才可以保证范围是0~maxDeleteNum
-            //对于第i个用户,其class节点的范围是i*cNum~(i+1)*cNum-1,其relation节点的范围是i*rNum~(i+1)*rNum-1
-            int[] randList = randValueList(uNodeSum);
-            for(int j=0;j<deleteNum;j++) {
-                int curRandValue = randList[j];
-                if(curRandValue<cNodeNum) {
-                    deleteClassNode(curUId, curRandValue, i * cNodeNum, (i + 1) * cNodeNum - 1,classNodeList);
-                    System.out.println("删除第"+i+"个用户第"+(i*cNodeNum+curRandValue)+"个Class节点");
-                }
-                else {
-                    deleteRelationNode(curUId,curRandValue-cNodeNum,i*rNodeNum,(i+1)*rNodeNum-1,relationNodeList);
-                    System.out.println("删除第"+i+"个用户第"+(i*rNodeNum+curRandValue-cNodeNum)+"个Relation节点");
+            if(deleteUSum > 0) {
+                long curUId = (long)i;
+                int deleteNum = randValue(maxDeleteNum+1);//要删除的节点数,要加1才可以保证范围是0~maxDeleteNum
+                //对于第i个用户,其class节点的范围是i*cNum~(i+1)*cNum-1,其relation节点的范围是i*rNum~(i+1)*rNum-1
+                int[] randList = randValueList(uNodeSum);
+                for(int j=0;j<deleteNum;j++) {
+                    if(deleteUSum>0) {
+                        int curRandValue = randList[j];
+                        if(curRandValue<cNodeNum) {
+                            deleteUSum -= deleteClassNode(curUId, curRandValue, i * cNodeNum, (i + 1) * cNodeNum - 1,classNodeList);
+                            System.out.println("删除第"+i+"个用户第"+(i*cNodeNum+curRandValue)+"个Class节点");
+                        }
+                        else {
+                            deleteUSum -= deleteRelationNode(curUId,curRandValue-cNodeNum,i*rNodeNum,(i+1)*rNodeNum-1,relationNodeList);
+                            System.out.println("删除第"+i+"个用户第"+(i*rNodeNum+curRandValue-cNodeNum)+"个Relation节点");
+                        }
+                    }
                 }
             }
         }
+        System.out.println("deleteUSum: "+deleteUSum);
     }
 
-    private void deleteClassNode(long uid,int loc,int start,int end,List<ClassNode> classNodeList) {
+    private int computeRemoveRate(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
+        int cSize = classNodeList.size();
+        int rSize = relationNodeList.size();
+        int vSize = valueNodeList.size();
+        int resSumNum = 0;
+
+        for(int i=0;i<cSize;i++) {
+            ClassNode cNode = classNodeList.get(i);
+            resSumNum += cNode.getIcmSet().size();
+        }
+        for(int i=0;i<rSize;i++) {
+            RelationNode rNode = relationNodeList.get(i);
+            resSumNum += rNode.getIcmSet().size();
+        }
+        for(int i=0;i<vSize;i++) {
+            ValueNode vNode = valueNodeList.get(i);
+            resSumNum += vNode.getIcmSet().size();
+        }
+        return resSumNum;
+    }
+
+    private int deleteClassNode(long uid,int loc,int start,int end,List<ClassNode> classNodeList) {
+        //返回移除的节点数
+        int userSum = 0;
         ClassNode cNode = classNodeList.get(start+loc);
+        if(cNode.getIcmSet().contains(uid)) userSum++;//说明这个要删除
         cNode.removeIcmId(uid);
 //        cNode.getIcmSet().remove(uid);//若要删除classNode,则必须删除所有和该classNode连接的relationNode,以及valueNode
         for(RelationToClassEdge rtcEdge : cNode.getRtcEdges()) {
 //            rtcEdge.getIcmSet().remove(uid);
             rtcEdge.removeIcmId(uid);
             RelationNode rNode = rtcEdge.getStarter();
-            deleteRelationNodeDetail(rNode,uid);//删除对应
+            userSum += deleteRelationNodeDetail(rNode,uid);//删除对应
         }
         for(ClassToValueEdge ctvEdge : cNode.getCtvEdges()) {
 //            ctvEdge.getIcmSet().remove(uid);
@@ -173,19 +224,23 @@ public class MergeController2 {
             ValueNode vNode = ctvEdge.getEnder();
             if(!isOtherEdgeHasUidForValueNode(vNode,uid)) {
 //                vNode.getIcmSet().remove(uid);
+                if(vNode.getIcmSet().contains(uid)) userSum++;
                 vNode.removeIcmId(uid);
             }
             else ;
         }
+        return userSum;
     }
 
-    private void deleteRelationNode(long uid,int loc,int start,int end,List<RelationNode> relationNodeList) {
+    private int deleteRelationNode(long uid,int loc,int start,int end,List<RelationNode> relationNodeList) {
         RelationNode rNode = relationNodeList.get(start+loc);
-        deleteRelationNodeDetail(rNode,uid);
+        return deleteRelationNodeDetail(rNode,uid);
     }
 
-    private void deleteRelationNodeDetail(RelationNode rNode,long uid) {
+    private int deleteRelationNodeDetail(RelationNode rNode,long uid) {
 //        rNode.getIcmSet().remove(uid);
+        int userSum = 0;
+        if(rNode.getIcmSet().contains(uid)) userSum++;
         rNode.removeIcmId(uid);
         for(RelationToClassEdge rtcEdge : rNode.getRtcEdges()) {
 //            rtcEdge.getIcmSet().remove(uid);
@@ -197,10 +252,12 @@ public class MergeController2 {
             ValueNode vNode = rtvEdge.getEnder();
             if(!isOtherEdgeHasUidForValueNode(vNode,uid)) {
 //                vNode.getIcmSet().remove(uid);
+                if(vNode.getIcmSet().contains(uid)) userSum++;
                 vNode.removeIcmId(uid);
             }
             else ;
         }
+        return userSum;
     }
 
     private boolean isOtherEdgeHasUidForValueNode(ValueNode vNode,long uid) {
@@ -238,15 +295,19 @@ public class MergeController2 {
     }
 
 
-    private void initSimulateTest(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,List<ValueNode> valueNodeList) {
-        cNodeInit(classNodeList);
-        rNodeInit(relationNodeList);
-        vNodeInit(valueNodeList);
-        edgeInit(classNodeList,relationNodeList,valueNodeList);
-
-        int deleteNum = 5;
-        int personNum = PersonNum;
-        deleteNodesForUser(deleteNum , personNum,classNodeList,relationNodeList);
+    private int computeUserSum(List<ClassNode> classNodeList,List<RelationNode> relationNodeList,
+                               List<ValueNode> valueNodeList) {
+        int uSum = 0;
+        for(ClassNode cNode : classNodeList) {
+            uSum += cNode.getIcmSet().size();
+        }
+        for(RelationNode rNode : relationNodeList) {
+            uSum += rNode.getIcmSet().size();
+        }
+        for(ValueNode vNode : valueNodeList) {
+            uSum += vNode.getIcmSet().size();
+        }
+        return uSum;
     }
 
     private void cNodeInit(List<ClassNode> classNodeList) {

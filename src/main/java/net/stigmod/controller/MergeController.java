@@ -167,16 +167,16 @@ public class MergeController {
                         valueNode.getCtvEdges().add(ctvEdge);
                     }
 
-
-                    String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
                     ValueNode mainRoleVNode = null;//该class类的role
-
-                    if(valueListMap.containsKey(lowerCValueNodeName)) {
-                        mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
-                        mainRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
-                    }else {
-                        mainRoleVNode = new ValueNode();//这个是针对该类的role
-                        constructVNode(valueNodeList,mainRoleVNode,valueListMap,modelId,curSet,lowerCValueNodeName);
+                    if(strs.length>=4) {
+                        String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
+                        if(valueListMap.containsKey(lowerCValueNodeName)) {
+                            mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
+                            mainRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
+                        }else {
+                            mainRoleVNode = new ValueNode();//这个是针对该类的role
+                            constructVNode(valueNodeList,mainRoleVNode,valueListMap,modelId,curSet,lowerCValueNodeName);
+                        }
                     }
 
                     //下面是Class节点与它对应的attribute节点的关联
