@@ -56,7 +56,7 @@ public class NoMergeDataController {
             migrateService.setIsRunning(true);
             neo4jDatabaseCleaner.cleanDb();
             System.out.println("isRunning!");
-            String path = "/Users/fukai/Desktop/unMerge";
+            String path = "/Users/qrr/Desktop/unMerge";
             List<ClassNode> classNodeList=new ArrayList<>();
             List<RelationNode> relationNodeList=new ArrayList<>();
             List<ValueNode> valueNodeList=new ArrayList<>();
@@ -93,9 +93,9 @@ public class NoMergeDataController {
 //                System.out.println(u+"\t"+uCMap.get(u)+"\t"+uRMap.get(u));
 //            }
 
-            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
-            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
-            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
+//            for(int i=0;i<classNodeList.size();i++) classNodeRepository.save(classNodeList.get(i),1);
+//            for(int i=0;i<relationNodeList.size();i++) relationNodeRepository.save(relationNodeList.get(i),1);
+//            for(int i=0;i<valueNodeList.size();i++) valueNodeRepository.save(valueNodeList.get(i),1);
 
             try {
                 migrateService.migrateAlgorithmImpls(0l);
@@ -169,16 +169,19 @@ public class NoMergeDataController {
                         valueNode.getCtvEdges().add(ctvEdge);
                     }
 
-
-                    String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
                     ValueNode mainRoleVNode = null;//该class类的role
 
-                    if(valueListMap.containsKey(lowerCValueNodeName)) {
-                        mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
-                        mainRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
-                    }else {
-                        mainRoleVNode = new ValueNode();//这个是针对该类的role
-                        constructVNode(valueNodeList,mainRoleVNode,valueListMap,modelId,curSet,lowerCValueNodeName);
+                    if(strs.length>=4) {
+                        String lowerCValueNodeName = cValueNodeName.toLowerCase();//当前名字的小写
+//                        ValueNode mainRoleVNode = null;//该class类的role
+
+                        if (valueListMap.containsKey(lowerCValueNodeName)) {
+                            mainRoleVNode = valueNodeList.get(valueListMap.get(lowerCValueNodeName));
+                            mainRoleVNode.addIcmSetFromSet(new HashSet<Long>(curSet));
+                        } else {
+                            mainRoleVNode = new ValueNode();//这个是针对该类的role
+                            constructVNode(valueNodeList, mainRoleVNode, valueListMap, modelId, curSet, lowerCValueNodeName);
+                        }
                     }
 
                     //下面是Class节点与它对应的attribute节点的关联
@@ -446,9 +449,80 @@ public class NoMergeDataController {
                     valueNodeList.get(valueListMap.get("true")).addIcmSetFromSet(new HashSet<Long>(curSet));
                 }
             }else {
-                curUId=curUId+1;
+                String curName = (char)('a' + curUId - 1) + "";
+                String filePathNodes = "/Users/qrr/Desktop/Data/" + curName + "Nodes";
+                String filePathEdges = "/Users/qrr/Desktop/Data/" + curName + "Edges";
+
+                File fileNodes = new File(filePathNodes);
+                File fileEdges = new File(filePathEdges);
+
+                FileOutputStream outNodes = new FileOutputStream(fileNodes);
+                FileOutputStream outEdges = new FileOutputStream(fileEdges);
+
+
                 classListMap.clear();
                 valueListMap.clear();
+                for(int i=0;i<valueNodeList.size();i++) {
+                    valueNodeList.get(i).setTryId(i);
+                    valueNodeRepository.save(valueNodeList.get(i), 1);
+                    String valueId = "V" + curName +  i;
+                    valueNodeList.get(i).getName();
+                    String outputV = valueId + "\t" + valueNodeList.get(i).getName() + "\n";
+                    System.out.println(outputV);
+                    outNodes.write(outputV.getBytes());
+                }
+                for(int i=0;i<classNodeList.size();i++) {
+                    classNodeList.get(i).setTryId(i);
+                    String classId = "C" + curName + i;
+                    outNodes.write((classId + "\n").getBytes());
+                    classNodeRepository.save(classNodeList.get(i), 1);
+                    Iterator<ClassToValueEdge> it = classNodeList.get(i).getCtvEdges().iterator();
+                    while (it.hasNext()) {
+                        ClassToValueEdge edge = it.next();
+                        int valueid = edge.getEnder().getTryId();
+                        String valueId = "V" + curName + valueid;
+//                        String outputCtV = classId + "\t" + valueId + "\t" + valueNodeList.get(i).getName() + "\n";
+                        String outputCtV = classId + "\t" + valueId + "\n";
+                        System.out.println(outputCtV);
+                        outEdges.write(outputCtV.getBytes());
+                    }
+                }
+                for(int i=0;i<relationNodeList.size();i++) {
+
+                    String relationId = "R" + curName + i;
+                    outNodes.write((relationId + "\n").getBytes());
+
+                    relationNodeRepository.save(relationNodeList.get(i), 1);
+                    Iterator<RelationToClassEdge> itc = relationNodeList.get(i).getRtcEdges().iterator();
+
+                    while (itc.hasNext()) {
+                        RelationToClassEdge edge = itc.next();
+                        int classid = edge.getEnder().getTryId();
+                        String classId = "C" + curName + classid;
+//                        String outputRtC = relationId + "\t" + classId + "\t" + edge.getName() + "\n";
+                        String outputRtC = relationId + "\t" + classId + "\n";
+                        System.out.println(outputRtC);
+                        outEdges.write(outputRtC.getBytes());
+                    }
+
+                    Iterator<RelationToValueEdge> itv = relationNodeList.get(i).getRtvEdges().iterator();
+                    while (itv.hasNext()) {
+                        RelationToValueEdge edge = itv.next();
+                        int valueid = edge.getEnder().getTryId();
+                        String valueId = "V" + curName + valueid;
+//                        String outputRtV = relationId + "\t" + valueId + "\t" + edge.getName() + "\n";
+                        String outputRtV = relationId + "\t" + valueId + "\n";
+                        System.out.println(outputRtV);
+                        outEdges.write(outputRtV.getBytes());
+                    }
+                }
+
+                classNodeList.clear();
+                relationNodeList.clear();
+                valueNodeList.clear();
+                outNodes.close();
+                outEdges.close();
+                curUId = curUId + 1;
             }
             line = br.readLine();
         }

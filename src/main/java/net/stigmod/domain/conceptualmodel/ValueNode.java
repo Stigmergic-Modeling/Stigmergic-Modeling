@@ -38,6 +38,8 @@ public class ValueNode extends AbstractVertex {
     private Long ccmId;
     private int loc;
 
+    private int tryId;
+
     @Relationship(type="PROPERTY",direction = Relationship.INCOMING)
     private Set<ClassToValueEdge> ctvEdges =new HashSet<>();
 
@@ -209,6 +211,9 @@ public class ValueNode extends AbstractVertex {
     public void setLoc(int loc) {
         this.loc = loc;
     }
+
+    public void setTryId(int tryId) { this.tryId = tryId; }
+    public int getTryId() { return this.tryId; }
 
     //    public double getOrgEntropyValue() {
 //        return orgEntropyValue;

@@ -141,7 +141,8 @@ public class WordSimilaritiesForEn {
                 else {
                     double sim1 = wup.max(sourceFullNameWithBlank.toString(),targetFullNameWithBlank.toString(), "n");
                     double sim2 = wup.wup(sourceFullNameWithBlank.toString(),1,targetFullNameWithBlank.toString(),1,"v");
-                    maxSim = Double.max(sim1,sim2);
+//                    maxSim = Double.max(sim1,sim2);
+                    maxSim = Math.max(sim1, sim2);
                 }
             }
             if(Math.abs(maxSim-0.0)<0.00001 && (sourceSize>1 || targetSize>1)) {
@@ -207,13 +208,15 @@ public class WordSimilaritiesForEn {
                                 else {
                                     double sim1 = wup.max(curSourceName,curTargetName,"n");
                                     double sim2 = wup.wup(curSourceName,1,curTargetName,1,"v");
-                                    masterSim = Double.max(sim1,sim2);
+//                                    masterSim = Double.max(sim1,sim2);
+                                    masterSim = Math.max(sim1, sim2);
                                 }
                             }else {
                                 if(!curSourceName.equals(curTargetName)) {
                                     double sim1 = wup.max(curSourceName,curTargetName,"n");
                                     double sim2 = wup.wup(curSourceName,1,curTargetName,1,"v");
-                                    masterSim += Double.max(sim1,sim2);
+//                                    masterSim += Double.max(sim1,sim2);
+                                    masterSim += Math.max(sim1, sim2);
                                     conSize++;
                                     break;
                                 }

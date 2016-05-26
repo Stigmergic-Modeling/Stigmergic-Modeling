@@ -33,6 +33,8 @@ public class ClassNode extends AbstractVertex {
     private int loc;//这个纯粹是为了编程的方便,用空间换时间 对应classNodeListId
     private Long ccmId;
 
+    private int tryId;
+
     //连接关系与类的关系
     @Relationship(type="E_CLASS",direction = Relationship.INCOMING)
     private Set<RelationToClassEdge> rtcEdges = new HashSet<>();
@@ -196,6 +198,8 @@ public class ClassNode extends AbstractVertex {
         this.ctvEdges = ctvEdges;
     }
 
+    public void setTryId(int tryId) { this.tryId = tryId; }
+    public int getTryId() { return this.tryId; }
 
 
     //    public double getOrgEntropyValue() {
