@@ -44,7 +44,7 @@ public class SessionService {
     /**
      * 定时任务，在需要融合时执行融合算法
      */
-    @Scheduled(fixedDelay = 10000L)  // 10s 检查一次是否“有必要”并“可以”执行融合算法
+    @Scheduled(fixedDelay = 30000L)  // 30s 检查一次是否“有必要”并“可以”执行融合算法
     public void checkMerging() {
 
         if (isScheduledTaskOn) {  // 由配置文件控制是否开启定时任务

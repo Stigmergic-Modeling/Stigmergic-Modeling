@@ -89,7 +89,8 @@ define(function (require, exports, module) {
         });
 
         // 每隔 XX s 进行一次自动保存
-        var saveInterval = 60000000;  // 调试时，不自动保存（1000分钟内）
+        var saveInterval = 120000;  // 每 120s 进行一次自动保存
+        //var saveInterval = 60000000;  // 调试时，不自动保存（1000分钟内）
         setInterval(function() {
             var noActiveTime = new Date().getTime() - page.lastActionTime;
             console.log('saveInterval : ' + saveInterval + ' | noActiveTime : ' + noActiveTime);

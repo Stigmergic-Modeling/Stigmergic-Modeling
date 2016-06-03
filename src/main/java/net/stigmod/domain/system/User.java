@@ -68,6 +68,11 @@ public class User {
     }
 
     private String encode(String password) {
+//        return new Md5PasswordEncoder().encodePassword(password, SALT);
+        return password;
+    }
+
+    private String getVerifiedId(String password) {
         return new Md5PasswordEncoder().encodePassword(password, SALT);
     }
 
@@ -116,7 +121,7 @@ public class User {
      * @return Verification ID
      */
     private String generateVerificationId() {
-        return this.encode(this.getMail() + new Date().toString());
+        return this.getVerifiedId(this.getMail() + new Date().toString());
     }
 
     @Override
