@@ -2520,8 +2520,8 @@ define(function (require, exports, module) {
 
         // 处理：modal 显示前信息预处理
         function handleMdlRemove() {
-            var type = new Array();
 
+            var type = new Array();
             type[0] = new Array('CLASS', 'ATTRIBUTE', 'PROPERTY');
             type[1] = new Array('RELATION GROUP', 'RELATION', 'PROPERTY');
 
@@ -2529,6 +2529,43 @@ define(function (require, exports, module) {
 
             $(this).find('.stigmod-modal-remove-type').text(type[stateOfPage.flagCRG][stateOfPage.flagDepth]);
             $(this).find('.stigmod-modal-remove-name').text(name[stateOfPage.flagDepth]);
+
+            // 如果是删除类，那么检查该类是否是作为类型存在的
+            // 若否，则让用户进一步确认删除
+            // 若是，则禁止此删除操作
+            if (0 === stateOfPage.flagCRG && 0 === stateOfPage.flagDepth && isUsedAsType(stateOfPage.clazz)) {  // 若是，则禁止此删除操作
+                $('.stigmod-text-remove-confirm').hide();
+                $('.stigmod-text-remove-forbidden').show();
+
+            } else {  // 若否，则让用户进一步确认删除
+                $('.stigmod-text-remove-forbidden').hide();
+                $('.stigmod-text-remove-confirm').show();
+            }
+
+            // 检查某类是否是作为类型存在的
+            function isUsedAsType(className) {
+                for (var clazz in icm[0]) {
+                    if (icm[0].hasOwnProperty(clazz)) {
+
+                        var attributes = icm[0][clazz][0];
+                        for (var attribute in attributes) {
+                            if (attributes.hasOwnProperty(attribute)) {
+
+                                for (var property in attributes[attribute][0]) {
+                                    if (attributes[attribute][0].hasOwnProperty(property)
+                                        && 'type' === property
+                                        && className === attributes[attribute][0][property]) {
+
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return false
+            }
+
         }
     };
 
