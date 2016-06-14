@@ -1,44 +1,40 @@
 # Stigmergic-modeling
-Stigmergic-modeling helps you to model the conceptual diagram (in the form of class diagram) collaboratively with the help of massive developers all around the world. 
-It helps you to learn the attitudes of the developers toward the construction of the model and helps you to generate a better one. 
-The entire collaborative mode is web-based. All you need is a web browser to start modeling. 
+Stigmergic-modeling helps you to create a conceptual model (in the form of class diagram) collaboratively with the help of massive modelers all around the world.
+It helps you to learn the attitudes of the modelers toward the construction of the model and helps you to generate a better one.
+The entire collaborative mode is web-based. All you need is a web browser to start modeling.
 
-## Components
-```
-foreground
-	-- views			pages 
-	-- public			attached files 
-		-- images
-		-- img
-		-- javascrpts	
-		-- stylesheets 	css
-background
-	-- models			
-	-- routes			http request analyze
-	-- app.js			main file
-	-- package.json			the name and version of your project and dependencies.
-	-- settings.js			db imformation
-	--node_modules(not included)  Dependencies of the project. Modules can be installed by npm
-```
-## How to get it work
+![workspace_page](/readme_pics/workspace_page.png)
+![workspace_page_modelview](/readme_pics/workspace_page_modelview.png)
 
-#### Prerequisites:
+## 所需环境
 ```
-	1. install Node.js (version 0.10.25 recommended) 
-	2. install Mongodb (version 2.4.9 recommend)
+java 1.8.x
+maven 3.3.3
+neo4j 2.3.3
+tomcat 8.0.x
+node.js 0.10.x
 ```
 
-#### Running
+## 配置文件
+将 `config_template.xml` 复制两份，分别重命名为 `config.xml` 和 `config_deploy.xml`，并修改其中内容分别用于开发和部署
+
+## 构建前端 javascript 文件
+在 `{base}/src/main/javascript/` 目录下，执行
 ```
-Step.1 At the first time run the project, use npm to install node_modules file (“npm install”).
-Step.2 run mongodb (“mongod –dbpath db_dir”)
-Step.3 run nodejs (“node app.js”)
-Step.4 go homepage (open the webbrowser and type in “localhost:3000” in Address bar).
+npm install
+npm install -g grunt-cli
+./build.sh dev（开发，不做 uglify） 或 ./build.sh dep（部署，做 uglify）
 ```
 
-## Resource to the Newcomers
+## 构建整体项目
+在 `{base}/` 目录下执行
 ```
-http://www.nodejs.org/
-http://www.npmjs.org/
-http://www.mongodb.org/
+maven clean  （为了安装 extra-lib）
+maven install
+```
+
+## 部署过程：
+在 `{base}/` 目录下执行
+```
+./deploy.sh
 ```
