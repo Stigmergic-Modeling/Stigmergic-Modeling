@@ -501,15 +501,22 @@
                 <h4 class="modal-title text-center" id="myModalLabel">Remove '<span class="stigmod-modal-remove-type"></span>'</h4>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row stigmod-text-remove-confirm">
                     <div class="col-xs-12 text-center">
                         <span>You are removing '<span class="stigmod-modal-remove-type"></span>' : '<span class="stigmod-modal-remove-name"></span>' permenantly.</span>
+                    </div>
+                </div>
+                <div class="row stigmod-text-remove-forbidden">
+                    <div class="col-xs-12 text-center">
+                        <span>You are NOT ALLOWED to remove '<span class="stigmod-modal-remove-type"></span>' : '<span class="stigmod-modal-remove-name"></span>',</span>
+                        <br/>
+                        <span>in that it has been used as a type in some attributes.</span>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="text-center">
-                    <button type="button" class="btn btn-danger stigmod-btn-modal-bottom" id="stigmod-btn-remove">Remove</button>
+                    <button type="button" class="btn btn-danger stigmod-btn-modal-bottom stigmod-text-remove-confirm" id="stigmod-btn-remove">Remove</button>
                     <button type="button" class="btn btn-default stigmod-btn-modal-bottom" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
