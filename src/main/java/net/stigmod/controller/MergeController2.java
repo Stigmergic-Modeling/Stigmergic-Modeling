@@ -74,7 +74,7 @@ public class MergeController2 {
                 List<RelationNode> relationNodeList=new ArrayList<>();
                 List<ValueNode> valueNodeList=new ArrayList<>();
 
-                this.PersonNum = 10;
+                this.PersonNum = 20;
                 initSimulateTest(classNodeList,relationNodeList,valueNodeList);
 
                 int resNodeSum = computeRemoveRate(classNodeList,relationNodeList,valueNodeList);//记录移除节点数
@@ -142,12 +142,12 @@ public class MergeController2 {
         edgeInit(classNodeList,relationNodeList,valueNodeList);
 
         int uSum = computeUserSum(classNodeList,relationNodeList,valueNodeList);
-        float deleteRate = 0.05f;//设置模型的变异度
+        float deleteRate = 0.2f;//设置模型的变异度
         int deleteUSum = Math.round(uSum * deleteRate);
 
-        int deleteNum = 5;
-        int personNum = PersonNum;
-        deleteNodesForUser(deleteNum,personNum,classNodeList,relationNodeList,deleteUSum);
+//        int deleteNum = 5;
+//        int personNum = PersonNum;
+//        deleteNodesForUser(deleteNum,personNum,classNodeList,relationNodeList,deleteUSum);
     }
 
     /**
